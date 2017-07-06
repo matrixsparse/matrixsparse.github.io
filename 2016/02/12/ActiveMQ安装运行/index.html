@@ -12,7 +12,7 @@
     
     <title>
         
-            redis的RDB持久化配置以及数据恢复实验 | 
+            ActiveMQ安装运行 | 
         
         胡思乱想
     </title>
@@ -38,7 +38,7 @@
     <meta name="theme-color" content="#4F4B43">
     <meta name="author" content="SparseMatrix">
     <meta name="description" itemprop="description" content="">
-    <meta name="keywords" content="null,大数据,Redis">
+    <meta name="keywords" content="null,大数据">
 
     <!-- Site Verification -->
     
@@ -67,18 +67,18 @@
     <!-- The Open Graph protocol -->
     <meta property="og:url" content="http://yoursite.com">
     <meta property="og:type" content="blog">
-    <meta property="og:title" content="redis的RDB持久化配置以及数据恢复实验 | 胡思乱想">
+    <meta property="og:title" content="ActiveMQ安装运行 | 胡思乱想">
     <meta property="og:image" content="/img/favicon.png" />
     <meta property="og:description" content="">
-    <meta property="og:article:tag" content="大数据"> <meta property="og:article:tag" content="Redis"> 
+    <meta property="og:article:tag" content="大数据"> 
 
     
-        <meta property="article:published_time" content="6月 10, 2017" />
-        <meta property="article:modified_time" content="7月 05, 2017" />
+        <meta property="article:published_time" content="2月 12, 2016" />
+        <meta property="article:modified_time" content="7月 06, 2017" />
     
 
     <!-- The Twitter Card protocol -->
-    <meta name="twitter:title" content="redis的RDB持久化配置以及数据恢复实验 | 胡思乱想">
+    <meta name="twitter:title" content="ActiveMQ安装运行 | 胡思乱想">
     <meta name="twitter:description" content="">
     <meta name="twitter:image" content="/img/favicon.png">
     <meta name="twitter:card" content="summary_large_image" />
@@ -86,7 +86,7 @@
 
     <!-- Add canonical link for SEO -->
     
-        <link rel="canonical" href="http://yoursite.com/2017/06/10/Redis的RDB持久化配置以及数据恢复实验 (1)/index.html" />
+        <link rel="canonical" href="http://yoursite.com/2016/02/12/ActiveMQ安装运行/index.html" />
     
 
     <!-- Structured-data for SEO -->
@@ -112,10 +112,10 @@
         },
         "description": "每天，遇到更好的你"
     },
-    "headline": "redis的RDB持久化配置以及数据恢复实验",
-    "url": "http://yoursite.com/2017/06/10/Redis的RDB持久化配置以及数据恢复实验 (1)/index.html",
-    "datePublished": "6月 10, 2017",
-    "dateModified": "7月 05, 2017",
+    "headline": "ActiveMQ安装运行",
+    "url": "http://yoursite.com/2016/02/12/ActiveMQ安装运行/index.html",
+    "datePublished": "2月 12, 2016",
+    "dateModified": "7月 06, 2017",
     "description": "",
     "mainEntityOfPage": {
         "@type": "WebPage",
@@ -347,7 +347,7 @@
 
     
     <ul class="post-toc-wrap mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-js-ripple-effect" for="post-toc-trigger-btn" style="max-height:80vh; overflow-y:scroll;">
-        <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#1-如何配置RDB持久化机制"><span class="post-toc-number">1.</span> <span class="post-toc-text">1.如何配置RDB持久化机制</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#2-RDB持久化机制的工作流程"><span class="post-toc-number">2.</span> <span class="post-toc-text">2.RDB持久化机制的工作流程</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#3-基于RDB持久化机制的数据恢复实验"><span class="post-toc-number">3.</span> <span class="post-toc-text">3.基于RDB持久化机制的数据恢复实验</span></a></li></ol>
+        <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#ActiveMQ"><span class="post-toc-number">1.</span> <span class="post-toc-text">ActiveMQ</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#背景-amp-JMS概述"><span class="post-toc-number">1.1.</span> <span class="post-toc-text">背景&JMS概述</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#1-2-JMS术语"><span class="post-toc-number">1.2.</span> <span class="post-toc-text">1.2.JMS术语</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#JMS术语概念"><span class="post-toc-number">1.3.</span> <span class="post-toc-text">JMS术语概念</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#消息格式定义"><span class="post-toc-number">1.4.</span> <span class="post-toc-text">消息格式定义</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#ActiveMQ-1"><span class="post-toc-number">2.</span> <span class="post-toc-text">ActiveMQ</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#ActiveMQ简介"><span class="post-toc-number">2.1.</span> <span class="post-toc-text">ActiveMQ简介</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#下载ActiveMQ"><span class="post-toc-number">3.</span> <span class="post-toc-text">下载ActiveMQ</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#运行ActiveMQ"><span class="post-toc-number">4.</span> <span class="post-toc-text">运行ActiveMQ</span></a></li></ol>
         <!--
         <li class="mdl-menu__item">
             Some Action
@@ -385,7 +385,7 @@
         
     
             <p class="article-headline-p">
-                redis的RDB持久化配置以及数据恢复实验
+                ActiveMQ安装运行
             </p>
         </div>
 
@@ -404,7 +404,7 @@
     <!-- Author Name & Date -->
     <div>
         <strong>SparseMatrix</strong>
-        <span>6月 10, 2017</span>
+        <span>2月 12, 2016</span>
     </div>
 
     <div class="section-spacer"></div>
@@ -428,7 +428,7 @@
     </button>
     <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="article-functions-viewtags-button">
         <li class="mdl-menu__item">
-        <a class="post_tag-link" href="/tags/Redis/">Redis</a></li><li class="mdl-menu__item"><a class="post_tag-link" href="/tags/大数据/">大数据</a>
+        <a class="post_tag-link" href="/tags/大数据/">大数据</a>
     </ul>
     
 
@@ -444,7 +444,7 @@
 
     <!-- Share Weibo -->
     
-        <a class="post_share-link" href="http://service.weibo.com/share/share.php?appkey=&title=redis的RDB持久化配置以及数据恢复实验&url=http://yoursite.com/2017/06/10/Redis的RDB持久化配置以及数据恢复实验 (1)/index.html&pic=&searchPic=false&style=simple" target="_blank">
+        <a class="post_share-link" href="http://service.weibo.com/share/share.php?appkey=&title=ActiveMQ安装运行&url=http://yoursite.com/2016/02/12/ActiveMQ安装运行/index.html&pic=&searchPic=false&style=simple" target="_blank">
             <li class="mdl-menu__item">
                 分享到微博
             </li>
@@ -453,7 +453,7 @@
 
     <!-- Share Twitter -->
     
-        <a class="post_share-link" href="https://twitter.com/intent/tweet?text=redis的RDB持久化配置以及数据恢复实验&url=http://yoursite.com/2017/06/10/Redis的RDB持久化配置以及数据恢复实验 (1)/index.html&via=SparseMatrix" target="_blank">
+        <a class="post_share-link" href="https://twitter.com/intent/tweet?text=ActiveMQ安装运行&url=http://yoursite.com/2016/02/12/ActiveMQ安装运行/index.html&via=SparseMatrix" target="_blank">
             <li class="mdl-menu__item">
                 分享到 Twitter
             </li>
@@ -462,7 +462,7 @@
 
     <!-- Share Facebook -->
     
-        <a class="post_share-link" href="https://www.facebook.com/sharer/sharer.php?u=http://yoursite.com/2017/06/10/Redis的RDB持久化配置以及数据恢复实验 (1)/index.html" target="_blank">
+        <a class="post_share-link" href="https://www.facebook.com/sharer/sharer.php?u=http://yoursite.com/2016/02/12/ActiveMQ安装运行/index.html" target="_blank">
             <li class="mdl-menu__item">
                 分享到 Facebook
             </li>
@@ -471,7 +471,7 @@
 
     <!-- Share Google+ -->
     
-        <a class="post_share-link" href="https://plus.google.com/share?url=http://yoursite.com/2017/06/10/Redis的RDB持久化配置以及数据恢复实验 (1)/index.html" target="_blank">
+        <a class="post_share-link" href="https://plus.google.com/share?url=http://yoursite.com/2016/02/12/ActiveMQ安装运行/index.html" target="_blank">
             <li class="mdl-menu__item">
                 分享到 Google+
             </li>
@@ -483,7 +483,7 @@
 
     <!-- Share QQ -->
     
-        <a class="post_share-link" href="http://connect.qq.com/widget/shareqq/index.html?site=胡思乱想&title=redis的RDB持久化配置以及数据恢复实验&summary=null&pics=http://yoursite.com/img/favicon.png&url=http://yoursite.com/2017/06/10/Redis的RDB持久化配置以及数据恢复实验 (1)/index.html" target="_blank">
+        <a class="post_share-link" href="http://connect.qq.com/widget/shareqq/index.html?site=胡思乱想&title=ActiveMQ安装运行&summary=null&pics=http://yoursite.com/img/favicon.png&url=http://yoursite.com/2016/02/12/ActiveMQ安装运行/index.html" target="_blank">
             <li class="mdl-menu__item">
                 分享到 QQ
             </li>
@@ -501,18 +501,19 @@
                 <!-- Post Content -->
                 <div id="post-content" class="mdl-color-text--grey-700 mdl-card__supporting-text fade out">
     
-        <h2 id="1-如何配置RDB持久化机制"><a href="#1-如何配置RDB持久化机制" class="headerlink" title="1.如何配置RDB持久化机制"></a>1.如何配置RDB持久化机制</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">redis.conf文件，也就是/etc/redis/6379.conf，去配置持久化</div><div class="line"></div><div class="line">save 60 1000</div><div class="line"></div><div class="line">每隔60s，如果有超过1000个key发生了变更</div><div class="line">那么就生成一个新的dump.rdb文件，就是当前redis内存中完整的数据快照</div><div class="line">这个操作也被称之为snapshotting，快照</div><div class="line"></div><div class="line">也可以手动调用save或者bgsave命令，同步或异步执行rdb快照生成</div><div class="line"></div><div class="line">save可以设置多个，就是多个snapshotting检查点</div><div class="line"></div><div class="line">每到一个检查点，就会去check一下，是否有指定的key数量发生了变更</div><div class="line"></div><div class="line">如果有，就生成一个新的dump.rdb文件</div></pre></td></tr></table></figure>
-<p><img src="http://i2.muimg.com/581590/f0839d4b93dd8a57.png" alt="Markdown"></p>
-<h2 id="2-RDB持久化机制的工作流程"><a href="#2-RDB持久化机制的工作流程" class="headerlink" title="2.RDB持久化机制的工作流程"></a>2.RDB持久化机制的工作流程</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">(1).redis根据配置自己尝试去生成rdb快照文件</div><div class="line">(2).fork一个子进程出来</div><div class="line">(3).子进程尝试将数据dump到临时的rdb快照文件中</div><div class="line">(4).完成rdb快照文件的生成之后，就替换之前的旧的快照文件</div><div class="line"></div><div class="line">dump.rdb，每次生成一个新的快照，都会覆盖之前的老快照</div></pre></td></tr></table></figure>
-<h2 id="3-基于RDB持久化机制的数据恢复实验"><a href="#3-基于RDB持久化机制的数据恢复实验" class="headerlink" title="3.基于RDB持久化机制的数据恢复实验"></a>3.基于RDB持久化机制的数据恢复实验</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">(1).在redis中保存几条数据，立即停掉redis进程，然后重启redis，看看刚才插入的数据还在不在</div><div class="line"></div><div class="line">数据还在，为什么？</div><div class="line"></div><div class="line">因为通过redis-cli SHUTDOWN这种方式去停掉redis，其实是一种安全退出的模式，redis在退出的时候会将内存中的数据立即生成一份完整的rdb快照</div><div class="line"></div><div class="line">/var/redis/6379/dump.rdb</div></pre></td></tr></table></figure>
-<p><img src="http://i2.muimg.com/581590/c68f07ff0401db70.png" alt="Markdown"></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">(2).在redis中再保存几条新的数据，用<span class="built_in">kill</span> -9粗暴杀死redis进程，模拟redis故障异常退出，导致内存数据丢失的场景</div><div class="line"></div><div class="line">这次就发现，redis进程异常被杀掉，数据没有进dump文件，几条最新的数据就丢失了</div></pre></td></tr></table></figure>
-<p><img src="http://i4.piimg.com/581590/2bcce6fec7c91e98.png" alt="Markdown"></p>
-<p><img src="http://i4.piimg.com/581590/638204f276d44f32.png" alt="Markdown"></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">(3).手动设置一个save检查点，save 5 1</div></pre></td></tr></table></figure>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">(4).写入几条数据，等待5秒钟，会发现自动进行了一次dump rdb快照，在dump.rdb中发现了数据</div></pre></td></tr></table></figure>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">[root@matrix-cache01 ~]<span class="comment"># cd /etc/init.d</span></div><div class="line">[root@matrix-cache01 init.d]<span class="comment"># ./redis_6379 start</span></div><div class="line">[root@matrix-cache01 init.d]<span class="comment"># ps -ef | grep redis</span></div><div class="line">[root@matrix-cache01 ~]<span class="comment"># redis-cli</span></div><div class="line">127.0.0.1:6379&gt; <span class="built_in">set</span> k1 v1</div><div class="line">OK</div><div class="line">127.0.0.1:6379&gt; <span class="built_in">set</span> k2 v2</div><div class="line">OK</div><div class="line">127.0.0.1:6379&gt; <span class="built_in">set</span> k3 v3</div><div class="line">OK</div><div class="line">127.0.0.1:6379&gt; get k1</div><div class="line"><span class="string">"v1"</span></div><div class="line">127.0.0.1:6379&gt; get k2</div><div class="line"><span class="string">"v2"</span></div><div class="line">127.0.0.1:6379&gt; get k3</div><div class="line"><span class="string">"v3"</span></div><div class="line">[root@matrix-cache01 ~]<span class="comment"># redis-cli SHUTDOWN</span></div></pre></td></tr></table></figure>
-<p><img src="http://i2.muimg.com/581590/bdcc9ca627b07312.png" alt="Markdown"></p>
+        <h2 id="ActiveMQ"><a href="#ActiveMQ" class="headerlink" title="ActiveMQ"></a>ActiveMQ</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Java消息服务中间件：Apache的ActiveMQ、阿里巴巴的RocketMQ</div></pre></td></tr></table></figure>
+<h3 id="背景-amp-JMS概述"><a href="#背景-amp-JMS概述" class="headerlink" title="背景&amp;JMS概述"></a>背景&amp;JMS概述</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">当前，CORBA、DCOM、RMI等RPC中间件技术已广泛应用于各个领域。</div><div class="line">但是面对规模和复杂度都越来越高的分布式系统，这些技术页显示出其局限性：</div><div class="line"></div><div class="line">(1)、同步通信：客户发出调用后，必须等待服务对象完成处理并返回结果后才能继续执行</div><div class="line">(2)、客户和服务对象的声明周期紧密耦合：客户进程和服务对象进程都必须正常运行；</div><div class="line">如果由于服务对象崩溃或者网络故障导致客户的请求不可达，客户会接收到异常</div><div class="line">(3)、点对点通信：客户的一次调用只发送给单独的目标对象</div><div class="line"></div><div class="line">面向消息的中间件较好的解决了以上问题。</div><div class="line">发送者将消息发送给消息服务器，消息服务器将消息存放在若干队列中，在适合的时候再将消息转发给接收者。</div><div class="line">这种模式下，发送和接收是异步的，发送者无需等待；</div><div class="line">二者的生命周期未必相同；发送消息的时候接收者不一定运行，接受消息的时候发送者也不一定运行；</div><div class="line">一对多通信；对于一个消息可以多个接收者</div><div class="line"></div><div class="line">Java消息服务(JMS)定义了Java中访问消息中间件的接口。JMS只是接口，并没有给予实现，实现JMS接口的消息中间件称为JMS Provider，</div><div class="line">已有的MOM系统包括Apache的ActiveMQ、以及阿里巴巴的RocketMQ、IBM的MQSeries、Microsoft的MSMQ和BEA的MessageQ、RabitMQ等等，</div><div class="line">他们基本都遵守JMS规范</div></pre></td></tr></table></figure>
+<h3 id="1-2-JMS术语"><a href="#1-2-JMS术语" class="headerlink" title="1.2.JMS术语"></a>1.2.JMS术语</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">JMS实现JMS接口的消息中间件：</div><div class="line">Provider：生产者</div><div class="line">Consumer：消费者</div><div class="line">PTP：Point tp Point，即点对点的消息模型</div><div class="line">Pub/Sub：Publish/Subscribe，即发布/订阅的消息模型</div><div class="line">Queue：队列目标</div><div class="line">Topic：主题目标</div><div class="line">ConnectionFactory：连接工厂，JMS用它创建连接</div><div class="line">Connection：JMS客户端到JMS Provider的连接</div><div class="line">Destination：消息的目的地</div><div class="line">Session：会话，一个发送或接收消息的线程</div></pre></td></tr></table></figure>
+<h3 id="JMS术语概念"><a href="#JMS术语概念" class="headerlink" title="JMS术语概念"></a>JMS术语概念</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line">ConnectionFactory接口(连接工厂)</div><div class="line">用户用来创建到JMS提供者的连接的被管对象。JMS客户通过可移植的接口访问连接，</div><div class="line">这样当下层的实现改变时，代码不需要进行修改。</div><div class="line">管理员在JNDI名字空间中配置连接工厂，这样，JMS客户才能查找到它们。</div><div class="line">根据消息类型的不同，用户将使用队列连接工厂，或者主题连接工厂</div><div class="line"></div><div class="line">Connection接口(连接)</div><div class="line">连接代表了应用程序和消息服务器之间的通信链路。在获得了连接工厂后，就可以创建一个与JMS提供者的连接。</div><div class="line">根据不同的连接类型，连接允许用户创建会话，以发送和接收队列和主题到目标。</div><div class="line"></div><div class="line">Destination接口(目标)</div><div class="line">目标是一个包装了消息目标标识符的被管对象，消息目标是指消息发布和接收的地点，或者队列，或者主题。</div><div class="line">JMS管理员创建这些对象，然后用户通过JNDI发现他们。和连接工厂一样，管理员可以创建两种类型的目标，</div><div class="line">点对点模型的队列，以及发布者/订阅者模型的主题</div><div class="line"></div><div class="line">Message接口(消息)</div><div class="line"></div><div class="line">是在消费者和生产者之间传送的对象，也就是说从从一个应用程序传送到另一个应用程序。一个消息有三个主要部分：</div><div class="line">消息头(必须)：包含用于识别和消息寻找路由的操作设置</div><div class="line">一组消息属性(可选):包含额外的属性，支持其他提供者和用户的兼容。可以创建定制的字段和过滤器(消息选择器)</div><div class="line">一个消息体(可选)：允许用户创建五种类型的消息(文本消息，映射消息，字节消息，流消息和对象消息)</div><div class="line">消息接口非常灵活，并提供了许多方式来定制消息的内容</div><div class="line"></div><div class="line">Session接口(会话)</div><div class="line"></div><div class="line">表示一个单线程的上下文，用于发送和接收消息。由于会话是单线程的，所以消息是连续的，就是说消息是按照发送的顺序一个一个接收的。</div><div class="line">会话的好处是它支持事务。如果用户选择了事务支持，绘画上下文将保存一组消息，知道事务被提交才发送这些消息。</div><div class="line">在提交事务之前，用户可以使用回滚操作取消这些消息。一个会话允许用户创建消息生产者来发送消息，创建消息消费者来接收消息</div></pre></td></tr></table></figure>
+<h3 id="消息格式定义"><a href="#消息格式定义" class="headerlink" title="消息格式定义"></a>消息格式定义</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">JMS定义了五种不同的消息正文格式，以及调用的消息类型，允许你发送并接收一些不同形式的数据，提供现有消息格式的一些级别的兼容性</div><div class="line">StreamMessage：Java原始值的数据流</div><div class="line">MapMessage：一套名称-值对</div><div class="line">TextMessage：一个字符串对象</div><div class="line">ObjectMessage：一个序列化的Java对象</div><div class="line">ByteMessage：一个未解释字节的数据流</div></pre></td></tr></table></figure>
+<h2 id="ActiveMQ-1"><a href="#ActiveMQ-1" class="headerlink" title="ActiveMQ"></a>ActiveMQ</h2><h3 id="ActiveMQ简介"><a href="#ActiveMQ简介" class="headerlink" title="ActiveMQ简介"></a>ActiveMQ简介</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">ActiveMQ是Apache出品，最流行的，能力强劲的开源消息总线。</div><div class="line">ActiveMQ是一个完全支持JMS1.1和J2EE 1.4规范的JMS Provider实现，尽管JMS规范出台已经是很久的事情了，</div><div class="line">但是JMS在当今的J2EE应用中间任然扮演着特殊的地位，可以说ActiveMQ在业界应用最广泛，</div><div class="line">当然如果想要有更强大的性能和海量数据处理能力，ActiveMQ还需要不断的升级版本，80%以上的业务我们使用ActiveMQ以及足够满足需求，</div><div class="line">当然后续如天猫、淘宝网这种大型的电商网站，尤其是双11这种特殊事件，ActiveMQ需要进行很复杂的优化源码以及架构设计才能完成，</div><div class="line">我们之后会学习一个更强大的分布式消息中间件，RocketMQ，可以说ActiveMQ是核心，是基础，所以我们必须要掌握好</div></pre></td></tr></table></figure>
+<h2 id="下载ActiveMQ"><a href="#下载ActiveMQ" class="headerlink" title="下载ActiveMQ"></a>下载ActiveMQ</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">去官方网站下载：http://activemq.apache.org/</div></pre></td></tr></table></figure>
+<h2 id="运行ActiveMQ"><a href="#运行ActiveMQ" class="headerlink" title="运行ActiveMQ"></a>运行ActiveMQ</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">解压缩apache-activemq-5.9.0-bin.zip，</div><div class="line">修改apache-activemq-5.9.0/conf目录中配置文件activeMQ.xml，将0.0.0.0修改为localhost</div></pre></td></tr></table></figure>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">transportConnectors</span>&gt;</span></div><div class="line">       <span class="tag">&lt;<span class="name">transportConnector</span> <span class="attr">name</span>=<span class="string">"openwire"</span> <span class="attr">uri</span>=<span class="string">"tcp://localhost:61616"</span>/&gt;</span></div><div class="line">       <span class="tag">&lt;<span class="name">transportConnector</span> <span class="attr">name</span>=<span class="string">"ssl"</span>     <span class="attr">uri</span>=<span class="string">"ssl://localhost:61617"</span>/&gt;</span></div><div class="line">       <span class="tag">&lt;<span class="name">transportConnector</span> <span class="attr">name</span>=<span class="string">"stomp"</span>   <span class="attr">uri</span>=<span class="string">"stomp://localhost:61613"</span>/&gt;</span></div><div class="line">       <span class="tag">&lt;<span class="name">transportConnector</span> <span class="attr">uri</span>=<span class="string">"http://localhost:8081"</span>/&gt;</span></div><div class="line">       <span class="tag">&lt;<span class="name">transportConnector</span> <span class="attr">uri</span>=<span class="string">"udp://localhost:61618"</span>/&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">transportConnectors</span>&gt;</span></div></pre></td></tr></table></figure>
+<p><img src="http://i1.piimg.com/567571/30cfc13465f51746.png" alt=""></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">然后双击apache-activemq-5.5.1\bin\activemq.bat运行ActiveMQ程序。</div><div class="line">启动ActiveMQ以后，登陆：http://localhost:8161/admin/，账号密码均为admin，创建一个Queue，命名为FirstQueue。</div></pre></td></tr></table></figure>
+<p><img src="http://i1.piimg.com/567571/ff4f05feeeeca001.png" alt=""></p>
+<p><img src="http://i1.piimg.com/567571/341fd74d8bb7d3ab.png" alt=""></p>
 
     
 
@@ -532,7 +533,7 @@
             <nav class="material-nav mdl-color-text--grey-50 mdl-cell mdl-cell--12-col">
     <!-- Prev Nav -->
     
-        <a href="/2017/06/11/Redis的AOF持久化各种操作和相关实验/" id="post_nav-newer" class="prev-content">
+        <a href="/2016/02/12/Hbase基本shell运用/" id="post_nav-newer" class="prev-content">
             <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon mdl-color--white mdl-color-text--grey-900" role="presentation">
                 <i class="material-icons">arrow_back</i>
             </button>
@@ -546,7 +547,7 @@
 
     <!-- Next Nav -->
     
-        <a href="/2017/06/10/Redis的RDB持久化配置以及数据恢复实验/" id="post_nav-older" class="next-content">
+        <a href="/2016/02/12/Azkaban工作流调度器/" id="post_nav-older" class="next-content">
             旧篇
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon mdl-color--white mdl-color-text--grey-900" role="presentation">
@@ -629,7 +630,7 @@
             </a>
             <ul class="dropdown-menu">
             <li>
-                <a class="sidebar_archives-link" href="/archives/2017/07/">七月 2017<span class="sidebar_archives-count">6</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/06/">六月 2017<span class="sidebar_archives-count">39</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/05/">五月 2017<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/04/">四月 2017<span class="sidebar_archives-count">8</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/03/">三月 2017<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/02/">二月 2017<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/01/">一月 2017<span class="sidebar_archives-count">5</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/11/">十一月 2016<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/10/">十月 2016<span class="sidebar_archives-count">6</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/07/">七月 2016<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/05/">五月 2016<span class="sidebar_archives-count">5</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/03/">三月 2016<span class="sidebar_archives-count">24</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/02/">二月 2016<span class="sidebar_archives-count">52</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/01/">一月 2016<span class="sidebar_archives-count">28</span></a>
+                <a class="sidebar_archives-link" href="/archives/2017/07/">七月 2017<span class="sidebar_archives-count">7</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/06/">六月 2017<span class="sidebar_archives-count">38</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/05/">五月 2017<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/04/">四月 2017<span class="sidebar_archives-count">8</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/03/">三月 2017<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/02/">二月 2017<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/01/">一月 2017<span class="sidebar_archives-count">5</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/11/">十一月 2016<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/10/">十月 2016<span class="sidebar_archives-count">6</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/07/">七月 2016<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/05/">五月 2016<span class="sidebar_archives-count">5</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/03/">三月 2016<span class="sidebar_archives-count">24</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/02/">二月 2016<span class="sidebar_archives-count">52</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/01/">一月 2016<span class="sidebar_archives-count">28</span></a>
             </ul>
         </li>
         
@@ -647,7 +648,7 @@
             </a>
             <ul class="dropdown-menu">
                 <li>
-                <a class="sidebar_archives-link" href="/categories/JVM/">JVM<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/Python爬虫/">Python爬虫<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/categories/Python爬虫/Scrapy/">Scrapy<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/categories/UI/">UI<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/UI/ps/">ps<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/UI/ps/美术基础/">美术基础<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/python/">python<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/python/flask/">flask<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/云计算/">云计算<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/categories/互联网运营/">互联网运营<span class="sidebar_archives-count">6</span></a></li><li><a class="sidebar_archives-link" href="/categories/健身/">健身<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/动效设计/">动效设计<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/图片素材/">图片素材<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大前端/">大前端<span class="sidebar_archives-count">5</span></a></li><li><a class="sidebar_archives-link" href="/categories/大前端/React/">React<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/大前端/atom/">atom<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大前端/webpack/">webpack<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/">大数据<span class="sidebar_archives-count">148</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/HDFS/">HDFS<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Hbase/">Hbase<span class="sidebar_archives-count">6</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Hive/">Hive<span class="sidebar_archives-count">16</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Linux/">Linux<span class="sidebar_archives-count">11</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Linux/python/">python<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/MR/">MR<span class="sidebar_archives-count">13</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Mahout/">Mahout<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Nginx/">Nginx<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Python数据分析/">Python数据分析<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Python爬虫/">Python爬虫<span class="sidebar_archives-count">5</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Redis/">Redis<span class="sidebar_archives-count">23</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Spark/">Spark<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Sqoop/">Sqoop<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Storm/">Storm<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Tornado/">Tornado<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Zookeeper/">Zookeeper<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/lvs/">lvs<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/mysql/">mysql<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/python数据分析/">python数据分析<span class="sidebar_archives-count">5</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/tengine/">tengine<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/机器学习/">机器学习<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/神经网络/">神经网络<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/微信第三方开发/">微信第三方开发<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/微信订阅号开发/">微信订阅号开发<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/新媒体/">新媒体<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/机器学习/">机器学习<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/机器学习/深度学习/">深度学习<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/机器学习/深度学习/神经网络/">神经网络<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/机器学习/深度学习/神经网络/TensorFlow/">TensorFlow<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/模块化/">模块化<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/理财/">理财<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/算法/">算法<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/读书/">读书<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/金融/">金融<span class="sidebar_archives-count">3</span></a>
+                <a class="sidebar_archives-link" href="/categories/JVM/">JVM<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/Python爬虫/">Python爬虫<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/Python爬虫/Scrapy/">Scrapy<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/UI/">UI<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/UI/ps/">ps<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/UI/ps/美术基础/">美术基础<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/python/">python<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/python/flask/">flask<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/云计算/">云计算<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/categories/互联网运营/">互联网运营<span class="sidebar_archives-count">6</span></a></li><li><a class="sidebar_archives-link" href="/categories/健身/">健身<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/动效设计/">动效设计<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/图片素材/">图片素材<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大前端/">大前端<span class="sidebar_archives-count">5</span></a></li><li><a class="sidebar_archives-link" href="/categories/大前端/React/">React<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/大前端/atom/">atom<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大前端/webpack/">webpack<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/">大数据<span class="sidebar_archives-count">147</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/HDFS/">HDFS<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Hbase/">Hbase<span class="sidebar_archives-count">6</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Hive/">Hive<span class="sidebar_archives-count">16</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Linux/">Linux<span class="sidebar_archives-count">11</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Linux/python/">python<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/MR/">MR<span class="sidebar_archives-count">13</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Mahout/">Mahout<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Nginx/">Nginx<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Python数据分析/">Python数据分析<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Python爬虫/">Python爬虫<span class="sidebar_archives-count">5</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Redis/">Redis<span class="sidebar_archives-count">22</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Spark/">Spark<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Sqoop/">Sqoop<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Storm/">Storm<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Tornado/">Tornado<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Zookeeper/">Zookeeper<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/lvs/">lvs<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/mysql/">mysql<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/python数据分析/">python数据分析<span class="sidebar_archives-count">5</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/tengine/">tengine<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/机器学习/">机器学习<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/神经网络/">神经网络<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/微信第三方开发/">微信第三方开发<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/微信订阅号开发/">微信订阅号开发<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/新媒体/">新媒体<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/机器学习/">机器学习<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/机器学习/深度学习/">深度学习<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/机器学习/深度学习/神经网络/">神经网络<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/机器学习/深度学习/神经网络/TensorFlow/">TensorFlow<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/模块化/">模块化<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/理财/">理财<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/算法/">算法<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/读书/">读书<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/金融/">金融<span class="sidebar_archives-count">3</span></a>
             </ul>
         </li>
         
