@@ -12,7 +12,7 @@
     
     <title>
         
-            分类: 机器学习 | 
+            TensorFlow | 
         
         胡思乱想
     </title>
@@ -38,7 +38,7 @@
     <meta name="theme-color" content="#4F4B43">
     <meta name="author" content="SparseMatrix">
     <meta name="description" itemprop="description" content="">
-    <meta name="keywords" content="null">
+    <meta name="keywords" content="null,TensorFlow">
 
     <!-- Site Verification -->
     
@@ -67,15 +67,18 @@
     <!-- The Open Graph protocol -->
     <meta property="og:url" content="http://yoursite.com">
     <meta property="og:type" content="blog">
-    <meta property="og:title" content="分类: 机器学习 | 胡思乱想">
+    <meta property="og:title" content="TensorFlow | 胡思乱想">
     <meta property="og:image" content="/img/favicon.png" />
     <meta property="og:description" content="">
-    
+    <meta property="og:article:tag" content="TensorFlow"> 
 
+    
+        <meta property="article:published_time" content="7月 07, 2017" />
+        <meta property="article:modified_time" content="7月 08, 2017" />
     
 
     <!-- The Twitter Card protocol -->
-    <meta name="twitter:title" content="分类: 机器学习 | 胡思乱想">
+    <meta name="twitter:title" content="TensorFlow | 胡思乱想">
     <meta name="twitter:description" content="">
     <meta name="twitter:image" content="/img/favicon.png">
     <meta name="twitter:card" content="summary_large_image" />
@@ -83,13 +86,43 @@
 
     <!-- Add canonical link for SEO -->
     
-        <link rel="canonical" href="http://yoursite.com/categories/机器学习/index.html" />
+        <link rel="canonical" href="http://yoursite.com/2017/07/07/TensorFlow/index.html" />
     
 
     <!-- Structured-data for SEO -->
     
         
 
+
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "publisher": {
+        "@type": "Organization",
+        "name": "胡思乱想",
+        "logo": "/img/favicon.png"
+    },
+    "author": {
+        "@type": "Person",
+        "name": "SparseMatrix",
+        "image": {
+            "@type": "ImageObject",
+            "url": "/img/favicon.png"
+        },
+        "description": "每天，遇到更好的你"
+    },
+    "headline": "TensorFlow",
+    "url": "http://yoursite.com/2017/07/07/TensorFlow/index.html",
+    "datePublished": "7月 07, 2017",
+    "dateModified": "7月 08, 2017",
+    "description": "",
+    "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "http://yoursite.com"
+    }
+}
+</script>
 
 
     
@@ -287,96 +320,283 @@
                         </button>
                     
 
-                    <!-- Index Module -->
-<div class="material-index mdl-grid">
-    
-    <div class="locate-thumbnail-symbol"></div>
+                    <!-- Post TOC -->
 
-    <!-- Pin on top -->
+    
+    <!-- Back Button -->
+    <!--
+    <div class="material-back" id="backhome-div" tabindex="0">
+        <a class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon"
+           href="#" onclick="window.history.back();return false;"
+           target="_self"
+           role="button"
+           data-upgraded=",MaterialButton,MaterialRipple">
+            <i class="material-icons" role="presentation">arrow_back</i>
+            <span class="mdl-button__ripple-container">
+                <span class="mdl-ripple"></span>
+            </span>
+        </a>
+    </div>
+    -->
+
+    <!-- Left aligned menu below button -->
+    <button id="post-toc-trigger-btn"
+        class="mdl-button mdl-js-button mdl-button--icon">
+        <i class="material-icons">format_list_numbered</i>
+    </button>
+
+    
+    <ul class="post-toc-wrap mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-js-ripple-effect" for="post-toc-trigger-btn" style="max-height:80vh; overflow-y:scroll;">
+        <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#关于TensorFlow"><span class="post-toc-number">1.</span> <span class="post-toc-text">关于TensorFlow</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#什么是数据流图（Data-Flow-Graph）"><span class="post-toc-number">2.</span> <span class="post-toc-text">什么是数据流图（Data Flow Graph）?</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#TensorFlow安装"><span class="post-toc-number">3.</span> <span class="post-toc-text">TensorFlow安装</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#运行一个TensorFlow演示模型"><span class="post-toc-number">4.</span> <span class="post-toc-text">运行一个TensorFlow演示模型</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#TensorFlow基础知识"><span class="post-toc-number">5.</span> <span class="post-toc-text">TensorFlow基础知识</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#概述"><span class="post-toc-number">5.1.</span> <span class="post-toc-text">概述</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#计算图"><span class="post-toc-number">5.2.</span> <span class="post-toc-text">计算图</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#构建计算图"><span class="post-toc-number">5.3.</span> <span class="post-toc-text">构建计算图</span></a></li></ol></li></ol>
+        <!--
+        <li class="mdl-menu__item">
+            Some Action
+        </li>
+        -->
+    </ul>
     
 
-    <!-- Normal Post -->
-    
-        
-            
-                <!-- Paradox Thumbnail -->
-                <div class="post_entry-module mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col fade out">
-    <!-- Post Thumbnail -->
+
+
+
+
+<!-- Layouts -->
+
+    <!-- Post Module -->
+    <div class="material-post_container">
+
+        <div class="material-post mdl-grid">
+            <div class="mdl-card mdl-shadow--4dp mdl-cell mdl-cell--12-col">
+
+                <!-- Post Header(Thumbnail & Title) -->
+                
+    <!-- Paradox Post Header -->
     
         
             <!-- Random Thumbnail -->
             <div class="post_thumbnail-random mdl-card__media mdl-color-text--grey-50">
-        
-    
+            <script type="text/ls-javascript" id="post-thumbnail-script">
+    var randomNum = Math.floor(Math.random() * 25 + 1);
 
-        <!-- Post Title -->
-        <p class="article-headline-p"><a href="/2017/01/20/TensorFlow/">TensorFlow</a></p>
-    </div>
-
-    <!-- Post Excerpt -->
-    <div class="mdl-color-text--grey-600 mdl-card__supporting-text post_entry-content">
-        
-            
-        
-        &nbsp;&nbsp;&nbsp;
-        <span>
-            <a href="/2017/01/20/TensorFlow/" target="_self">阅读全文</a>
-        </span>
-    </div>
-    <!-- Post_entry Info-->
-    <div id="post_entry-info">
-        <div id="post_entry-left-info" class="mdl-card__supporting-text meta mdl-color-text--grey-600 ">
-            <!-- Author Avatar -->
-            <div id="author-avatar">
-                <img src="/img/avatar.png" width="44px" height="44px" alt="SparseMatrix's avatar">
-            </div>
-            <div>
-                <strong>SparseMatrix</strong>
-                <span>1月 20, 2017</span>
-            </div>
-        </div>
-        <div id="post_entry-right-info">
-            <!-- Category -->
-            <span class="post_entry-category">
-                <a class="post_category-link" href="/categories/机器学习/">机器学习</a>, <a class="post_category-link" href="/categories/机器学习/深度学习/">深度学习</a>, <a class="post_category-link" href="/categories/机器学习/深度学习/神经网络/">神经网络</a>, <a class="post_category-link" href="/categories/机器学习/深度学习/神经网络/TensorFlow/">TensorFlow</a>
-            </span>
-
-            
-
-            
-
-            <!-- Post Views -->
-            <span class="post_entry-views">
-            </span>
-        </div>
-    </div>
-</div>
-
-            
-            
-        
-    
-
-    
-
-    
-        <script type="text/ls-javascript" id="thumbnail-script">
-    var randomNum;
-
-    var locatePost = $('.locate-thumbnail-symbol').next();
-    for(var i = 0; i < 5; i++) {
-        randomNum = Math.floor(Math.random() * 25 + 1);
-
-        locatePost.children('.post_thumbnail-random').attr('id', 'random_thumbnail-'+randomNum);
-        locatePost.children('.post_thumbnail-random').attr('data-original', '/img/random/material-' + randomNum + '.png');
+    $('.post_thumbnail-random').attr('data-original', '/img/random/material-' + randomNum + '.png');
     $('.post_thumbnail-random').addClass('lazy');
-
-        locatePost = locatePost.next();
-    }
 </script>
 
+        
+    
+            <p class="article-headline-p">
+                TensorFlow
+            </p>
+        </div>
+
+
+
+
+
+                
+                    <!-- Paradox Post Info -->
+                    <div class="mdl-color-text--grey-700 mdl-card__supporting-text meta">
+
+    <!-- Author Avatar -->
+    <div id="author-avatar">
+        <img src="/img/avatar.png" width="44px" height="44px" alt="Author Avatar"/>
+    </div>
+    <!-- Author Name & Date -->
+    <div>
+        <strong>SparseMatrix</strong>
+        <span>7月 07, 2017</span>
+    </div>
+
+    <div class="section-spacer"></div>
+
+    <!-- Favorite -->
+    <!--
+        <button id="article-functions-like-button" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon btn-like">
+            <i class="material-icons" role="presentation">favorite</i>
+            <span class="visuallyhidden">favorites</span>
+        </button>
+    -->
+
+    <!-- Qrcode -->
+    
+
+    <!-- Tags (bookmark) -->
+    
+    <button id="article-functions-viewtags-button" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
+        <i class="material-icons" role="presentation">bookmark</i>
+        <span class="visuallyhidden">bookmark</span>
+    </button>
+    <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="article-functions-viewtags-button">
+        <li class="mdl-menu__item">
+        <a class="post_tag-link" href="/tags/TensorFlow/">TensorFlow</a>
+    </ul>
+    
+
+    <!-- Share -->
+    <button id="article-fuctions-share-button" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
+    <i class="material-icons" role="presentation">share</i>
+    <span class="visuallyhidden">share</span>
+</button>
+<ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="article-fuctions-share-button">
+    
+
+    
+
+    <!-- Share Weibo -->
+    
+        <a class="post_share-link" href="http://service.weibo.com/share/share.php?appkey=&title=TensorFlow&url=http://yoursite.com/2017/07/07/TensorFlow/index.html&pic=&searchPic=false&style=simple" target="_blank">
+            <li class="mdl-menu__item">
+                分享到微博
+            </li>
+        </a>
+    
+
+    <!-- Share Twitter -->
+    
+        <a class="post_share-link" href="https://twitter.com/intent/tweet?text=TensorFlow&url=http://yoursite.com/2017/07/07/TensorFlow/index.html&via=SparseMatrix" target="_blank">
+            <li class="mdl-menu__item">
+                分享到 Twitter
+            </li>
+        </a>
+    
+
+    <!-- Share Facebook -->
+    
+        <a class="post_share-link" href="https://www.facebook.com/sharer/sharer.php?u=http://yoursite.com/2017/07/07/TensorFlow/index.html" target="_blank">
+            <li class="mdl-menu__item">
+                分享到 Facebook
+            </li>
+        </a>
+    
+
+    <!-- Share Google+ -->
+    
+        <a class="post_share-link" href="https://plus.google.com/share?url=http://yoursite.com/2017/07/07/TensorFlow/index.html" target="_blank">
+            <li class="mdl-menu__item">
+                分享到 Google+
+            </li>
+        </a>
+    
+
+    <!-- Share LinkedIn -->
+    
+
+    <!-- Share QQ -->
+    
+        <a class="post_share-link" href="http://connect.qq.com/widget/shareqq/index.html?site=胡思乱想&title=TensorFlow&summary=null&pics=http://yoursite.com/img/favicon.png&url=http://yoursite.com/2017/07/07/TensorFlow/index.html" target="_blank">
+            <li class="mdl-menu__item">
+                分享到 QQ
+            </li>
+        </a>
+    
+
+    <!-- Share Telegram -->
+    
+</ul>
+
+</div>
+
+                
+
+                <!-- Post Content -->
+                <div id="post-content" class="mdl-color-text--grey-700 mdl-card__supporting-text fade out">
+    
+        <h2 id="关于TensorFlow"><a href="#关于TensorFlow" class="headerlink" title="关于TensorFlow"></a>关于TensorFlow</h2><ul>
+<li><p>TensorFlow™ 是一个采用<code>数据流图（data flow graphs）</code>，用于<code>数值计算</code>的开源软件库</p>
+</li>
+<li><p>节点（Nodes）在图中表示<code>数学操作</code>，图中的线（edges）则表示在<code>节点间相互联系</code>的<code>多维数据数组</code>，即张量（tensor）</p>
+</li>
+<li><p>它灵活的架构让你可以在多种平台上展开计算，例如台式计算机中的一个或多个CPU（或GPU），服务器，移动设备等等</p>
+</li>
+<li><p>TensorFlow 最初由Google大脑小组（隶属于Google机器智能研究机构）的研究员和工程师们开发出来，用于<code>机器学习</code>和<code>深度神经网络</code>方面的研究，但这个系统的通用性使其也可广泛用于其他计算领域</p>
+</li>
+</ul>
+<h2 id="什么是数据流图（Data-Flow-Graph）"><a href="#什么是数据流图（Data-Flow-Graph）" class="headerlink" title="什么是数据流图（Data Flow Graph）?"></a>什么是数据流图（Data Flow Graph）?</h2><ul>
+<li><p><code>数据流图</code>用<code>&quot;结点&quot;（nodes）</code>和<code>&quot;线&quot;(edges)</code>的<code>有向图</code>来描述<code>数学计算</code></p>
+</li>
+<li><p><code>&quot;节点&quot;</code> 一般用来表示<code>施加的数学操作</code>，但也可以表示数据输入（feed in）的起点/输出（push out）的终点，或者是读取/写入持久变量（persistent variable）的终点</p>
+</li>
+<li><p><code>&quot;线&quot;</code>表示<code>&quot;节点&quot;之间的输入/输出关系</code>,这些数据”线”可以输运”size可动态调整”的<code>多维数据数组</code>，即<code>&quot;张量&quot;（tensor）</code></p>
+</li>
+<li><p>张量从图中流过的直观图像是这个工具取名为”Tensorflow”的原因。一旦输入端的所有张量准备好，节点将被分配到各种计算设备完成<code>异步并行</code>地执行运算</p>
+</li>
+</ul>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fhbc3fprc5j20em0du3zs.jpg" alt=""></p>
+<h2 id="TensorFlow安装"><a href="#TensorFlow安装" class="headerlink" title="TensorFlow安装"></a>TensorFlow安装</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">[root@sparsematrix ~]<span class="comment"># pip install -i https://pypi.douban.com/simple/ tensorflow</span></div></pre></td></tr></table></figure>
+<h2 id="运行一个TensorFlow演示模型"><a href="#运行一个TensorFlow演示模型" class="headerlink" title="运行一个TensorFlow演示模型"></a>运行一个TensorFlow演示模型</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># -*- coding: utf-8 -*-</span></div><div class="line"></div><div class="line">import tensorflow as tf</div><div class="line"></div><div class="line">hello = tf.constant(<span class="string">'hello,TensorFlow!'</span>)</div><div class="line">sess = tf.Session()</div><div class="line"><span class="built_in">print</span> sess.run(hello)</div><div class="line"></div><div class="line">a = tf.constant(10)</div><div class="line">b = tf.constant(32)</div><div class="line"><span class="built_in">print</span> sess.run(a + b)</div></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fhbd1v9ufqj20u405l74l.jpg" alt=""></p>
+<h2 id="TensorFlow基础知识"><a href="#TensorFlow基础知识" class="headerlink" title="TensorFlow基础知识"></a>TensorFlow基础知识</h2><ul>
+<li>使用图(graphs)来表示计算</li>
+<li>在会话(Session)中执行图</li>
+<li>使用张量(tensors)来代表数据</li>
+<li>通过变量(Variables)维护状态</li>
+<li>使用供给(feeds)和取回(fetches)将数据传入或传出任何操作</li>
+</ul>
+<h3 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h3><ul>
+<li>TensorFlow是一个以图(graphs)来表示计算的编程系统，图中的节点被称之为operation</li>
+<li>一个op获得零或多个张量(tensors)执行计算，产生零或多个张量</li>
+<li>张量是一个按类型划分的多维数组</li>
+<li><p>你可以将将小组图像集表示为一个思维浮点数数组，这四个维度分别是[batch,height,width,channels]</p>
+</li>
+<li><p>TensorFlow的图是一种对计算的抽象描述</p>
+</li>
+<li>在计算开始前，图必须在会话(Session)中被启动，会话将图的op分发到如CPU或GPU之类的设备上，同时提供执行op的方法，这些方法执行后，将产生张量(tensor)返回</li>
+</ul>
+<h3 id="计算图"><a href="#计算图" class="headerlink" title="计算图"></a>计算图</h3><ul>
+<li>TensorFlow可按两个阶段组织起来：<code>构建阶段</code>和<code>执行阶段</code>，前者用于组织计算图，后者利用session中执行计算图中的op操作</li>
+<li>例如：在构建阶段创建一个图来表示和训练神经网络，然后在执行阶段反复执行一组op来实现图中的训练</li>
+<li>TensorFlow支持C、C++、Python编程语言</li>
+</ul>
+<h3 id="构建计算图"><a href="#构建计算图" class="headerlink" title="构建计算图"></a>构建计算图</h3><ul>
+<li>基于op建立图的时候一般不需要任何的输入源(source op),例如输入常量(Constance)，再将他们传递给其他op执行运算<br><em>
+</em></li>
+</ul>
+
+    
+
     
 </div>
+
+
+                
+
+                <!-- Post Comments -->
+                
+                    
+                
+            </div>
+
+            <!-- Post Prev & Next Nav -->
+            <nav class="material-nav mdl-color-text--grey-50 mdl-cell mdl-cell--12-col">
+    <!-- Prev Nav -->
+    
+        <a href="/2017/07/07/《互联网运营实战手册》摘要/" id="post_nav-newer" class="prev-content">
+            <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon mdl-color--white mdl-color-text--grey-900" role="presentation">
+                <i class="material-icons">arrow_back</i>
+            </button>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            新篇
+        </a>
+    
+
+    <!-- Section Spacer -->
+    <div class="section-spacer"></div>
+
+    <!-- Next Nav -->
+    
+        <a href="/2017/07/07/《必然》摘要/" id="post_nav-older" class="next-content">
+            旧篇
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon mdl-color--white mdl-color-text--grey-900" role="presentation">
+                <i class="material-icons">arrow_forward</i>
+            </button>
+        </a>
+    
+</nav>
+
+        </div>
+    </div>
+
 
 
                     
@@ -447,7 +667,7 @@
             </a>
             <ul class="dropdown-menu">
             <li>
-                <a class="sidebar_archives-link" href="/archives/2017/07/">七月 2017<span class="sidebar_archives-count">9</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/06/">六月 2017<span class="sidebar_archives-count">38</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/05/">五月 2017<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/04/">四月 2017<span class="sidebar_archives-count">8</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/03/">三月 2017<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/02/">二月 2017<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/01/">一月 2017<span class="sidebar_archives-count">5</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/11/">十一月 2016<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/10/">十月 2016<span class="sidebar_archives-count">6</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/07/">七月 2016<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/05/">五月 2016<span class="sidebar_archives-count">5</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/03/">三月 2016<span class="sidebar_archives-count">24</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/02/">二月 2016<span class="sidebar_archives-count">52</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/01/">一月 2016<span class="sidebar_archives-count">28</span></a>
+                <a class="sidebar_archives-link" href="/archives/2017/07/">七月 2017<span class="sidebar_archives-count">12</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/06/">六月 2017<span class="sidebar_archives-count">38</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/05/">五月 2017<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/04/">四月 2017<span class="sidebar_archives-count">8</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/03/">三月 2017<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/02/">二月 2017<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/01/">一月 2017<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/11/">十一月 2016<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/10/">十月 2016<span class="sidebar_archives-count">6</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/07/">七月 2016<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/05/">五月 2016<span class="sidebar_archives-count">5</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/03/">三月 2016<span class="sidebar_archives-count">24</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/02/">二月 2016<span class="sidebar_archives-count">52</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/01/">一月 2016<span class="sidebar_archives-count">28</span></a>
             </ul>
         </li>
         
@@ -465,7 +685,7 @@
             </a>
             <ul class="dropdown-menu">
                 <li>
-                <a class="sidebar_archives-link" href="/categories/JVM/">JVM<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/Python爬虫/">Python爬虫<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/Python爬虫/Scrapy/">Scrapy<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/UI/">UI<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/UI/ps/">ps<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/UI/ps/美术基础/">美术基础<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/python/">python<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/python/flask/">flask<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/云计算/">云计算<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/categories/互联网运营/">互联网运营<span class="sidebar_archives-count">6</span></a></li><li><a class="sidebar_archives-link" href="/categories/健身/">健身<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/动效设计/">动效设计<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/图片素材/">图片素材<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大前端/">大前端<span class="sidebar_archives-count">5</span></a></li><li><a class="sidebar_archives-link" href="/categories/大前端/React/">React<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/大前端/atom/">atom<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大前端/webpack/">webpack<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/">大数据<span class="sidebar_archives-count">147</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/HDFS/">HDFS<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Hbase/">Hbase<span class="sidebar_archives-count">6</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Hive/">Hive<span class="sidebar_archives-count">16</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Linux/">Linux<span class="sidebar_archives-count">11</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Linux/python/">python<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/MR/">MR<span class="sidebar_archives-count">13</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Mahout/">Mahout<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Nginx/">Nginx<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Python数据分析/">Python数据分析<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Python爬虫/">Python爬虫<span class="sidebar_archives-count">5</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Redis/">Redis<span class="sidebar_archives-count">22</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Spark/">Spark<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Sqoop/">Sqoop<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Storm/">Storm<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Tornado/">Tornado<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Zookeeper/">Zookeeper<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/lvs/">lvs<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/mysql/">mysql<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/python数据分析/">python数据分析<span class="sidebar_archives-count">5</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/tengine/">tengine<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/机器学习/">机器学习<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/神经网络/">神经网络<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/微信第三方开发/">微信第三方开发<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/微信订阅号开发/">微信订阅号开发<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/新媒体/">新媒体<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/机器学习/">机器学习<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/机器学习/深度学习/">深度学习<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/机器学习/深度学习/神经网络/">神经网络<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/机器学习/深度学习/神经网络/TensorFlow/">TensorFlow<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/模块化/">模块化<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/理财/">理财<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/算法/">算法<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/读书笔记/">读书笔记<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/categories/金融/">金融<span class="sidebar_archives-count">3</span></a>
+                <a class="sidebar_archives-link" href="/categories/ChatScript/">ChatScript<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/JVM/">JVM<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/Java/">Java<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/Python爬虫/">Python爬虫<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/Python爬虫/Scrapy/">Scrapy<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/TensorFlow/">TensorFlow<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/UI/">UI<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/UI/ps/">ps<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/UI/ps/美术基础/">美术基础<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/python/">python<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/python/flask/">flask<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/云计算/">云计算<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/categories/互联网运营/">互联网运营<span class="sidebar_archives-count">6</span></a></li><li><a class="sidebar_archives-link" href="/categories/健身/">健身<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/动效设计/">动效设计<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/图片素材/">图片素材<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大前端/">大前端<span class="sidebar_archives-count">5</span></a></li><li><a class="sidebar_archives-link" href="/categories/大前端/React/">React<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/大前端/atom/">atom<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大前端/webpack/">webpack<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/">大数据<span class="sidebar_archives-count">147</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/HDFS/">HDFS<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Hbase/">Hbase<span class="sidebar_archives-count">6</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Hive/">Hive<span class="sidebar_archives-count">16</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Linux/">Linux<span class="sidebar_archives-count">11</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Linux/python/">python<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/MR/">MR<span class="sidebar_archives-count">13</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Mahout/">Mahout<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Nginx/">Nginx<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Python数据分析/">Python数据分析<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Python爬虫/">Python爬虫<span class="sidebar_archives-count">5</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Redis/">Redis<span class="sidebar_archives-count">22</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Spark/">Spark<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Sqoop/">Sqoop<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Storm/">Storm<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Tornado/">Tornado<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Zookeeper/">Zookeeper<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/lvs/">lvs<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/mysql/">mysql<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/python数据分析/">python数据分析<span class="sidebar_archives-count">5</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/tengine/">tengine<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/机器学习/">机器学习<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/神经网络/">神经网络<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/微信第三方开发/">微信第三方开发<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/微信订阅号开发/">微信订阅号开发<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/新媒体/">新媒体<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/模块化/">模块化<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/理财/">理财<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/算法/">算法<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/读书笔记/">读书笔记<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/金融/">金融<span class="sidebar_archives-count">3</span></a>
             </ul>
         </li>
         
@@ -479,7 +699,7 @@
         <li>
             <a href="/archives">
                 文章总数
-                <span class="sidebar-badge">186</span>
+                <span class="sidebar-badge">189</span>
             </a>
         </li>
         

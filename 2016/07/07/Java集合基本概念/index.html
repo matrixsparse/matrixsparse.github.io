@@ -12,7 +12,7 @@
     
     <title>
         
-            分类: TensorFlow | 
+            Java集合基本概念 | 
         
         胡思乱想
     </title>
@@ -38,7 +38,7 @@
     <meta name="theme-color" content="#4F4B43">
     <meta name="author" content="SparseMatrix">
     <meta name="description" itemprop="description" content="">
-    <meta name="keywords" content="null">
+    <meta name="keywords" content="null,Java">
 
     <!-- Site Verification -->
     
@@ -67,15 +67,18 @@
     <!-- The Open Graph protocol -->
     <meta property="og:url" content="http://yoursite.com">
     <meta property="og:type" content="blog">
-    <meta property="og:title" content="分类: TensorFlow | 胡思乱想">
+    <meta property="og:title" content="Java集合基本概念 | 胡思乱想">
     <meta property="og:image" content="/img/favicon.png" />
     <meta property="og:description" content="">
-    
+    <meta property="og:article:tag" content="Java"> 
 
+    
+        <meta property="article:published_time" content="7月 07, 2016" />
+        <meta property="article:modified_time" content="7月 08, 2017" />
     
 
     <!-- The Twitter Card protocol -->
-    <meta name="twitter:title" content="分类: TensorFlow | 胡思乱想">
+    <meta name="twitter:title" content="Java集合基本概念 | 胡思乱想">
     <meta name="twitter:description" content="">
     <meta name="twitter:image" content="/img/favicon.png">
     <meta name="twitter:card" content="summary_large_image" />
@@ -83,13 +86,43 @@
 
     <!-- Add canonical link for SEO -->
     
-        <link rel="canonical" href="http://yoursite.com/categories/机器学习/深度学习/神经网络/TensorFlow/index.html" />
+        <link rel="canonical" href="http://yoursite.com/2016/07/07/Java集合基本概念/index.html" />
     
 
     <!-- Structured-data for SEO -->
     
         
 
+
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "publisher": {
+        "@type": "Organization",
+        "name": "胡思乱想",
+        "logo": "/img/favicon.png"
+    },
+    "author": {
+        "@type": "Person",
+        "name": "SparseMatrix",
+        "image": {
+            "@type": "ImageObject",
+            "url": "/img/favicon.png"
+        },
+        "description": "每天，遇到更好的你"
+    },
+    "headline": "Java集合基本概念",
+    "url": "http://yoursite.com/2016/07/07/Java集合基本概念/index.html",
+    "datePublished": "7月 07, 2016",
+    "dateModified": "7月 08, 2017",
+    "description": "",
+    "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "http://yoursite.com"
+    }
+}
+</script>
 
 
     
@@ -287,96 +320,253 @@
                         </button>
                     
 
-                    <!-- Index Module -->
-<div class="material-index mdl-grid">
-    
-    <div class="locate-thumbnail-symbol"></div>
+                    <!-- Post TOC -->
 
-    <!-- Pin on top -->
+    
+    <!-- Back Button -->
+    <!--
+    <div class="material-back" id="backhome-div" tabindex="0">
+        <a class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon"
+           href="#" onclick="window.history.back();return false;"
+           target="_self"
+           role="button"
+           data-upgraded=",MaterialButton,MaterialRipple">
+            <i class="material-icons" role="presentation">arrow_back</i>
+            <span class="mdl-button__ripple-container">
+                <span class="mdl-ripple"></span>
+            </span>
+        </a>
+    </div>
+    -->
+
+    <!-- Left aligned menu below button -->
+    <button id="post-toc-trigger-btn"
+        class="mdl-button mdl-js-button mdl-button--icon">
+        <i class="material-icons">format_list_numbered</i>
+    </button>
+
+    
+    <ul class="post-toc-wrap mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-js-ripple-effect" for="post-toc-trigger-btn" style="max-height:80vh; overflow-y:scroll;">
+        <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Java集合—–Set"><span class="post-toc-number">1.</span> <span class="post-toc-text">Java集合—–Set</span></a></li></ol>
+        <!--
+        <li class="mdl-menu__item">
+            Some Action
+        </li>
+        -->
+    </ul>
     
 
-    <!-- Normal Post -->
-    
-        
-            
-                <!-- Paradox Thumbnail -->
-                <div class="post_entry-module mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col fade out">
-    <!-- Post Thumbnail -->
+
+
+
+
+<!-- Layouts -->
+
+    <!-- Post Module -->
+    <div class="material-post_container">
+
+        <div class="material-post mdl-grid">
+            <div class="mdl-card mdl-shadow--4dp mdl-cell mdl-cell--12-col">
+
+                <!-- Post Header(Thumbnail & Title) -->
+                
+    <!-- Paradox Post Header -->
     
         
             <!-- Random Thumbnail -->
             <div class="post_thumbnail-random mdl-card__media mdl-color-text--grey-50">
-        
-    
+            <script type="text/ls-javascript" id="post-thumbnail-script">
+    var randomNum = Math.floor(Math.random() * 25 + 1);
 
-        <!-- Post Title -->
-        <p class="article-headline-p"><a href="/2017/01/20/TensorFlow/">TensorFlow</a></p>
-    </div>
-
-    <!-- Post Excerpt -->
-    <div class="mdl-color-text--grey-600 mdl-card__supporting-text post_entry-content">
-        
-            
-        
-        &nbsp;&nbsp;&nbsp;
-        <span>
-            <a href="/2017/01/20/TensorFlow/" target="_self">阅读全文</a>
-        </span>
-    </div>
-    <!-- Post_entry Info-->
-    <div id="post_entry-info">
-        <div id="post_entry-left-info" class="mdl-card__supporting-text meta mdl-color-text--grey-600 ">
-            <!-- Author Avatar -->
-            <div id="author-avatar">
-                <img src="/img/avatar.png" width="44px" height="44px" alt="SparseMatrix's avatar">
-            </div>
-            <div>
-                <strong>SparseMatrix</strong>
-                <span>1月 20, 2017</span>
-            </div>
-        </div>
-        <div id="post_entry-right-info">
-            <!-- Category -->
-            <span class="post_entry-category">
-                <a class="post_category-link" href="/categories/机器学习/">机器学习</a>, <a class="post_category-link" href="/categories/机器学习/深度学习/">深度学习</a>, <a class="post_category-link" href="/categories/机器学习/深度学习/神经网络/">神经网络</a>, <a class="post_category-link" href="/categories/机器学习/深度学习/神经网络/TensorFlow/">TensorFlow</a>
-            </span>
-
-            
-
-            
-
-            <!-- Post Views -->
-            <span class="post_entry-views">
-            </span>
-        </div>
-    </div>
-</div>
-
-            
-            
-        
-    
-
-    
-
-    
-        <script type="text/ls-javascript" id="thumbnail-script">
-    var randomNum;
-
-    var locatePost = $('.locate-thumbnail-symbol').next();
-    for(var i = 0; i < 5; i++) {
-        randomNum = Math.floor(Math.random() * 25 + 1);
-
-        locatePost.children('.post_thumbnail-random').attr('id', 'random_thumbnail-'+randomNum);
-        locatePost.children('.post_thumbnail-random').attr('data-original', '/img/random/material-' + randomNum + '.png');
+    $('.post_thumbnail-random').attr('data-original', '/img/random/material-' + randomNum + '.png');
     $('.post_thumbnail-random').addClass('lazy');
-
-        locatePost = locatePost.next();
-    }
 </script>
 
+        
+    
+            <p class="article-headline-p">
+                Java集合基本概念
+            </p>
+        </div>
+
+
+
+
+
+                
+                    <!-- Paradox Post Info -->
+                    <div class="mdl-color-text--grey-700 mdl-card__supporting-text meta">
+
+    <!-- Author Avatar -->
+    <div id="author-avatar">
+        <img src="/img/avatar.png" width="44px" height="44px" alt="Author Avatar"/>
+    </div>
+    <!-- Author Name & Date -->
+    <div>
+        <strong>SparseMatrix</strong>
+        <span>7月 07, 2016</span>
+    </div>
+
+    <div class="section-spacer"></div>
+
+    <!-- Favorite -->
+    <!--
+        <button id="article-functions-like-button" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon btn-like">
+            <i class="material-icons" role="presentation">favorite</i>
+            <span class="visuallyhidden">favorites</span>
+        </button>
+    -->
+
+    <!-- Qrcode -->
+    
+
+    <!-- Tags (bookmark) -->
+    
+    <button id="article-functions-viewtags-button" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
+        <i class="material-icons" role="presentation">bookmark</i>
+        <span class="visuallyhidden">bookmark</span>
+    </button>
+    <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="article-functions-viewtags-button">
+        <li class="mdl-menu__item">
+        <a class="post_tag-link" href="/tags/Java/">Java</a>
+    </ul>
+    
+
+    <!-- Share -->
+    <button id="article-fuctions-share-button" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
+    <i class="material-icons" role="presentation">share</i>
+    <span class="visuallyhidden">share</span>
+</button>
+<ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="article-fuctions-share-button">
+    
+
+    
+
+    <!-- Share Weibo -->
+    
+        <a class="post_share-link" href="http://service.weibo.com/share/share.php?appkey=&title=Java集合基本概念&url=http://yoursite.com/2016/07/07/Java集合基本概念/index.html&pic=&searchPic=false&style=simple" target="_blank">
+            <li class="mdl-menu__item">
+                分享到微博
+            </li>
+        </a>
+    
+
+    <!-- Share Twitter -->
+    
+        <a class="post_share-link" href="https://twitter.com/intent/tweet?text=Java集合基本概念&url=http://yoursite.com/2016/07/07/Java集合基本概念/index.html&via=SparseMatrix" target="_blank">
+            <li class="mdl-menu__item">
+                分享到 Twitter
+            </li>
+        </a>
+    
+
+    <!-- Share Facebook -->
+    
+        <a class="post_share-link" href="https://www.facebook.com/sharer/sharer.php?u=http://yoursite.com/2016/07/07/Java集合基本概念/index.html" target="_blank">
+            <li class="mdl-menu__item">
+                分享到 Facebook
+            </li>
+        </a>
+    
+
+    <!-- Share Google+ -->
+    
+        <a class="post_share-link" href="https://plus.google.com/share?url=http://yoursite.com/2016/07/07/Java集合基本概念/index.html" target="_blank">
+            <li class="mdl-menu__item">
+                分享到 Google+
+            </li>
+        </a>
+    
+
+    <!-- Share LinkedIn -->
+    
+
+    <!-- Share QQ -->
+    
+        <a class="post_share-link" href="http://connect.qq.com/widget/shareqq/index.html?site=胡思乱想&title=Java集合基本概念&summary=null&pics=http://yoursite.com/img/favicon.png&url=http://yoursite.com/2016/07/07/Java集合基本概念/index.html" target="_blank">
+            <li class="mdl-menu__item">
+                分享到 QQ
+            </li>
+        </a>
+    
+
+    <!-- Share Telegram -->
+    
+</ul>
+
+</div>
+
+                
+
+                <!-- Post Content -->
+                <div id="post-content" class="mdl-color-text--grey-700 mdl-card__supporting-text fade out">
+    
+        <h2 id="Java集合—–Set"><a href="#Java集合—–Set" class="headerlink" title="Java集合—–Set"></a>Java集合—–Set</h2><blockquote>
+<p>集合：就像一种容器，可以把多个对象放进该容器中</p>
+</blockquote>
+<ul>
+<li>Java集合分为：Set、List、Map三种体系。  <ul>
+<li>Set:无序的，不可重复的；  </li>
+<li>List:有序的，可重复的；  </li>
+<li>Map:代表有映射关系的集合，Map保存的每一项数据都是key-value对。  </li>
+</ul>
+</li>
+<li>注意：Java 5后添加了Queue体系，代表一种队列集合实现。  </li>
+</ul>
+<blockquote>
+<p>集合和数组对比：  </p>
+</blockquote>
+<ul>
+<li>数组一旦初始化，长度不可变；  </li>
+<li>数组无法保存具有映射关系的数据，例如成绩表：语文—79；  </li>
+<li>数组的元素可以是基本类型的值，也可以是对象，而集合只能是保存对象</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Java集合由两个接口派生而出：Collection和Map，这两个是Java集合框架的根接口</div></pre></td></tr></table></figure>
+    
+
     
 </div>
+
+
+                
+
+                <!-- Post Comments -->
+                
+                    
+                
+            </div>
+
+            <!-- Post Prev & Next Nav -->
+            <nav class="material-nav mdl-color-text--grey-50 mdl-cell mdl-cell--12-col">
+    <!-- Prev Nav -->
+    
+        <a href="/2016/07/20/Marvel安装/" id="post_nav-newer" class="prev-content">
+            <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon mdl-color--white mdl-color-text--grey-900" role="presentation">
+                <i class="material-icons">arrow_back</i>
+            </button>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            新篇
+        </a>
+    
+
+    <!-- Section Spacer -->
+    <div class="section-spacer"></div>
+
+    <!-- Next Nav -->
+    
+        <a href="/2016/07/03/Redis安装部署/" id="post_nav-older" class="next-content">
+            旧篇
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon mdl-color--white mdl-color-text--grey-900" role="presentation">
+                <i class="material-icons">arrow_forward</i>
+            </button>
+        </a>
+    
+</nav>
+
+        </div>
+    </div>
+
 
 
                     
@@ -447,7 +637,7 @@
             </a>
             <ul class="dropdown-menu">
             <li>
-                <a class="sidebar_archives-link" href="/archives/2017/07/">七月 2017<span class="sidebar_archives-count">9</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/06/">六月 2017<span class="sidebar_archives-count">38</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/05/">五月 2017<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/04/">四月 2017<span class="sidebar_archives-count">8</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/03/">三月 2017<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/02/">二月 2017<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/01/">一月 2017<span class="sidebar_archives-count">5</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/11/">十一月 2016<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/10/">十月 2016<span class="sidebar_archives-count">6</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/07/">七月 2016<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/05/">五月 2016<span class="sidebar_archives-count">5</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/03/">三月 2016<span class="sidebar_archives-count">24</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/02/">二月 2016<span class="sidebar_archives-count">52</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/01/">一月 2016<span class="sidebar_archives-count">28</span></a>
+                <a class="sidebar_archives-link" href="/archives/2017/07/">七月 2017<span class="sidebar_archives-count">12</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/06/">六月 2017<span class="sidebar_archives-count">38</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/05/">五月 2017<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/04/">四月 2017<span class="sidebar_archives-count">8</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/03/">三月 2017<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/02/">二月 2017<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/01/">一月 2017<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/11/">十一月 2016<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/10/">十月 2016<span class="sidebar_archives-count">6</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/07/">七月 2016<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/05/">五月 2016<span class="sidebar_archives-count">5</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/03/">三月 2016<span class="sidebar_archives-count">24</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/02/">二月 2016<span class="sidebar_archives-count">52</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/01/">一月 2016<span class="sidebar_archives-count">28</span></a>
             </ul>
         </li>
         
@@ -465,7 +655,7 @@
             </a>
             <ul class="dropdown-menu">
                 <li>
-                <a class="sidebar_archives-link" href="/categories/JVM/">JVM<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/Python爬虫/">Python爬虫<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/Python爬虫/Scrapy/">Scrapy<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/UI/">UI<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/UI/ps/">ps<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/UI/ps/美术基础/">美术基础<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/python/">python<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/python/flask/">flask<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/云计算/">云计算<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/categories/互联网运营/">互联网运营<span class="sidebar_archives-count">6</span></a></li><li><a class="sidebar_archives-link" href="/categories/健身/">健身<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/动效设计/">动效设计<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/图片素材/">图片素材<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大前端/">大前端<span class="sidebar_archives-count">5</span></a></li><li><a class="sidebar_archives-link" href="/categories/大前端/React/">React<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/大前端/atom/">atom<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大前端/webpack/">webpack<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/">大数据<span class="sidebar_archives-count">147</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/HDFS/">HDFS<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Hbase/">Hbase<span class="sidebar_archives-count">6</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Hive/">Hive<span class="sidebar_archives-count">16</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Linux/">Linux<span class="sidebar_archives-count">11</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Linux/python/">python<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/MR/">MR<span class="sidebar_archives-count">13</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Mahout/">Mahout<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Nginx/">Nginx<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Python数据分析/">Python数据分析<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Python爬虫/">Python爬虫<span class="sidebar_archives-count">5</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Redis/">Redis<span class="sidebar_archives-count">22</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Spark/">Spark<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Sqoop/">Sqoop<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Storm/">Storm<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Tornado/">Tornado<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Zookeeper/">Zookeeper<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/lvs/">lvs<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/mysql/">mysql<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/python数据分析/">python数据分析<span class="sidebar_archives-count">5</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/tengine/">tengine<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/机器学习/">机器学习<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/神经网络/">神经网络<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/微信第三方开发/">微信第三方开发<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/微信订阅号开发/">微信订阅号开发<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/新媒体/">新媒体<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/机器学习/">机器学习<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/机器学习/深度学习/">深度学习<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/机器学习/深度学习/神经网络/">神经网络<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/机器学习/深度学习/神经网络/TensorFlow/">TensorFlow<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/模块化/">模块化<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/理财/">理财<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/算法/">算法<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/读书笔记/">读书笔记<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/categories/金融/">金融<span class="sidebar_archives-count">3</span></a>
+                <a class="sidebar_archives-link" href="/categories/ChatScript/">ChatScript<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/JVM/">JVM<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/Java/">Java<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/Python爬虫/">Python爬虫<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/Python爬虫/Scrapy/">Scrapy<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/TensorFlow/">TensorFlow<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/UI/">UI<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/UI/ps/">ps<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/UI/ps/美术基础/">美术基础<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/python/">python<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/python/flask/">flask<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/云计算/">云计算<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/categories/互联网运营/">互联网运营<span class="sidebar_archives-count">6</span></a></li><li><a class="sidebar_archives-link" href="/categories/健身/">健身<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/动效设计/">动效设计<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/图片素材/">图片素材<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大前端/">大前端<span class="sidebar_archives-count">5</span></a></li><li><a class="sidebar_archives-link" href="/categories/大前端/React/">React<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/大前端/atom/">atom<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大前端/webpack/">webpack<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/">大数据<span class="sidebar_archives-count">147</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/HDFS/">HDFS<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Hbase/">Hbase<span class="sidebar_archives-count">6</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Hive/">Hive<span class="sidebar_archives-count">16</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Linux/">Linux<span class="sidebar_archives-count">11</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Linux/python/">python<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/MR/">MR<span class="sidebar_archives-count">13</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Mahout/">Mahout<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Nginx/">Nginx<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Python数据分析/">Python数据分析<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Python爬虫/">Python爬虫<span class="sidebar_archives-count">5</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Redis/">Redis<span class="sidebar_archives-count">22</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Spark/">Spark<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Sqoop/">Sqoop<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Storm/">Storm<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Tornado/">Tornado<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Zookeeper/">Zookeeper<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/lvs/">lvs<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/mysql/">mysql<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/python数据分析/">python数据分析<span class="sidebar_archives-count">5</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/tengine/">tengine<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/机器学习/">机器学习<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/神经网络/">神经网络<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/微信第三方开发/">微信第三方开发<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/微信订阅号开发/">微信订阅号开发<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/新媒体/">新媒体<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/模块化/">模块化<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/理财/">理财<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/算法/">算法<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/读书笔记/">读书笔记<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/金融/">金融<span class="sidebar_archives-count">3</span></a>
             </ul>
         </li>
         
@@ -479,7 +669,7 @@
         <li>
             <a href="/archives">
                 文章总数
-                <span class="sidebar-badge">186</span>
+                <span class="sidebar-badge">189</span>
             </a>
         </li>
         
