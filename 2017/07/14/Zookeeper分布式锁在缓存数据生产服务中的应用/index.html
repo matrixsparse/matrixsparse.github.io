@@ -12,7 +12,7 @@
     
     <title>
         
-            缓存数据生产服务中的zk分布式锁 | 
+            Zookeeper分布式锁在缓存数据生产服务中的应用 | 
         
         胡思乱想
     </title>
@@ -67,7 +67,7 @@
     <!-- The Open Graph protocol -->
     <meta property="og:url" content="http://yoursite.com">
     <meta property="og:type" content="blog">
-    <meta property="og:title" content="缓存数据生产服务中的zk分布式锁 | 胡思乱想">
+    <meta property="og:title" content="Zookeeper分布式锁在缓存数据生产服务中的应用 | 胡思乱想">
     <meta property="og:image" content="/img/favicon.png" />
     <meta property="og:description" content="">
     <meta property="og:article:tag" content="大数据"> <meta property="og:article:tag" content="Redis"> 
@@ -78,7 +78,7 @@
     
 
     <!-- The Twitter Card protocol -->
-    <meta name="twitter:title" content="缓存数据生产服务中的zk分布式锁 | 胡思乱想">
+    <meta name="twitter:title" content="Zookeeper分布式锁在缓存数据生产服务中的应用 | 胡思乱想">
     <meta name="twitter:description" content="">
     <meta name="twitter:image" content="/img/favicon.png">
     <meta name="twitter:card" content="summary_large_image" />
@@ -86,7 +86,7 @@
 
     <!-- Add canonical link for SEO -->
     
-        <link rel="canonical" href="http://yoursite.com/2017/07/14/缓存数据生产服务中的zk分布式锁/index.html" />
+        <link rel="canonical" href="http://yoursite.com/2017/07/14/Zookeeper分布式锁在缓存数据生产服务中的应用/index.html" />
     
 
     <!-- Structured-data for SEO -->
@@ -112,8 +112,8 @@
         },
         "description": "每天，遇到更好的你"
     },
-    "headline": "缓存数据生产服务中的zk分布式锁",
-    "url": "http://yoursite.com/2017/07/14/缓存数据生产服务中的zk分布式锁/index.html",
+    "headline": "Zookeeper分布式锁在缓存数据生产服务中的应用",
+    "url": "http://yoursite.com/2017/07/14/Zookeeper分布式锁在缓存数据生产服务中的应用/index.html",
     "datePublished": "7月 14, 2017",
     "dateModified": "7月 14, 2017",
     "description": "",
@@ -347,7 +347,7 @@
 
     
     <ul class="post-toc-wrap mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-js-ripple-effect" for="post-toc-trigger-btn" style="max-height:80vh; overflow-y:scroll;">
-        
+        <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#ZK分布式锁原理"><span class="post-toc-number">1.</span> <span class="post-toc-text">ZK分布式锁原理</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#添加依赖"><span class="post-toc-number">2.</span> <span class="post-toc-text">添加依赖</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#ZookeeperSession"><span class="post-toc-number">3.</span> <span class="post-toc-text">ZookeeperSession</span></a></li></ol>
         <!--
         <li class="mdl-menu__item">
             Some Action
@@ -385,7 +385,7 @@
         
     
             <p class="article-headline-p">
-                缓存数据生产服务中的zk分布式锁
+                Zookeeper分布式锁在缓存数据生产服务中的应用
             </p>
         </div>
 
@@ -444,7 +444,7 @@
 
     <!-- Share Weibo -->
     
-        <a class="post_share-link" href="http://service.weibo.com/share/share.php?appkey=&title=缓存数据生产服务中的zk分布式锁&url=http://yoursite.com/2017/07/14/缓存数据生产服务中的zk分布式锁/index.html&pic=&searchPic=false&style=simple" target="_blank">
+        <a class="post_share-link" href="http://service.weibo.com/share/share.php?appkey=&title=Zookeeper分布式锁在缓存数据生产服务中的应用&url=http://yoursite.com/2017/07/14/Zookeeper分布式锁在缓存数据生产服务中的应用/index.html&pic=&searchPic=false&style=simple" target="_blank">
             <li class="mdl-menu__item">
                 分享到微博
             </li>
@@ -453,7 +453,7 @@
 
     <!-- Share Twitter -->
     
-        <a class="post_share-link" href="https://twitter.com/intent/tweet?text=缓存数据生产服务中的zk分布式锁&url=http://yoursite.com/2017/07/14/缓存数据生产服务中的zk分布式锁/index.html&via=SparseMatrix" target="_blank">
+        <a class="post_share-link" href="https://twitter.com/intent/tweet?text=Zookeeper分布式锁在缓存数据生产服务中的应用&url=http://yoursite.com/2017/07/14/Zookeeper分布式锁在缓存数据生产服务中的应用/index.html&via=SparseMatrix" target="_blank">
             <li class="mdl-menu__item">
                 分享到 Twitter
             </li>
@@ -462,7 +462,7 @@
 
     <!-- Share Facebook -->
     
-        <a class="post_share-link" href="https://www.facebook.com/sharer/sharer.php?u=http://yoursite.com/2017/07/14/缓存数据生产服务中的zk分布式锁/index.html" target="_blank">
+        <a class="post_share-link" href="https://www.facebook.com/sharer/sharer.php?u=http://yoursite.com/2017/07/14/Zookeeper分布式锁在缓存数据生产服务中的应用/index.html" target="_blank">
             <li class="mdl-menu__item">
                 分享到 Facebook
             </li>
@@ -471,7 +471,7 @@
 
     <!-- Share Google+ -->
     
-        <a class="post_share-link" href="https://plus.google.com/share?url=http://yoursite.com/2017/07/14/缓存数据生产服务中的zk分布式锁/index.html" target="_blank">
+        <a class="post_share-link" href="https://plus.google.com/share?url=http://yoursite.com/2017/07/14/Zookeeper分布式锁在缓存数据生产服务中的应用/index.html" target="_blank">
             <li class="mdl-menu__item">
                 分享到 Google+
             </li>
@@ -483,7 +483,7 @@
 
     <!-- Share QQ -->
     
-        <a class="post_share-link" href="http://connect.qq.com/widget/shareqq/index.html?site=胡思乱想&title=缓存数据生产服务中的zk分布式锁&summary=null&pics=http://yoursite.com/img/favicon.png&url=http://yoursite.com/2017/07/14/缓存数据生产服务中的zk分布式锁/index.html" target="_blank">
+        <a class="post_share-link" href="http://connect.qq.com/widget/shareqq/index.html?site=胡思乱想&title=Zookeeper分布式锁在缓存数据生产服务中的应用&summary=null&pics=http://yoursite.com/img/favicon.png&url=http://yoursite.com/2017/07/14/Zookeeper分布式锁在缓存数据生产服务中的应用/index.html" target="_blank">
             <li class="mdl-menu__item">
                 分享到 QQ
             </li>
@@ -501,7 +501,9 @@
                 <!-- Post Content -->
                 <div id="post-content" class="mdl-color-text--grey-700 mdl-card__supporting-text fade out">
     
-        
+        <h2 id="ZK分布式锁原理"><a href="#ZK分布式锁原理" class="headerlink" title="ZK分布式锁原理"></a>ZK分布式锁原理</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">创建zk的一个临时node，来模拟给摸一个商品id加锁</div><div class="line"></div><div class="line">zk会给你保证，只会创建一个临时node，其他请求过来如果再要创建临时node，就会报错，NodeExistsException</div><div class="line"></div><div class="line">所谓上锁，其实就是去创建某个product id对应的一个临时node</div><div class="line"></div><div class="line">如果临时node创建成功了，说明成功加锁了，此时就可以去执行对redis里面数据的操作</div><div class="line"></div><div class="line">如果临时node创建失败了，说明其他进程已经拿到锁了，在操作reids中的数据，那么就不断的等待，直到自己可以获取到锁为止</div></pre></td></tr></table></figure>
+<h2 id="添加依赖"><a href="#添加依赖" class="headerlink" title="添加依赖"></a>添加依赖</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">&lt;dependency&gt;</div><div class="line">    &lt;groupId&gt;org.apache.zookeeper&lt;/groupId&gt;</div><div class="line">    &lt;artifactId&gt;zookeeper&lt;/artifactId&gt;</div><div class="line">    &lt;version&gt;3.4.5&lt;/version&gt;</div><div class="line">&lt;/dependency&gt;</div></pre></td></tr></table></figure>
+<h2 id="ZookeeperSession"><a href="#ZookeeperSession" class="headerlink" title="ZookeeperSession"></a>ZookeeperSession</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div></pre></td><td class="code"><pre><div class="line">package com.matrix.eshop.cache.zk;</div><div class="line"></div><div class="line">import java.util.concurrent.CountDownLatch;</div><div class="line"></div><div class="line">import org.apache.zookeeper.WatchedEvent;</div><div class="line">import org.apache.zookeeper.Watcher;</div><div class="line">import org.apache.zookeeper.Watcher.Event.KeeperState;</div><div class="line">import org.apache.zookeeper.ZooKeeper;</div><div class="line"></div><div class="line">/**</div><div class="line"> * ZookeeperSession</div><div class="line"> * </div><div class="line"> * @author matrix</div><div class="line"> *</div><div class="line"> */</div><div class="line">public class ZooKeeperSession &#123;</div><div class="line"></div><div class="line">	// 声明一个静态同步类</div><div class="line">	private static CountDownLatch connectedSemaphore = new CountDownLatch(1);</div><div class="line"></div><div class="line">	private ZooKeeper zookeeper;</div><div class="line"></div><div class="line">	public <span class="function"><span class="title">ZooKeeperSession</span></span>() &#123;</div><div class="line">		// 去连接Zookeeper server，创建会话的时候，是异步去进行的</div><div class="line">		// 所以需要一个监听器，告诉什么时候是真正完成跟zk server的连接</div><div class="line">		// 创建zk客户端</div><div class="line">		try &#123;</div><div class="line">			this.zookeeper = new ZooKeeper(<span class="string">"192.168.31.231:2181,192.168.31.232:2181,192.168.31.232:2181"</span>, 50000,</div><div class="line">					new ZooKeeperWatcher());</div><div class="line">			// 给一个状态CONNECTING，连接中</div><div class="line">			System.out.println(zookeeper.getState());</div><div class="line"></div><div class="line">			try &#123;</div><div class="line">				// CountDownLatch</div><div class="line">				// java多线程并发同步的一个工具类</div><div class="line">				// 会传递进去一些数字，比如说1,2,3 都可以</div><div class="line">				// 然后await()，如果数字不是0，那么就卡住，等待</div><div class="line"></div><div class="line">				// 其他的线程可以调用coutnDown()，减1</div><div class="line">				// 如果数字减到0，那么之前所有在await的线程，都会逃出阻塞的状态</div><div class="line">				// 继续向下运行</div><div class="line"></div><div class="line">				connectedSemaphore.await();</div><div class="line">			&#125; catch (InterruptedException e) &#123;</div><div class="line">				e.printStackTrace();</div><div class="line">			&#125;</div><div class="line"></div><div class="line">			System.out.println(<span class="string">"ZooKeeper session established......"</span>);</div><div class="line">		&#125; catch (Exception e) &#123;</div><div class="line">			e.printStackTrace();</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	/**</div><div class="line">	 * 建立zk session的watcher</div><div class="line">	 * </div><div class="line">	 * @author Administrator</div><div class="line">	 *</div><div class="line">	 */</div><div class="line">	private class ZooKeeperWatcher implements Watcher &#123;</div><div class="line"></div><div class="line">		public void process(WatchedEvent event) &#123;</div><div class="line">			System.out.println(<span class="string">"Receive watched event: "</span> + event.getState());</div><div class="line">			<span class="keyword">if</span> (KeeperState.SyncConnected == event.getState()) &#123;</div><div class="line">				connectedSemaphore.countDown();</div><div class="line">			&#125;</div><div class="line">		&#125;</div><div class="line"></div><div class="line">	&#125;</div><div class="line"></div><div class="line">	/**</div><div class="line">	 * 封装单例的静态内部类</div><div class="line">	 * </div><div class="line">	 * @author matrix</div><div class="line">	 *</div><div class="line">	 */</div><div class="line">	private static class Singleton &#123;</div><div class="line">		private static ZooKeeperSession instance;</div><div class="line"></div><div class="line">		static &#123;</div><div class="line">			instance = new ZooKeeperSession();</div><div class="line">		&#125;</div><div class="line"></div><div class="line">		public static ZooKeeperSession <span class="function"><span class="title">getInstance</span></span>() &#123;</div><div class="line">			<span class="built_in">return</span> instance;</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	/**</div><div class="line">	 * 获取单例</div><div class="line">	 * </div><div class="line">	 * @<span class="built_in">return</span></div><div class="line">	 */</div><div class="line">	public static ZooKeeperSession <span class="function"><span class="title">getInstance</span></span>() &#123;</div><div class="line">		<span class="built_in">return</span> Singleton.getInstance();</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	/**</div><div class="line">	 * 初始化单例便捷方法</div><div class="line">	 */</div><div class="line">	public static void <span class="function"><span class="title">init</span></span>() &#123;</div><div class="line">		getInstance();</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
     
 
     
