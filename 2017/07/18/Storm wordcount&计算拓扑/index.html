@@ -12,7 +12,7 @@
     
     <title>
         
-            Storm wordcount&amp;计算拓扑 | 
+            Storm WordCount&amp;计算拓扑 | 
         
         胡思乱想
     </title>
@@ -67,7 +67,7 @@
     <!-- The Open Graph protocol -->
     <meta property="og:url" content="http://yoursite.com">
     <meta property="og:type" content="blog">
-    <meta property="og:title" content="Storm wordcount&amp;计算拓扑 | 胡思乱想">
+    <meta property="og:title" content="Storm WordCount&amp;计算拓扑 | 胡思乱想">
     <meta property="og:image" content="/img/favicon.png" />
     <meta property="og:description" content="">
     <meta property="og:article:tag" content="大数据"> <meta property="og:article:tag" content="Storm"> 
@@ -78,7 +78,7 @@
     
 
     <!-- The Twitter Card protocol -->
-    <meta name="twitter:title" content="Storm wordcount&amp;计算拓扑 | 胡思乱想">
+    <meta name="twitter:title" content="Storm WordCount&amp;计算拓扑 | 胡思乱想">
     <meta name="twitter:description" content="">
     <meta name="twitter:image" content="/img/favicon.png">
     <meta name="twitter:card" content="summary_large_image" />
@@ -112,7 +112,7 @@
         },
         "description": "每天，遇到更好的你"
     },
-    "headline": "Storm wordcount&计算拓扑",
+    "headline": "Storm WordCount&计算拓扑",
     "url": "http://yoursite.com/2017/07/18/Storm wordcount&计算拓扑/index.html",
     "datePublished": "7月 18, 2017",
     "dateModified": "7月 18, 2017",
@@ -347,7 +347,7 @@
 
     
     <ul class="post-toc-wrap mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-js-ripple-effect" for="post-toc-trigger-btn" style="max-height:80vh; overflow-y:scroll;">
-        <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Storm分布式集群规划"><span class="post-toc-number">1.</span> <span class="post-toc-text">Storm分布式集群规划</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#部署Storm分布式集群"><span class="post-toc-number">2.</span> <span class="post-toc-text">部署Storm分布式集群</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#搭建ZK集群"><span class="post-toc-number">3.</span> <span class="post-toc-text">搭建ZK集群</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#安装Java-JDK"><span class="post-toc-number">4.</span> <span class="post-toc-text">安装Java JDK</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#解压缩，重命名，配置环境变量"><span class="post-toc-number">4.1.</span> <span class="post-toc-text">解压缩，重命名，配置环境变量</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#修改storm配置文件"><span class="post-toc-number">5.</span> <span class="post-toc-text">修改storm配置文件</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#将storm文件目录-环境变量发送到另外两台机器上"><span class="post-toc-number">6.</span> <span class="post-toc-text">将storm文件目录/环境变量发送到另外两台机器上</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#启动storm集群和ui界面"><span class="post-toc-number">7.</span> <span class="post-toc-text">启动storm集群和ui界面</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#访问ui界面，8080端口"><span class="post-toc-number">8.</span> <span class="post-toc-text">访问ui界面，8080端口</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Wordcount实现"><span class="post-toc-number">9.</span> <span class="post-toc-text">Wordcount实现</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#基于集群计算拓扑"><span class="post-toc-number">10.</span> <span class="post-toc-text">基于集群计算拓扑</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#提交作业到storm集群"><span class="post-toc-number">10.1.</span> <span class="post-toc-text">提交作业到storm集群</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#在storm-ui上观察storm作业的运行"><span class="post-toc-number">10.2.</span> <span class="post-toc-text">在storm ui上观察storm作业的运行</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#kill掉某个storm作业"><span class="post-toc-number">10.3.</span> <span class="post-toc-text">kill掉某个storm作业</span></a></li></ol></li></ol>
+        <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Storm是什么"><span class="post-toc-number">1.</span> <span class="post-toc-text">Storm是什么</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Storm特点"><span class="post-toc-number">2.</span> <span class="post-toc-text">Storm特点</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Storm集群架构"><span class="post-toc-number">3.</span> <span class="post-toc-text">Storm集群架构</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Storm核心概念"><span class="post-toc-number">4.</span> <span class="post-toc-text">Storm核心概念</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Storm的并行度以及流分组"><span class="post-toc-number">5.</span> <span class="post-toc-text">Storm的并行度以及流分组</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Storm分布式集群规划"><span class="post-toc-number">6.</span> <span class="post-toc-text">Storm分布式集群规划</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Strom分布式集群部署"><span class="post-toc-number">7.</span> <span class="post-toc-text">Strom分布式集群部署</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#搭建ZK集群"><span class="post-toc-number">8.</span> <span class="post-toc-text">搭建ZK集群</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#安装Java-JDK"><span class="post-toc-number">9.</span> <span class="post-toc-text">安装Java JDK</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#解压缩，重命名，配置环境变量"><span class="post-toc-number">9.1.</span> <span class="post-toc-text">解压缩，重命名，配置环境变量</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#修改storm配置文件"><span class="post-toc-number">10.</span> <span class="post-toc-text">修改storm配置文件</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#将storm文件目录-环境变量发送到另外两台机器上"><span class="post-toc-number">11.</span> <span class="post-toc-text">将storm文件目录/环境变量发送到另外两台机器上</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#启动storm集群和ui界面"><span class="post-toc-number">12.</span> <span class="post-toc-text">启动storm集群和ui界面</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#访问ui界面，8080端口"><span class="post-toc-number">13.</span> <span class="post-toc-text">访问ui界面，8080端口</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Wordcount实现"><span class="post-toc-number">14.</span> <span class="post-toc-text">Wordcount实现</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#基于集群计算拓扑"><span class="post-toc-number">15.</span> <span class="post-toc-text">基于集群计算拓扑</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#提交作业到storm集群"><span class="post-toc-number">15.1.</span> <span class="post-toc-text">提交作业到storm集群</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#在storm-ui上观察storm作业的运行"><span class="post-toc-number">15.2.</span> <span class="post-toc-text">在storm ui上观察storm作业的运行</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#kill掉某个storm作业"><span class="post-toc-number">15.3.</span> <span class="post-toc-text">kill掉某个storm作业</span></a></li></ol></li></ol>
         <!--
         <li class="mdl-menu__item">
             Some Action
@@ -385,7 +385,7 @@
         
     
             <p class="article-headline-p">
-                Storm wordcount&计算拓扑
+                Storm WordCount&计算拓扑
             </p>
         </div>
 
@@ -444,7 +444,7 @@
 
     <!-- Share Weibo -->
     
-        <a class="post_share-link" href="http://service.weibo.com/share/share.php?appkey=&title=Storm wordcount&amp;计算拓扑&url=http://yoursite.com/2017/07/18/Storm wordcount&amp;计算拓扑/index.html&pic=&searchPic=false&style=simple" target="_blank">
+        <a class="post_share-link" href="http://service.weibo.com/share/share.php?appkey=&title=Storm WordCount&amp;计算拓扑&url=http://yoursite.com/2017/07/18/Storm wordcount&amp;计算拓扑/index.html&pic=&searchPic=false&style=simple" target="_blank">
             <li class="mdl-menu__item">
                 分享到微博
             </li>
@@ -453,7 +453,7 @@
 
     <!-- Share Twitter -->
     
-        <a class="post_share-link" href="https://twitter.com/intent/tweet?text=Storm wordcount&amp;计算拓扑&url=http://yoursite.com/2017/07/18/Storm wordcount&amp;计算拓扑/index.html&via=SparseMatrix" target="_blank">
+        <a class="post_share-link" href="https://twitter.com/intent/tweet?text=Storm WordCount&amp;计算拓扑&url=http://yoursite.com/2017/07/18/Storm wordcount&amp;计算拓扑/index.html&via=SparseMatrix" target="_blank">
             <li class="mdl-menu__item">
                 分享到 Twitter
             </li>
@@ -483,7 +483,7 @@
 
     <!-- Share QQ -->
     
-        <a class="post_share-link" href="http://connect.qq.com/widget/shareqq/index.html?site=胡思乱想&title=Storm wordcount&amp;计算拓扑&summary=null&pics=http://yoursite.com/img/favicon.png&url=http://yoursite.com/2017/07/18/Storm wordcount&计算拓扑/index.html" target="_blank">
+        <a class="post_share-link" href="http://connect.qq.com/widget/shareqq/index.html?site=胡思乱想&title=Storm WordCount&amp;计算拓扑&summary=null&pics=http://yoursite.com/img/favicon.png&url=http://yoursite.com/2017/07/18/Storm wordcount&计算拓扑/index.html" target="_blank">
             <li class="mdl-menu__item">
                 分享到 QQ
             </li>
@@ -501,9 +501,98 @@
                 <!-- Post Content -->
                 <div id="post-content" class="mdl-color-text--grey-700 mdl-card__supporting-text fade out">
     
-        <figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">Storm：实时缓存热点数据统计-&gt;缓存预热-&gt;缓存热点数据自动降级</div><div class="line"></div><div class="line">Hive：Hadoop生态栈里面，做数据仓库的一个系统，高并发访问下，海量请求日志的批量统计分析，日报周报月报，接口调用情况，业务使用情况，等等</div><div class="line"></div><div class="line">我所知，在一些大公司里面，是有些人是将海量的请求日志打到hive里面，做离线的分析，然后反过来去优化自己的系统</div><div class="line"></div><div class="line">Spark：离线批量数据处理，比如从DB中一次性批量处理几亿数据，清洗和处理后写入Redis中供后续的系统使用，大型互联网公司的用户相关数据</div><div class="line"></div><div class="line">ZooKeeper：分布式系统的协调，分布式锁，分布式选举-&gt;高可用HA架构，轻量级元数据存储</div><div class="line"></div><div class="line">用java开发了分布式的系统架构，你的整套系统拆分成了多个部分，每个部分都会负责一些功能，互相之间需要交互和协调</div><div class="line"></div><div class="line">服务A说，我在处理某件事情的时候，服务B你就别处理了</div><div class="line"></div><div class="line">服务A说，我一旦发生了某些状况，希望服务B你立即感知到，然后做出相应的对策</div><div class="line"></div><div class="line">HBase：海量数据的在线存储和简单查询，替代MySQL分库分表，提供更好的伸缩性</div><div class="line"></div><div class="line">java底层，对应的是海量数据，然后要做一些简单的存储和查询，同时数据增多的时候要快速扩容</div><div class="line"></div><div class="line">mysql分库分表就不太合适了，mysql分库分表扩容，还是比较麻烦的</div><div class="line"></div><div class="line">Elasticsearch：海量数据的复杂检索以及搜索引擎的构建，支撑有大量数据的各种企业信息化系统的搜索引擎，电商/新闻等网站的搜索引擎，等等</div><div class="line"></div><div class="line">mysql的like <span class="string">"%xxxx%"</span>，更加合适一些，性能更加好</div></pre></td></tr></table></figure>
+        <h2 id="Storm是什么"><a href="#Storm是什么" class="headerlink" title="Storm是什么"></a>Storm是什么</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">mysql：事务性系统，面临海量数据的尴尬</div><div class="line">hadoop：离线批处理</div><div class="line">storm：实时计算,实时缓存热点数据统计-&gt;缓存预热-&gt;缓存热点数据自动降级</div></pre></td></tr></table></figure>
+<blockquote>
+<p>mysql</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">TB级、PB级海量数据，使用mysql/分布式mysql/分布式数据库处理数据比较尴尬</div><div class="line">mysql分库分表就不太合适了，mysql分库分表扩容，还是比较麻烦的</div><div class="line">mysql的like <span class="string">"%xxxx%"</span>，更加合适一些，性能更加好</div></pre></td></tr></table></figure>
+<blockquote>
+<p>ZooKeeper</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">分布式系统的协调，分布式锁，分布式选举-&gt;高可用HA架构，轻量级元数据存储</div><div class="line">用java开发了分布式的系统架构，将整套系统拆分成多个部分，每个部分都会负责一些功能，互相之间需要交互和协调</div><div class="line">服务A说，我在处理某件事情的时候，服务B你就别处理了</div><div class="line">服务A说，我一旦发生了某些状况，希望服务B你立即感知到，然后做出相应的对策</div></pre></td></tr></table></figure>
+<blockquote>
+<p>Hive</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Hadoop生态栈里面，做数据仓库的一个系统，高并发访问下，海量请求日志的批量统计分析，日报周报月报，接口调用情况，业务使用情况，等等</div></pre></td></tr></table></figure>
+<blockquote>
+<p>Spark</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">离线批量数据处理，比如从DB中一次性批量处理几亿数据，清洗和处理后写入Redis中供后续的系统使用</div></pre></td></tr></table></figure>
+<blockquote>
+<p>HBase</p>
+</blockquote>
+<ul>
+<li>海量数据的<code>在线存储</code>和<code>简单查询</code>，替代MySQL分库分表，提供更好的伸缩性</li>
+<li>java底层，对应的是海量数据，然后要做一些简单的<code>存储</code>和<code>查询</code>，同时数据增多的时候要<code>快速扩容</code></li>
+</ul>
+<blockquote>
+<p>Elasticsearch</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">海量数据的复杂检索以及搜索引擎的构建，支撑有大量数据的各种企业信息化系统的搜索引擎，电商/新闻等网站的搜索引擎</div></pre></td></tr></table></figure>
+<blockquote>
+<p>hadoop</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">每天将所有数据收集起来，第二天凌晨时统一进行离线批处理</div></pre></td></tr></table></figure>
+<ul>
+<li>分布式存储</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">海量数据，分布式存储，每个服务器存储一部分的数据</div></pre></td></tr></table></figure>
+<ul>
+<li>分布式计算</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">分布式计算，每台服务器上面会计算一部分的数据，最终的计算结果，会汇总起来</div></pre></td></tr></table></figure>
+<h2 id="Storm特点"><a href="#Storm特点" class="headerlink" title="Storm特点"></a>Storm特点</h2><blockquote>
+<p><code>支撑</code>各种<code>实时</code>类的项目<code>场景</code></p>
+</blockquote>
+<ul>
+<li>实时处理消息以及更新数据库，基于最基础的实时计算语义和API（实时数据处理领域）</li>
+<li>对<code>实时</code>的<code>数据流</code>持续的进行<code>查询或计算</code>，同时将最新的计算结果持续的推送给客户端展示，同样基于最基础的实时计算语义和API（实时数据分析领域）</li>
+<li>对<code>耗时</code>的查询进行<code>并行化</code>，基于<code>DRPC</code>，即<code>分布式RPC调用</code>，单表30天数据，并行化，每个进程查询一天数据，最后组装结果</li>
+</ul>
+<blockquote>
+<p>高度的<code>可伸缩性</code></p>
+</blockquote>
+<ul>
+<li>如果要扩容，直接加机器，调整storm计算作业的并行度就可以了，storm会自动部署更多的进程和线程到其他的机器上去，无缝快速扩容</li>
+</ul>
+<blockquote>
+<p><code>数据不丢失</code>的保证</p>
+</blockquote>
+<ul>
+<li>storm的消息可靠机制开启后，可以保证一条数据都不丢</li>
+</ul>
+<blockquote>
+<p>超强的<code>健壮性</code></p>
+</blockquote>
+<ul>
+<li>元数据全部放zookeeper，不在内存中，随便挂都不要紧</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">storm比hadoop、spark等大数据类系统，健壮的多的多</div></pre></td></tr></table></figure>
+<blockquote>
+<p>使用的<code>便捷性</code></p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">核心语义非常的简单，开发起来效率很高</div></pre></td></tr></table></figure>
+<h2 id="Storm集群架构"><a href="#Storm集群架构" class="headerlink" title="Storm集群架构"></a>Storm集群架构</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Nimbus、Supervisor、Zookeeper、Worker、Executor、Task</div></pre></td></tr></table></figure>
+<ul>
+<li>Nimbus：Storm集群架构中的主节点，负责元数据的维护、资源调度，提交实时计算作业的入口</li>
+</ul>
+<h2 id="Storm核心概念"><a href="#Storm核心概念" class="headerlink" title="Storm核心概念"></a>Storm核心概念</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Topology、Spout、Bolt、Tuple、Stream</div></pre></td></tr></table></figure>
+<ul>
+<li>Topology：由一堆spout+bolt组成[实时计算作业]，一个拓扑涵盖数据源获取/生产+数据处理的所有的代码逻辑</li>
+<li>Spout：数据源的一个代码组件，就是我们可以实现一个spout接口，写一个java类，在这个spout代码中，我们可以自己尝试去<code>数据源获取数据</code>，比如说从<code>kafka中消费数据</code></li>
+<li>bolt：一个业务处理的代码组件，spout会将数据传送给bolt，各种bolt还可以串联成一个<code>计算链条</code>，java类实现了一个bolt接口</li>
+<li>tuple：就是一条数据，每条数据都会被封装在tuple中，在多个spout和bolt之间传递</li>
+<li>stream：就是一个流，抽象的概念，源源不断过来的tuple，就组成了一条数据流</li>
+</ul>
+<h2 id="Storm的并行度以及流分组"><a href="#Storm的并行度以及流分组" class="headerlink" title="Storm的并行度以及流分组"></a>Storm的并行度以及流分组</h2><ul>
+<li>并行度：Worker-&gt;Executor-&gt;Task，即<code>Task</code></li>
+<li>流分组：Task与Task之间的<code>数据流向关系</code></li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">在默认情况下，一个Executor只有一个task，Executor的数量跟task是相等的</div></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">Shuffle Grouping：随机发射，负载均衡</div><div class="line">Fields Grouping：根据某一个，或者某些个，fields，进行分组，那一个或者多个fields如果值完全相同的话，那么这些tuple，就会发送给下游bolt的其中固定的一个task</div></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">发射的每条数据是一个tuple，每个tuple中有多个field作为字段</div></pre></td></tr></table></figure>
 <h2 id="Storm分布式集群规划"><a href="#Storm分布式集群规划" class="headerlink" title="Storm分布式集群规划"></a>Storm分布式集群规划</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">192.168.31.231 matrix-cache01</div><div class="line">192.168.31.232 matrix-cache02</div><div class="line">192.168.31.233 matrix-cache03</div></pre></td></tr></table></figure>
-<h2 id="部署Storm分布式集群"><a href="#部署Storm分布式集群" class="headerlink" title="部署Storm分布式集群"></a>部署Storm分布式集群</h2><h2 id="搭建ZK集群"><a href="#搭建ZK集群" class="headerlink" title="搭建ZK集群"></a>搭建ZK集群</h2><h2 id="安装Java-JDK"><a href="#安装Java-JDK" class="headerlink" title="安装Java JDK"></a>安装Java JDK</h2><h3 id="解压缩，重命名，配置环境变量"><a href="#解压缩，重命名，配置环境变量" class="headerlink" title="解压缩，重命名，配置环境变量"></a>解压缩，重命名，配置环境变量</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">[root@matrix-cache01 ~]<span class="comment"># tar -zxvf apache-storm-1.1.0.tar.gz -C /usr/local</span></div><div class="line">[root@matrix-cache01 ~]<span class="comment"># cd /usr/local/</span></div><div class="line">[root@matrix-cache01 <span class="built_in">local</span>]<span class="comment"># mv apache-storm-1.1.0 storm</span></div></pre></td></tr></table></figure>
+<h2 id="Strom分布式集群部署"><a href="#Strom分布式集群部署" class="headerlink" title="Strom分布式集群部署"></a>Strom分布式集群部署</h2><h2 id="搭建ZK集群"><a href="#搭建ZK集群" class="headerlink" title="搭建ZK集群"></a>搭建ZK集群</h2><h2 id="安装Java-JDK"><a href="#安装Java-JDK" class="headerlink" title="安装Java JDK"></a>安装Java JDK</h2><h3 id="解压缩，重命名，配置环境变量"><a href="#解压缩，重命名，配置环境变量" class="headerlink" title="解压缩，重命名，配置环境变量"></a>解压缩，重命名，配置环境变量</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">[root@matrix-cache01 ~]<span class="comment"># tar -zxvf apache-storm-1.1.0.tar.gz -C /usr/local</span></div><div class="line">[root@matrix-cache01 ~]<span class="comment"># cd /usr/local/</span></div><div class="line">[root@matrix-cache01 <span class="built_in">local</span>]<span class="comment"># mv apache-storm-1.1.0 storm</span></div></pre></td></tr></table></figure>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">[root@matrix-cache01 ~]<span class="comment"># vi .bashrc</span></div><div class="line"><span class="built_in">export</span> STORM_HOME=/usr/<span class="built_in">local</span>/storm</div><div class="line"><span class="built_in">export</span> PATH=<span class="variable">$PATH</span>:<span class="variable">$STORM_HOME</span>/bin</div><div class="line">[root@matrix-cache01 ~]<span class="comment"># source .bashrc</span></div></pre></td></tr></table></figure>
 <h2 id="修改storm配置文件"><a href="#修改storm配置文件" class="headerlink" title="修改storm配置文件"></a>修改storm配置文件</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">[root@matrix-cache01 ~]<span class="comment"># mkdir /var/storm</span></div><div class="line">[root@matrix-cache01 ~]<span class="comment"># vi $STORM_HOME/conf/storm.yaml</span></div></pre></td></tr></table></figure>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># storm.zookeeper.servers，表示Zookeeper集群地址</span></div><div class="line"><span class="comment"># 如果Zookeeper集群使用的不是默认端口，那么还需要配置storm.zookeeper.port</span></div><div class="line">storm.zookeeper.servers:</div><div class="line">  - <span class="string">"matrix-cache01"</span></div><div class="line">  - <span class="string">"matrix-cache02"</span></div><div class="line">  - <span class="string">"matrix-cache03"</span></div><div class="line"></div><div class="line"><span class="comment"># storm.local.dir用于配置Storm存储少量文件的路径</span></div><div class="line">storm.local.dir: <span class="string">"/mnt/storm"</span></div><div class="line"></div><div class="line"><span class="comment"># slots.ports，指定每个机器上可以启动多少个worker，一个端口号代表一个worker</span></div><div class="line">supervisor.slots.ports:</div><div class="line">    - 6700</div><div class="line">    - 6701</div><div class="line"></div><div class="line"><span class="comment"># nimbus.seeds用于配置主控节点的地址，可以配置多个</span></div><div class="line"><span class="comment"># 增加了对nimbus节点的多节点配置，解决了nimbus单节点的弊端、</span></div><div class="line">nimbus.seeds: [<span class="string">"matrix-cache01"</span>,<span class="string">"matrix-cache02"</span>]</div></pre></td></tr></table></figure>
@@ -640,7 +729,7 @@
             </a>
             <ul class="dropdown-menu">
                 <li>
-                <a class="sidebar_archives-link" href="/categories/ChatScript/">ChatScript<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/JVM/">JVM<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/Java/">Java<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/Python爬虫/">Python爬虫<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/Python爬虫/Scrapy/">Scrapy<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/TensorFlow/">TensorFlow<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/UI/">UI<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/UI/ps/">ps<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/UI/ps/美术基础/">美术基础<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/elasticsearch/">elasticsearch<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/item2/">item2<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/python/">python<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/python/flask/">flask<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/云计算/">云计算<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/categories/互联网运营/">互联网运营<span class="sidebar_archives-count">5</span></a></li><li><a class="sidebar_archives-link" href="/categories/健身/">健身<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/动效设计/">动效设计<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/图片素材/">图片素材<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大前端/">大前端<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/大前端/React/">React<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大前端/atom/">atom<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大前端/webpack/">webpack<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/">大数据<span class="sidebar_archives-count">149</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/HDFS/">HDFS<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Hbase/">Hbase<span class="sidebar_archives-count">6</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Hive/">Hive<span class="sidebar_archives-count">16</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Linux/">Linux<span class="sidebar_archives-count">11</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Linux/python/">python<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/MR/">MR<span class="sidebar_archives-count">13</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Mahout/">Mahout<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Nginx/">Nginx<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Python数据分析/">Python数据分析<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Python爬虫/">Python爬虫<span class="sidebar_archives-count">5</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Redis/">Redis<span class="sidebar_archives-count">25</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Spark/">Spark<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Sqoop/">Sqoop<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Storm/">Storm<span class="sidebar_archives-count">5</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Tornado/">Tornado<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Zookeeper/">Zookeeper<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/lvs/">lvs<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/mysql/">mysql<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/python数据分析/">python数据分析<span class="sidebar_archives-count">6</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/tengine/">tengine<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/机器学习/">机器学习<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/神经网络/">神经网络<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/微信第三方开发/">微信第三方开发<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/微信订阅号开发/">微信订阅号开发<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/新媒体/">新媒体<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/模块化/">模块化<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/理财/">理财<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/算法/">算法<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/读书笔记/">读书笔记<span class="sidebar_archives-count">6</span></a></li><li><a class="sidebar_archives-link" href="/categories/金融/">金融<span class="sidebar_archives-count">3</span></a>
+                <a class="sidebar_archives-link" href="/categories/ChatScript/">ChatScript<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/Docker/">Docker<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/JVM/">JVM<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/Java/">Java<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/Python爬虫/">Python爬虫<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/Python爬虫/Scrapy/">Scrapy<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/TensorFlow/">TensorFlow<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/UI/">UI<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/UI/ps/">ps<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/UI/ps/美术基础/">美术基础<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/elasticsearch/">elasticsearch<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/item2/">item2<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/python/">python<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/python/flask/">flask<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/云计算/">云计算<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/categories/互联网运营/">互联网运营<span class="sidebar_archives-count">5</span></a></li><li><a class="sidebar_archives-link" href="/categories/健身/">健身<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/动效设计/">动效设计<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/图片素材/">图片素材<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大前端/">大前端<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/大前端/React/">React<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大前端/atom/">atom<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大前端/webpack/">webpack<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/">大数据<span class="sidebar_archives-count">148</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/HDFS/">HDFS<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Hbase/">Hbase<span class="sidebar_archives-count">6</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Hive/">Hive<span class="sidebar_archives-count">16</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Linux/">Linux<span class="sidebar_archives-count">11</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Linux/python/">python<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/MR/">MR<span class="sidebar_archives-count">13</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Mahout/">Mahout<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Nginx/">Nginx<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Python数据分析/">Python数据分析<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Python爬虫/">Python爬虫<span class="sidebar_archives-count">5</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Redis/">Redis<span class="sidebar_archives-count">25</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Spark/">Spark<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Sqoop/">Sqoop<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Storm/">Storm<span class="sidebar_archives-count">5</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Tornado/">Tornado<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Zookeeper/">Zookeeper<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/lvs/">lvs<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/mysql/">mysql<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/python数据分析/">python数据分析<span class="sidebar_archives-count">6</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/tengine/">tengine<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/机器学习/">机器学习<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/神经网络/">神经网络<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/微信第三方开发/">微信第三方开发<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/微信订阅号开发/">微信订阅号开发<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/新媒体/">新媒体<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/模块化/">模块化<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/理财/">理财<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/算法/">算法<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/读书笔记/">读书笔记<span class="sidebar_archives-count">6</span></a></li><li><a class="sidebar_archives-link" href="/categories/金融/">金融<span class="sidebar_archives-count">3</span></a>
             </ul>
         </li>
         
