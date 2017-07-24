@@ -12,7 +12,7 @@
     
     <title>
         
-            分类: 微信订阅号开发 | 
+            Python网络编程 | 
         
         胡思乱想
     </title>
@@ -38,7 +38,7 @@
     <meta name="theme-color" content="#4F4B43">
     <meta name="author" content="SparseMatrix">
     <meta name="description" itemprop="description" content="">
-    <meta name="keywords" content="null">
+    <meta name="keywords" content="null,大数据,Python">
 
     <!-- Site Verification -->
     
@@ -67,15 +67,18 @@
     <!-- The Open Graph protocol -->
     <meta property="og:url" content="http://yoursite.com">
     <meta property="og:type" content="blog">
-    <meta property="og:title" content="分类: 微信订阅号开发 | 胡思乱想">
+    <meta property="og:title" content="Python网络编程 | 胡思乱想">
     <meta property="og:image" content="/img/favicon.png" />
     <meta property="og:description" content="">
-    
+    <meta property="og:article:tag" content="大数据"> <meta property="og:article:tag" content="Python"> 
 
+    
+        <meta property="article:published_time" content="7月 21, 2017" />
+        <meta property="article:modified_time" content="7月 24, 2017" />
     
 
     <!-- The Twitter Card protocol -->
-    <meta name="twitter:title" content="分类: 微信订阅号开发 | 胡思乱想">
+    <meta name="twitter:title" content="Python网络编程 | 胡思乱想">
     <meta name="twitter:description" content="">
     <meta name="twitter:image" content="/img/favicon.png">
     <meta name="twitter:card" content="summary_large_image" />
@@ -83,13 +86,43 @@
 
     <!-- Add canonical link for SEO -->
     
-        <link rel="canonical" href="http://yoursite.com/categories/微信订阅号开发/index.html" />
+        <link rel="canonical" href="http://yoursite.com/2017/07/21/Python网络编程/index.html" />
     
 
     <!-- Structured-data for SEO -->
     
         
 
+
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "publisher": {
+        "@type": "Organization",
+        "name": "胡思乱想",
+        "logo": "/img/favicon.png"
+    },
+    "author": {
+        "@type": "Person",
+        "name": "SparseMatrix",
+        "image": {
+            "@type": "ImageObject",
+            "url": "/img/favicon.png"
+        },
+        "description": "每天，遇到更好的你"
+    },
+    "headline": "Python网络编程",
+    "url": "http://yoursite.com/2017/07/21/Python网络编程/index.html",
+    "datePublished": "7月 21, 2017",
+    "dateModified": "7月 24, 2017",
+    "description": "",
+    "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "http://yoursite.com"
+    }
+}
+</script>
 
 
     
@@ -287,96 +320,268 @@
                         </button>
                     
 
-                    <!-- Index Module -->
-<div class="material-index mdl-grid">
-    
-    <div class="locate-thumbnail-symbol"></div>
+                    <!-- Post TOC -->
 
-    <!-- Pin on top -->
+    
+    <!-- Back Button -->
+    <!--
+    <div class="material-back" id="backhome-div" tabindex="0">
+        <a class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon"
+           href="#" onclick="window.history.back();return false;"
+           target="_self"
+           role="button"
+           data-upgraded=",MaterialButton,MaterialRipple">
+            <i class="material-icons" role="presentation">arrow_back</i>
+            <span class="mdl-button__ripple-container">
+                <span class="mdl-ripple"></span>
+            </span>
+        </a>
+    </div>
+    -->
+
+    <!-- Left aligned menu below button -->
+    <button id="post-toc-trigger-btn"
+        class="mdl-button mdl-js-button mdl-button--icon">
+        <i class="material-icons">format_list_numbered</i>
+    </button>
+
+    
+    <ul class="post-toc-wrap mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-js-ripple-effect" for="post-toc-trigger-btn" style="max-height:80vh; overflow-y:scroll;">
+        <ol class="post-toc"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Tcp-IP简介"><span class="post-toc-number">1.</span> <span class="post-toc-text">Tcp/IP简介</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#端口"><span class="post-toc-number">2.</span> <span class="post-toc-text">端口</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#端口号"><span class="post-toc-number">3.</span> <span class="post-toc-text">端口号</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#动态端口"><span class="post-toc-number">4.</span> <span class="post-toc-text">动态端口</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#IP地址"><span class="post-toc-number">5.</span> <span class="post-toc-text">IP地址</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#A类IP地址"><span class="post-toc-number">6.</span> <span class="post-toc-text">A类IP地址</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#B类IP地址"><span class="post-toc-number">7.</span> <span class="post-toc-text">B类IP地址</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#C类IP地址"><span class="post-toc-number">8.</span> <span class="post-toc-text">C类IP地址</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#D类地址⽤于多点⼴播"><span class="post-toc-number">9.</span> <span class="post-toc-text">D类地址⽤于多点⼴播</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#E类IP地址"><span class="post-toc-number">10.</span> <span class="post-toc-text">E类IP地址</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#私有ip"><span class="post-toc-number">11.</span> <span class="post-toc-text">私有ip</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#子网掩码"><span class="post-toc-number">12.</span> <span class="post-toc-text">子网掩码</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Socket"><span class="post-toc-number"></span> <span class="post-toc-text">Socket</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#本地的进程间通信（IPC）"><span class="post-toc-number">1.</span> <span class="post-toc-text">本地的进程间通信（IPC）</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#网络中进程如何通信"><span class="post-toc-number">2.</span> <span class="post-toc-text">网络中进程如何通信</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#什么是socket"><span class="post-toc-number">3.</span> <span class="post-toc-text">什么是socket</span></a></li></ol>
+        <!--
+        <li class="mdl-menu__item">
+            Some Action
+        </li>
+        -->
+    </ul>
     
 
-    <!-- Normal Post -->
-    
-        
-            
-                <!-- Paradox Thumbnail -->
-                <div class="post_entry-module mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col fade out">
-    <!-- Post Thumbnail -->
+
+
+
+
+<!-- Layouts -->
+
+    <!-- Post Module -->
+    <div class="material-post_container">
+
+        <div class="material-post mdl-grid">
+            <div class="mdl-card mdl-shadow--4dp mdl-cell mdl-cell--12-col">
+
+                <!-- Post Header(Thumbnail & Title) -->
+                
+    <!-- Paradox Post Header -->
     
         
             <!-- Random Thumbnail -->
             <div class="post_thumbnail-random mdl-card__media mdl-color-text--grey-50">
-        
-    
+            <script type="text/ls-javascript" id="post-thumbnail-script">
+    var randomNum = Math.floor(Math.random() * 25 + 1);
 
-        <!-- Post Title -->
-        <p class="article-headline-p"><a href="/2017/06/19/Python实现微信订阅号开发/">Python实现微信订阅号开发</a></p>
-    </div>
-
-    <!-- Post Excerpt -->
-    <div class="mdl-color-text--grey-600 mdl-card__supporting-text post_entry-content">
-        
-            
-        
-        &nbsp;&nbsp;&nbsp;
-        <span>
-            <a href="/2017/06/19/Python实现微信订阅号开发/" target="_self">阅读全文</a>
-        </span>
-    </div>
-    <!-- Post_entry Info-->
-    <div id="post_entry-info">
-        <div id="post_entry-left-info" class="mdl-card__supporting-text meta mdl-color-text--grey-600 ">
-            <!-- Author Avatar -->
-            <div id="author-avatar">
-                <img src="/img/avatar.png" width="44px" height="44px" alt="SparseMatrix's avatar">
-            </div>
-            <div>
-                <strong>SparseMatrix</strong>
-                <span>6月 19, 2017</span>
-            </div>
-        </div>
-        <div id="post_entry-right-info">
-            <!-- Category -->
-            <span class="post_entry-category">
-                <a class="post_category-link" href="/categories/微信订阅号开发/">微信订阅号开发</a>
-            </span>
-
-            
-
-            
-
-            <!-- Post Views -->
-            <span class="post_entry-views">
-            </span>
-        </div>
-    </div>
-</div>
-
-            
-            
-        
-    
-
-    
-
-    
-        <script type="text/ls-javascript" id="thumbnail-script">
-    var randomNum;
-
-    var locatePost = $('.locate-thumbnail-symbol').next();
-    for(var i = 0; i < 5; i++) {
-        randomNum = Math.floor(Math.random() * 25 + 1);
-
-        locatePost.children('.post_thumbnail-random').attr('id', 'random_thumbnail-'+randomNum);
-        locatePost.children('.post_thumbnail-random').attr('data-original', '/img/random/material-' + randomNum + '.png');
+    $('.post_thumbnail-random').attr('data-original', '/img/random/material-' + randomNum + '.png');
     $('.post_thumbnail-random').addClass('lazy');
-
-        locatePost = locatePost.next();
-    }
 </script>
 
+        
+    
+            <p class="article-headline-p">
+                Python网络编程
+            </p>
+        </div>
+
+
+
+
+
+                
+                    <!-- Paradox Post Info -->
+                    <div class="mdl-color-text--grey-700 mdl-card__supporting-text meta">
+
+    <!-- Author Avatar -->
+    <div id="author-avatar">
+        <img src="/img/avatar.png" width="44px" height="44px" alt="Author Avatar"/>
+    </div>
+    <!-- Author Name & Date -->
+    <div>
+        <strong>SparseMatrix</strong>
+        <span>7月 21, 2017</span>
+    </div>
+
+    <div class="section-spacer"></div>
+
+    <!-- Favorite -->
+    <!--
+        <button id="article-functions-like-button" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon btn-like">
+            <i class="material-icons" role="presentation">favorite</i>
+            <span class="visuallyhidden">favorites</span>
+        </button>
+    -->
+
+    <!-- Qrcode -->
+    
+
+    <!-- Tags (bookmark) -->
+    
+    <button id="article-functions-viewtags-button" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
+        <i class="material-icons" role="presentation">bookmark</i>
+        <span class="visuallyhidden">bookmark</span>
+    </button>
+    <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="article-functions-viewtags-button">
+        <li class="mdl-menu__item">
+        <a class="post_tag-link" href="/tags/Python/">Python</a></li><li class="mdl-menu__item"><a class="post_tag-link" href="/tags/大数据/">大数据</a>
+    </ul>
+    
+
+    <!-- Share -->
+    <button id="article-fuctions-share-button" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
+    <i class="material-icons" role="presentation">share</i>
+    <span class="visuallyhidden">share</span>
+</button>
+<ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="article-fuctions-share-button">
+    
+
+    
+
+    <!-- Share Weibo -->
+    
+        <a class="post_share-link" href="http://service.weibo.com/share/share.php?appkey=&title=Python网络编程&url=http://yoursite.com/2017/07/21/Python网络编程/index.html&pic=&searchPic=false&style=simple" target="_blank">
+            <li class="mdl-menu__item">
+                分享到微博
+            </li>
+        </a>
+    
+
+    <!-- Share Twitter -->
+    
+        <a class="post_share-link" href="https://twitter.com/intent/tweet?text=Python网络编程&url=http://yoursite.com/2017/07/21/Python网络编程/index.html&via=SparseMatrix" target="_blank">
+            <li class="mdl-menu__item">
+                分享到 Twitter
+            </li>
+        </a>
+    
+
+    <!-- Share Facebook -->
+    
+        <a class="post_share-link" href="https://www.facebook.com/sharer/sharer.php?u=http://yoursite.com/2017/07/21/Python网络编程/index.html" target="_blank">
+            <li class="mdl-menu__item">
+                分享到 Facebook
+            </li>
+        </a>
+    
+
+    <!-- Share Google+ -->
+    
+        <a class="post_share-link" href="https://plus.google.com/share?url=http://yoursite.com/2017/07/21/Python网络编程/index.html" target="_blank">
+            <li class="mdl-menu__item">
+                分享到 Google+
+            </li>
+        </a>
+    
+
+    <!-- Share LinkedIn -->
+    
+
+    <!-- Share QQ -->
+    
+        <a class="post_share-link" href="http://connect.qq.com/widget/shareqq/index.html?site=胡思乱想&title=Python网络编程&summary=null&pics=http://yoursite.com/img/favicon.png&url=http://yoursite.com/2017/07/21/Python网络编程/index.html" target="_blank">
+            <li class="mdl-menu__item">
+                分享到 QQ
+            </li>
+        </a>
+    
+
+    <!-- Share Telegram -->
+    
+</ul>
+
+</div>
+
+                
+
+                <!-- Post Content -->
+                <div id="post-content" class="mdl-color-text--grey-700 mdl-card__supporting-text fade out">
+    
+        <figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">网络能够把多方链接在一起，然后进行数据传递</div><div class="line">网络编程就是，让不同的电脑上的软件能够有进行数据传递，即进程之间的通信</div></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fhralr79sfj20kt09n0vz.jpg" alt=""></p>
+<h3 id="Tcp-IP简介"><a href="#Tcp-IP简介" class="headerlink" title="Tcp/IP简介"></a>Tcp/IP简介</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">为了解决不同语言之间的沟通障碍，规定通用语言，这个规定就是协议</div></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fhramqy4t1j20ng0cv10g.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">为了把全世界的所有不同类型的计算机都连接起来，就必须规定⼀套全球通 ⽤的协议，为了实现互联⽹这个⽬标，互联⽹协议簇（Internet	Protocol Suite）就是通⽤协议标准</div></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fhrap0dij1j20ml0h0djl.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">国际层：网络层</div><div class="line">网络接口层：链路层</div></pre></td></tr></table></figure>
+<h3 id="端口"><a href="#端口" class="headerlink" title="端口"></a>端口</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">端口=房子的门，出入房子的必经之路</div><div class="line">Linux系统中，端口可以有65536(2的16次方)</div></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fhrhaszn6uj20mg0cddkc.jpg" alt=""></p>
+<h3 id="端口号"><a href="#端口号" class="headerlink" title="端口号"></a>端口号</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">端口号只有整数，范围是从0到65535</div></pre></td></tr></table></figure>
+<h3 id="动态端口"><a href="#动态端口" class="headerlink" title="动态端口"></a>动态端口</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">动态端口是从1024到65535</div><div class="line"></div><div class="line">动态分配是指当一个系统进程或应用程序进程需要网络通信时，它向主机申请一个端口，主机从可用的端口号中分配一个供它使用，当这个进程关闭时，同时也就是释放了所占用的端口号</div></pre></td></tr></table></figure>
+<h3 id="IP地址"><a href="#IP地址" class="headerlink" title="IP地址"></a>IP地址</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">用来在网络中标记一台电脑的数字</div></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">网络地址和主机地址</div></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fhrho1rg4xj20kt0b8n2o.jpg" alt=""></p>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fhrhp3d2xhj20nf0cpk0a.jpg" alt=""></p>
+<h3 id="A类IP地址"><a href="#A类IP地址" class="headerlink" title="A类IP地址"></a>A类IP地址</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">一个A类IP地址由1字节的网络地址和3字节的主机地址组成，网络地址的最高位必须是<span class="string">"0"</span></div><div class="line">地址范围1.0.0.1-126.255.255.254</div><div class="line">⼆进制表示为：00000001	00000000	00000000	00000001	-	01111110 11111111	11111111	11111110</div><div class="line">可⽤的A类⽹络有126个，每个⽹络能容纳1677214个主机</div></pre></td></tr></table></figure>
+<h3 id="B类IP地址"><a href="#B类IP地址" class="headerlink" title="B类IP地址"></a>B类IP地址</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">⼀个B类IP地址由2个字节的⽹络地址和2个字节的主机地址组成，⽹络地址 的最⾼位必须是“10”，</div><div class="line">地址范围128.1.0.1-191.255.255.254</div><div class="line">⼆进制表示为：10000000	00000001	00000000	00000001	-	10111111 11111111	11111111	11111110</div><div class="line">可⽤的B类⽹络有16384个，每个⽹络能容纳65534主机</div></pre></td></tr></table></figure>
+<h3 id="C类IP地址"><a href="#C类IP地址" class="headerlink" title="C类IP地址"></a>C类IP地址</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">⼀个C类IP地址由3字节的⽹络地址和1字节的主机地址组成，⽹络地址的最 ⾼位必须是“110”</div><div class="line">范围192.0.1.1-223.255.255.254</div><div class="line">⼆进制表示为:	11000000	00000000	00000001	00000001	-	11011111 11111111	11111110	11111110</div><div class="line">C类⽹络可达2097152个，每个⽹络能容纳254个主机</div></pre></td></tr></table></figure>
+<h3 id="D类地址⽤于多点⼴播"><a href="#D类地址⽤于多点⼴播" class="headerlink" title="D类地址⽤于多点⼴播"></a>D类地址⽤于多点⼴播</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">D类IP地址第⼀个字节以“1110”开始，它是⼀个专⻔保留的地址。</div><div class="line">它并不指向特定的⽹络，⽬前这⼀类地址被⽤在多点⼴播（Multicast）中</div><div class="line">多点⼴播地址⽤来⼀次寻址⼀组计算机</div><div class="line">地址范围224.0.0.1-239.255.255.254</div></pre></td></tr></table></figure>
+<h3 id="E类IP地址"><a href="#E类IP地址" class="headerlink" title="E类IP地址"></a>E类IP地址</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">以<span class="string">"1111"</span>开始，为将来使⽤保留</div><div class="line">E类地址保留，仅作实验和开发⽤</div></pre></td></tr></table></figure>
+<h3 id="私有ip"><a href="#私有ip" class="headerlink" title="私有ip"></a>私有ip</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">在这么多⽹络IP中，国际规定有⼀部分IP地址是⽤于我们的局域⽹使⽤，也 就</div><div class="line">是属于私⽹IP，不在公⽹中使⽤的，它们的范围是：</div><div class="line">10.0.0.0～10.255.255.255</div><div class="line">172.16.0.0～172.31.255.255</div><div class="line">192.168.0.0～192.168.255.255</div></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">IP地址127．0．0．1~127．255．255．255⽤于回路测试，</div><div class="line">如：127.0.0.1可以代表本机IP地址</div><div class="line">⽤http://127.0.0.1就可以测试本机 中配置的Web服务器。</div></pre></td></tr></table></figure>
+<h3 id="子网掩码"><a href="#子网掩码" class="headerlink" title="子网掩码"></a>子网掩码</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">将某个IP地址划分成⽹络地址和主机地址两部分</div><div class="line">与IP地址相同，⼦⽹掩码的⻓度也是32位</div><div class="line">左边是⽹络位，⽤⼆进制数字<span class="string">"1"</span>表示； 右边是主机位，⽤⼆进制数字<span class="string">"0"</span>表示</div><div class="line">假设IP地址为<span class="string">"192.168.1.1"</span>⼦⽹掩码为<span class="string">"255.255.255.0"</span></div><div class="line"><span class="string">"1"</span>有24个，代表与此相对应的IP地址左边24位是⽹络号</div><div class="line"><span class="string">"0"</span>有8个，代表与此相对应的IP地址右边8位是主机号</div><div class="line">这样，⼦⽹掩码就确定了⼀个IP地址的32位⼆进制数字中哪些是⽹络号、哪些是主机号</div><div class="line">这对于采⽤TCP/IP协议的⽹络来说⾮常重要，只有通过⼦⽹掩码，才能表明⼀台主机</div></pre></td></tr></table></figure>
+<h2 id="Socket"><a href="#Socket" class="headerlink" title="Socket"></a>Socket</h2><h3 id="本地的进程间通信（IPC）"><a href="#本地的进程间通信（IPC）" class="headerlink" title="本地的进程间通信（IPC）"></a>本地的进程间通信（IPC）</h3><ul>
+<li>队列</li>
+<li>同步(互斥锁、条件变量)</li>
+</ul>
+<h3 id="网络中进程如何通信"><a href="#网络中进程如何通信" class="headerlink" title="网络中进程如何通信"></a>网络中进程如何通信</h3><ul>
+<li>在本地可以通过进程PID来唯⼀标识⼀个进程</li>
+<li>⽹络层的”ip地址”可以唯⼀ 标识⽹络中的主机，传输层的”协议+端⼝”可以唯⼀标识主机中的应⽤程序(进程) -&gt;     ip地址/协议/端⼝可以标识⽹络的进程</li>
+</ul>
+<h3 id="什么是socket"><a href="#什么是socket" class="headerlink" title="什么是socket"></a>什么是socket</h3><ul>
+<li>实现不同主机间的进程间通信</li>
+<li>浏览⽹⻚、QQ聊天、收发email都是基于socket通信</li>
+</ul>
+
+    
+
     
 </div>
+
+
+                
+
+                <!-- Post Comments -->
+                
+                    
+                
+            </div>
+
+            <!-- Post Prev & Next Nav -->
+            <nav class="material-nav mdl-color-text--grey-50 mdl-cell mdl-cell--12-col">
+    <!-- Prev Nav -->
+    
+        <a href="/2017/07/24/ElasticSearch集群部署以及zen discovery集群发现机制/" id="post_nav-newer" class="prev-content">
+            <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon mdl-color--white mdl-color-text--grey-900" role="presentation">
+                <i class="material-icons">arrow_back</i>
+            </button>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            新篇
+        </a>
+    
+
+    <!-- Section Spacer -->
+    <div class="section-spacer"></div>
+
+    <!-- Next Nav -->
+    
+        <a href="/2017/07/21/ChatScript创建机器人/" id="post_nav-older" class="next-content">
+            旧篇
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon mdl-color--white mdl-color-text--grey-900" role="presentation">
+                <i class="material-icons">arrow_forward</i>
+            </button>
+        </a>
+    
+</nav>
+
+        </div>
+    </div>
+
 
 
                     
@@ -447,7 +652,7 @@
             </a>
             <ul class="dropdown-menu">
             <li>
-                <a class="sidebar_archives-link" href="/archives/2017/07/">七月 2017<span class="sidebar_archives-count">23</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/06/">六月 2017<span class="sidebar_archives-count">38</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/05/">五月 2017<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/04/">四月 2017<span class="sidebar_archives-count">8</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/03/">三月 2017<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/02/">二月 2017<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/01/">一月 2017<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/11/">十一月 2016<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/10/">十月 2016<span class="sidebar_archives-count">6</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/07/">七月 2016<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/05/">五月 2016<span class="sidebar_archives-count">5</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/03/">三月 2016<span class="sidebar_archives-count">24</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/02/">二月 2016<span class="sidebar_archives-count">52</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/01/">一月 2016<span class="sidebar_archives-count">28</span></a>
+                <a class="sidebar_archives-link" href="/archives/2017/07/">七月 2017<span class="sidebar_archives-count">26</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/06/">六月 2017<span class="sidebar_archives-count">38</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/05/">五月 2017<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/04/">四月 2017<span class="sidebar_archives-count">8</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/03/">三月 2017<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/02/">二月 2017<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/01/">一月 2017<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/11/">十一月 2016<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/10/">十月 2016<span class="sidebar_archives-count">6</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/07/">七月 2016<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/05/">五月 2016<span class="sidebar_archives-count">5</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/03/">三月 2016<span class="sidebar_archives-count">25</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/02/">二月 2016<span class="sidebar_archives-count">53</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/01/">一月 2016<span class="sidebar_archives-count">28</span></a>
             </ul>
         </li>
         
@@ -465,7 +670,7 @@
             </a>
             <ul class="dropdown-menu">
                 <li>
-                <a class="sidebar_archives-link" href="/categories/ChatScript/">ChatScript<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/Docker/">Docker<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/Java/">Java<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/Python爬虫/">Python爬虫<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/Python爬虫/Scrapy/">Scrapy<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/TensorFlow/">TensorFlow<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/UI/">UI<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/UI/ps/">ps<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/UI/ps/美术基础/">美术基础<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/elasticsearch/">elasticsearch<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/item2/">item2<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/python/">python<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/python/flask/">flask<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/云计算/">云计算<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/categories/互联网运营/">互联网运营<span class="sidebar_archives-count">5</span></a></li><li><a class="sidebar_archives-link" href="/categories/健身/">健身<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/动效设计/">动效设计<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/图片素材/">图片素材<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大前端/">大前端<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/大前端/React/">React<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大前端/atom/">atom<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大前端/webpack/">webpack<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/">大数据<span class="sidebar_archives-count">149</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/HDFS/">HDFS<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Hbase/">Hbase<span class="sidebar_archives-count">6</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Hive/">Hive<span class="sidebar_archives-count">16</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Java/">Java<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Linux/">Linux<span class="sidebar_archives-count">11</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Linux/python/">python<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/MR/">MR<span class="sidebar_archives-count">13</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Mahout/">Mahout<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Nginx/">Nginx<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Python数据分析/">Python数据分析<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Python爬虫/">Python爬虫<span class="sidebar_archives-count">5</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Redis/">Redis<span class="sidebar_archives-count">25</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Spark/">Spark<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Sqoop/">Sqoop<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Storm/">Storm<span class="sidebar_archives-count">5</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Tornado/">Tornado<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Zookeeper/">Zookeeper<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/lvs/">lvs<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/mysql/">mysql<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/python数据分析/">python数据分析<span class="sidebar_archives-count">6</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/tengine/">tengine<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/机器学习/">机器学习<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/神经网络/">神经网络<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/微信第三方开发/">微信第三方开发<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/微信订阅号开发/">微信订阅号开发<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/新媒体/">新媒体<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/模块化/">模块化<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/理财/">理财<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/算法/">算法<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/读书笔记/">读书笔记<span class="sidebar_archives-count">6</span></a></li><li><a class="sidebar_archives-link" href="/categories/金融/">金融<span class="sidebar_archives-count">3</span></a>
+                <a class="sidebar_archives-link" href="/categories/ChatScript/">ChatScript<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/Docker/">Docker<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/Java/">Java<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/Python爬虫/">Python爬虫<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/Python爬虫/Scrapy/">Scrapy<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/TensorFlow/">TensorFlow<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/UI/">UI<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/UI/ps/">ps<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/UI/ps/美术基础/">美术基础<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/elasticsearch/">elasticsearch<span class="sidebar_archives-count">5</span></a></li><li><a class="sidebar_archives-link" href="/categories/item2/">item2<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/python/">python<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/python/flask/">flask<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/云计算/">云计算<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/categories/互联网运营/">互联网运营<span class="sidebar_archives-count">5</span></a></li><li><a class="sidebar_archives-link" href="/categories/健身/">健身<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/动效设计/">动效设计<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/图片素材/">图片素材<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大前端/">大前端<span class="sidebar_archives-count">5</span></a></li><li><a class="sidebar_archives-link" href="/categories/大前端/React/">React<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大前端/atom/">atom<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大前端/webpack/">webpack<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/">大数据<span class="sidebar_archives-count">154</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/HDFS/">HDFS<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Hbase/">Hbase<span class="sidebar_archives-count">6</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Hive/">Hive<span class="sidebar_archives-count">16</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Java/">Java<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Linux/">Linux<span class="sidebar_archives-count">12</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Linux/python/">python<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/MR/">MR<span class="sidebar_archives-count">13</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Mahout/">Mahout<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Nginx/">Nginx<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Python/">Python<span class="sidebar_archives-count">8</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Python数据分析/">Python数据分析<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Python爬虫/">Python爬虫<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Redis/">Redis<span class="sidebar_archives-count">25</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Spark/">Spark<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Sqoop/">Sqoop<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Storm/">Storm<span class="sidebar_archives-count">5</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Tornado/">Tornado<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Zookeeper/">Zookeeper<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/lvs/">lvs<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/mysql/">mysql<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/python/">python<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/python数据分析/">python数据分析<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/tengine/">tengine<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/机器学习/">机器学习<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/神经网络/">神经网络<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/微信第三方开发/">微信第三方开发<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/新媒体/">新媒体<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/模块化/">模块化<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/理财/">理财<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/算法/">算法<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/读书笔记/">读书笔记<span class="sidebar_archives-count">6</span></a></li><li><a class="sidebar_archives-link" href="/categories/金融/">金融<span class="sidebar_archives-count">3</span></a>
             </ul>
         </li>
         
@@ -479,7 +684,7 @@
         <li>
             <a href="/archives">
                 文章总数
-                <span class="sidebar-badge">199</span>
+                <span class="sidebar-badge">204</span>
             </a>
         </li>
         
