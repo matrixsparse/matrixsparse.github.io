@@ -74,7 +74,7 @@
 
     
         <meta property="article:published_time" content="6月 15, 2017" />
-        <meta property="article:modified_time" content="8月 02, 2017" />
+        <meta property="article:modified_time" content="8月 05, 2017" />
     
 
     <!-- The Twitter Card protocol -->
@@ -115,7 +115,7 @@
     "headline": "Python迭代器",
     "url": "http://yoursite.com/2017/06/15/Python迭代器/index.html",
     "datePublished": "6月 15, 2017",
-    "dateModified": "8月 02, 2017",
+    "dateModified": "8月 05, 2017",
     "description": "",
     "mainEntityOfPage": {
         "@type": "WebPage",
@@ -347,7 +347,7 @@
 
     
     <ul class="post-toc-wrap mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-js-ripple-effect" for="post-toc-trigger-btn" style="max-height:80vh; overflow-y:scroll;">
-        
+        <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#可迭代对象"><span class="post-toc-number">1.</span> <span class="post-toc-text">可迭代对象</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#判断是否可以迭代"><span class="post-toc-number">2.</span> <span class="post-toc-text">判断是否可以迭代</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#迭代器"><span class="post-toc-number">3.</span> <span class="post-toc-text">迭代器</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#iter-函数"><span class="post-toc-number">3.1.</span> <span class="post-toc-text">iter()函数</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#总结"><span class="post-toc-number">3.2.</span> <span class="post-toc-text">总结</span></a></li></ol></li></ol>
         <!--
         <li class="mdl-menu__item">
             Some Action
@@ -501,7 +501,22 @@
                 <!-- Post Content -->
                 <div id="post-content" class="mdl-color-text--grey-700 mdl-card__supporting-text fade out">
     
-        
+        <p>迭代是访问集合元素的一种方式，迭代器是一个可以记住遍历位置的对象，迭代器对象从集合的第一个元素开始访问，知道所有的元素被访问完结束。迭代器智能往前不会后退</p>
+<h2 id="可迭代对象"><a href="#可迭代对象" class="headerlink" title="可迭代对象"></a>可迭代对象</h2><ul>
+<li>直接作用于for循环的数据类型有以下几种：</li>
+<li>一类是集合数据类型，如list、tuple、dict、set、str等</li>
+<li>一类是generator，包括生成器和带yield的generator function</li>
+<li>这些可以直接作用于for循环的独享统称为可迭代对象：iterable</li>
+</ul>
+<h2 id="判断是否可以迭代"><a href="#判断是否可以迭代" class="headerlink" title="判断是否可以迭代"></a>判断是否可以迭代</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">In [50]: from collections import Iterable</div><div class="line"></div><div class="line">In [51]: isinstance([], Iterable)</div><div class="line">Out[51]: True</div><div class="line"></div><div class="line">In [52]: isinstance(&#123;&#125;, Iterable)</div><div class="line">Out[52]: True</div><div class="line"></div><div class="line">In [53]: isinstance(<span class="string">'abc'</span>, Iterable)</div><div class="line">Out[53]: True</div><div class="line"></div><div class="line">In [54]: isinstance((x <span class="keyword">for</span> x <span class="keyword">in</span> range(10)), Iterable)</div><div class="line">Out[54]: True</div><div class="line"></div><div class="line">In [55]: isinstance(100, Iterable)</div><div class="line">Out[55]: False</div></pre></td></tr></table></figure>
+<p>而生成器不但可以作用于 for 循环，还可以被 next() 函数不断调用并返回下一个值，直到最后抛出 StopIteration 错误表示无法继续返回下一个值了</p>
+<h2 id="迭代器"><a href="#迭代器" class="headerlink" title="迭代器"></a>迭代器</h2><p>可以被next()函数调用并不断返回下一个值的对象称为迭代器：Iterator。</p>
+<p>可以使用 isinstance() 判断一个对象是否是 Iterator 对象：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">In [56]: from collections import Iterator</div><div class="line"></div><div class="line">In [57]: isinstance((x <span class="keyword">for</span> x <span class="keyword">in</span> range(10)), Iterator)</div><div class="line">Out[57]: True</div><div class="line"></div><div class="line">In [58]: isinstance([], Iterator)</div><div class="line">Out[58]: False</div><div class="line"></div><div class="line">In [59]: isinstance(&#123;&#125;, Iterator)</div><div class="line">Out[59]: False</div><div class="line"></div><div class="line">In [60]: isinstance(<span class="string">'abc'</span>, Iterator)</div><div class="line">Out[60]: False</div><div class="line"></div><div class="line">In [61]: isinstance(100, Iterator)</div><div class="line">Out[61]: False</div></pre></td></tr></table></figure>
+<h3 id="iter-函数"><a href="#iter-函数" class="headerlink" title="iter()函数"></a>iter()函数</h3><p>生成器都是 Iterator 对象，但 list 、 dict 、 str 虽然是 Iterable ，却不是 Iterator 。</p>
+<p>把 list 、 dict 、 str 等 Iterable 变成 Iterator 可以使用 iter() 函数：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">In [62]: isinstance(iter([]), Iterator)</div><div class="line">Out[62]: True</div><div class="line"></div><div class="line">In [63]: isinstance(iter(<span class="string">'abc'</span>), Iterator)</div><div class="line">Out[63]: True</div></pre></td></tr></table></figure>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">凡是可作用于 <span class="keyword">for</span> 循环的对象都是 Iterable 类型</div><div class="line">凡是可作用于 next() 函数的对象都是 Iterator 类型</div><div class="line">集合数据类型如 list 、 dict 、 str 等是 Iterable 但不是 Iterator ，不过可以通过 iter() 函数获得一个 Iterator 对象</div></pre></td></tr></table></figure>
     
 
     
@@ -520,7 +535,7 @@
             <nav class="material-nav mdl-color-text--grey-50 mdl-cell mdl-cell--12-col">
     <!-- Prev Nav -->
     
-        <a href="/2017/06/15/理财/" id="post_nav-newer" class="prev-content">
+        <a href="/2017/06/19/Python实现微信订阅号开发/" id="post_nav-newer" class="prev-content">
             <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon mdl-color--white mdl-color-text--grey-900" role="presentation">
                 <i class="material-icons">arrow_back</i>
             </button>
@@ -534,7 +549,7 @@
 
     <!-- Next Nav -->
     
-        <a href="/2017/06/15/Python装饰器/" id="post_nav-older" class="next-content">
+        <a href="/2017/06/15/理财/" id="post_nav-older" class="next-content">
             旧篇
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon mdl-color--white mdl-color-text--grey-900" role="presentation">
@@ -617,7 +632,7 @@
             </a>
             <ul class="dropdown-menu">
             <li>
-                <a class="sidebar_archives-link" href="/archives/2017/08/">八月 2017<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/07/">七月 2017<span class="sidebar_archives-count">27</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/06/">六月 2017<span class="sidebar_archives-count">41</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/05/">五月 2017<span class="sidebar_archives-count">10</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/04/">四月 2017<span class="sidebar_archives-count">9</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/03/">三月 2017<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/02/">二月 2017<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/01/">一月 2017<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/11/">十一月 2016<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/10/">十月 2016<span class="sidebar_archives-count">6</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/07/">七月 2016<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/05/">五月 2016<span class="sidebar_archives-count">5</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/03/">三月 2016<span class="sidebar_archives-count">25</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/02/">二月 2016<span class="sidebar_archives-count">53</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/01/">一月 2016<span class="sidebar_archives-count">28</span></a>
+                <a class="sidebar_archives-link" href="/archives/2017/08/">八月 2017<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/07/">七月 2017<span class="sidebar_archives-count">27</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/06/">六月 2017<span class="sidebar_archives-count">41</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/05/">五月 2017<span class="sidebar_archives-count">10</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/04/">四月 2017<span class="sidebar_archives-count">9</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/03/">三月 2017<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/02/">二月 2017<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/01/">一月 2017<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/11/">十一月 2016<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/10/">十月 2016<span class="sidebar_archives-count">6</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/07/">七月 2016<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/05/">五月 2016<span class="sidebar_archives-count">5</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/03/">三月 2016<span class="sidebar_archives-count">25</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/02/">二月 2016<span class="sidebar_archives-count">53</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/01/">一月 2016<span class="sidebar_archives-count">28</span></a>
             </ul>
         </li>
         
@@ -649,7 +664,7 @@
         <li>
             <a href="/archives">
                 文章总数
-                <span class="sidebar-badge">218</span>
+                <span class="sidebar-badge">219</span>
             </a>
         </li>
         

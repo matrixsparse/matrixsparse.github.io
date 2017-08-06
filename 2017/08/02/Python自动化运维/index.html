@@ -74,7 +74,7 @@
 
     
         <meta property="article:published_time" content="8月 02, 2017" />
-        <meta property="article:modified_time" content="8月 02, 2017" />
+        <meta property="article:modified_time" content="8月 05, 2017" />
     
 
     <!-- The Twitter Card protocol -->
@@ -115,7 +115,7 @@
     "headline": "Python自动化运维",
     "url": "http://yoursite.com/2017/08/02/Python自动化运维/index.html",
     "datePublished": "8月 02, 2017",
-    "dateModified": "8月 02, 2017",
+    "dateModified": "8月 05, 2017",
     "description": "",
     "mainEntityOfPage": {
         "@type": "WebPage",
@@ -503,6 +503,7 @@
     
         <p>Pexpect是Don Libes的Expect语言的一个Python实现，是一个用来启动子程序，并使用正则表达式对程序输出做出特定响应，以此实现与其自动交互的Python模块</p>
 <p>Pexpect的使用范围很广，可以用来实现与ssh、ftp、telnet等程序的自动交互，可以用来自动复制软件安装包并在不同机器自动安装，还可以用来实现软件测试中与命令行交互的自动化</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># -*- coding: utf-8 -*-</span></div><div class="line"></div><div class="line">from pexpect import pxssh</div><div class="line">import sys</div><div class="line"></div><div class="line">s = pxssh.pxssh()</div><div class="line">s.logfile = sys.stdout</div><div class="line">hostname = <span class="string">'192.168.3.243'</span></div><div class="line">username = <span class="string">'root'</span></div><div class="line">password = <span class="string">'lmb2015'</span></div><div class="line">s.login(hostname, username, password)</div><div class="line">s.sendline(<span class="string">'ls /'</span>)</div><div class="line">s.prompt()  <span class="comment"># 匹配系统提示符</span></div><div class="line">s.sendline(<span class="string">'whoami'</span>)</div><div class="line">s.prompt()</div><div class="line">s.logout()</div></pre></td></tr></table></figure>
 <h2 id="Fabric目前只支持Python2-x"><a href="#Fabric目前只支持Python2-x" class="headerlink" title="Fabric目前只支持Python2.x"></a>Fabric目前只支持Python2.x</h2><p>Fabric是一个Python（2.5-2.7）库，用于简化使用SSH的应用程序部署或系统管理任务。</p>
 <p>它提供的操作包括：执行本地或远程shell命令，上传/下载文件，以及其他辅助功能，如提示用户输入、中止执行等</p>
 <h3 id="Fabric常用参数"><a href="#Fabric常用参数" class="headerlink" title="Fabric常用参数"></a>Fabric常用参数</h3><ul>
@@ -549,7 +550,11 @@
 <p>执行</p>
 </blockquote>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">[root@VM-2-2 <span class="built_in">test</span>]<span class="comment"># fab -f demo.py hello</span></div><div class="line">[115.28.240.96] Executing task <span class="string">'hello'</span></div><div class="line">[115.28.240.96] run: ls -l /home</div><div class="line">[115.28.240.96] out: total 4</div><div class="line">[115.28.240.96] out: drwx------. 8 matrix matrix 4096 Jul 28 17:59 matrix</div><div class="line">[115.28.240.96] out: </div><div class="line"></div><div class="line"></div><div class="line">Done.</div><div class="line">Disconnecting from 115.28.240.96... <span class="keyword">done</span>.</div></pre></td></tr></table></figure>
-<h3 id="动态获取远程目录列表"><a href="#动态获取远程目录列表" class="headerlink" title="动态获取远程目录列表"></a>动态获取远程目录列表</h3>
+<h3 id="动态获取远程目录列表"><a href="#动态获取远程目录列表" class="headerlink" title="动态获取远程目录列表"></a>动态获取远程目录列表</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># -*- coding: utf-8 -*-</span></div><div class="line"></div><div class="line">from fabric.api import *</div><div class="line"></div><div class="line">env.hosts = [<span class="string">'192.168.3.243'</span>, <span class="string">'192.168.3.244'</span>]</div><div class="line">env.user = <span class="string">'root'</span></div><div class="line">env.password = <span class="string">'lmb2015'</span></div><div class="line"></div><div class="line"></div><div class="line">@runs_once</div><div class="line">def input_raw():</div><div class="line">    <span class="built_in">return</span> prompt(<span class="string">"please input name："</span>, default=<span class="string">"/home"</span>)</div><div class="line"></div><div class="line"></div><div class="line">def workask(dirname):</div><div class="line">    run(<span class="string">'ls -l '</span> + dirname)</div><div class="line"></div><div class="line"></div><div class="line">@task</div><div class="line">def go():</div><div class="line">    <span class="built_in">print</span> <span class="string">"start ..."</span></div><div class="line">    getdirname = raw_input()</div><div class="line">    workask(getdirname)</div><div class="line">    <span class="built_in">print</span> <span class="string">"end ..."</span></div></pre></td></tr></table></figure>
+<blockquote>
+<p>执行</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line">[root@VM-2-2 <span class="built_in">test</span>]<span class="comment"># fab -f demo.py go</span></div><div class="line">[192.168.3.243] Executing task <span class="string">'go'</span></div><div class="line">start ...</div><div class="line">/root</div><div class="line">[192.168.3.243] run: ls -l /root</div><div class="line">[192.168.3.243] out: 总用量 300588</div><div class="line">[192.168.3.243] out: -rw-------.  1 root  root       1067 4月  28 2015 anaconda-ks.cfg</div><div class="line">[192.168.3.243] out: -rw-r--r--.  1 root  root        601 2月  22 10:53 id_dsa.pub</div><div class="line">[192.168.3.243] out: -rw-r--r--.  1 root  root      13231 4月  28 2015 install.log</div><div class="line">[192.168.3.243] out: -rw-r--r--.  1 root  root       3482 4月  28 2015 install.log.syslog</div><div class="line">[192.168.3.243] out: -rw-r--r--.  1 root  root  138082565 2月  22 10:23 jdk-7u79-linux-x64.rpm</div><div class="line">[192.168.3.243] out: -rw-r--r--   1 root  root  142039186 3月  13 12:09 oracle-j2sdk1.7-1.7.0+update67-1.x86_64.rpm</div><div class="line">[192.168.3.243] out: -rw-r--r--   1 root  root   15733676 6月  16 10:06 perl-5.16.1.tar.gz</div><div class="line">[192.168.3.243] out: drwxrwxr-x   6 root  root       4096 2月  12 23:14 redis-3.2.8</div><div class="line">[192.168.3.243] out: -rw-r--r--   1 root  root    1547237 6月  16 10:06 redis-3.2.8.tar.gz</div><div class="line">[192.168.3.243] out: -rw-r--r--   1 root  root    1547695 7月   6 14:51 redis-3.2.9.tar.gz</div><div class="line">[192.168.3.243] out: drwxr-xr-x  13 15399 19249      4096 9月  20 2013 tcl8.6.1</div><div class="line">[192.168.3.243] out: -rw-r--r--   1 root  root    8755700 6月  16 10:06 tcl8.6.1-src.tar.gz</div><div class="line">[192.168.3.243] out: -rw-r--r--.  1 root  root      46333 3月   7 14:09 zookeeper.out</div><div class="line">[192.168.3.243] out: </div><div class="line"></div><div class="line">end ...</div></pre></td></tr></table></figure>
     
 
     
@@ -567,6 +572,14 @@
             <!-- Post Prev & Next Nav -->
             <nav class="material-nav mdl-color-text--grey-50 mdl-cell mdl-cell--12-col">
     <!-- Prev Nav -->
+    
+        <a href="/2017/08/05/Python flask 构建微电影网站/" id="post_nav-newer" class="prev-content">
+            <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon mdl-color--white mdl-color-text--grey-900" role="presentation">
+                <i class="material-icons">arrow_back</i>
+            </button>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            新篇
+        </a>
     
 
     <!-- Section Spacer -->
@@ -657,7 +670,7 @@
             </a>
             <ul class="dropdown-menu">
             <li>
-                <a class="sidebar_archives-link" href="/archives/2017/08/">八月 2017<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/07/">七月 2017<span class="sidebar_archives-count">27</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/06/">六月 2017<span class="sidebar_archives-count">41</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/05/">五月 2017<span class="sidebar_archives-count">10</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/04/">四月 2017<span class="sidebar_archives-count">9</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/03/">三月 2017<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/02/">二月 2017<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/01/">一月 2017<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/11/">十一月 2016<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/10/">十月 2016<span class="sidebar_archives-count">6</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/07/">七月 2016<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/05/">五月 2016<span class="sidebar_archives-count">5</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/03/">三月 2016<span class="sidebar_archives-count">25</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/02/">二月 2016<span class="sidebar_archives-count">53</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/01/">一月 2016<span class="sidebar_archives-count">28</span></a>
+                <a class="sidebar_archives-link" href="/archives/2017/08/">八月 2017<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/07/">七月 2017<span class="sidebar_archives-count">27</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/06/">六月 2017<span class="sidebar_archives-count">41</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/05/">五月 2017<span class="sidebar_archives-count">10</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/04/">四月 2017<span class="sidebar_archives-count">9</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/03/">三月 2017<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/02/">二月 2017<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/01/">一月 2017<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/11/">十一月 2016<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/10/">十月 2016<span class="sidebar_archives-count">6</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/07/">七月 2016<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/05/">五月 2016<span class="sidebar_archives-count">5</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/03/">三月 2016<span class="sidebar_archives-count">25</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/02/">二月 2016<span class="sidebar_archives-count">53</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/01/">一月 2016<span class="sidebar_archives-count">28</span></a>
             </ul>
         </li>
         
@@ -689,7 +702,7 @@
         <li>
             <a href="/archives">
                 文章总数
-                <span class="sidebar-badge">218</span>
+                <span class="sidebar-badge">219</span>
             </a>
         </li>
         
