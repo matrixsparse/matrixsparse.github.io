@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html style="display: none;" lang="zh">
+    <head>
+    <meta charset="utf-8">
+    <!--
+        © Material Theme
+        https://github.com/viosey/hexo-theme-material
+        Version: 1.4.0 -->
+    <script>window.materialVersion = "1.4.0"</script>
+
+    <!-- Title -->
+    
+    <title>
+        
+            Python进程管理工具Supervisor | 
+        
+        胡思乱想
+    </title>
+
+    <!-- dns prefetch -->
+    <meta http-equiv="x-dns-prefetch-control" content="on">
+    
+    
+    
+    
+    
+        <link rel="dns-prefetch" href="https://www.google-analytics.com"/>
+    
+    
+    
+    
+    
+    
+
+    <!-- Meta & Info -->
+    <meta http-equiv="X-UA-Compatible">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="theme-color" content="#4F4B43">
+    <meta name="author" content="SparseMatrix">
+    <meta name="description" itemprop="description" content="">
+    <meta name="keywords" content="null,大数据,Python">
+
+    <!-- Site Verification -->
+    
+    
+
+    <!-- Favicons -->
+    <link rel="icon shortcut" type="image/ico" href="/img/favicon.png">
+    <link rel="icon" sizes="192x192" href="/img/favicon.png">
+    <link rel="apple-touch-icon" href="/img/favicon.png">
+
+    <!--iOS -->
+    <meta name="apple-mobile-web-app-title" content="Title">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="480">
+
+    <!-- Add to homescreen for Chrome on Android -->
+    <meta name="mobile-web-app-capable" content="yes">
+
+    <!-- Add to homescreen for Safari on iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="胡思乱想">
+
+    <!-- The Open Graph protocol -->
+    <meta property="og:url" content="http://yoursite.com">
+    <meta property="og:type" content="blog">
+    <meta property="og:title" content="Python进程管理工具Supervisor | 胡思乱想">
+    <meta property="og:image" content="/img/favicon.png" />
+    <meta property="og:description" content="">
+    <meta property="og:article:tag" content="大数据"> <meta property="og:article:tag" content="Python"> 
+
+    
+        <meta property="article:published_time" content="11月 02, 2017" />
+        <meta property="article:modified_time" content="11月 04, 2017" />
+    
+
+    <!-- The Twitter Card protocol -->
+    <meta name="twitter:title" content="Python进程管理工具Supervisor | 胡思乱想">
+    <meta name="twitter:description" content="">
+    <meta name="twitter:image" content="/img/favicon.png">
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="http://yoursite.com" />
+
+    <!-- Add canonical link for SEO -->
+    
+        <link rel="canonical" href="http://yoursite.com/2017/11/02/python进程管理工具supervisor/index.html" />
+    
+
+    <!-- Structured-data for SEO -->
+    
+        
+
+
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "publisher": {
+        "@type": "Organization",
+        "name": "胡思乱想",
+        "logo": "/img/favicon.png"
+    },
+    "author": {
+        "@type": "Person",
+        "name": "SparseMatrix",
+        "image": {
+            "@type": "ImageObject",
+            "url": "/img/favicon.png"
+        },
+        "description": "每天，遇到更好的你"
+    },
+    "headline": "Python进程管理工具Supervisor",
+    "url": "http://yoursite.com/2017/11/02/python进程管理工具supervisor/index.html",
+    "datePublished": "11月 02, 2017",
+    "dateModified": "11月 04, 2017",
+    "description": "",
+    "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "http://yoursite.com"
+    }
+}
+</script>
+
+
+    
+
+    <!--[if lte IE 9]>
+        <link rel="stylesheet" href="/css/ie-blocker.css">
+
+        
+            <script src="/js/ie-blocker.zhCN.js"></script>
+        
+    <![endif]-->
+
+    <!-- Import lsloader -->
+    <script>(function(){window.lsloader={jsRunSequence:[],jsnamemap:{},cssnamemap:{}};lsloader.removeLS=function(key){try{localStorage.removeItem(key)}catch(e){}};lsloader.setLS=function(key,val){try{localStorage.setItem(key,val)}catch(e){}};lsloader.getLS=function(key){var val="";try{val=localStorage.getItem(key)}catch(e){val=""}return val};versionString="/*"+materialVersion+"*/";lsloader.clean=function(){try{var keys=[];for(var i=0;i<localStorage.length;i++){keys.push(localStorage.key(i))}keys.forEach(function(key){var data=lsloader.getLS(key);if(data&&data.indexOf(versionString)===-1){lsloader.removeLS(key)}})}catch(e){}};lsloader.clean();lsloader.load=function(jsname,jspath,cssonload){cssonload=cssonload||function(){};var code;code=this.getLS(jsname);if(code&&code.indexOf(versionString)===-1){this.removeLS(jsname);this.requestResource(jsname,jspath,cssonload);return}if(code){var versionNumber=code.split(versionString)[0];if(versionNumber!=jspath){console.log("reload:"+jspath);this.removeLS(jsname);this.requestResource(jsname,jspath,cssonload);return}code=code.split(versionString)[1];if(/\.js?.+$/.test(versionNumber)){this.jsRunSequence.push({name:jsname,code:code});this.runjs(jspath,jsname,code)}else{document.getElementById(jsname).appendChild(document.createTextNode(code));cssonload()}}else{this.requestResource(jsname,jspath,cssonload)}};lsloader.requestResource=function(name,path,cssonload){var that=this;if(/\.js?.+$/.test(path)){this.iojs(path,name,function(path,name,code){that.setLS(name,path+versionString+code);that.runjs(path,name,code)})}else if(/\.css?.+$/.test(path)){this.iocss(path,name,function(code){document.getElementById(name).appendChild(document.createTextNode(code));that.setLS(name,path+versionString+code)},cssonload)}};lsloader.iojs=function(path,jsname,callback){var that=this;that.jsRunSequence.push({name:jsname,code:""});try{var xhr=new XMLHttpRequest;xhr.open("get",path,true);xhr.onreadystatechange=function(){if(xhr.readyState==4){if(xhr.status>=200&&xhr.status<300||xhr.status==304){if(xhr.response!=""){callback(path,jsname,xhr.response);return}}that.jsfallback(path,jsname)}};xhr.send(null)}catch(e){that.jsfallback(path,jsname)}};lsloader.iocss=function(path,jsname,callback,cssonload){var that=this;try{var xhr=new XMLHttpRequest;xhr.open("get",path,true);xhr.onreadystatechange=function(){if(xhr.readyState==4){if(xhr.status>=200&&xhr.status<300||xhr.status==304){if(xhr.response!=""){callback(xhr.response);cssonload();return}}that.cssfallback(path,jsname,cssonload)}};xhr.send(null)}catch(e){that.cssfallback(path,jsname,cssonload)}};lsloader.iofonts=function(path,jsname,callback,cssonload){var that=this;try{var xhr=new XMLHttpRequest;xhr.open("get",path,true);xhr.onreadystatechange=function(){if(xhr.readyState==4){if(xhr.status>=200&&xhr.status<300||xhr.status==304){if(xhr.response!=""){callback(xhr.response);cssonload();return}}that.cssfallback(path,jsname,cssonload)}};xhr.send(null)}catch(e){that.cssfallback(path,jsname,cssonload)}};lsloader.runjs=function(path,name,code){if(!!name&&!!code){for(var k in this.jsRunSequence){if(this.jsRunSequence[k].name==name){this.jsRunSequence[k].code=code}}}if(!!this.jsRunSequence[0]&&!!this.jsRunSequence[0].code&&this.jsRunSequence[0].status!="failed"){var script=document.createElement("script");script.appendChild(document.createTextNode(this.jsRunSequence[0].code));script.type="text/javascript";document.getElementsByTagName("head")[0].appendChild(script);this.jsRunSequence.shift();if(this.jsRunSequence.length>0){this.runjs()}}else if(!!this.jsRunSequence[0]&&this.jsRunSequence[0].status=="failed"){var that=this;var script=document.createElement("script");script.src=this.jsRunSequence[0].path;script.type="text/javascript";this.jsRunSequence[0].status="loading";script.onload=function(){that.jsRunSequence.shift();if(that.jsRunSequence.length>0){that.runjs()}};document.body.appendChild(script)}};lsloader.tagLoad=function(path,name){this.jsRunSequence.push({name:name,code:"",path:path,status:"failed"});this.runjs()};lsloader.jsfallback=function(path,name){if(!!this.jsnamemap[name]){return}else{this.jsnamemap[name]=name}for(var k in this.jsRunSequence){if(this.jsRunSequence[k].name==name){this.jsRunSequence[k].code="";this.jsRunSequence[k].status="failed";this.jsRunSequence[k].path=path}}this.runjs()};lsloader.cssfallback=function(path,name,cssonload){if(!!this.cssnamemap[name]){return}else{this.cssnamemap[name]=1}var link=document.createElement("link");link.type="text/css";link.href=path;link.rel="stylesheet";link.onload=link.onerror=cssonload;var root=document.getElementsByTagName("script")[0];root.parentNode.insertBefore(link,root)};lsloader.runInlineScript=function(scriptId,codeId){var code=document.getElementById(codeId).innerText;this.jsRunSequence.push({name:scriptId,code:code});this.runjs()};lsloader.loadCombo=function(jslist){var updateList="";var requestingModules={};for(var k in jslist){var LS=this.getLS(jslist[k].name);if(!!LS){var version=LS.split(versionString)[0];var code=LS.split(versionString)[1]}else{var version=""}if(version==jslist[k].path){this.jsRunSequence.push({name:jslist[k].name,code:code,path:jslist[k].path})}else{this.jsRunSequence.push({name:jslist[k].name,code:null,path:jslist[k].path,status:"comboloading"});requestingModules[jslist[k].name]=true;updateList+=(updateList==""?"":";")+jslist[k].path}}var that=this;if(!!updateList){var xhr=new XMLHttpRequest;xhr.open("get",combo+updateList,true);xhr.onreadystatechange=function(){if(xhr.readyState==4){if(xhr.status>=200&&xhr.status<300||xhr.status==304){if(xhr.response!=""){that.runCombo(xhr.response,requestingModules);return}}else{for(var i in that.jsRunSequence){if(requestingModules[that.jsRunSequence[i].name]){that.jsRunSequence[i].status="failed"}}that.runjs()}}};xhr.send(null)}this.runjs()};lsloader.runCombo=function(comboCode,requestingModules){comboCode=comboCode.split("/*combojs*/");comboCode.shift();for(var k in this.jsRunSequence){if(!!requestingModules[this.jsRunSequence[k].name]&&!!comboCode[0]){this.jsRunSequence[k].status="comboJS";this.jsRunSequence[k].code=comboCode[0];this.setLS(this.jsRunSequence[k].name,this.jsRunSequence[k].path+versionString+comboCode[0]);comboCode.shift()}}this.runjs()}})();</script>
+
+    <!-- Import CSS & jQuery -->
+    
+        <style id="css/material.min.css"></style><script>if(typeof window.lsLoadCSSMaxNums === "undefined")window.lsLoadCSSMaxNums = 0;window.lsLoadCSSMaxNums++;lsloader.load("css/material.min.css","/css/material.min.css?fJTiM/K1J3dWIruo3pxtAw==",function(){if(typeof window.lsLoadCSSNums === "undefined")window.lsLoadCSSNums = 0;window.lsLoadCSSNums++;if(window.lsLoadCSSNums == window.lsLoadCSSMaxNums)document.documentElement.style.display="";})</script>
+        <style id="css/style.min.css"></style><script>if(typeof window.lsLoadCSSMaxNums === "undefined")window.lsLoadCSSMaxNums = 0;window.lsLoadCSSMaxNums++;lsloader.load("css/style.min.css","/css/style.min.css?oCSEO3ST+aEypEwttTDI9g==",function(){if(typeof window.lsLoadCSSNums === "undefined")window.lsLoadCSSNums = 0;window.lsLoadCSSNums++;if(window.lsLoadCSSNums == window.lsLoadCSSMaxNums)document.documentElement.style.display="";})</script>
+        
+        
+            <style>
+    
+    .footer-sns-facebook {
+        background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0OCIgaGVpZ2h0PSI0OCIgY2xhc3M9Imljb24iIHZpZXdCb3g9IjAgMCAxMDI0IDEwMjQiPjxwYXRoIGQ9Ik0xMzguNiA3OGMtMjIuNCA1LjItNTUuOCA0MC4yLTYwLjYgNjMuNC0xLjQgNi40LTIgMTI5LjgtMS42IDM2Ny42LjYgMjk4LjYgMSAzNTguOCAzLjQgMzYzIDExIDIwLjIgMjEuNiAzMi40IDM3LjIgNDMgMTUgMTAuMiAxNy40IDExLjIgMzMgMTMgMTEuMiAxLjQgMTM2IDIgMzY1IDEuNiAzMTQtLjYgMzQ4LjYtMSAzNTUtMy44IDE1LjgtNy4yIDMzLjgtMjIgNDMuMi0zNS40IDUuMi03LjQgMTAuOC0xNi42IDEyLjYtMjAuNCAyLjgtNi40IDMuMi00MC44IDMuOC0zNTQgLjQtMjIzLS4yLTM1My40LTEuNC0zNjUtMi0xNy0yLjYtMTguNi0xMy0zNC04LjYtMTIuNi0xNC4yLTE4LjQtMjUuMi0yNS44LTcuOC01LjQtMTcuNC0xMS0yMS42LTEyLjQtNi0yLjItNzIuOC0yLjYtMzY1LjQtMi42LTE5Ni44LjItMzYxIC44LTM2NC40IDEuOHptNjU3LjYgODcuOGw0LjggMy44djU1LjJjMCA1NC42IDAgNTUuMi00LjYgNTkuNi00LjQgNC40LTYgNC42LTUwLjIgNS42bC00NS42IDEtNy4yIDUuNmMtMTAuNCA4LTE2LjggMTcuMi0xOS4yIDI3LjQtMSA1LTEuOCAyNC44LTEuOCA0NCAuMiAzOCAxLjYgNDQuNiAxMC44IDQ4IDIuOCAxLjIgMjguNCAyIDU2LjggMiA0Ny44IDAgNTIgLjIgNTYuMiAzLjhsNC44IDMuOHY1NS4yYzAgNTQuNiAwIDU1LjItNC42IDU5LjYtNC40IDQuNi01LjQgNC42LTU3IDUuMi0yOC44LjItNTQuNC44LTU2LjggMS40LTIuNC42LTUuNiAzLTYuOCA1LjQtMS44IDMuMi0yLjQgNDEuNC0yLjYgMTQzLjJsLS4yIDEzOC44LTUuNiA0LjgtNS42IDQuOEg2MDljLTUyLjQgMC01Mi44IDAtNTguMi00LjZsLTUuNC00LjYtLjItMTQwLjYtLjItMTQwLjYtNC44LTMuOGMtNC4yLTMuNC04LTMuOC0zNS42LTMuOC0zMi44IDAtNDEtMS44LTQzLjYtMTAtLjYtMi4yLTEuMi0yNS40LTEuMi01MS40IDAtNjAuOC0uMi01NyAzLjQtNjEuNiAyLjgtMy42IDYtNCAzNy44LTUgMzMtMSAzNS4yLTEuMiAzOS40LTUuNiA0LjYtNC40IDQuNi01LjIgNS44LTcxIDEuMi03My40LjItNjcuMiAxNi42LTk5LjQgOC0xNS44IDEyLjgtMjIgMjgtMzcgMTUuMi0xNS4yIDIxLjQtMTkuNiAzOC4yLTI4IDExLTUuNCAyNC0xMSAyOS0xMi4yIDYuMi0xLjggMjguNi0yLjYgNzEuMi0yLjYgNTguNi0uMiA2Mi42IDAgNjcgMy42eiIvPjwvc3ZnPg==);
+    }
+    
+    
+    .footer-sns-twitter {
+        background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0OCIgaGVpZ2h0PSI0OCIgY2xhc3M9Imljb24iIHZpZXdCb3g9IjAgMCAxMDI0IDEwMjQiPjxwYXRoIGQ9Ik0xMzguNiA3OGMtMjIuNCA1LjItNTUuOCA0MC4yLTYwLjYgNjMuNC0xLjQgNi40LTIgMTI5LjgtMS42IDM2Ny42LjYgMjk4LjYgMSAzNTguOCAzLjQgMzYzIDExIDIwLjIgMjEuNiAzMi40IDM3LjIgNDMgMTUgMTAuMiAxNy40IDExLjIgMzMgMTMgMTEuMiAxLjQgMTM2IDIgMzY1IDEuNiAzMTQtLjYgMzQ4LjYtMSAzNTUtMy44IDE1LjgtNy4yIDMzLjgtMjIgNDMuMi0zNS40IDUuMi03LjQgMTAuOC0xNi42IDEyLjYtMjAuNCAyLjgtNi40IDMuMi00MC44IDMuOC0zNTQgLjQtMjIzLS4yLTM1My40LTEuNC0zNjUtMi0xNy0yLjYtMTguNi0xMy0zNC04LjYtMTIuNi0xNC4yLTE4LjQtMjUuMi0yNS44LTcuOC01LjQtMTcuNC0xMS0yMS42LTEyLjQtNi0yLjItNzIuOC0yLjYtMzY1LjQtMi42LTE5Ni44LjItMzYxIC44LTM2NC40IDEuOHptNTMyLjggMjA1YzEwIDQgMjMgMTAuOCAyOC44IDE1LjIgMTIuNiA5LjIgMTYuNiAxMC42IDI5LjQgOS40IDYuNi0uNiAxMy0zLjIgMjAuNC04LjIgMTEuMi03LjYgMTkuNC05LjIgMjMuNi01IDMuNiAzLjYgMi44IDktMi44IDE4LjYtNy4yIDEyLjQtNiAxOC44IDQuMiAyNC4yIDQuNCAyLjIgOC4yIDUuNiA4LjYgNy40IDEgNC44LTEyLjYgMjQuMi0yMiAzMS44LTExLjggOS4yLTE3LjIgMjIuNi0xOS42IDQ3LjgtNC44IDUwLjQtNy44IDY2LjYtMTYuNCA4NS40LTMgNy03IDE3LjgtOC44IDI0LTEuOCA2LjQtNSAxNC42LTcuNCAxOC40LTIuMiAzLjgtNy40IDEzLTExLjQgMjAuNC0xNy4yIDMwLjgtNDMuNCA2MS40LTcxLjQgODMuOC0yNS42IDIwLjQtNDYgMzMuMi02NC4yIDQwLjItOC40IDMuMi0xOCA3LjYtMjEuNCA5LjYtNy40IDQuNi0yMi40IDguNi01Ny4yIDE1LTYyLjIgMTEuNi03OS4yIDExLjQtMTM1LjYtMS0zMi40LTctMzguNi05LTUyLTE2LjgtMjEuNC0xMi42LTI0LjItMTQuOC0yNC4yLTE5LjQgMC02LjIgMTAuMi05LjIgMzUtMTAuNCAyMi40LTEgMjguNi0yLjYgNTctMTQuMiAyMy44LTkuOCAyOS40LTEyLjggMzAuNC0xNi44IDIuMi04LjItMy0xMy4yLTI2LjgtMjUuNC0yNS44LTEzLjItMzIuMi0xOC40LTQzLjgtMzUuOC05LTEzLjYtMTAtMjEuMi0zLjYtMzMuNiA1LjQtMTAuOCAzLjYtMTUtMTEuOC0yNS40LTktNi0xNC0xMS42LTIwLjgtMjIuNi0yMy40LTM3LjgtMjUtNTAuOC03LjItNTkuOCA0LjgtMi40IDkuNC01LjQgMTAuMi02LjYgMi44LTQuMi0uNC0xNS42LTguNC0yOS0xMS42LTE5LjYtMTMuMi0yNS44LTEzLjItNTUuMiAwLTI4LjggMi42LTM3LjggMTItNDAuMiA5LTIuMiAxNC44IDEgMzUuNiAyMC4yIDI0LjggMjIuOCA0My42IDM2LjYgNjIuOCA0NS44IDggMy44IDE3LjggOS4yIDIyIDEyIDQuMiAyLjggMTQuOCA3IDIzLjQgOS4yIDguNiAyLjIgMjQuMiA2LjggMzQuOCAxMC4yIDEzLjQgNC40IDIzLjYgNi40IDMzIDYuNiAxMi44LjIgMTQuMi0uMiAxOC42LTUuNCA0LTQuOCA0LjgtNy44IDQuOC0xOS4yIDAtMTQuNCA1LjYtMzkuNiAxMS4yLTUwLjYgNC4yLTguNCAyOS4yLTM0LjIgMzkuOC00MS40IDcuOC01LjQgMzUuNi0xNiA1Mi0yMCAxNC4yLTMuNiAzMi42LTEuMiA1Mi40IDYuOHoiLz48L3N2Zz4=);
+    }
+    
+    
+    .footer-sns-gplus {
+        background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0OCIgaGVpZ2h0PSI0OCIgY2xhc3M9Imljb24iIHZpZXdCb3g9IjAgMCAxMDI0IDEwMjQiPjxwYXRoIGQ9Ik0xMzguNiA3OGMtMjIuNCA1LjItNTUuOCA0MC4yLTYwLjYgNjMuNC0xLjQgNi40LTIgMTI5LjgtMS42IDM2Ny42LjYgMjk4LjYgMSAzNTguOCAzLjQgMzYzIDExIDIwLjIgMjEuNiAzMi40IDM3LjIgNDMgMTUgMTAuMiAxNy40IDExLjIgMzMgMTMgMTEuMiAxLjQgMTM2IDIgMzY1IDEuNiAzMTQtLjYgMzQ4LjYtMSAzNTUtMy44IDE1LjgtNy4yIDMzLjgtMjIgNDMuMi0zNS40IDUuMi03LjQgMTAuOC0xNi42IDEyLjYtMjAuNCAyLjgtNi40IDMuMi00MC44IDMuOC0zNTQgLjQtMjIzLS4yLTM1My40LTEuNC0zNjUtMi0xNy0yLjYtMTguNi0xMy0zNC04LjYtMTIuNi0xNC4yLTE4LjQtMjUuMi0yNS44LTcuOC01LjQtMTcuNC0xMS0yMS42LTEyLjQtNi0yLjItNzIuOC0yLjYtMzY1LjQtMi42LTE5Ni44LjItMzYxIC44LTM2NC40IDEuOHpNNDMwIDI5NS40YzQwLjYgMTUuNCA1Ni42IDIzLjggNzIuNiAzOC40IDYuOCA2LjIgNy4yIDE1LjIgMSAyMy40LTYuMiA4LTMzLjYgMzMuOC0zOSAzNi42LTUuNiAyLjgtMTcuNiAyLjgtMjMuMi0uMi0yLjQtMS4yLTguMi01LjItMTMtOC44LTExLjItOC42LTI0LjYtMTEuMi01NS4yLTExLjItMjcuNCAwLTQwLjYgMi42LTUyLjIgMTAuNC00LjQgMi44LTEyLjIgNy42LTE3LjIgMTAuNi0yMyAxMy4yLTUxLjQgNTUtNTUuOCA4Mi40LTIuNiAxNS42LTIuNCAzNC44LjIgNTEgMi44IDE3LjQgMTkuOCA0OC44IDM1LjIgNjUuMiAxNiAxNi42IDQ1IDMzLjYgNjIuOCAzNi42IDI2LjggNC40IDY1LjggMS42IDc5LjQtNS44IDIwLjYtMTEuNCAzMS0xOSA0MS0zMC40IDE4LjgtMjEuNiAyMy40LTM0LjIgMTUuNi00My44LTMuOC00LjgtNC40LTQuOC01MS01LjgtNjAuOC0xLjItNTYuMiAyLjItNTYuMi00My4yIDAtMzIuNC4yLTMzLjIgNC44LTM3IDQuNC0zLjYgOS0zLjggOTItMy44IDc5IDAgODcuOC40IDk0LjIgMy42IDExLjIgNS42IDEzIDExLjQgMTIuOCA0My40IDAgMjUuNC0uOCAzMC44LTcuNiA1OC00IDE2LjYtOS44IDM0LTEyLjYgMzktMi44IDUtOC4yIDE0LjItMTEuNiAyMC42LTguNCAxNS40LTI3LjIgMzYuOC00MC44IDQ2LjYtNS44IDQuNC0xMy44IDEwLjItMTcuNiAxMy4yLTMuOCAzLTExIDctMTYuMiA4LjgtNS4yIDEuOC0xNi4yIDYuNC0yNC40IDEwLTIyLjQgOS42LTM0LjggMTEuNi03MyAxMS42LTM3LjYuMi00Ny0xLjQtNzEtMTItOC4yLTMuNi0xNy42LTcuMi0yMC44LTgtMTUuOC0zLjgtNjctNDUuMi03Ny44LTYyLjgtMi4yLTMuOC03LjYtMTEuNi0xMS44LTE3LjItNC4yLTUuNC05LTE0LTEwLjYtMTktMS44LTQuOC02LjItMTYtMTAtMjQuOC0zLjYtOC44LTcuOC0yMi4yLTkuMi0yOS42LTMuMi0xOC44LTEuNC03OS40IDIuOC05MS40IDEzLjgtNDAuNiAzNS42LTc4IDU4LjgtMTAwLjIgMTQtMTMuNiA0Ny4yLTM2LjQgNTgtMzkuOCA0LjItMS40IDEzLjQtNS4yIDIwLjYtOC40IDIyLTEwIDMyLjgtMTEuNiA3Ni0xMSAzMy44LjYgNDAuNCAxLjIgNTAgNC44em0zNDAuOCA4MC44YzggMy42IDkuNiAxMS4yIDkuMiAzOS4yLS42IDM0LjQtLjYgMzQgNSAzOS42IDQuOCA1IDUuNCA1IDM3LjYgNSA0My40IDAgNDQuNC44IDQzLjIgMzYuMi0uOCAxNy0xLjIgMTguNC02LjQgMjMtNS40IDQuNi02LjYgNC44LTM3LjYgNC44LTMxLjIgMC0zMiAuMi0zNi44IDUtNS42IDUuNC01LjYgNC40LTUgNDEuMi40IDI2LjQuMiAyNy40LTQuNiAzMy00LjggNS42LTYgNS44LTI0LjQgNi40LTIwLjguOC0yOS42LTEuNC0zMy40LTguNC0xLjQtMi42LTItMTUuNi0xLjgtMzUuNi40LTMxLjIuNC0zMS42LTQuNi0zNi42cy01LjYtNS0zNi01Yy0xOC44IDAtMzMtLjgtMzYtMi4yLTcuNi0zLjYtOS42LTExLjItOC44LTMzLjguOC0yOC4yLjQtMjggNDEtMjggNDUuNCAwIDQ1LjQgMCA0NC42LTQyLjYtLjYtMzMtLjYtMzMgNS0zOC40IDQuNC00LjYgNi4yLTUgMjQuOC01IDExIDAgMjIuMiAxIDI1IDIuMnoiLz48L3N2Zz4=);
+    }
+    
+    
+    
+    
+    
+    .footer-sns-github {
+        background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0OCIgaGVpZ2h0PSI0OCIgY2xhc3M9Imljb24iIHZpZXdCb3g9IjAgMCAxMDI0IDEwMjQiPjxwYXRoIGQ9Ik0xMzguNCA3OGMtNi40IDEuNC0yNi40IDE0LjItMzYgMjIuOC04IDcuMi0yMiAyOS44LTI0LjQgMzkuMi0xLjYgNi40LTIgMTEzLjItMS42IDM2OCAuNiAyOTkuNCAxIDM1OS44IDMuNCAzNjQgMTEgMjAuMiAyMS42IDMyLjQgMzcuMiA0MyAxNS42IDEwLjYgMTcuMiAxMS4yIDM0LjIgMTMuMiAxMC42IDEuMiA2My40IDEuNiAxMjcuNiAxLjRsMTA5LjYtLjYgNi02LjggNi4yLTYuOC0xLjItMjUuMmMtLjgtMTUuOC0uMi0zMy40IDEuNC00Ny4yIDMtMjUuNCAxLjQtMzYuMi02LTQzLjItNS00LjYtNi4yLTQuOC0zMC42LTQuMi0yNy42LjgtMjQgMS42LTY4LjgtMTYtOC42LTMuNC0yMi42LTE4LTI4LjQtMjkuOC0xMS40LTIyLjgtMjctNDUtMzkuMi01NS42LTE0LTEyLjItMTkuOC0yMC44LTE5LjgtMjguNiAwLTExLjYgMTMuNi0xMi42IDMzLjItMi40IDE2LjYgOC44IDIwLjggMTIuNCA0MC44IDM2LjIgMjQuMiAyOC42IDMxIDMzLjYgNTQgMzkuNiAxNS4yIDQgNDIuMiAzIDUxLjQtMS44IDktNC42IDE4LTE1LjIgMjQuNC0yOS4yIDExLjQtMjQuMiA3LjQtMzEuMi0yMC42LTM2LjgtOS44LTItMjkuMi04LTQzLjQtMTMuNC00MC40LTE1LjgtNjQuNi0zNy40LTg1LjQtNzYuMi0xMS42LTIxLjgtMTUuNC0zMy0xOC4yLTUzLjYtNC4yLTMyLjItNC44LTYwLjItMS40LTg0IDMuNC0yMy44IDYuOC0zMi44IDIwLjItNTQgNC02IDguOC0xNS42IDExLTIxLjQgMy44LTEwIDMuOC0xMS42IDEtMzAtNS4yLTM0LjItMy4yLTUyLjQgNy42LTcwLjIgNy4yLTEyLjIgMTUtMTcuMiAyNC4yLTE1LjggMTIuOCAyLjIgNTIgMTcuNCA2Ni44IDI2LjIgMjYgMTUgMjkgMTUuNCA4Mi40IDcuMiAyNC42LTMuOCAzMy44LTQuMiA2MC0zLjIgMTcgLjYgNDEuNCAzIDU0IDUuMiAzOC40IDYuNiA0OS42IDUuMiA3My0xMCA2LjYtNC4yIDE3LjQtOS40IDI0LTExLjYgNi42LTIuMiAxNi01LjggMjEtOC4yIDEzLTYgMjgtNS42IDM1LjYuOCAxMi40IDEwLjQgMTguNiA0MS40IDE0LjQgNzEuNi00LjQgMzAuNi0zIDM5LjQgOC40IDUzLjggMy40IDQuNCAxMS4yIDE5LjIgMTcuNCAzMy4yTDc3NSA0NDN2NzhsLTEwIDI4Yy0xNS4yIDQzLjItMzYuOCA3My4yLTY2LjIgOTIuOC0xMy40IDguOC01NyAyNS40LTc2LjggMjktMjguMiA1LjItMzMuMiAxMi42LTIyIDMyLjIgMTEuMiAxOS40IDEyLjQgMzIuOCAxMS42IDEyOS42bC0uNiA4NS44IDUuNCA0LjZjMy42IDMgOS4yIDUuMiAxNiA2IDUuOC44IDYwLjIgMSAxMjAuNi42IDEwOC40LS42IDExMC4yLS42IDExOS01IDI0LTExLjYgNDAtMjcuNCA1MS42LTUwLjZsNS40LTExIC42LTM0N2MuNC0yMjMtLjItMzUzLjQtMS40LTM2NS0yLTE3LTIuNi0xOC42LTEzLTM0LTEwLjYtMTUuNC0yMi44LTI2LjItNDMuMi0zNy4yLTQuMi0yLjQtNjQuNi0yLjgtMzY2LTMuMi0xOTguNiAwLTM2NCAuNC0zNjcuNiAxLjR6Ii8+PC9zdmc+);
+    }
+    
+    
+    
+    
+    
+</style>
+
+        
+        <!-- Config CSS -->
+
+<!-- Other Styles -->
+<style>
+  body, html {
+    font-family: Roboto, "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", Arial, sans-serif;
+  }
+
+  a {
+    color: #4F4B43;
+  }
+
+  .mdl-card__media,
+  #search-label,
+  #search-form-label:after,
+  #scheme-Paradox .hot_tags-count,
+  #scheme-Paradox .sidebar_archives-count,
+  #scheme-Paradox .sidebar-colored .sidebar-header,
+  #scheme-Paradox .sidebar-colored .sidebar-badge{
+    background-color: #4F4B43 !important;
+  }
+
+  /* Sidebar User Drop Down Menu Text Color */
+  #scheme-Paradox .sidebar-colored .sidebar-nav>.dropdown>.dropdown-menu>li>a:hover,
+  #scheme-Paradox .sidebar-colored .sidebar-nav>.dropdown>.dropdown-menu>li>a:focus {
+    color: #4F4B43 !important;
+  }
+
+  #post_entry-right-info,
+  .sidebar-colored .sidebar-nav li:hover > a,
+  .sidebar-colored .sidebar-nav li:hover > a i,
+  .sidebar-colored .sidebar-nav li > a:hover,
+  .sidebar-colored .sidebar-nav li > a:hover i,
+  .sidebar-colored .sidebar-nav li > a:focus i,
+  .sidebar-colored .sidebar-nav > .open > a,
+  .sidebar-colored .sidebar-nav > .open > a:hover,
+  .sidebar-colored .sidebar-nav > .open > a:focus,
+  #ds-reset #ds-ctx .ds-ctx-entry .ds-ctx-head a {
+    color: #4F4B43 !important;
+  }
+
+  .toTop {
+    background: #4F4B43 !important;
+  }
+
+  .material-layout .material-post>.material-nav,
+  .material-layout .material-index>.material-nav,
+  .material-nav a {
+    color: #4F4B43;
+  }
+
+  #scheme-Paradox .MD-burger-layer {
+    background-color: #4F4B43;
+  }
+
+  #scheme-Paradox #post-toc-trigger-btn {
+    color: #4F4B43;
+  }
+
+  .post-toc a:hover {
+    color: #4F4B43;
+    text-decoration: underline;
+  }
+
+</style>
+
+
+<!-- Theme Background Related-->
+
+    <style>
+      body{
+        background-color: #F5F5F5;
+      }
+
+      /* blog_info bottom background */
+      #scheme-Paradox .material-layout .something-else .mdl-card__supporting-text{
+        background-color: #fff;
+      }
+    </style>
+
+
+
+
+<!-- Fade Effect -->
+
+    <style>
+      .fade {
+        transition: all 800ms linear;
+        -webkit-transform: translate3d(0,0,0);
+        -moz-transform: translate3d(0,0,0);
+        -ms-transform: translate3d(0,0,0);
+        -o-transform: translate3d(0,0,0);
+        transform: translate3d(0,0,0);
+        opacity: 1;
+      }
+
+      .fade.out{
+        opacity: 0;
+      }
+    </style>
+
+
+<!-- Import Font -->
+
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons"rel="stylesheet">
+
+
+        <script>lsloader.load("js/jquery.min.js","/js/jquery.min.js?qcusAULNeBksqffqUM2+Ig==")</script>
+    
+    
+    <script>function Queue(){this.dataStore=[];this.offer=b;this.poll=d;this.execNext=a;this.debug=false;this.startDebug=c;function b(e){if(this.debug){console.log("Offered a Queued Function.")}if(typeof e==="function"){this.dataStore.push(e)}else{console.log("You must offer a function.")}}function d(){if(this.debug){console.log("Polled a Queued Function.")}return this.dataStore.shift()}function a(){var e=this.poll();if(e!==undefined){if(this.debug){console.log("Run a Queued Function.")}e()}}function c(){this.debug=true}}var queue=new Queue();</script>
+
+    <!-- Analytics -->
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    ga('create', 'null', 'auto');ga('send', 'pageview');
+</script>
+
+    <!-- Custom Head -->
+    
+</head>
+
+
+    
+        <body id="scheme-Paradox" class="lazy">
+            <div class="material-layout  mdl-js-layout has-drawer is-upgraded">
+                
+
+                <!-- Main Container -->
+                <main class="material-layout__content" id="main">
+
+                    <!-- Top Anchor -->
+                    <div id="top"></div>
+
+                    
+                        <!-- Hamburger Button -->
+                        <button class="MD-burger-icon sidebar-toggle">
+                            <span class="MD-burger-layer"></span>
+                        </button>
+                    
+
+                    <!-- Post TOC -->
+
+    
+    <!-- Back Button -->
+    <!--
+    <div class="material-back" id="backhome-div" tabindex="0">
+        <a class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon"
+           href="#" onclick="window.history.back();return false;"
+           target="_self"
+           role="button"
+           data-upgraded=",MaterialButton,MaterialRipple">
+            <i class="material-icons" role="presentation">arrow_back</i>
+            <span class="mdl-button__ripple-container">
+                <span class="mdl-ripple"></span>
+            </span>
+        </a>
+    </div>
+    -->
+
+    <!-- Left aligned menu below button -->
+    <button id="post-toc-trigger-btn"
+        class="mdl-button mdl-js-button mdl-button--icon">
+        <i class="material-icons">format_list_numbered</i>
+    </button>
+
+    
+    <ul class="post-toc-wrap mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-js-ripple-effect" for="post-toc-trigger-btn" style="max-height:80vh; overflow-y:scroll;">
+        <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Linux下安装pip"><span class="post-toc-number">1.</span> <span class="post-toc-text">Linux下安装pip</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#安装setuptools"><span class="post-toc-number">2.</span> <span class="post-toc-text">安装setuptools</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#安装pip"><span class="post-toc-number">3.</span> <span class="post-toc-text">安装pip</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#安装supervisor"><span class="post-toc-number">4.</span> <span class="post-toc-text">安装supervisor</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#测试是否安装成功"><span class="post-toc-number">5.</span> <span class="post-toc-text">测试是否安装成功</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#创建配置文件"><span class="post-toc-number">6.</span> <span class="post-toc-text">创建配置文件</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#配置文件说明"><span class="post-toc-number">7.</span> <span class="post-toc-text">配置文件说明</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#使用include"><span class="post-toc-number">7.1.</span> <span class="post-toc-text">使用include</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#创建进程的配置文件"><span class="post-toc-number">7.2.</span> <span class="post-toc-text">创建进程的配置文件</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#启动supervisor"><span class="post-toc-number">8.</span> <span class="post-toc-text">启动supervisor</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#查看supervisor是否启动成功"><span class="post-toc-number">8.1.</span> <span class="post-toc-text">查看supervisor是否启动成功</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#查看supervisord-log"><span class="post-toc-number">8.2.</span> <span class="post-toc-text">查看supervisord.log</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#supervisord-conf配置文件参数说明"><span class="post-toc-number">9.</span> <span class="post-toc-text">supervisord.conf配置文件参数说明</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#supervisorctl命令介绍"><span class="post-toc-number">10.</span> <span class="post-toc-text">supervisorctl命令介绍</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#查看supervisord所在路径"><span class="post-toc-number">11.</span> <span class="post-toc-text">查看supervisord所在路径</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#使用浏览器来管理"><span class="post-toc-number">12.</span> <span class="post-toc-text">使用浏览器来管理</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#开机自动启动Supervisord"><span class="post-toc-number">13.</span> <span class="post-toc-text">开机自动启动Supervisord</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#启用rc-local服务"><span class="post-toc-number">13.1.</span> <span class="post-toc-text">启用rc.local服务</span></a></li></ol></li></ol>
+        <!--
+        <li class="mdl-menu__item">
+            Some Action
+        </li>
+        -->
+    </ul>
+    
+
+
+
+
+
+<!-- Layouts -->
+
+    <!-- Post Module -->
+    <div class="material-post_container">
+
+        <div class="material-post mdl-grid">
+            <div class="mdl-card mdl-shadow--4dp mdl-cell mdl-cell--12-col">
+
+                <!-- Post Header(Thumbnail & Title) -->
+                
+    <!-- Paradox Post Header -->
+    
+        
+            <!-- Random Thumbnail -->
+            <div class="post_thumbnail-random mdl-card__media mdl-color-text--grey-50">
+            <script type="text/ls-javascript" id="post-thumbnail-script">
+    var randomNum = Math.floor(Math.random() * 25 + 1);
+
+    $('.post_thumbnail-random').attr('data-original', '/img/random/material-' + randomNum + '.png');
+    $('.post_thumbnail-random').addClass('lazy');
+</script>
+
+        
+    
+            <p class="article-headline-p">
+                Python进程管理工具Supervisor
+            </p>
+        </div>
+
+
+
+
+
+                
+                    <!-- Paradox Post Info -->
+                    <div class="mdl-color-text--grey-700 mdl-card__supporting-text meta">
+
+    <!-- Author Avatar -->
+    <div id="author-avatar">
+        <img src="/img/avatar.png" width="44px" height="44px" alt="Author Avatar"/>
+    </div>
+    <!-- Author Name & Date -->
+    <div>
+        <strong>SparseMatrix</strong>
+        <span>11月 02, 2017</span>
+    </div>
+
+    <div class="section-spacer"></div>
+
+    <!-- Favorite -->
+    <!--
+        <button id="article-functions-like-button" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon btn-like">
+            <i class="material-icons" role="presentation">favorite</i>
+            <span class="visuallyhidden">favorites</span>
+        </button>
+    -->
+
+    <!-- Qrcode -->
+    
+
+    <!-- Tags (bookmark) -->
+    
+    <button id="article-functions-viewtags-button" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
+        <i class="material-icons" role="presentation">bookmark</i>
+        <span class="visuallyhidden">bookmark</span>
+    </button>
+    <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="article-functions-viewtags-button">
+        <li class="mdl-menu__item">
+        <a class="post_tag-link" href="/tags/Python/">Python</a></li><li class="mdl-menu__item"><a class="post_tag-link" href="/tags/大数据/">大数据</a>
+    </ul>
+    
+
+    <!-- Share -->
+    <button id="article-fuctions-share-button" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
+    <i class="material-icons" role="presentation">share</i>
+    <span class="visuallyhidden">share</span>
+</button>
+<ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="article-fuctions-share-button">
+    
+
+    
+
+    <!-- Share Weibo -->
+    
+        <a class="post_share-link" href="http://service.weibo.com/share/share.php?appkey=&title=Python进程管理工具Supervisor&url=http://yoursite.com/2017/11/02/python进程管理工具supervisor/index.html&pic=&searchPic=false&style=simple" target="_blank">
+            <li class="mdl-menu__item">
+                分享到微博
+            </li>
+        </a>
+    
+
+    <!-- Share Twitter -->
+    
+        <a class="post_share-link" href="https://twitter.com/intent/tweet?text=Python进程管理工具Supervisor&url=http://yoursite.com/2017/11/02/python进程管理工具supervisor/index.html&via=SparseMatrix" target="_blank">
+            <li class="mdl-menu__item">
+                分享到 Twitter
+            </li>
+        </a>
+    
+
+    <!-- Share Facebook -->
+    
+        <a class="post_share-link" href="https://www.facebook.com/sharer/sharer.php?u=http://yoursite.com/2017/11/02/python进程管理工具supervisor/index.html" target="_blank">
+            <li class="mdl-menu__item">
+                分享到 Facebook
+            </li>
+        </a>
+    
+
+    <!-- Share Google+ -->
+    
+        <a class="post_share-link" href="https://plus.google.com/share?url=http://yoursite.com/2017/11/02/python进程管理工具supervisor/index.html" target="_blank">
+            <li class="mdl-menu__item">
+                分享到 Google+
+            </li>
+        </a>
+    
+
+    <!-- Share LinkedIn -->
+    
+
+    <!-- Share QQ -->
+    
+        <a class="post_share-link" href="http://connect.qq.com/widget/shareqq/index.html?site=胡思乱想&title=Python进程管理工具Supervisor&summary=null&pics=http://yoursite.com/img/favicon.png&url=http://yoursite.com/2017/11/02/python进程管理工具supervisor/index.html" target="_blank">
+            <li class="mdl-menu__item">
+                分享到 QQ
+            </li>
+        </a>
+    
+
+    <!-- Share Telegram -->
+    
+</ul>
+
+</div>
+
+                
+
+                <!-- Post Content -->
+                <div id="post-content" class="mdl-color-text--grey-700 mdl-card__supporting-text fade out">
+    
+        <h2 id="Linux下安装pip"><a href="#Linux下安装pip" class="headerlink" title="Linux下安装pip"></a>Linux下安装pip</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">wget https://bootstrap.pypa.io/get-pip.py</div><div class="line">python get-pip.py</div><div class="line">pip -V　　<span class="comment">#查看pip版本</span></div></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">Supervisor是基于Python的进程管理工具，可以更简单的监听、启停、重启服务器上的一个或多个后台进程，是Linux服务器管理的高效工具</div><div class="line"></div><div class="line">Supervisor管理的进程，当一个进程意外被杀死，supervisort监听到进程挂掉后，会自动将它重新拉起</div><div class="line">其进程自动恢复的功能，不再需要自己写shell脚本来控制</div></pre></td></tr></table></figure>
+<blockquote>
+<p>Supervisor 有两个主要的组成部分：</p>
+</blockquote>
+<ul>
+<li><p>supervisord，运行Supervisor时会启动一个进程supervisord，它负责启动所管理的进程，并将所管理的进程作为自己的子进程来启动，而且可以在所管理的进程出现崩溃时自动重启</p>
+</li>
+<li><p>supervisorctl，是命令行管理工具，可以用来执行stop、start、restart等命令，来对这些子进程进行管理</p>
+</li>
+</ul>
+<h2 id="安装setuptools"><a href="#安装setuptools" class="headerlink" title="安装setuptools"></a>安装setuptools</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">wget --no-check-certificate https://pypi.python.org/packages/<span class="built_in">source</span>/s/setuptools/setuptools-12.0.3.tar.gz<span class="comment">#md5=f07e4b0f4c1c9368fcd980d888b29a65</span></div><div class="line">tar -zxvf setuptools-12.0.3.tar.gz</div><div class="line"><span class="built_in">cd</span> setuptools-12.0.3</div><div class="line">python setup.py install</div></pre></td></tr></table></figure>
+<h2 id="安装pip"><a href="#安装pip" class="headerlink" title="安装pip"></a>安装pip</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">easy_install pip</div></pre></td></tr></table></figure>
+<h2 id="安装supervisor"><a href="#安装supervisor" class="headerlink" title="安装supervisor"></a>安装supervisor</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">easy_install supervisor</div></pre></td></tr></table></figure>
+<h2 id="测试是否安装成功"><a href="#测试是否安装成功" class="headerlink" title="测试是否安装成功"></a>测试是否安装成功</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">echo_supervisord_conf</div></pre></td></tr></table></figure>
+<h2 id="创建配置文件"><a href="#创建配置文件" class="headerlink" title="创建配置文件"></a>创建配置文件</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">echo_supervisord_conf &gt; /etc/supervisord.conf</div></pre></td></tr></table></figure>
+<blockquote>
+<p>如果出现没有权限的问题，可以使用这条命令</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo su - root -c <span class="string">"echo_supervisord_conf &gt; /etc/supervisord.conf"</span></div></pre></td></tr></table></figure>
+<blockquote>
+<p>supervisor安装完成后会生成三个执行程序：</p>
+<ul>
+<li>supervisortd【supervisor的守护进程服务（用于接收进程管理命令）】</li>
+<li>supervisorctl【客户端（用于和守护进程通信，发送管理进程的指令）】</li>
+<li>echo_supervisord_conf【生成初始配置文件程序】</li>
+</ul>
+</blockquote>
+<h2 id="配置文件说明"><a href="#配置文件说明" class="headerlink" title="配置文件说明"></a>配置文件说明</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">想要了解怎么配置需要管理的进程，只要打开 supervisord.conf 就可以了，里面有很详细的注释信息</div></pre></td></tr></table></figure>
+<p>打开配置文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">vim /etc/supervisord.conf</div></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">默认的配置文件是下面这样的，但是这里有个坑需要注意，supervisord.pid 以及 supervisor.sock 是放在 /tmp 目录下</div><div class="line"></div><div class="line">但是 /tmp 目录是存放临时文件，里面的文件是会被 Linux 系统删除的</div><div class="line"></div><div class="line">一旦这些文件丢失，就无法再通过 supervisorctl 来执行 restart 和 stop 命令了，</div><div class="line"></div><div class="line">将只会得到 unix:///tmp/supervisor.sock 不存在的错误</div></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">因此可以单独建一个文件夹，来存放这些文件，比如放在 /etc/supervisord.d/</div></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">默认情况下，进程的日志文件达到50MB时，将进行分割，最多保留10个文件，当然这些配置也可以对每个进程单独配置</div></pre></td></tr></table></figure>
+<blockquote>
+<p>创建文件夹</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">mkdir -p /etc/supervisord.d</div></pre></td></tr></table></figure>
+<blockquote>
+<p>创建日志目录</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">mkdir -p /var/<span class="built_in">log</span>/supervisor/</div></pre></td></tr></table></figure>
+<blockquote>
+<p>supervisord.conf</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div><div class="line">126</div><div class="line">127</div><div class="line">128</div><div class="line">129</div><div class="line">130</div><div class="line">131</div><div class="line">132</div><div class="line">133</div><div class="line">134</div><div class="line">135</div><div class="line">136</div><div class="line">137</div><div class="line">138</div><div class="line">139</div><div class="line">140</div><div class="line">141</div><div class="line">142</div><div class="line">143</div><div class="line">144</div><div class="line">145</div><div class="line">146</div><div class="line">147</div><div class="line">148</div><div class="line">149</div><div class="line">150</div><div class="line">151</div><div class="line">152</div><div class="line">153</div><div class="line">154</div><div class="line">155</div><div class="line">156</div><div class="line">157</div><div class="line">158</div></pre></td><td class="code"><pre><div class="line">; Sample supervisor config file.</div><div class="line">;</div><div class="line">; For more information on the config file, please see:</div><div class="line">; http://supervisord.org/configuration.html</div><div class="line">;</div><div class="line">; Notes:</div><div class="line">;  - Shell expansion (<span class="string">"~"</span> or <span class="string">"<span class="variable">$HOME</span>"</span>) is not supported.  Environment</div><div class="line">;    variables can be expanded using this syntax: <span class="string">"%(ENV_HOME)s"</span>.</div><div class="line">;  - Quotes around values are not supported, except <span class="keyword">in</span> the <span class="keyword">case</span> of</div><div class="line">;    the environment= options as shown below.</div><div class="line">;  - Comments must have a leading space: <span class="string">"a=b ;comment"</span> not <span class="string">"a=b;comment"</span>.</div><div class="line">;  - Command will be truncated <span class="keyword">if</span> it looks like a config file comment, e.g.</div><div class="line">;    <span class="string">"command=bash -c 'foo ; bar'"</span> will truncate to <span class="string">"command=bash -c 'foo "</span>.</div><div class="line"></div><div class="line">[unix_http_server]</div><div class="line">; 修改为/etc/supervisord.d目录，避免被系统删除</div><div class="line">file=/etc/supervisord.d/supervisor.sock   ; the path to the socket file</div><div class="line">;chmod=0700                 ; socket file mode (default 0700)</div><div class="line">;chown=nobody:nogroup       ; socket file uid:gid owner</div><div class="line">;username=user              ; default is no username (open server)</div><div class="line">;password=123               ; default is no password (open server)</div><div class="line"></div><div class="line">;[inet_http_server]         ; inet (TCP) server disabled by default</div><div class="line">;port=127.0.0.1:9001        ; ip_address:port specifier, *:port <span class="keyword">for</span> all iface</div><div class="line">;username=user              ; default is no username (open server)</div><div class="line">;password=123               ; default is no password (open server)</div><div class="line"></div><div class="line">[supervisord]</div><div class="line">; logfile=/tmp/supervisord.log ; main <span class="built_in">log</span> file; default <span class="variable">$CWD</span>/supervisord.log</div><div class="line">; 修改为 /var/<span class="built_in">log</span> 目录，避免被系统删除</div><div class="line">logfile=/var/<span class="built_in">log</span>/supervisor/supervisord.log ;</div><div class="line">; 日志文件多大时进行分割</div><div class="line">logfile_maxbytes=50MB        ; max main logfile bytes b4 rotation; default 50MB</div><div class="line">; 最多保留多少份日志文件</div><div class="line">logfile_backups=10           ; <span class="comment"># of main logfile backups; 0 means none, default 10</span></div><div class="line">loglevel=info                ; <span class="built_in">log</span> level; default info; others: debug,warn,trace</div><div class="line">; 修改为/etc/supervisord.d目录，避免被系统删除</div><div class="line">pidfile=/etc/supervisord.d/supervisord.pid ; supervisord pidfile; default supervisord.pid</div><div class="line">nodaemon=<span class="literal">false</span>               ; start <span class="keyword">in</span> foreground <span class="keyword">if</span> <span class="literal">true</span>; default <span class="literal">false</span></div><div class="line">minfds=1024                  ; min. avail startup file descriptors; default 1024</div><div class="line">minprocs=200                 ; min. avail process descriptors;default 200</div><div class="line">;<span class="built_in">umask</span>=022                   ; process file creation <span class="built_in">umask</span>; default 022</div><div class="line">; 设置启动supervisord的用户，一般情况下不要轻易用root用户来启动，除非你真的确定要这么做</div><div class="line">user=root                 ; default is current user, required <span class="keyword">if</span> root</div><div class="line">;identifier=supervisor       ; supervisord identifier, default is <span class="string">'supervisor'</span></div><div class="line">;directory=/tmp              ; default is not to <span class="built_in">cd</span> during start</div><div class="line">;nocleanup=<span class="literal">true</span>              ; don<span class="string">'t clean up tempfiles at start; default false</span></div><div class="line">;childlogdir=/tmp            ; 'AUTO<span class="string">' child log dir, default $TEMP</span></div><div class="line">;environment=KEY="value"     ; key value pairs to add to environment</div><div class="line">;strip_ansi=false            ; strip ansi escape codes in logs; def. false</div><div class="line"></div><div class="line">; The rpcinterface:supervisor section must remain in the config file for</div><div class="line">; RPC (supervisorctl/web interface) to work.  Additional interfaces may be</div><div class="line">; added by defining them in separate [rpcinterface:x] sections.</div><div class="line"></div><div class="line">[rpcinterface:supervisor]</div><div class="line">supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface</div><div class="line"></div><div class="line">; The supervisorctl section configures how supervisorctl will connect to</div><div class="line">; supervisord.  configure it match the settings in either the unix_http_server</div><div class="line">; or inet_http_server section.</div><div class="line"></div><div class="line">[supervisorctl]</div><div class="line">; 必须和'unix_http_server<span class="string">'里面的设定匹配</span></div><div class="line">; 修改为/etc/supervisor目录，避免被系统删除</div><div class="line">;serverurl=unix:///tmp/supervisor.sock ; use a unix:// URL  for a unix socket</div><div class="line">serverurl=unix:///etc/supervisord.d/supervisor.sock ;</div><div class="line">;serverurl=http://127.0.0.1:9001 ; use an http:// url to specify an inet socket</div><div class="line">;username=chris              ; should be same as in [*_http_server] if set</div><div class="line">;password=123                ; should be same as in [*_http_server] if set</div><div class="line">;prompt=mysupervisor         ; cmd line prompt (default "supervisor")</div><div class="line">;history_file=~/.sc_history  ; use readline history if available</div><div class="line"></div><div class="line">; The sample program section below shows all possible program subsection values.</div><div class="line">; Create one or more 'real<span class="string">' program: sections to be able to control them under</span></div><div class="line">; supervisor.</div><div class="line"></div><div class="line">;[program:theprogramname]</div><div class="line">;command=/bin/cat              ; the program (relative uses PATH, can take args)</div><div class="line">;process_name=%(program_name)s ; process_name expr (default %(program_name)s)</div><div class="line">;numprocs=1                    ; number of processes copies to start (def 1)</div><div class="line">;directory=/tmp                ; directory to cwd to before exec (def no cwd)</div><div class="line">;umask=022                     ; umask for process (default None)</div><div class="line">;priority=999                  ; the relative start priority (default 999)</div><div class="line">;autostart=true                ; start at supervisord start (default: true)</div><div class="line">;startsecs=1                   ; # of secs prog must stay up to be running (def. 1)</div><div class="line">;startretries=3                ; max # of serial start failures when starting (default 3)</div><div class="line">;autorestart=unexpected        ; when to restart if exited after running (def: unexpected)</div><div class="line">;exitcodes=0,2                 ; 'expected<span class="string">' exit codes used with autorestart (default 0,2)</span></div><div class="line">;stopsignal=QUIT               ; signal used to kill process (default TERM)</div><div class="line">;stopwaitsecs=10               ; max num secs to wait b4 SIGKILL (default 10)</div><div class="line">;stopasgroup=false             ; send stop signal to the UNIX process group (default false)</div><div class="line">;killasgroup=false             ; SIGKILL the UNIX process group (def false)</div><div class="line">;user=chrism                   ; setuid to this UNIX account to run the program</div><div class="line">;redirect_stderr=true          ; redirect proc stderr to stdout (default false)</div><div class="line">;stdout_logfile=/a/path        ; stdout log path, NONE for none; default AUTO</div><div class="line">;stdout_logfile_maxbytes=1MB   ; max # logfile bytes b4 rotation (default 50MB)</div><div class="line">;stdout_logfile_backups=10     ; # of stdout logfile backups (0 means none, default 10)</div><div class="line">;stdout_capture_maxbytes=1MB   ; number of bytes in 'capturemode<span class="string">' (default 0)</span></div><div class="line">;stdout_events_enabled=false   ; emit events on stdout writes (default false)</div><div class="line">;stderr_logfile=/a/path        ; stderr log path, NONE for none; default AUTO</div><div class="line">;stderr_logfile_maxbytes=1MB   ; max # logfile bytes b4 rotation (default 50MB)</div><div class="line">;stderr_logfile_backups=10     ; # of stderr logfile backups (0 means none, default 10)</div><div class="line">;stderr_capture_maxbytes=1MB   ; number of bytes in 'capturemode<span class="string">' (default 0)</span></div><div class="line">;stderr_events_enabled=false   ; emit events on stderr writes (default false)</div><div class="line">;environment=A="1",B="2"       ; process environment additions (def no adds)</div><div class="line">;serverurl=AUTO                ; override serverurl computation (childutils)</div><div class="line"></div><div class="line">; The sample eventlistener section below shows all possible eventlistener</div><div class="line">; subsection values.  Create one or more 'real<span class="string">' eventlistener: sections to be</span></div><div class="line">; able to handle event notifications sent by supervisord.</div><div class="line"></div><div class="line">;[eventlistener:theeventlistenername]</div><div class="line">;command=/bin/eventlistener    ; the program (relative uses PATH, can take args)</div><div class="line">;process_name=%(program_name)s ; process_name expr (default %(program_name)s)</div><div class="line">;numprocs=1                    ; number of processes copies to start (def 1)</div><div class="line">;events=EVENT                  ; event notif. types to subscribe to (req'd)</div><div class="line">;buffer_size=10                ; event buffer queue size (default 10)</div><div class="line">;directory=/tmp                ; directory to cwd to before <span class="built_in">exec</span> (def no cwd)</div><div class="line">;<span class="built_in">umask</span>=022                     ; <span class="built_in">umask</span> <span class="keyword">for</span> process (default None)</div><div class="line">;priority=-1                   ; the relative start priority (default -1)</div><div class="line">;autostart=<span class="literal">true</span>                ; start at supervisord start (default: <span class="literal">true</span>)</div><div class="line">;startsecs=1                   ; <span class="comment"># of secs prog must stay up to be running (def. 1)</span></div><div class="line">;startretries=3                ; max <span class="comment"># of serial start failures when starting (default 3)</span></div><div class="line">;autorestart=unexpected        ; autorestart <span class="keyword">if</span> exited after running (def: unexpected)</div><div class="line">;exitcodes=0,2                 ; <span class="string">'expected'</span> <span class="built_in">exit</span> codes used with autorestart (default 0,2)</div><div class="line">;stopsignal=QUIT               ; signal used to <span class="built_in">kill</span> process (default TERM)</div><div class="line">;stopwaitsecs=10               ; max num secs to <span class="built_in">wait</span> b4 SIGKILL (default 10)</div><div class="line">;stopasgroup=<span class="literal">false</span>             ; send stop signal to the UNIX process group (default <span class="literal">false</span>)</div><div class="line">;killasgroup=<span class="literal">false</span>             ; SIGKILL the UNIX process group (def <span class="literal">false</span>)</div><div class="line">;user=chrism                   ; setuid to this UNIX account to run the program</div><div class="line">;redirect_stderr=<span class="literal">false</span>         ; redirect_stderr=<span class="literal">true</span> is not allowed <span class="keyword">for</span> eventlisteners</div><div class="line">;stdout_logfile=/a/path        ; stdout <span class="built_in">log</span> path, NONE <span class="keyword">for</span> none; default AUTO</div><div class="line">;stdout_logfile_maxbytes=1MB   ; max <span class="comment"># logfile bytes b4 rotation (default 50MB)</span></div><div class="line">;stdout_logfile_backups=10     ; <span class="comment"># of stdout logfile backups (0 means none, default 10)</span></div><div class="line">;stdout_events_enabled=<span class="literal">false</span>   ; emit events on stdout writes (default <span class="literal">false</span>)</div><div class="line">;stderr_logfile=/a/path        ; stderr <span class="built_in">log</span> path, NONE <span class="keyword">for</span> none; default AUTO</div><div class="line">;stderr_logfile_maxbytes=1MB   ; max <span class="comment"># logfile bytes b4 rotation (default 50MB)</span></div><div class="line">;stderr_logfile_backups=10     ; <span class="comment"># of stderr logfile backups (0 means none, default 10)</span></div><div class="line">;stderr_events_enabled=<span class="literal">false</span>   ; emit events on stderr writes (default <span class="literal">false</span>)</div><div class="line">;environment=A=<span class="string">"1"</span>,B=<span class="string">"2"</span>       ; process environment additions</div><div class="line">;serverurl=AUTO                ; override serverurl computation (childutils)</div><div class="line"></div><div class="line">; The sample group section below shows all possible group values.  Create one</div><div class="line">; or more <span class="string">'real'</span> group: sections to create <span class="string">"heterogeneous"</span> process groups.</div><div class="line"></div><div class="line">;[group:thegroupname]</div><div class="line">;programs=progname1,progname2  ; each refers to <span class="string">'x'</span> <span class="keyword">in</span> [program:x] definitions</div><div class="line">;priority=999                  ; the relative start priority (default 999)</div><div class="line"></div><div class="line">; The [include] section can just contain the <span class="string">"files"</span> setting.  This</div><div class="line">; setting can list multiple files (separated by whitespace or</div><div class="line">; newlines).  It can also contain wildcards.  The filenames are</div><div class="line">; interpreted as relative to this file.  Included files *cannot*</div><div class="line">; include files themselves.</div><div class="line"></div><div class="line">[include]</div><div class="line">files = /etc/supervisord.d/config/*.ini</div></pre></td></tr></table></figure>
+<h3 id="使用include"><a href="#使用include" class="headerlink" title="使用include"></a>使用include</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">在配置文件的最后，有一个 [include] 的配置项，跟 Nginx 一样，可以 include 某个文件夹下的所有配置文件，这样我们就可以为每个进程或相关的几个进程的配置单独写成一个文件</div></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">[include]</div><div class="line">files = /etc/supervisord.d/config/*.ini</div></pre></td></tr></table></figure>
+<h3 id="创建进程的配置文件"><a href="#创建进程的配置文件" class="headerlink" title="创建进程的配置文件"></a>创建进程的配置文件</h3><blockquote>
+<p>编辑/etc/supervisord.d/config/matrix.ini</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div></pre></td><td class="code"><pre><div class="line">[group:matrix]</div><div class="line">programs = matrix.print</div><div class="line"></div><div class="line">[program:matrix.print]</div><div class="line">; 启动命令，可以看出与手动在命令行启动的命令是一样的</div><div class="line"><span class="built_in">command</span>=python /data/demo/demo.py</div><div class="line">numprocs=1</div><div class="line">numprocs_start=0</div><div class="line">priority=999</div><div class="line">; 在supervisord启动的时候也自动启动</div><div class="line">autostart=<span class="literal">true</span></div><div class="line">; 启动3秒后没有异常退出，就当作已经正常启动了</div><div class="line">startsecs=3</div><div class="line">; 启动失败自动重试次数，默认是3</div><div class="line">startretries=3</div><div class="line">exitcodes=0,2</div><div class="line">stopsignal=QUIT</div><div class="line">stopwaitsecs=60</div><div class="line">directory=/data/demo</div><div class="line">user=root</div><div class="line">; 默认为<span class="literal">false</span>,进程被杀死时，是否向这个进程组发送stop信号，包括子进程</div><div class="line">stopasgroup=<span class="literal">false</span></div><div class="line">; 默认为<span class="literal">false</span>，向进程组发送<span class="built_in">kill</span>信号，包括子进程</div><div class="line">killasgroup=<span class="literal">false</span></div><div class="line">redirect_stderr=<span class="literal">true</span></div><div class="line">;stdout 日志文件，需要注意当指定目录不存在时无法正常启动，所以需要手动创建目录（supervisord 会自动创建日志文件）</div><div class="line">stdout_logfile=/data/demo/data.log</div><div class="line">; 日志文件多大时进行分割</div><div class="line">stdout_logfile_maxbytes=250MB</div><div class="line">; 最多保留多少份日志文件</div><div class="line">stdout_logfile_backups=10</div><div class="line">stderr_logfile=/data/demo/data.err</div><div class="line">stderr_logfile_maxbytes=250MB</div><div class="line">stderr_logfile_backups=10</div><div class="line">; 可以通过 environment 来添加需要的环境变量，一种常见的用法是修改 PYTHONPATH</div><div class="line">environment=PYTHONPATH=<span class="string">"/data/demo"</span></div></pre></td></tr></table></figure>
+<blockquote>
+<p>创建测试脚本&amp;日志目录</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">mkdir -p /data/demo</div></pre></td></tr></table></figure>
+<blockquote>
+<p>/data/demo/demo.py</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">vi /data/demo/demo.py</div></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># -*- coding: utf-8 -*-</span></div><div class="line">import os</div><div class="line">import time</div><div class="line"></div><div class="line"><span class="keyword">while</span> 1:</div><div class="line">   f = open(<span class="string">'data.log'</span>, <span class="string">'a+'</span>)</div><div class="line">   time.sleep(5)</div><div class="line">   f.write(<span class="string">'This is a Test!'</span>)</div></pre></td></tr></table></figure>
+<h2 id="启动supervisor"><a href="#启动supervisor" class="headerlink" title="启动supervisor"></a>启动supervisor</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">supervisord -c /etc/supervisord.conf</div></pre></td></tr></table></figure>
+<h3 id="查看supervisor是否启动成功"><a href="#查看supervisor是否启动成功" class="headerlink" title="查看supervisor是否启动成功"></a>查看supervisor是否启动成功</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ps -ef | grep <span class="string">'/etc/supervisord.conf'</span></div></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">root     23542     1  0 17:46 ?        00:00:00 /usr/bin/python /usr/bin/supervisord -c /etc/supervisord.conf</div><div class="line">root     23566 23079  0 17:54 pts/0    00:00:00 grep /etc/supervisord.conf</div></pre></td></tr></table></figure>
+<h3 id="查看supervisord-log"><a href="#查看supervisord-log" class="headerlink" title="查看supervisord.log"></a>查看supervisord.log</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">tail -f /var/<span class="built_in">log</span>/supervisor/supervisord.log</div></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">2017-10-31 17:46:18,672 CRIT Set uid to user 0</div><div class="line">2017-10-31 17:46:18,678 INFO RPC interface <span class="string">'supervisor'</span> initialized</div><div class="line">2017-10-31 17:46:18,678 CRIT Server <span class="string">'unix_http_server'</span> running without any HTTP authentication checking</div><div class="line">2017-10-31 17:46:18,679 INFO daemonizing the supervisord process</div><div class="line">2017-10-31 17:46:18,679 INFO supervisord started with pid 23542</div><div class="line">2017-10-31 17:48:14,042 INFO spawned: <span class="string">'matrix.print'</span> with pid 23555</div><div class="line">2017-10-31 17:48:17,047 INFO success: matrix.print entered RUNNING state, process has stayed up <span class="keyword">for</span> &gt; than 3 seconds (startsecs)</div></pre></td></tr></table></figure>
+<h2 id="supervisord-conf配置文件参数说明"><a href="#supervisord-conf配置文件参数说明" class="headerlink" title="supervisord.conf配置文件参数说明"></a>supervisord.conf配置文件参数说明</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div></pre></td><td class="code"><pre><div class="line">[unix_http_server]</div><div class="line">file=/tmp/supervisor.sock   ;UNIX socket 文件，supervisorctl 会使用</div><div class="line">;chmod=0700                 ;socket文件的mode，默认是0700</div><div class="line">;chown=nobody:nogroup       ;socket文件的owner，格式：uid:gid</div><div class="line"></div><div class="line">;[inet_http_server]         ;HTTP服务器，提供web管理界面</div><div class="line">;port=127.0.0.1:9001        ;Web管理后台运行的IP和端口，如果开放到公网，需要注意安全性</div><div class="line">;username=user              ;登录管理后台的用户名</div><div class="line">;password=123               ;登录管理后台的密码</div><div class="line"></div><div class="line">[supervisord]</div><div class="line">logfile=/tmp/supervisord.log ;日志文件，默认是 <span class="variable">$CWD</span>/supervisord.log</div><div class="line">logfile_maxbytes=50MB        ;日志文件大小，超出会rotate，默认 50MB，如果设成0，表示不限制大小</div><div class="line">logfile_backups=10           ;日志文件保留备份数量默认10，设为0表示不备份</div><div class="line">loglevel=info                ;日志级别，默认info，其它: debug,warn,trace</div><div class="line">pidfile=/tmp/supervisord.pid ;pid 文件</div><div class="line">nodaemon=<span class="literal">false</span>               ;是否在前台启动，默认是<span class="literal">false</span>，即以 daemon 的方式启动</div><div class="line">minfds=1024                  ;可以打开的文件描述符的最小值，默认 1024</div><div class="line">minprocs=200                 ;可以打开的进程数的最小值，默认 200</div><div class="line"></div><div class="line">[supervisorctl]</div><div class="line">serverurl=unix:///tmp/supervisor.sock ;通过UNIX socket连接supervisord，路径与unix_http_server部分的file一致</div><div class="line">;serverurl=http://127.0.0.1:9001 ; 通过HTTP的方式连接supervisord</div><div class="line"></div><div class="line">; [program:xx]是被管理的进程配置参数，xx是进程的名称</div><div class="line">[program:xx]</div><div class="line"><span class="built_in">command</span>=/opt/apache-tomcat-8.0.35/bin/catalina.sh run  ; 程序启动命令</div><div class="line">autostart=<span class="literal">true</span>       ; 在supervisord启动的时候也自动启动</div><div class="line">startsecs=10         ; 启动10秒后没有异常退出，就表示进程正常启动了，默认为1秒</div><div class="line">autorestart=<span class="literal">true</span>     ; 程序退出后自动重启,可选值：[unexpected,<span class="literal">true</span>,<span class="literal">false</span>]，默认为unexpected，表示进程意外杀死后才重启</div><div class="line">startretries=3       ; 启动失败自动重试次数，默认是3</div><div class="line">user=tomcat          ; 用哪个用户启动进程，默认是root</div><div class="line">priority=999         ; 进程启动优先级，默认999，值小的优先启动</div><div class="line">redirect_stderr=<span class="literal">true</span> ; 把stderr重定向到stdout，默认<span class="literal">false</span></div><div class="line">stdout_logfile_maxbytes=20MB  ; stdout 日志文件大小，默认50MB</div><div class="line">stdout_logfile_backups = 20   ; stdout 日志文件备份数，默认是10</div><div class="line">; stdout 日志文件，需要注意当指定目录不存在时无法正常启动，所以需要手动创建目录（supervisord 会自动创建日志文件）</div><div class="line">stdout_logfile=/opt/apache-tomcat-8.0.35/logs/catalina.out</div><div class="line">stopasgroup=<span class="literal">false</span>     ;默认为<span class="literal">false</span>,进程被杀死时，是否向这个进程组发送stop信号，包括子进程</div><div class="line">killasgroup=<span class="literal">false</span>     ;默认为<span class="literal">false</span>，向进程组发送<span class="built_in">kill</span>信号，包括子进程</div><div class="line"></div><div class="line">;包含其它配置文件</div><div class="line">[include]</div><div class="line">files = relative/directory/*.ini    ;可以指定一个或多个以.ini结束的配置文件</div></pre></td></tr></table></figure>
+<h2 id="supervisorctl命令介绍"><a href="#supervisorctl命令介绍" class="headerlink" title="supervisorctl命令介绍"></a>supervisorctl命令介绍</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 停止某一个进程，program_name 为 [program:x] 里的 x</span></div><div class="line">supervisorctl stop program_name</div><div class="line"><span class="comment"># 启动某个进程</span></div><div class="line">supervisorctl start program_name</div><div class="line"><span class="comment"># 重启某个进程</span></div><div class="line">supervisorctl restart program_name</div><div class="line"><span class="comment"># 结束所有属于名为 groupworker 这个分组的进程 (start，restart 同理)</span></div><div class="line">supervisorctl stop groupworker:</div><div class="line"><span class="comment"># 结束 groupworker:name1 这个进程 (start，restart 同理)</span></div><div class="line">supervisorctl stop groupworker:name1</div><div class="line"><span class="comment"># 停止全部进程，注：start、restart、stop 都不会载入最新的配置文件</span></div><div class="line">supervisorctl stop all</div><div class="line"><span class="comment"># 载入最新的配置文件，停止原有进程并按新的配置启动、管理所有进程</span></div><div class="line">supervisorctl reload</div><div class="line"><span class="comment"># 根据最新的配置文件，启动新配置或有改动的进程，配置没有改动的进程不会受影响而重启</span></div><div class="line">supervisorctl update</div><div class="line"><span class="comment"># 查看进程的状态</span></div><div class="line">supervisorctl status</div></pre></td></tr></table></figure>
+<blockquote>
+<p>查看进程状态</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">supervisorctl status</div></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">matrix:matrix.print              RUNNING   pid 23555, uptime 0:10:00</div></pre></td></tr></table></figure>
+<h2 id="查看supervisord所在路径"><a href="#查看supervisord所在路径" class="headerlink" title="查看supervisord所在路径"></a>查看supervisord所在路径</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">which</span> supervisord</div></pre></td></tr></table></figure>
+<h2 id="使用浏览器来管理"><a href="#使用浏览器来管理" class="headerlink" title="使用浏览器来管理"></a>使用浏览器来管理</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">supervisor 同时提供了通过浏览器来管理进程的方法，只需要注释掉如下几行就可以了</div></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">;[inet_http_server]         ; inet (TCP) server disabled by default</div><div class="line">;port=192.168.3.244:9001        ; (ip_address:port specifier, *:port <span class="keyword">for</span> ;all iface)</div><div class="line">;username=user              ; (default is no username (open server))</div><div class="line">;password=123               ; (default is no password (open server))</div><div class="line">[supervisorctl]</div><div class="line">...</div><div class="line">;serverurl=http://192.168.3.244:9001 ; use an http:// url to specify an inet socket</div><div class="line">;username=chris              ; should be same as http_username <span class="keyword">if</span> <span class="built_in">set</span></div><div class="line">;password=123                ; should be same as http_password <span class="keyword">if</span> <span class="built_in">set</span></div></pre></td></tr></table></figure>
+<blockquote>
+<p>访问浏览器地址栏：<a href="http://192.168.3.244:9001/" target="_blank" rel="external">http://192.168.3.244:9001/</a></p>
+</blockquote>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fl1lvrh2stj20ws07mt98.jpg" alt="All text"></p>
+<h2 id="开机自动启动Supervisord"><a href="#开机自动启动Supervisord" class="headerlink" title="开机自动启动Supervisord"></a>开机自动启动Supervisord</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Linux在启动的时候会执行/etc/rc.local里面的脚本，所以在这里添加执行命令就可以</div></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 如果是 Ubuntu 添加以下内容</span></div><div class="line">/usr/<span class="built_in">local</span>/bin/supervisord -c /etc/supervisord.conf</div></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 如果是 Centos 添加以下内容</span></div><div class="line">/usr/bin/supervisord -c /etc/supervisord.conf</div></pre></td></tr></table></figure>
+<h3 id="启用rc-local服务"><a href="#启用rc-local服务" class="headerlink" title="启用rc.local服务"></a>启用rc.local服务</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo systemctl <span class="built_in">enable</span> rc-local.service</div></pre></td></tr></table></figure>
+    
+
+    
+</div>
+
+
+                
+
+                <!-- Post Comments -->
+                
+                    
+                
+            </div>
+
+            <!-- Post Prev & Next Nav -->
+            <nav class="material-nav mdl-color-text--grey-50 mdl-cell mdl-cell--12-col">
+    <!-- Prev Nav -->
+    
+        <a href="/2017/11/02/ES集群中的索引管理(2)/" id="post_nav-newer" class="prev-content">
+            <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon mdl-color--white mdl-color-text--grey-900" role="presentation">
+                <i class="material-icons">arrow_back</i>
+            </button>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            新篇
+        </a>
+    
+
+    <!-- Section Spacer -->
+    <div class="section-spacer"></div>
+
+    <!-- Next Nav -->
+    
+        <a href="/2017/10/30/ES集群中的索引管理(1)/" id="post_nav-older" class="next-content">
+            旧篇
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon mdl-color--white mdl-color-text--grey-900" role="presentation">
+                <i class="material-icons">arrow_forward</i>
+            </button>
+        </a>
+    
+</nav>
+
+        </div>
+    </div>
+
+
+
+                    
+                        <!-- Overlay For Active Sidebar -->
+<div class="sidebar-overlay"></div>
+
+<!-- Material sidebar -->
+<aside id="sidebar" class="sidebar sidebar-colored sidebar-fixed-left" role="navigation">
+    <div id="sidebar-main">
+        <!-- Sidebar Header -->
+        <div class="sidebar-header header-cover" style="background-image: url(/img/sidebar_header.png);">
+    <!-- Top bar -->
+    <div class="top-bar"></div>
+
+    <!-- Sidebar toggle button -->
+    <button type="button" class="sidebar-toggle mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" style="display: initial;" data-upgraded=",MaterialButton,MaterialRipple">
+        <i class="material-icons">clear_all</i>
+        <span class="mdl-button__ripple-container">
+            <span class="mdl-ripple">
+            </span>
+        </span>
+    </button>
+
+    <!-- Sidebar Avatar -->
+    <div class="sidebar-image">
+        <img src="/img/avatar.png" alt="SparseMatrix's avatar">
+    </div>
+
+    <!-- Sidebar Email -->
+    <a data-toggle="dropdown" class="sidebar-brand" href="#settings-dropdown">
+        sparsematrix@163.com
+        <b class="caret"></b>
+    </a>
+</div>
+
+
+        <!-- Sidebar Navigation  -->
+        <ul class="nav sidebar-nav">
+    <!-- User dropdown  -->
+    <li class="dropdown">
+        <ul id="settings-dropdown" class="dropdown-menu">
+            
+        </ul>
+    </li>
+
+    <!-- Homepage -->
+    
+        <li id="sidebar-first-li">
+            <a href="/">
+                
+                    <i class="material-icons sidebar-material-icons">home</i>
+                
+                主页
+            </a>
+        </li>
+        
+    
+
+    <!-- Archives  -->
+    
+        <li class="dropdown">
+            <a href="#" class="ripple-effect dropdown-toggle" data-toggle="dropdown">
+                
+                    <i class="material-icons sidebar-material-icons">inbox</i>
+                
+                    归档
+                <b class="caret"></b>
+            </a>
+            <ul class="dropdown-menu">
+            <li>
+                <a class="sidebar_archives-link" href="/archives/2017/11/">十一月 2017<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/10/">十月 2017<span class="sidebar_archives-count">8</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/09/">九月 2017<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/08/">八月 2017<span class="sidebar_archives-count">8</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/07/">七月 2017<span class="sidebar_archives-count">27</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/06/">六月 2017<span class="sidebar_archives-count">41</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/05/">五月 2017<span class="sidebar_archives-count">8</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/04/">四月 2017<span class="sidebar_archives-count">9</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/03/">三月 2017<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/02/">二月 2017<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/archives/2017/01/">一月 2017<span class="sidebar_archives-count">6</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/11/">十一月 2016<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/10/">十月 2016<span class="sidebar_archives-count">6</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/07/">七月 2016<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/05/">五月 2016<span class="sidebar_archives-count">5</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/03/">三月 2016<span class="sidebar_archives-count">25</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/02/">二月 2016<span class="sidebar_archives-count">54</span></a></li><li><a class="sidebar_archives-link" href="/archives/2016/01/">一月 2016<span class="sidebar_archives-count">28</span></a>
+            </ul>
+        </li>
+        
+    
+
+    <!-- Categories  -->
+    
+        <li class="dropdown">
+            <a href="#" class="ripple-effect dropdown-toggle" data-toggle="dropdown">
+                
+                    <i class="material-icons sidebar-material-icons">chrome_reader_mode</i>
+                
+                分类
+                <b class="caret"></b>
+            </a>
+            <ul class="dropdown-menu">
+                <li>
+                <a class="sidebar_archives-link" href="/categories/ChatScript/">ChatScript<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/Docker/">Docker<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/ECMAScript6/">ECMAScript6<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/Java/">Java<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/Linux/">Linux<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/Python爬虫/">Python爬虫<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/Python爬虫/Scrapy/">Scrapy<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/TensorFlow/">TensorFlow<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/UI/">UI<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/UI/ps/">ps<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/UI/ps/美术基础/">美术基础<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/elasticsearch/">elasticsearch<span class="sidebar_archives-count">12</span></a></li><li><a class="sidebar_archives-link" href="/categories/flask/">flask<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/item2/">item2<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/python/">python<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/python/flask/">flask<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/workman/">workman<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/云计算/">云计算<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/categories/互联网运营/">互联网运营<span class="sidebar_archives-count">5</span></a></li><li><a class="sidebar_archives-link" href="/categories/健身/">健身<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/动效设计/">动效设计<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/图片素材/">图片素材<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大前端/">大前端<span class="sidebar_archives-count">5</span></a></li><li><a class="sidebar_archives-link" href="/categories/大前端/React/">React<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大前端/atom/">atom<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大前端/webpack/">webpack<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/">大数据<span class="sidebar_archives-count">162</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/HDFS/">HDFS<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Hbase/">Hbase<span class="sidebar_archives-count">6</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Hive/">Hive<span class="sidebar_archives-count">16</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Java/">Java<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Linux/">Linux<span class="sidebar_archives-count">9</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Linux/python/">python<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/MR/">MR<span class="sidebar_archives-count">12</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Mahout/">Mahout<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Mongodb/">Mongodb<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Nginx/">Nginx<span class="sidebar_archives-count">5</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Python/">Python<span class="sidebar_archives-count">17</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Python数据分析/">Python数据分析<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Python爬虫/">Python爬虫<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Redis/">Redis<span class="sidebar_archives-count">25</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Spark/">Spark<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Sqoop/">Sqoop<span class="sidebar_archives-count">4</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Storm/">Storm<span class="sidebar_archives-count">5</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Tengine/">Tengine<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Tornado/">Tornado<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/Zookeeper/">Zookeeper<span class="sidebar_archives-count">3</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/lvs/">lvs<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/mysql/">mysql<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/python/">python<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/python数据分析/">python数据分析<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/tengine/">tengine<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/机器学习/">机器学习<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/大数据/神经网络/">神经网络<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/微信第三方开发/">微信第三方开发<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/新媒体/">新媒体<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/模块化/">模块化<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/深度学习/">深度学习<span class="sidebar_archives-count">7</span></a></li><li><a class="sidebar_archives-link" href="/categories/理财/">理财<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/算法/">算法<span class="sidebar_archives-count">2</span></a></li><li><a class="sidebar_archives-link" href="/categories/职位要求/">职位要求<span class="sidebar_archives-count">1</span></a></li><li><a class="sidebar_archives-link" href="/categories/读书笔记/">读书笔记<span class="sidebar_archives-count">9</span></a></li><li><a class="sidebar_archives-link" href="/categories/金融/">金融<span class="sidebar_archives-count">3</span></a>
+            </ul>
+        </li>
+        
+    
+
+    <!-- Pages  -->
+    
+
+    <!-- Article Number  -->
+    
+        <li>
+            <a href="/archives">
+                文章总数
+                <span class="sidebar-badge">237</span>
+            </a>
+        </li>
+        
+    
+</ul>
+
+
+        <!-- Sidebar Footer -->
+        <!--
+I'm glad you use this theme, the development is no so easy, I hope you can keep the copyright, I will thank you so much.
+If you still want to delete the copyrights, could you still retain the first one? Which namely "Theme Material"
+It will not impact the appearance and can give developers a lot of support :)
+
+很高兴您使用并喜欢该主题，开发不易 十分谢谢与希望您可以保留一下版权声明。
+如果您仍然想删除的话 能否只保留第一项呢？即 "Theme Material"
+它不会影响美观并可以给开发者很大的支持和动力。 :)
+-->
+
+<!-- Sidebar Divider -->
+
+
+<!-- Theme Material -->
+
+
+<!-- Help & Support -->
+<!--
+
+-->
+
+<!-- Feedback -->
+<!--
+
+-->
+
+<!-- About Theme -->
+<!--
+
+-->
+
+    </div>
+
+    <!-- Sidebar Image -->
+    
+
+</aside>
+
+                    
+
+                    
+                        <!-- Footer Top Button -->
+                        <div id="back-to-top" class="toTop-wrap">
+    <a href="#top" class="toTop">
+        <i class="material-icons footer_top-i">expand_less</i>
+    </a>
+</div>
+
+                    
+
+                    <!--Footer-->
+<footer class="mdl-mini-footer" id="bottom">
+    
+        <!-- Paradox Footer Left Section -->
+        <div class="mdl-mini-footer--left-section sns-list">
+    <!-- Twitter -->
+    
+        <a href="https://twitter.com/twitter" target="_blank">
+            <button class="mdl-mini-footer--social-btn social-btn footer-sns-twitter">
+                <span class="visuallyhidden">Twitter</span>
+            </button><!--
+     --></a>
+    
+
+    <!-- Facebook -->
+    
+        <a href="https://www.facebook.com/facebook" target="_blank">
+            <button class="mdl-mini-footer--social-btn social-btn footer-sns-facebook">
+                <span class="visuallyhidden">Facebook</span>
+            </button><!--
+     --></a>
+    
+
+    <!-- Google + -->
+    
+        <a href="https://www.google.com/" target="_blank">
+            <button class="mdl-mini-footer--social-btn social-btn footer-sns-gplus">
+                <span class="visuallyhidden">Google Plus</span>
+            </button><!--
+     --></a>
+    
+
+    <!-- Weibo -->
+    
+
+    <!-- Instagram -->
+    
+
+    <!-- Tumblr -->
+    
+
+    <!-- Github -->
+    
+        <a href="https://github.com/matrixsparse/matrixsparse.github.io" target="_blank">
+            <button class="mdl-mini-footer--social-btn social-btn footer-sns-github">
+                <span class="visuallyhidden">Github</span>
+            </button><!--
+     --></a>
+    
+
+    <!-- LinkedIn -->
+    
+
+    <!-- Zhihu -->
+    
+
+    <!-- Bilibili -->
+    
+
+    <!-- Telegram -->
+    
+</div>
+
+
+        <!--Copyright-->
+        <div id="copyright">
+            Copyright&nbsp;©<script type="text/javascript">var fd = new Date();document.write("&nbsp;" + fd.getFullYear() + "&nbsp;");</script>胡思乱想
+        </div>
+    
+</footer>
+
+
+                    <!-- Import File -->
+
+
+    <script>lsloader.load("js/lazyload.min.js","/js/lazyload.min.js?1BcfzuNXqV+ntF6gq+5X3Q==")</script>
+    <script>lsloader.load("js/js.min.js","/js/js.min.js?oAl/+lvaqTFV31JXTmbrNA==")</script>
+
+
+
+    <script>lsloader.load("js/nprogress.js","/js/nprogress.js?pl3Qhb9lvqR1FlyLUna1Yw==")</script>
+
+
+<script type="text/ls-javascript" id="NProgress-script">
+    NProgress.configure({
+        showSpinner: true
+    });
+    NProgress.start();
+    $('#nprogress .bar').css({
+        'background': '#4F4B43'
+    });
+    $('#nprogress .peg').css({
+        'box-shadow': '0 0 10px #4F4B43, 0 0 15px #4F4B43'
+    });
+    $('#nprogress .spinner-icon').css({
+        'border-top-color': '#4F4B43',
+        'border-left-color': '#4F4B43'
+    });
+    setTimeout(function() {
+        NProgress.done();
+        $('.fade').removeClass('out');
+    }, 800);
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- UC Browser Compatible -->
+<script>
+	var agent = navigator.userAgent.toLowerCase();
+	if(agent.indexOf('ucbrowser')>0) {
+		document.write('<link rel="stylesheet" href="/css/uc.css">');
+	   alert('由于 UC 浏览器使用极旧的内核，而本网站使用了一些新的特性。\n为了您能更好的浏览，推荐使用 Chrome 或 Firefox 浏览器。');
+	}
+</script>
+
+<!-- Window Load-->
+<script type="text/ls-javascript" id="window-load">
+    $(window).on('load', function() {
+        // Post_Toc parent position fixed
+        $('.post-toc-wrap').parent('.mdl-menu__container').css('position', 'fixed');
+    });
+</script>
+
+<!-- MathJax Load-->
+
+<script type="text/ls-javascript" id="lazy-load">
+    // Offer LazyLoad
+    queue.offer(function(){
+        $('.lazy').lazyload({
+            effect : 'show'
+        });
+    });
+
+    // Start Queue
+    $(document).ready(function(){
+        setInterval(function(){
+            queue.execNext();
+        },200);
+    });
+</script>
+
+<!-- Bing Background -->
+
+
+<script>
+    (function(){
+        var scriptList = document.querySelectorAll('script[type="text/ls-javascript"]')
+
+        for (var i = 0; i < scriptList.length; ++i) {
+            var item = scriptList[i];
+            lsloader.runInlineScript(item.id,item.id);
+        }
+    })()
+console.log('\n %c © Material Theme | Version: 1.4.0 | https://github.com/viosey/hexo-theme-material %c \n', 'color:#455a64;background:#e0e0e0;padding:5px 0;border-top-left-radius:5px;border-bottom-left-radius:5px;', 'color:#455a64;background:#e0e0e0;padding:5px 0;border-top-right-radius:5px;border-bottom-right-radius:5px;');
+</script>
+
+                </main>
+            </div>
+        </body>
+    
+</html>
