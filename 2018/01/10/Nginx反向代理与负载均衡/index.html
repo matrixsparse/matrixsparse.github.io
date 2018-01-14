@@ -514,7 +514,24 @@
 <p>反向代理服务器，对于客户端而言它就像是原始服务器，并且客户端不需要进行任何特别的设置。客户端向反向代理的命名空间(name-space)中的内容发送普通请求，接着反向代理将判断向何处(原始服务器)转交请求，并将获得的内容返回给客户端，就像这些内容原本就是它自己的一样</p>
 <p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fnfumvgrmjj20uo0fk77t.jpg" alt="All text"></p>
 <h3 id="反向代理典型应用场景"><a href="#反向代理典型应用场景" class="headerlink" title="反向代理典型应用场景"></a>反向代理典型应用场景</h3><p>反向代理的典型用途是将防火墙后面的服务器提供给 Internet 用户访问，加强安全防护。反向代理还可以为后端的多台服务器提供负载均衡，或为后端较慢的服务器提供<code>缓冲</code>服务。反向代理还可以启用<code>高级 URL 策略</code>和<code>管理技术</code>，从而使处于不同 web 服务器系统的 web 页面同时存在于同一个 URL 空间下</p>
-<h3 id="Nginx做HTTP反向代理"><a href="#Nginx做HTTP反向代理" class="headerlink" title="Nginx做HTTP反向代理"></a>Nginx做HTTP反向代理</h3><p>访问本地服务器上的 README.md 文件 <a href="http://localhost/README.md，本地服务器进行反向代理，从" target="_blank" rel="external">http://localhost/README.md，本地服务器进行反向代理，从</a> <a href="https://github.com/matrixsparse/Programming-Assignments/tree/master/deep-learning/README.md" target="_blank" rel="external">https://github.com/matrixsparse/Programming-Assignments/tree/master/deep-learning/README.md</a> 获取页面内容。</p>
+<h3 id="Nginx做HTTP反向代理"><a href="#Nginx做HTTP反向代理" class="headerlink" title="Nginx做HTTP反向代理"></a>Nginx做HTTP反向代理</h3><p>访问本地服务器上的 README.md 文件<a href="http://localhost/README.md" target="_blank" rel="external">http://localhost/README.md</a></p>
+<p>本地服务器进行反向代理，从 <a href="https://github.com/matrixsparse/Programming-Assignments/tree/master/deep-learning/README.md" target="_blank" rel="external">https://github.com/matrixsparse/Programming-Assignments/tree/master/deep-learning/README.md</a> 获取页面内容</p>
+<blockquote>
+<p>编辑配置文件</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">vim /etc/nginx/conf.d/agency.conf</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line">server &#123;</div><div class="line">        listen 80;</div><div class="line">        # listen [::]:80 ipv6only=on;</div><div class="line"></div><div class="line">        # Log files for Debugging</div><div class="line">        access_log /var/log/nginx/agency-access.log;</div><div class="line">        error_log /var/log/nginx/agency-error.log;</div><div class="line"></div><div class="line">        # Your Domain Name</div><div class="line">        # server_name laravel.hakase-labs.co;</div><div class="line">        server_name  www.sparsematrix.com;</div><div class="line"></div><div class="line">        # 用户访问 http://ip:port，则反向代理到https://github.com</div><div class="line">        location / &#123;</div><div class="line">            proxy_redirect     off;</div><div class="line">            proxy_set_header   Host             $host;</div><div class="line">            proxy_set_header   X-Real-IP        $remote_addr;</div><div class="line">            proxy_set_header   X-Forwarded-For  $proxy_add_x_forwarded_for;</div><div class="line">            proxy_pass  https://github.com;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        # 用户访问 http://ip:port/README.md，则反向代理到</div><div class="line">        # https://github.com/.../README.md</div><div class="line">        location /README.md &#123;</div><div class="line">            proxy_set_header  X-Real-IP  $remote_addr;</div><div class="line">            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;</div><div class="line">            proxy_pass https://github.com/matrixsparse/Programming-Assignments/tree/master/deep-learning/README.md;</div><div class="line">        &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<blockquote>
+<p>检查nginx配置文件语法是否正确</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">nginx -t</div></pre></td></tr></table></figure>
+<blockquote>
+<p>重启nginx</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">nginx -s reload</div></pre></td></tr></table></figure>
+<blockquote>
+<p>在浏览器地址栏访问<a href="http://localhost/README.md" target="_blank" rel="external">http://localhost/README.md</a></p>
+</blockquote>
 
     
 
