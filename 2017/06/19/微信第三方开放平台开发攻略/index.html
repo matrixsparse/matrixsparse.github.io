@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta name="author" content="董沅鑫, yuanxin.me@gmail.com">
+  
+  
+  
+  <title>微信第三方开放平台开发攻略 | 每天遇到更好的你</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="Python,微信第三方开发,">
+  
+
+  <script>
+    console.log('\n%c Hexo-theme-bmw v4.0 ' + '%c 🎉 https://github.com/dongyuanxin/theme-bmw 🎉\n' + '\n%c View demo online ' + '%c 🔍 https://godbmw.com/ 🔍  \n' , 'color: #fadfa3; background: #030307; padding:3px 0;', '', 'color: #fadfa3; background: #030307; padding:3px 0;', '');
+  </script>
+
+  
+
+  
+
+  
+    <link rel="icon" href="/images/favicon.png">
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+  
+
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/icon/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+  <script src="/js/util.js"></script>
+<script src="/js/valine.min.js"></script>
+
+  
+
+  
+    <link href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js" async></script>
+  
+
+  
+    <link href="https://cdn.bootcss.com/social-share.js/1.0.16/css/share.min.css" rel="stylesheet">
+  
+  
+  <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js" async></script>
+  
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.0/dist/av-min.js"></script>
+  
+
+</head>
+
+  <body>
+
+    
+
+    <div id="app">
+
+      <div class="header-wrap">
+  <header>
+    <div class="site-brand">
+      <div class="site-title">
+        <!-- <a href="/">MatrixSparse</a> -->
+        <img alt="logo" class="antd-pro-layouts-user-layout-logo" src="/images/favicon.png" style="width: 40px;height: 40px;margin-top: 10px;margin-left: 5px;">
+      </div>
+    </div>
+    <nav class="site-navigation">
+      <ul class="nav-menu">
+      
+        <li class="nav-item" data-path="/">
+          
+            <a href="/" target="_self">
+              主页
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          
+            <a href="/archives/" target="_self">
+              归档
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          
+            <a href="/categories/" target="_self">
+              分类
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          
+            <a href="/tags/" target="_self">
+              标签
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="">
+          
+            <a href="javascript:void(0);" v-else="">博客地址</a>
+            <ul class="nav-menu--dropdown">
+              
+                <li>
+                  <a href="https://blog.csdn.net/qq_25371579" target="_blank">
+                    CSDN
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://github.com/matrixsparse" target="_blank">
+                    Github
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://matrixsparse.github.io/" target="_blank">
+                    Github Page
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+      </ul>
+    </nav>
+    <i class="iconfont icon-menu"></i>
+  </header>
+</div>
+
+<script>
+  let links = document.querySelectorAll('.nav-item');
+  for(let link of links){
+    let childrenLink = link.querySelector('ul');
+    link.addEventListener('mouseenter', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown active";
+      }
+    })
+    link.addEventListener('mouseleave', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown";
+      }
+    })
+  }
+  let rootRealPath = getRealPath(window.location.pathname, true);
+  for(let link of links) {
+    let linkPath = link.getAttribute("data-path");
+    if(linkPath && getRealPath(linkPath, true) === rootRealPath) {
+      link.className = "nav-item hover";
+    }
+  }
+
+  let iconMenu = document.querySelector("i.iconfont.icon-menu"),
+    iconMenuClicked = false;
+  let navDOM = document.querySelector("nav.site-navigation");
+  iconMenu.addEventListener("click", () => {
+    iconMenuClicked
+      ? navDOM.className = "site-navigation active"
+      : navDOM.className = "site-navigation";
+    iconMenuClicked = !iconMenuClicked;
+  })
+</script>
+
+
+      
+
+
+
+
+
+
+
+
+<div class="container post-index">
+
+  
+
+<div class="post">
+  <h1 class="article-title">
+    <span>微信第三方开放平台开发攻略</span>
+  </h1>
+  <div class="article-top-meta">
+    <span>
+      发布 : 
+      2017-06-19
+    </span>
+    
+      <span>
+        分类 : 
+          <a href="/categories/Python/">
+            Python
+          </a>
+      </span>
+    
+    
+      <span>
+        浏览 : <span class="article-timer" data-identity="微信第三方开放平台开发攻略"></span>
+      </span>
+    
+  </div>
+
+  
+
+  <div class="article-content">
+    <div class="markdown-body">
+      <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">微信开放平台现在已经开放了公众号第三方平台的功能</span><br><span class="line"></span><br><span class="line">这个由官方推出的正式第三方平台功能解决了广大开发者的最后一线顾虑</span><br><span class="line"></span><br><span class="line">可以让开发者的第三方平台托管更多的公众账号，对这些公众账号进行更好的服务。</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">除此之外，白名单IP地址列表也很重要</span><br><span class="line"></span><br><span class="line">涉及到后续调试时获取ticket、pre_auth_code等时的可以发起请求的IP地址</span><br><span class="line">这些参数在本机调试是不行的</span><br><span class="line"></span><br><span class="line">因为不在白名单IP列表中，因此调试过程必须在白名单IP列表的服务器内进行。</span><br><span class="line"></span><br><span class="line">提交完资料后，等待审核通过即可获得属于你的第三方平台的AppID和AppSecret</span><br><span class="line"></span><br><span class="line">然后就可以进入调试步骤了。</span><br></pre></td></tr></table></figure>
+<h2 id="创建公众号第三方平台"><a href="#创建公众号第三方平台" class="headerlink" title="创建公众号第三方平台"></a>创建公众号第三方平台</h2><p><img src="http://i4.piimg.com/581590/b47ce5f5970c0602.png" alt="Markdown"></p>
+<h2 id="获取ticket协议"><a href="#获取ticket协议" class="headerlink" title="获取ticket协议"></a>获取ticket协议</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ticket值叫做component_verify_ticket，是构成微信开放平台API请求中的参数之一</span><br></pre></td></tr></table></figure>
+<p><img src="http://i4.piimg.com/581590/f9b0474e34fcedae.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">所有第三方平台和公众号之间的消息往来都需要进行加密</span><br><span class="line"></span><br><span class="line">因此收到任何事件推送时，都需要对接收到的消息进行解密，才能获取到真正的信息</span><br></pre></td></tr></table></figure>
+<h2 id="获取token"><a href="#获取token" class="headerlink" title="获取token"></a>获取token</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">token完整称为component_access_token，它是用来获取预授权码的关键参数之一。</span><br><span class="line"></span><br><span class="line">有了ticket后，获取component_access_token比较直观，api的地址为：https://api.weixin.qq.com/cgi-bin/component/api_component_token，参数需要用POST方式发送</span><br><span class="line"></span><br><span class="line">这里有最需要注意的一点：POST数据必须以json格式发送。</span><br><span class="line"></span><br><span class="line">第三方平台access_token有效期，为两个小时</span><br></pre></td></tr></table></figure>
+<h2 id="获取预授权码"><a href="#获取预授权码" class="headerlink" title="获取预授权码"></a>获取预授权码</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">api地址为：https://api.weixin.qq.com/cgi-bin/component/api_create_preauthcode?component_access_token</span><br><span class="line"></span><br><span class="line">以此url为基础上，使用POST方式将json格式数据发送到api来获取预授权码pre_auth_code</span><br><span class="line"></span><br><span class="line">预授权码有效期，为20分钟</span><br></pre></td></tr></table></figure>
+<h2 id="公众号授权第三方平台"><a href="#公众号授权第三方平台" class="headerlink" title="公众号授权第三方平台"></a>公众号授权第三方平台</h2><p><img src="http://i4.piimg.com/581590/b941c471e0e3c098.png" alt="Markdown"></p>
+<h3 id="第三方平台方获取预授权码（pre-auth-code）"><a href="#第三方平台方获取预授权码（pre-auth-code）" class="headerlink" title="第三方平台方获取预授权码（pre_auth_code）"></a>第三方平台方获取预授权码（pre_auth_code）</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">预授权码是第三方平台方实现授权托管的必备信息</span><br></pre></td></tr></table></figure>
+<h3 id="引入用户进入授权页"><a href="#引入用户进入授权页" class="headerlink" title="引入用户进入授权页"></a>引入用户进入授权页</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">第三方平台方可以在自己的网站:中放置“微信公众号授权”或者“小程序授权”的入口，引导公众号和小程序管理员进入授权页。</span><br><span class="line"></span><br><span class="line">授权页网址为</span><br><span class="line">https://mp.weixin.qq.com/cgi-bin/componentloginpage?component_appid=xxxx&amp;pre_auth_code=xxxxx&amp;redirect_uri=xxxx</span><br><span class="line"></span><br><span class="line">该网址中第三方平台方需要提供第三方平台方appid、预授权码和回调URI</span><br></pre></td></tr></table></figure>
+<p><img src="http://i1.buimg.com/581590/d388976a1ed5bd84.png" alt="Markdown"></p>
+<h3 id="用户确认并同意登录授权给第三方平台方"><a href="#用户确认并同意登录授权给第三方平台方" class="headerlink" title="用户确认并同意登录授权给第三方平台方"></a>用户确认并同意登录授权给第三方平台方</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">用户进入第三方平台授权页后，需要确认并同意将自己的公众号或小程序授权给第三方平台方，完成授权流程。</span><br></pre></td></tr></table></figure>
+<p><img src="http://i1.buimg.com/581590/69b395425f8ff509.png" alt="Markdown"></p>
+<h3 id="授权后回调URI，得到授权码（authorization-code）和过期时间"><a href="#授权后回调URI，得到授权码（authorization-code）和过期时间" class="headerlink" title="授权后回调URI，得到授权码（authorization_code）和过期时间"></a>授权后回调URI，得到授权码（authorization_code）和过期时间</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">授权流程完成后，授权页会自动跳转进入回调URI</span><br><span class="line">并在URL参数中返回授权码和过期时间(redirect_url?auth_code=xxx&amp;expires_in=600)</span><br></pre></td></tr></table></figure>
+<h3 id="利用授权码调用公众号或小程序的相关API"><a href="#利用授权码调用公众号或小程序的相关API" class="headerlink" title="利用授权码调用公众号或小程序的相关API"></a>利用授权码调用公众号或小程序的相关API</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">在得到授权码后</span><br><span class="line">第三方平台方可以使用授权码换取授权公众号或小程序的接口调用凭据（authorizer_access_token，也简称为令牌）</span><br><span class="line">再通过该接口调用凭据，按照公众号开发者文档或小程序开发文档的说明</span><br><span class="line"></span><br><span class="line">去调用公众号或小程序相关API（能调用哪些API，取决于用户将哪些权限集授权给了第三方平台方，也取决于公众号或小程序自身拥有哪些接口权限）</span><br><span class="line">使用JS SDK等能力</span><br></pre></td></tr></table></figure>
+<h2 id="具体实现代码"><a href="#具体实现代码" class="headerlink" title="具体实现代码"></a>具体实现代码</h2><h3 id="componentloginpage-html"><a href="#componentloginpage-html" class="headerlink" title="componentloginpage.html"></a>componentloginpage.html</h3><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE html&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">"en"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">"UTF-8"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">title</span>&gt;</span>Title<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">style</span>&gt;</span><span class="undefined"></span></span><br><span class="line"><span class="undefined">        * &#123;</span></span><br><span class="line"><span class="undefined">            margin: 0;</span></span><br><span class="line"><span class="undefined">            padding: 0;</span></span><br><span class="line"><span class="undefined">        &#125;</span></span><br><span class="line"><span class="undefined"></span></span><br><span class="line"><span class="undefined">        body &#123;</span></span><br><span class="line"><span class="css">            <span class="selector-tag">background</span>: <span class="selector-id">#333</span>;</span></span><br><span class="line"><span class="undefined">            font-size: 12px;</span></span><br><span class="line"><span class="undefined">            font-family: "微软雅黑";</span></span><br><span class="line"><span class="undefined">        &#125;</span></span><br><span class="line"><span class="undefined"></span></span><br><span class="line"><span class="css">        <span class="selector-class">.test</span> &#123;</span></span><br><span class="line"><span class="undefined">            width: 100px;</span></span><br><span class="line"><span class="undefined">            margin: auto;</span></span><br><span class="line"><span class="undefined">        &#125;</span></span><br><span class="line"><span class="undefined"></span></span><br><span class="line"><span class="undefined">        a &#123;</span></span><br><span class="line"><span class="undefined">            display: inline-block;</span></span><br><span class="line"><span class="undefined">            padding: 10px 20px;</span></span><br><span class="line"><span class="css">            <span class="selector-tag">background</span>: <span class="selector-id">#369</span>;</span></span><br><span class="line"><span class="css">            <span class="selector-tag">color</span>: <span class="selector-id">#FFF</span>;</span></span><br><span class="line"><span class="undefined">            margin: 100px auto;</span></span><br><span class="line"><span class="undefined">        &#125;</span></span><br><span class="line"><span class="undefined">    </span><span class="tag">&lt;/<span class="name">style</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"test"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">"&#123;&#123; url &#125;&#125;"</span>&gt;</span>点我跳转<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<h3 id="main-py"><a href="#main-py" class="headerlink" title="main.py"></a>main.py</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> request, render_template</span><br><span class="line"><span class="keyword">from</span> application.utils.wxopenserver <span class="keyword">import</span> WxOpenCallback</span><br><span class="line"><span class="keyword">from</span> .main <span class="keyword">import</span> main</span><br><span class="line"></span><br><span class="line"><span class="meta">@main.route('/componentloginpage.html', methods=['POST', 'GET'])</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">componentloginpage</span><span class="params">()</span>:</span></span><br><span class="line">    wxOpenCallback = WxOpenCallback()</span><br><span class="line">    url = wxOpenCallback.To_componentloginpage()</span><br><span class="line">    <span class="keyword">return</span> render_template(<span class="string">'wechat_open/componentloginpage.html'</span>, url=url)</span><br><span class="line"></span><br><span class="line"><span class="meta">@main.route('/cgi-bin/oauth/callback', methods=['POST', 'GET'])</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">authorize_callback</span><span class="params">()</span>:</span></span><br><span class="line">    args = dict(request.args.items())</span><br><span class="line">    data = request.get_data()</span><br><span class="line">    print(<span class="string">'/cgi-bin/oauth/callback args='</span>, args, <span class="string">'===data===='</span>, data)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> args.get(<span class="string">'auth_code'</span>) == <span class="keyword">None</span>:</span><br><span class="line">        wxOpenCallback = WxOpenCallback()</span><br><span class="line">        is_valid = wxOpenCallback.check_signature(args)</span><br><span class="line">        <span class="comment"># 如果消息体合法</span></span><br><span class="line">        <span class="keyword">if</span> is_valid:</span><br><span class="line">            print(<span class="string">"消息体合法！"</span>)</span><br><span class="line">            <span class="comment"># 获取微信服务器发送过来的component_verify_ticket协议</span></span><br><span class="line">            wxOpenCallback.get_component_verify_ticket(request)</span><br><span class="line">            <span class="comment"># 获取第三方平台接口调用凭据</span></span><br><span class="line">            component_access_token = wxOpenCallback.get_component_access_token()</span><br><span class="line">            <span class="keyword">if</span> component_access_token != <span class="keyword">None</span>:</span><br><span class="line">                wxOpenCallback.get_pre_auth_code()</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        print(<span class="string">"auth_code："</span>, args.get(<span class="string">'auth_code'</span>))</span><br><span class="line">        wxOpenCallback = WxOpenCallback()</span><br><span class="line">        auth_code_value = args.get(<span class="string">'auth_code'</span>)</span><br><span class="line">        <span class="comment"># 使用授权码换取公众号或小程序的接口调用凭据和授权信息</span></span><br><span class="line">        json_data = wxOpenCallback.get_authorization_info(auth_code_value)</span><br><span class="line">        print(<span class="string">"使用授权码换取公众号或小程序的接口调用凭据和授权信息："</span>, json_data.get(<span class="string">'authorization_info'</span>))</span><br><span class="line">        <span class="comment"># 授权方appid</span></span><br><span class="line">        authorizer_appid = json_data.get(<span class="string">'authorization_info'</span>).get(<span class="string">'authorizer_appid'</span>)</span><br><span class="line">        print(<span class="string">"授权方appid："</span>, authorizer_appid)</span><br><span class="line">        <span class="comment"># 授权方接口调用凭据</span></span><br><span class="line">        authorizer_access_token = json_data.get(<span class="string">'authorization_info'</span>).get(<span class="string">'authorizer_access_token'</span>)</span><br><span class="line">        print(<span class="string">"授权方接口调用凭据："</span>, authorizer_access_token)</span><br><span class="line">        <span class="comment"># 授权方的刷新令牌</span></span><br><span class="line">        authorizer_refresh_token = json_data.get(<span class="string">'authorization_info'</span>).get(<span class="string">'authorizer_refresh_token'</span>)</span><br><span class="line">        print(<span class="string">"授权方的刷新令牌："</span>, authorizer_refresh_token)</span><br><span class="line">        <span class="comment"># 获取（刷新）授权公众号或小程序的接口调用凭据</span></span><br><span class="line">        refresh_authorizer_access_token = wxOpenCallback.get_refresh_authorizer_access_token(authorizer_appid,</span><br><span class="line">                                                                                             authorizer_refresh_token)</span><br><span class="line">        print(<span class="string">"获取（刷新）授权公众号或小程序的接口调用凭据："</span>, refresh_authorizer_access_token)</span><br><span class="line">        <span class="comment"># 获取授权方的帐号基本信息</span></span><br><span class="line">        authorizer_info = wxOpenCallback.get_authorizer_info(authorizer_appid)</span><br><span class="line">        print(<span class="string">"获取授权方的帐号基本信息："</span>, authorizer_info)</span><br><span class="line">        <span class="comment"># 获取授权方的选项设置信息</span></span><br><span class="line">        option_info = wxOpenCallback.get_option_info(authorizer_appid)</span><br><span class="line">        print(<span class="string">"获取授权方的选项设置信息："</span>, option_info)</span><br><span class="line">        <span class="comment"># 设置授权方的选项信息</span></span><br><span class="line">        wxOpenCallback.set_option_info(authorizer_appid, <span class="string">"voice_recognize"</span>, <span class="string">"1"</span>)</span><br><span class="line">        print(<span class="string">"设置授权方的选项信息："</span>, wxOpenCallback.set_option_info(authorizer_appid, <span class="string">"voice_recognize"</span>, <span class="string">"1"</span>))</span><br><span class="line">        <span class="comment"># 拉取当前所有已授权的帐号基本信息</span></span><br><span class="line">        print(<span class="string">"拉取当前所有已授权的帐号基本信息："</span>, wxOpenCallback.get_authorizer_list())</span><br><span class="line">    <span class="keyword">return</span> <span class="string">'suceess'</span></span><br></pre></td></tr></table></figure>
+<h3 id="wxopenserver-py"><a href="#wxopenserver-py" class="headerlink" title="wxopenserver.py"></a>wxopenserver.py</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="comment">#########################################################################</span></span><br><span class="line"><span class="comment"># Author: Haodi Wang</span></span><br><span class="line"><span class="comment"># Created Time: Jun 23 Sep 2017 15:55:41 PM CST</span></span><br><span class="line"><span class="comment"># File Name: wxopenserver.py</span></span><br><span class="line"><span class="comment"># Description: 微信第三方平台工具类</span></span><br><span class="line"><span class="comment">#########################################################################</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> config <span class="keyword">import</span> wechat_config</span><br><span class="line"><span class="keyword">from</span> application.utils.WXBizMsgCrypt <span class="keyword">import</span> WXBizMsgCrypt</span><br><span class="line"><span class="keyword">import</span> xml.etree.cElementTree <span class="keyword">as</span> ET</span><br><span class="line"><span class="keyword">from</span> application.utils.redis_func <span class="keyword">import</span> get_redis_conn</span><br><span class="line"><span class="keyword">import</span> hashlib</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> json</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">WxOpenCallback</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></span><br><span class="line">        self.redis_conn = get_redis_conn(<span class="string">'resources'</span>)</span><br><span class="line">        self.token = wechat_config.WECHAT_COMPONENT_TOKEN</span><br><span class="line">        self.component_appid = wechat_config.WECHAT_COMPONENT_APPID</span><br><span class="line">        self.component_appsecret = wechat_config.WECHAT_COMPONENT_APPSECRET</span><br><span class="line">        self.encodingAESKey = wechat_config.WECHAT_COMPONENT_ENCODINGAESKEY</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 验证消息体的合法性</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">check_signature</span><span class="params">(self, param)</span>:</span></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> self.token:</span><br><span class="line">            <span class="keyword">return</span> <span class="string">'Token is not defined!'</span></span><br><span class="line">        timestamp = param.get(<span class="string">'timestamp'</span>)</span><br><span class="line">        nonce = param.get(<span class="string">'nonce'</span>)</span><br><span class="line">        signature = param.get(<span class="string">'signature'</span>)</span><br><span class="line">        tmparr = [self.token, timestamp, nonce]</span><br><span class="line">        tmparr.sort()</span><br><span class="line">        str = <span class="string">''</span>.join(tmparr)</span><br><span class="line">        <span class="comment"># 使用sha1安全哈希算法，作为十六进制数据字符串值</span></span><br><span class="line">        str = hashlib.sha1(str.encode(<span class="string">'utf-8'</span>)).hexdigest()</span><br><span class="line">        <span class="keyword">return</span> signature == str</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 1.获取微信服务器发送过来的component_verify_ticket协议</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get_component_verify_ticket</span><span class="params">(self, param)</span>:</span></span><br><span class="line">        args = dict(param.args.items())</span><br><span class="line">        <span class="comment"># 使用Tencent提供工具类解密接口</span></span><br><span class="line">        from_xml = param.get_data()</span><br><span class="line">        from_str = str(from_xml, encoding=<span class="string">'utf-8'</span>).split(<span class="string">" "</span>)</span><br><span class="line"></span><br><span class="line">        from_xml = <span class="string">""</span></span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> from_str:</span><br><span class="line">            from_xml = (from_xml + i.replace(<span class="string">"\\n"</span>, <span class="string">""</span>).replace(<span class="string">"AppId"</span>, <span class="string">"ToUserName"</span>)).strip()</span><br><span class="line"></span><br><span class="line">        decrypt_test = WXBizMsgCrypt(self.token, self.encodingAESKey, self.component_appid)</span><br><span class="line">        ret, decryp_xml = decrypt_test.DecryptMsg(from_xml, args.get(<span class="string">"msg_signature"</span>),</span><br><span class="line">                                                  args.get(<span class="string">"timestamp"</span>),</span><br><span class="line">                                                  args.get(<span class="string">"nonce"</span>))</span><br><span class="line">        <span class="keyword">if</span> len(decryp_xml) != <span class="number">0</span>:</span><br><span class="line">            xml_tree = ET.fromstring(decryp_xml)</span><br><span class="line">            <span class="keyword">if</span> xml_tree.find(<span class="string">"InfoType"</span>).text == <span class="string">'component_verify_ticket'</span>:</span><br><span class="line">                ComponentVerifyTicket = xml_tree.find(<span class="string">"ComponentVerifyTicket"</span>)</span><br><span class="line">                data = &#123;</span><br><span class="line">                    <span class="string">"ticket"</span>: ComponentVerifyTicket.text</span><br><span class="line">                &#125;</span><br><span class="line">                ticket = data.get(<span class="string">'ticket'</span>)</span><br><span class="line">                <span class="comment"># save file</span></span><br><span class="line">                self.redis_conn.set(<span class="string">'ticket'</span>, ticket)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">None</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 2.获取第三方平台接口调用凭据</span></span><br><span class="line">    <span class="comment"># 每个令牌是存在有效期（2小时）的，且令牌的调用不是无限制的</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get_component_access_token</span><span class="params">(self)</span>:</span></span><br><span class="line">        now = time.time()</span><br><span class="line">        print(<span class="string">"now："</span>, now)</span><br><span class="line">        print(<span class="string">"redis_conn.get('expires_in')："</span>, self.redis_conn.get(<span class="string">'expires_in'</span>))</span><br><span class="line">        print(float(self.redis_conn.get(<span class="string">'expires_in'</span>)) &lt; now)</span><br><span class="line">        <span class="keyword">if</span> self.redis_conn.get(<span class="string">'component_access_token'</span>) != <span class="keyword">None</span>:</span><br><span class="line">            expires_in = float(self.redis_conn.get(<span class="string">'expires_in'</span>))</span><br><span class="line">            <span class="keyword">if</span> expires_in &lt; now:</span><br><span class="line">                print(<span class="string">"Now："</span>, now)</span><br><span class="line">                url = <span class="string">"https://api.weixin.qq.com/cgi-bin/component/api_component_token"</span></span><br><span class="line">                print(<span class="string">"redis_conn.get('ticket')："</span>, self.redis_conn.get(<span class="string">'ticket'</span>))</span><br><span class="line">                payload = &#123;</span><br><span class="line">                    <span class="string">"component_appid"</span>: self.component_appid,</span><br><span class="line">                    <span class="string">"component_appsecret"</span>: self.component_appsecret,</span><br><span class="line">                    <span class="string">"component_verify_ticket"</span>: self.redis_conn.get(<span class="string">'ticket'</span>)</span><br><span class="line">                &#125;</span><br><span class="line">                headers = &#123;<span class="string">'content-type'</span>: <span class="string">'application/json'</span>&#125;</span><br><span class="line">                response = requests.post(url, data=json.dumps(payload), headers=headers)</span><br><span class="line">                print(response.text)</span><br><span class="line">                component_access_token = json.loads(response.text).get(<span class="string">'component_access_token'</span>)</span><br><span class="line">                expires_in = int(now) + <span class="number">6200</span></span><br><span class="line">                <span class="comment"># save key</span></span><br><span class="line">                self.redis_conn.set(<span class="string">'component_access_token'</span>, component_access_token)</span><br><span class="line">                self.redis_conn.set(<span class="string">'expires_in'</span>, expires_in)</span><br><span class="line">                <span class="keyword">return</span> component_access_token</span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                <span class="keyword">return</span> self.redis_conn.get(<span class="string">'component_access_token'</span>)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            url = <span class="string">"https://api.weixin.qq.com/cgi-bin/component/api_component_token"</span></span><br><span class="line">            payload = &#123;</span><br><span class="line">                <span class="string">"component_appid"</span>: self.component_appid,</span><br><span class="line">                <span class="string">"component_appsecret"</span>: self.component_appsecret,</span><br><span class="line">                <span class="string">"component_verify_ticket"</span>: self.redis_conn.get(<span class="string">'ticket'</span>)</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment"># print("payload：", payload)</span></span><br><span class="line">            headers = &#123;<span class="string">'content-type'</span>: <span class="string">'application/json'</span>&#125;</span><br><span class="line">            response = requests.post(url, data=json.dumps(payload), headers=headers)</span><br><span class="line">            <span class="comment"># print(response.text)</span></span><br><span class="line">            component_access_token = json.loads(response.text).get(<span class="string">'component_access_token'</span>)</span><br><span class="line">            <span class="comment"># print("component_access_token：", component_access_token)</span></span><br><span class="line">            expires_in = int(now) + <span class="number">6200</span></span><br><span class="line">            <span class="keyword">if</span> component_access_token != <span class="keyword">None</span>:</span><br><span class="line">                <span class="comment"># save key</span></span><br><span class="line">                self.redis_conn.set(<span class="string">'component_access_token'</span>, component_access_token)</span><br><span class="line">                self.redis_conn.set(<span class="string">'expires_in'</span>, expires_in)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> component_access_token</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 3.获取预授权码</span></span><br><span class="line">    <span class="comment"># 预授权码有效期，为20分钟</span></span><br><span class="line">    <span class="comment"># component_access_token：令牌每1小时50分就会去重新获取</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get_pre_auth_code</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">if</span> self.redis_conn.get(<span class="string">'pre_auth_code'</span>) != <span class="keyword">None</span>:</span><br><span class="line">            now = time.time()</span><br><span class="line">            print(<span class="string">'now：'</span>, now)</span><br><span class="line">            print(<span class="string">'pre_auth_code_expires_in：'</span>, self.redis_conn.get(<span class="string">'pre_auth_code_expires_in'</span>))</span><br><span class="line">            print(float(self.redis_conn.get(<span class="string">'pre_auth_code_expires_in'</span>)) &lt; now)</span><br><span class="line">            <span class="keyword">if</span> float(self.redis_conn.get(<span class="string">'pre_auth_code_expires_in'</span>)) &lt; now:</span><br><span class="line">                url = <span class="string">'https://api.weixin.qq.com/cgi-bin/component/api_create_preauthcode?component_access_token=%s'</span> % self.redis_conn.get(</span><br><span class="line">                    <span class="string">'component_access_token'</span>)</span><br><span class="line">                headers = &#123;<span class="string">'content-type'</span>: <span class="string">'application/json'</span>&#125;</span><br><span class="line">                payload = &#123;<span class="string">'component_appid'</span>: self.component_appid&#125;</span><br><span class="line">                response = requests.post(url, data=json.dumps(payload), headers=headers)</span><br><span class="line">                pre_auth_code = json.loads(response.text).get(<span class="string">'pre_auth_code'</span>)</span><br><span class="line">                expires_in = int(now) + <span class="number">1100</span></span><br><span class="line">                print(<span class="string">"pre_auth_code："</span>, pre_auth_code)</span><br><span class="line">                print(<span class="string">"expires_in："</span>, expires_in)</span><br><span class="line">                <span class="keyword">if</span> pre_auth_code != <span class="keyword">None</span>:</span><br><span class="line">                    <span class="comment"># save key</span></span><br><span class="line">                    self.redis_conn.set(<span class="string">'pre_auth_code'</span>, pre_auth_code)</span><br><span class="line">                    self.redis_conn.set(<span class="string">'pre_auth_code_expires_in'</span>, expires_in)</span><br><span class="line">                <span class="keyword">return</span> pre_auth_code</span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                <span class="keyword">return</span> self.redis_conn.get(<span class="string">'pre_auth_code'</span>)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            now = time.time()</span><br><span class="line">            url = <span class="string">'https://api.weixin.qq.com/cgi-bin/component/api_create_preauthcode?component_access_token=%s'</span> % self.redis_conn.get(</span><br><span class="line">                <span class="string">'component_access_token'</span>)</span><br><span class="line">            headers = &#123;<span class="string">'content-type'</span>: <span class="string">'application/json'</span>&#125;</span><br><span class="line">            payload = &#123;<span class="string">'component_appid'</span>: self.component_appid&#125;</span><br><span class="line">            response = requests.post(url, data=json.dumps(payload), headers=headers)</span><br><span class="line">            pre_auth_code = json.loads(response.text).get(<span class="string">'pre_auth_code'</span>)</span><br><span class="line">            expires_in = int(now) + <span class="number">1100</span></span><br><span class="line">            print(<span class="string">"pre_auth_code："</span>, pre_auth_code)</span><br><span class="line">            print(<span class="string">"expires_in："</span>, expires_in)</span><br><span class="line">            <span class="keyword">if</span> pre_auth_code != <span class="keyword">None</span>:</span><br><span class="line">                <span class="comment"># save key</span></span><br><span class="line">                self.redis_conn.set(<span class="string">'pre_auth_code'</span>, pre_auth_code)</span><br><span class="line">                self.redis_conn.set(<span class="string">'pre_auth_code_expires_in'</span>, expires_in)</span><br><span class="line">            <span class="keyword">return</span> pre_auth_code</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 引入用户进入授权页</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">To_componentloginpage</span><span class="params">(self)</span>:</span></span><br><span class="line">        pre_auth_code = self.redis_conn.get(<span class="string">'pre_auth_code'</span>)</span><br><span class="line">        redirect_uri = <span class="string">'http://bot.lmbang.com/cgi-bin/oauth/callback'</span></span><br><span class="line">        url = <span class="string">'https://mp.weixin.qq.com/cgi-bin/componentloginpage?component_appid='</span> + self.component_appid + <span class="string">'&amp;pre_auth_code='</span> + pre_auth_code + <span class="string">'&amp;redirect_uri='</span> + redirect_uri</span><br><span class="line">        <span class="keyword">return</span> url</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 4.使用授权码换取公众号或小程序的接口调用凭据和授权信息</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get_authorization_info</span><span class="params">(self, auth_code_value)</span>:</span></span><br><span class="line">        url = <span class="string">'https://api.weixin.qq.com/cgi-bin/component/api_query_auth?component_access_token=%s'</span> % self.redis_conn.get(</span><br><span class="line">            <span class="string">'component_access_token'</span>)</span><br><span class="line">        headers = &#123;<span class="string">'content-type'</span>: <span class="string">'application/json'</span>&#125;</span><br><span class="line">        payload = &#123;<span class="string">'component_appid'</span>: self.component_appid,</span><br><span class="line">                   <span class="string">"authorization_code"</span>: auth_code_value&#125;</span><br><span class="line">        response = requests.post(url, data=json.dumps(payload), headers=headers)</span><br><span class="line">        <span class="keyword">return</span> response.json()</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 5.获取（刷新）授权公众号或小程序的接口调用凭据</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get_refresh_authorizer_access_token</span><span class="params">(self, authorizer_appid, authorizer_refresh_token)</span>:</span></span><br><span class="line">        url = <span class="string">'https://api.weixin.qq.com/cgi-bin/component/api_authorizer_token?component_access_token=%s'</span> % self.redis_conn.get(</span><br><span class="line">            <span class="string">'component_access_token'</span>)</span><br><span class="line">        headers = &#123;<span class="string">'content-type'</span>: <span class="string">'application/json'</span>&#125;</span><br><span class="line">        payload = &#123;</span><br><span class="line">            <span class="string">"component_appid"</span>: self.component_appid,</span><br><span class="line">            <span class="string">"authorizer_appid"</span>: authorizer_appid,</span><br><span class="line">            <span class="string">"authorizer_refresh_token"</span>: authorizer_refresh_token</span><br><span class="line">        &#125;</span><br><span class="line">        response = requests.post(url, data=json.dumps(payload), headers=headers)</span><br><span class="line">        <span class="keyword">return</span> response.json()</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 6.获取授权方的帐号基本信息</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get_authorizer_info</span><span class="params">(self, authorizer_appid)</span>:</span></span><br><span class="line">        url = <span class="string">'https://api.weixin.qq.com/cgi-bin/component/api_get_authorizer_info?component_access_token=%s'</span> % self.redis_conn.get(</span><br><span class="line">            <span class="string">'component_access_token'</span>)</span><br><span class="line">        headers = &#123;<span class="string">'content-type'</span>: <span class="string">'application/json'</span>&#125;</span><br><span class="line">        payload = &#123;<span class="string">'component_appid'</span>: self.component_appid,</span><br><span class="line">                   <span class="string">"authorizer_appid"</span>: authorizer_appid&#125;</span><br><span class="line">        response = requests.post(url, data=json.dumps(payload), headers=headers)</span><br><span class="line">        <span class="keyword">return</span> response.json()</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 7.获取授权方的选项设置信息</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get_option_info</span><span class="params">(self, authorizer_appid)</span>:</span></span><br><span class="line">        url = <span class="string">'https://api.weixin.qq.com/cgi-bin/component/api_get_authorizer_option?component_access_token=%s'</span> % self.redis_conn.get(</span><br><span class="line">            <span class="string">'component_access_token'</span>)</span><br><span class="line">        headers = &#123;<span class="string">'content-type'</span>: <span class="string">'application/json'</span>&#125;</span><br><span class="line">        payload = &#123;<span class="string">'component_appid'</span>: self.component_appid,</span><br><span class="line">                   <span class="string">"authorizer_appid"</span>: authorizer_appid,</span><br><span class="line">                   <span class="string">"option_name"</span>: <span class="string">"voice_recognize"</span>&#125;</span><br><span class="line">        <span class="comment"># location_report(地理位置上报选项) 0无上报 1开启</span></span><br><span class="line">        <span class="comment"># voice_recognize（语音识别开关选项）0无上报 1开启</span></span><br><span class="line">        <span class="comment"># customer_service（多客服开关选项）0无上报 1开启</span></span><br><span class="line">        response = requests.post(url, data=json.dumps(payload), headers=headers)</span><br><span class="line">        <span class="keyword">return</span> response.json()</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 8.设置授权方的选项信息</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">set_option_info</span><span class="params">(self, authorizer_appid, option_name_value, option_value_value)</span>:</span></span><br><span class="line">        url = <span class="string">'https://api.weixin.qq.com/cgi-bin/component/api_set_authorizer_option?component_access_token=%s'</span> % self.redis_conn.get(</span><br><span class="line">            <span class="string">'component_access_token'</span>)</span><br><span class="line">        headers = &#123;<span class="string">'content-type'</span>: <span class="string">'application/json'</span>&#125;</span><br><span class="line">        payload = &#123;</span><br><span class="line">            <span class="string">"component_appid"</span>: self.component_appid,</span><br><span class="line">            <span class="string">"authorizer_appid"</span>: authorizer_appid,</span><br><span class="line">            <span class="string">"option_name"</span>: option_name_value,</span><br><span class="line">            <span class="string">"option_value"</span>: option_value_value</span><br><span class="line">        &#125;</span><br><span class="line">        response = requests.post(url, data=json.dumps(payload), headers=headers)</span><br><span class="line">        <span class="keyword">return</span> response.json()</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 9.拉取当前所有已授权的帐号基本信息</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get_authorizer_list</span><span class="params">(self)</span>:</span></span><br><span class="line">        url = <span class="string">'https://api.weixin.qq.com/cgi-bin/component/api_get_authorizer_list?component_access_token=%s'</span> % self.redis_conn.get(</span><br><span class="line">            <span class="string">'component_access_token'</span>)</span><br><span class="line">        headers = &#123;<span class="string">'content-type'</span>: <span class="string">'application/json'</span>&#125;</span><br><span class="line">        payload = &#123;</span><br><span class="line">            <span class="string">"component_appid"</span>: self.component_appid,</span><br><span class="line">            <span class="string">"offset"</span>: <span class="number">0</span>, <span class="comment"># 偏移位置/起始位置</span></span><br><span class="line">            <span class="string">"count"</span>: <span class="number">10</span> <span class="comment"># 拉取数量，最大为500</span></span><br><span class="line">        &#125;</span><br><span class="line">        response = requests.post(url, data=json.dumps(payload), headers=headers)</span><br><span class="line">        <span class="keyword">return</span> response.json()</span><br></pre></td></tr></table></figure>
+
+    </div>
+  </div>
+  
+    <div class="copy-right">
+      <div class="markdown-body">
+        <blockquote>
+        
+        
+          本文作者 : Matrix <br>
+        
+        原文链接 : <a href="">http://yoursite.com/2017/06/19/微信第三方开放平台开发攻略/</a><br>
+        版权声明 : 本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+        </blockquote>
+      </div>
+    </div>
+  
+  
+  
+    <div class="social-share" style="margin-top: -2rem" data-wechat-qrcode-title="<p>微信扫一扫</p>" data-wechat-qrcode-helper="<p>微信右上角, 扫一扫分享</p>" data-sites="qzone, qq, weibo, wechat, douban, google, facebook, twitter">
+  <span style="color: #6b7487; font-size: 1.4rem;">分享到: </span>
+</div>
+<script src="https://cdn.bootcss.com/social-share.js/1.0.16/js/social-share.min.js" async></script>
+  
+
+  
+    <div id="reward">
+  
+    <p id="reward-meta">知识 & 情怀 | 二者兼得</p>
+  
+  <button id="reward-btn">
+    
+    <span>投食</span>
+  </button>
+  <div id="reward-qrcode">
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/wechatpay.jpg" alt="微信扫一扫, 向我投食">
+        <p class="qrcode-meta">微信扫一扫, 向我投食</p>
+      </div>
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/alipaypay.jpg" alt="支付宝扫一扫, 向我投食">
+        <p class="qrcode-meta">支付宝扫一扫, 向我投食</p>
+      </div>
+    
+  </div>
+
+</div>
+
+<script>
+  (() => {
+    let button = document.querySelector('#reward-btn'),
+      qrcode = document.querySelector('#reward-qrcode'),
+      display = false;
+    
+    button.addEventListener('click', () => {
+      qrcode.style.display = display ? 'none' : 'block'
+      display = !display
+    }, false)
+  })()
+</script>
+  
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+      <span>
+        
+          <i class="iconfont icon-06tags"></i>标签: 
+          
+          <span class="span--tag">
+            <a href="/tags/微信第三方开发/">
+              #微信第三方开发
+            </a>
+          </span>
+          
+        
+      </span>
+    </div>
+    <div class="article-meta pull-right">
+    </div>
+  </div>
+</div>
+
+
+  <aside id="sidebar">
+    <p id="sidebar-header"></p>
+    <ol id="sidebar-toc"></ol>
+  </aside>
+  <script async>setTimeout(generateToc, 10);</script>
+
+
+  <nav class="post-navigation">
+    
+      <div class="nav-pre">
+        <i class="iconfont icon-prev"></i>
+        上一篇:
+        <a href="/2017/06/15/Redis哨兵节点管理以及高可用redis集群的容灾演练/" target="_self">Redis哨兵节点管理以及高可用redis集群的容灾演练</a>
+      </div>
+    
+    
+      <div class="nav-next">
+        下一篇:
+        <a href="/2017/06/19/Python实现微信订阅号开发/" target="_self">Python实现微信订阅号开发</a>
+        <i class="iconfont icon-next"></i>
+      </div>
+    
+  </nav>
+
+  
+    <a href="#comment" class="comment-anchor"></a>
+<div class="comment-title"><i class="iconfont icon-footprint"></i> 留下足迹 <i class="iconfont icon-footprint"></i></div>
+<div id="vcomments"></div>
+
+<script defer>
+  if( true ) {
+    let path = getRealPath()
+    new Valine({
+      el: "#vcomments",
+      appId: "Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz",
+      appKey: "WaR7nrzhliHj9aVwdQzkdlGd",
+      notify: false,
+      verify: false,
+      avatar: "robohash",
+      placeholder: "正确填写邮箱, 才能及时收到回复哦♪(^∇^*)",
+      path
+    });
+  }
+</script>
+   
+
+  
+    <script defer>
+const valineAPI = (() => {
+  try {
+    AV.init("Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz", "WaR7nrzhliHj9aVwdQzkdlGd");
+  } catch(error) {}
+  const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+      query.equalTo("identity", identity);
+      query.find().then(results => {
+        resolve(results.length > 0);
+      }, error => reject(error));
+    })
+  }
+
+  const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+      let querys = [];
+      for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+      }
+      query = AV.Query.or.apply(null ,querys);
+    } else {
+      identity = identity || getRealPath();
+      query = new AV.Query("Timer");
+      query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+      query.find()
+      .then(results => resolve(results))
+      .catch(error => reject(error))
+    })
+  }
+
+  const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let Todo = AV.Object.extend('Timer');
+      let todo = new Todo();
+      todo.set("times", 1);
+      todo.set("identity", identity);
+      todo.save().then(res => resolve(true), error => reject(error));
+    })
+  }
+
+  const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let query = new AV.Query('Timer');
+      query.equalTo("identity", identity);
+      query.find().then(todos => {
+        todos.forEach(todo => {
+          todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+      }).then(todos => resolve(true), error => reject(error));
+    })
+  }
+
+  return {
+    isExist,
+    _get,
+    update,
+    create
+  }
+})()
+
+const calcAndWriteTimes = () => {
+  let isPost = true;
+
+  let timerAllDOM = document.querySelectorAll(".article-timer");
+
+  if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+      if(exist) {
+        return valineAPI.update(identity);
+      }
+      return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+  }
+
+  let timerDOMCache = {};
+
+  for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+      timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+      timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+      };
+    }
+  }
+
+  let identities = Object.keys(timerDOMCache);
+  valineAPI._get(identities).then(results => {
+    for(let result of results) {
+      let {identity, times} = result.attributes;
+      timerDOMCache[identity].times = times;
+      timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+      if(timerDOMCache[identity].times){
+        continue;
+      }
+      timerDOMCache[identity].dom.map(item => item.innerText = 1);
+      valineAPI.create(identity);
+    }
+  }).catch(error => console.log(error.message))
+}
+
+if(true){
+  calcAndWriteTimes();
+}
+</script>
+   
+
+</div>
+
+
+      <footer>
+  <p class="site-info">
+    博客已萌萌哒运行<span id="time-to-now"></span><span class="my-face">(●'◡'●)ﾉ♥</span>
+    <br>
+    Theme - <a href="https://github.com/dongyuanxin/theme-bmw">BMW</a> | Powered by <a href="https://godbmw.com/">GodBMW</a>
+    <br>
+    
+      Copyright © 2019 Matrix
+    
+  </p>
+</footer>
+
+
+
+<script>
+const timeToNowDOM = document.querySelector("#time-to-now");
+const startTimestamp = new Date(2016, 4, 10).getTime();
+
+const updateTimeStr = () => {
+  let offset = parseInt(
+      (new Date().getTime() - startTimestamp) / 1000,
+      10
+    ),
+    day = Math.floor(offset / 86400),
+    hour = Math.floor((offset % 86400) / 3600),
+    minute = Math.floor(((offset % 86400) % 3600) / 60),
+    second = Math.floor(((offset % 86400) % 3600) % 60);
+  timeToNowDOM.innerHTML =
+    day + "天" + hour + "小时" + minute + "分钟" + second + "秒";
+  setTimeout(updateTimeStr, 500);
+}
+
+setTimeout(updateTimeStr, 500);
+</script>
+
+
+      <div class="back-to-top hidden">
+  <span>
+    <i class="iconfont icon-60"></i><span></span>%
+  </span>
+</div>
+
+<script>
+const updateIconToTop = percent => {
+  let dom = document.querySelector(".back-to-top span span");
+  dom.innerText = percent;
+  if(percent < 1) {
+    document.querySelector(".back-to-top").className = "back-to-top hidden";
+  } else {
+    document.querySelector(".back-to-top").className = "back-to-top";
+  }
+}
+
+const handleScoll = () => {
+  let isRunning = false;
+  return () => {
+    if (isRunning) return;
+    isRunning = true;
+    window.requestAnimationFrame(timestamp => {
+      let scrollTop =
+          document.documentElement.scrollTop || document.body.scrollTop,
+        scrollHeight =
+          document.documentElement.scrollHeight ||
+          document.body.scrollHeight,
+        clientHeight =
+          document.documentElement.clientHeight ||
+          document.body.clientHeight;
+      isRunning = false;
+      if (scrollTop <= 1) {
+        updateIconToTop(0);
+        return;
+      }
+      if (scrollTop + clientHeight >= scrollHeight) {
+        updateIconToTop(100);
+      } else {
+        updateIconToTop(parseInt(
+          100 * scrollTop / (scrollHeight - clientHeight),
+          10
+        ));
+      }
+    });
+  };
+}
+
+const backToTop = () => {
+  let scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop,
+    delay = 10,
+    time = 200;
+  if (scrollTop <= 20) {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    return;
+  }
+  let step = Math.ceil(scrollTop * delay / time);
+  let timer = setInterval(() => {
+    scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop;
+    if (scrollTop - step <= 0) {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      clearInterval(timer);
+    } else {
+      document.documentElement.scrollTop = scrollTop - step;
+      document.body.scrollTop = scrollTop - step;
+    }
+  }, delay);
+}
+
+document.addEventListener("scroll", handleScoll(), false);
+
+document.querySelector(".back-to-top").addEventListener("click", backToTop, false);
+
+</script>
+
+    </div>
+
+    
+      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  (() => {
+    const mathjaxConfig = {
+      showProcessingMessages: false, //关闭js加载过程信息
+      messageStyle: "none", //不显示信息
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]], //行内公式选择符
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]], //段内公式选择符
+        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"] //避开某些标签
+      },
+      "HTML-CSS": {
+        availableFonts: ["STIX", "TeX"], //可选字体
+        showMathMenu: false //关闭右击菜单显示
+      }
+    }
+
+    let mathjaxInterval = setInterval(() => {
+      if(!window.MathJax){
+        return;
+      }
+      window.MathJax.Hub.Config(mathjaxConfig)
+      window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')])
+
+      clearInterval(mathjaxInterval)
+    }, 10)    
+  })()
+</script>
+    
+
+    <script src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script>
+<script async>
+  let fancyTimer = setInterval(function(){
+    if(!window.$){
+      return;
+    }
+    $(document).ready(function() {
+      $(".post img").each(function () {
+        if($(this).parent().get(0).tagName.toLowerCase() === "a") {
+          return;
+        }
+        // $(this).attr("data-fancybox", "gallery"); // if you add 'data-fancybox', img will display after showed
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "gallery");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      });
+      
+      clearInterval(fancyTimer);
+    });
+  }, 10);
+</script>
+
+    
+  </body>
+
+</html>

@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta name="author" content="董沅鑫, yuanxin.me@gmail.com">
+  
+  
+  
+  <title>使用VMware Fusion搭建Flink分布式集群 | 每天遇到更好的你</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="大数据,大数据,Flink,">
+  
+
+  <script>
+    console.log('\n%c Hexo-theme-bmw v4.0 ' + '%c 🎉 https://github.com/dongyuanxin/theme-bmw 🎉\n' + '\n%c View demo online ' + '%c 🔍 https://godbmw.com/ 🔍  \n' , 'color: #fadfa3; background: #030307; padding:3px 0;', '', 'color: #fadfa3; background: #030307; padding:3px 0;', '');
+  </script>
+
+  
+
+  
+
+  
+    <link rel="icon" href="/images/favicon.png">
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+  
+
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/icon/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+  <script src="/js/util.js"></script>
+<script src="/js/valine.min.js"></script>
+
+  
+
+  
+    <link href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js" async></script>
+  
+
+  
+    <link href="https://cdn.bootcss.com/social-share.js/1.0.16/css/share.min.css" rel="stylesheet">
+  
+  
+  <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js" async></script>
+  
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.0/dist/av-min.js"></script>
+  
+
+</head>
+
+  <body>
+
+    
+
+    <div id="app">
+
+      <div class="header-wrap">
+  <header>
+    <div class="site-brand">
+      <div class="site-title">
+        <!-- <a href="/">MatrixSparse</a> -->
+        <img alt="logo" class="antd-pro-layouts-user-layout-logo" src="/images/favicon.png" style="width: 40px;height: 40px;margin-top: 10px;margin-left: 5px;">
+      </div>
+    </div>
+    <nav class="site-navigation">
+      <ul class="nav-menu">
+      
+        <li class="nav-item" data-path="/">
+          
+            <a href="/" target="_self">
+              主页
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          
+            <a href="/archives/" target="_self">
+              归档
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          
+            <a href="/categories/" target="_self">
+              分类
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          
+            <a href="/tags/" target="_self">
+              标签
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="">
+          
+            <a href="javascript:void(0);" v-else="">博客地址</a>
+            <ul class="nav-menu--dropdown">
+              
+                <li>
+                  <a href="https://blog.csdn.net/qq_25371579" target="_blank">
+                    CSDN
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://github.com/matrixsparse" target="_blank">
+                    Github
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://matrixsparse.github.io/" target="_blank">
+                    Github Page
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+      </ul>
+    </nav>
+    <i class="iconfont icon-menu"></i>
+  </header>
+</div>
+
+<script>
+  let links = document.querySelectorAll('.nav-item');
+  for(let link of links){
+    let childrenLink = link.querySelector('ul');
+    link.addEventListener('mouseenter', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown active";
+      }
+    })
+    link.addEventListener('mouseleave', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown";
+      }
+    })
+  }
+  let rootRealPath = getRealPath(window.location.pathname, true);
+  for(let link of links) {
+    let linkPath = link.getAttribute("data-path");
+    if(linkPath && getRealPath(linkPath, true) === rootRealPath) {
+      link.className = "nav-item hover";
+    }
+  }
+
+  let iconMenu = document.querySelector("i.iconfont.icon-menu"),
+    iconMenuClicked = false;
+  let navDOM = document.querySelector("nav.site-navigation");
+  iconMenu.addEventListener("click", () => {
+    iconMenuClicked
+      ? navDOM.className = "site-navigation active"
+      : navDOM.className = "site-navigation";
+    iconMenuClicked = !iconMenuClicked;
+  })
+</script>
+
+
+      
+
+
+
+
+
+
+
+
+<div class="container post-index">
+
+  
+
+<div class="post">
+  <h1 class="article-title">
+    <span>使用VMware Fusion搭建Flink分布式集群</span>
+  </h1>
+  <div class="article-top-meta">
+    <span>
+      发布 : 
+      2019-01-05
+    </span>
+    
+      <span>
+        分类 : 
+          <a href="/categories/大数据/">
+            大数据
+          </a>
+      </span>
+    
+    
+      <span>
+        浏览 : <span class="article-timer" data-identity="使用VMware Fusion搭建Flink分布式集群"></span>
+      </span>
+    
+  </div>
+
+  
+
+  <div class="article-content">
+    <div class="markdown-body">
+      <blockquote>
+<p>目录</p>
+</blockquote>
+<!-- TOC -->
+<ul>
+<li><a href="#使用vmware-fusion搭建flink分布式集群">使用VMware Fusion搭建Flink分布式集群</a></li>
+<li><a href="#flink-vs-spark">Flink vs Spark</a><ul>
+<li><a href="#关于flink">关于Flink</a></li>
+<li><a href="#数据处理场景">数据处理场景</a></li>
+</ul>
+</li>
+<li><a href="#下载vmware-fusion">下载VMware Fusion</a></li>
+<li><a href="#集群规划">集群规划</a></li>
+<li><a href="#配置网络">配置网络</a><ul>
+<li><a href="#动态分配一个ip地址">动态分配一个ip地址</a></li>
+<li><a href="#设置静态ip地址">设置静态ip地址</a></li>
+<li><a href="#配置dns">配置DNS</a></li>
+<li><a href="#检查netmanager的状态">检查NetManager的状态</a></li>
+<li><a href="#检查netmanager管理的网络接口">检查NetManager管理的网络接口</a></li>
+<li><a href="#检查netmanager管理的网络连接">检查NetManager管理的网络连接</a></li>
+<li><a href="#设置dns">设置dns</a></li>
+<li><a href="#让dns配置生效">让dns配置生效</a></li>
+<li><a href="#设置静态瞬态或灵活主机名分别使用--static--transient或--pretty选项">设置静态、瞬态或灵活主机名，分别使用–static，–transient或–pretty选项</a></li>
+</ul>
+</li>
+<li><a href="#重启centos-7之后查看主机名">重启CentOS 7之后，查看主机名</a></li>
+<li><a href="#三台机器都配置hosts配置本机的hostname到ip地址的映射">三台机器都配置hosts(配置本机的hostname到ip地址的映射)</a></li>
+<li><a href="#关闭防火墙">关闭防火墙</a></li>
+<li><a href="#配置yum">配置yum</a></li>
+<li><a href="#安装jdk">安装JDK</a><ul>
+<li><a href="#将jdk-8u131-linux-x64rpm通过winscp上传到虚拟机中">将jdk-8u131-linux-x64.rpm通过WinSCP上传到虚拟机中</a></li>
+<li><a href="#安装jdk-1">安装JDK</a></li>
+<li><a href="#配置jdk相关的环境变量">配置jdk相关的环境变量</a></li>
+<li><a href="#测试jdk安装是否成功">测试jdk安装是否成功</a></li>
+</ul>
+</li>
+<li><a href="#配置5台centos为ssh免密码互相通信">配置5台CentOS为ssh免密码互相通信</a><ul>
+<li><a href="#在5台机器上配置对本机的ssh免密码登录">在5台机器上配置对本机的ssh免密码登录</a></li>
+<li><a href="#配置本机免密码登录">配置本机免密码登录</a></li>
+<li><a href="#配置五台机器互相之间的ssh免密码登录">配置五台机器互相之间的ssh免密码登录</a></li>
+</ul>
+</li>
+<li><a href="#同步集群时间">同步集群时间</a><ul>
+<li><a href="#使用yum安装ntpdate">使用yum安装ntpdate</a></li>
+<li><a href="#设置定时同步时间">设置定时同步时间</a></li>
+</ul>
+</li>
+<li><a href="#下载flink">下载Flink</a><ul>
+<li><a href="#下载flink安装文件">下载Flink安装文件</a></li>
+<li><a href="#解压压缩文件">解压压缩文件</a></li>
+</ul>
+</li>
+<li><a href="#编辑flink配置文件">编辑Flink配置文件</a><ul>
+<li><a href="#编辑confflink-confyaml">编辑conf/flink-conf.yaml</a></li>
+<li><a href="#编辑confslaves">编辑conf/slaves</a></li>
+<li><a href="#配置flink环境变量">配置Flink环境变量</a></li>
+</ul>
+</li>
+<li><a href="#将flink目录发送到flink02flink03机器">将flink目录发送到flink02、flink03机器</a></li>
+<li><a href="#启动flink">启动Flink</a><ul>
+<li><a href="#启动flink-1">启动Flink</a></li>
+<li><a href="#查看flink进程">查看Flink进程</a></li>
+<li><a href="#查看flink-webui">查看Flink WebUI</a></li>
+<li><a href="#暂停flink">暂停Flink</a></li>
+</ul>
+</li>
+<li><a href="#分步启动masterslave进程">分步启动Master、Slave进程</a><ul>
+<li><a href="#启动jobmanager">启动JobManager</a></li>
+<li><a href="#启动taskmanager">启动TaskManager</a></li>
+</ul>
+</li>
+<li><a href="#flink流处理-demo">Flink流处理 Demo</a></li>
+<li><a href="#flinksql-demo">FlinkSQL Demo</a></li>
+</ul>
+<!-- /TOC -->
+<h2 id="Flink-vs-Spark"><a href="#Flink-vs-Spark" class="headerlink" title="Flink vs Spark"></a>Flink vs Spark</h2><h3 id="关于Flink"><a href="#关于Flink" class="headerlink" title="关于Flink"></a>关于Flink</h3><p>Flink 的基本数据模型是<code>数据流</code>，及事件(Event) 的序列。数据流作为数据的基本模型可能没有表或者数据块直观熟悉，但是可以证明是完全等效的。</p>
+<ul>
+<li>流可以是<code>无边界</code>的<code>无限流</code>，即一般意义上的<code>流处理</code>。</li>
+<li>也可以是<code>有边界</code>的<code>有限流</code>，这样就是<code>批处理</code>。</li>
+</ul>
+<p>Flink 用数据流上的变换(算子)来描述数据处理。每个算子生成一个新的数据流。在算子，DAG，和上下游算子链接(chaining) 这些方面，和 Spark 大致等价。Flink 的节点(vertex)大致相当于 Spark 的阶段(stage)，划分也会和上图的 Spark DAG 基本一样。</p>
+<p><img src="https://ci.apache.org/projects/flink/flink-docs-release-1.5/fig/tasks_chains.svg" alt="All text"></p>
+<p>在 DAG 的执行上，Spark 和 Flink 有一个比较显著的区别。 在 Flink 的流执行模式中，一个事件在一个节点处理完后的输出就可以发到下一个节点立即处理。这样执行引擎并不会引入额外 的延迟。与之相应的，所有节点是需要同时运行的。而 Spark 的 micro batch 和一般的 batch 执行一样，处理完上游的 stage 得到输出之后才开始下游的 stage。</p>
+<p>在 Flink 的流执行模式中，为了提高效率也可以把多个事件放在一起传输或者计算。但这完全是执行时的优化，可以在每个算子独立决定，也不用像 RDD 等批处理模型中一样和数据集边界 绑定，可以做更加灵活的优化同时可以兼顾低延迟需求。</p>
+<p>Flink 使用<code>异步的 checkpoint 机制</code>来达到任务状态的<code>可恢复性</code>，以保证处理的一致性，所以在处理的主流程上可以做到<code>数据源</code>和<code>输出</code>之间数据完全不用落盘，达到更高的性能和更低的延迟。</p>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fyuffqilaij21c40t2acs.jpg" alt="All text"></p>
+<h3 id="数据处理场景"><a href="#数据处理场景" class="headerlink" title="数据处理场景"></a>数据处理场景</h3><p>除了批处理之外，Spark 还支持实时数据流处理，交互式查询，和机器学习，图计算等。</p>
+<ul>
+<li><code>实时数据流处理和批处理</code>主要区别就是对低延时的要求。Spark 因为 RDD 是基于内存的，可以比较容易切成较小的块来处理。如果能对这些小块处理得足够快，就能达到低延时的效果。</li>
+<li><code>交互式查询场景</code>，如果数据能全在内存，处理得足够快的话，就可以支持交互式查询。</li>
+<li><code>机器学习和图计算</code>其实是和前几种场景不同的 RDD 算子类型。Spark 提供了库来支持常用 的操作，用户或者第三方库也可以自己扩展。值得一提的是，Spark 的 RDD 模型和机器学 习模型训练的迭代计算非常契合，从一开始就在有的场景带来了非常显著的性能提升。</li>
+</ul>
+<p>从这些可以看出来，比起 Hadoop MapReduce， Spark 本质上就是基于内存的更快的批处理。 然后用足够快的批处理来实现各种场景。</p>
+<h2 id="下载VMware-Fusion"><a href="#下载VMware-Fusion" class="headerlink" title="下载VMware Fusion"></a>下载VMware Fusion</h2><p>安装VMWare Fusion成功后，Mac OS会新增两张网卡vmnet1以及vmnet8，其中vmnet1是Host-only模式，<code>vmnet8是NAT模式</code>，这里选择vmnet8使用NAT进行网络设置。</p>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fytk08jbglj21280kxn2j.jpg" alt="All text"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">vmnet1: flags=8863&lt;UP,BROADCAST,SMART,RUNNING,SIMPLEX,MULTICAST&gt; mtu 1500</span><br><span class="line">	ether 00:50:56:c0:00:01</span><br><span class="line">	inet 192.168.246.1 netmask 0xffffff00 broadcast 192.168.246.255</span><br><span class="line">vmnet8: flags=8863&lt;UP,BROADCAST,SMART,RUNNING,SIMPLEX,MULTICAST&gt; mtu 1500</span><br><span class="line">	ether 00:50:56:c0:00:08</span><br><span class="line">	inet 192.168.239.1 netmask 0xffffff00 broadcast 192.168.239.255</span><br></pre></td></tr></table></figure>
+<h2 id="集群规划"><a href="#集群规划" class="headerlink" title="集群规划"></a>集群规划</h2><ul>
+<li>192.168.239.180 flink01</li>
+<li>192.168.239.181 flink02</li>
+<li>192.168.239.182 flink03</li>
+</ul>
+<h2 id="配置网络"><a href="#配置网络" class="headerlink" title="配置网络"></a>配置网络</h2><h3 id="动态分配一个ip地址"><a href="#动态分配一个ip地址" class="headerlink" title="动态分配一个ip地址"></a>动态分配一个ip地址</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/sysconfig/network-scripts/ifcfg-enp0s3</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ONBOOT=yes</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>重新启动网络</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">service network restart</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>查看ip地址</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip addr</span><br></pre></td></tr></table></figure>
+<h3 id="设置静态ip地址"><a href="#设置静态ip地址" class="headerlink" title="设置静态ip地址"></a>设置静态ip地址</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/sysconfig/network-scripts/ifcfg-ens33</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">TYPE=Ethernet</span><br><span class="line">BOOTPROTO=static</span><br><span class="line">DEFROUTE=yes</span><br><span class="line">PEERDNS=yes</span><br><span class="line">PEERROUTES=yes</span><br><span class="line">IPV4_FAILURE_FATAL=no</span><br><span class="line">IPV6INIT=yes</span><br><span class="line">IPV6_AUTOCONF=yes</span><br><span class="line">IPV6_DEFROUTE=yes</span><br><span class="line">IPV6_PEERDNS=yes</span><br><span class="line">IPV6_PEERROUTES=yes</span><br><span class="line">IPV6_FAILURE_FATAL=no</span><br><span class="line">IPV6_ADDR_GEN_MODE=stable-privacy</span><br><span class="line">NAME=enp0s3</span><br><span class="line">DEVICE=enp0s3</span><br><span class="line">ONBOOT=yes</span><br><span class="line">IPADDR=192.168.239.180</span><br><span class="line">NETMASK=255.255.255.0</span><br><span class="line">GATEWAY=192.168.239.2</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">service network restart</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip addr</span><br></pre></td></tr></table></figure>
+<h3 id="配置DNS"><a href="#配置DNS" class="headerlink" title="配置DNS"></a>配置DNS</h3><h3 id="检查NetManager的状态"><a href="#检查NetManager的状态" class="headerlink" title="检查NetManager的状态"></a>检查NetManager的状态</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl status NetworkManager.service</span><br></pre></td></tr></table></figure>
+<h3 id="检查NetManager管理的网络接口"><a href="#检查NetManager管理的网络接口" class="headerlink" title="检查NetManager管理的网络接口"></a>检查NetManager管理的网络接口</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nmcli dev status</span><br></pre></td></tr></table></figure>
+<h3 id="检查NetManager管理的网络连接"><a href="#检查NetManager管理的网络连接" class="headerlink" title="检查NetManager管理的网络连接"></a>检查NetManager管理的网络连接</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nmcli connection show</span><br></pre></td></tr></table></figure>
+<h3 id="设置dns"><a href="#设置dns" class="headerlink" title="设置dns"></a>设置dns</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nmcli con mod ens33 ipv4.dns <span class="string">"114.114.114.114 8.8.8.8"</span></span><br></pre></td></tr></table></figure>
+<h3 id="让dns配置生效"><a href="#让dns配置生效" class="headerlink" title="让dns配置生效"></a>让dns配置生效</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nmcli con up ens33</span><br></pre></td></tr></table></figure>
+<h3 id="设置静态、瞬态或灵活主机名，分别使用–static，–transient或–pretty选项"><a href="#设置静态、瞬态或灵活主机名，分别使用–static，–transient或–pretty选项" class="headerlink" title="设置静态、瞬态或灵活主机名，分别使用–static，–transient或–pretty选项"></a>设置静态、瞬态或灵活主机名，分别使用–static，–transient或–pretty选项</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost ~]<span class="comment"># hostnamectl set-hostname flink01</span></span><br><span class="line">[root@localhost ~]<span class="comment"># hostnamectl --static</span></span><br><span class="line">flink01</span><br><span class="line">[root@localhost ~]<span class="comment"># hostnamectl --transient</span></span><br><span class="line">flink01</span><br><span class="line">[root@localhost ~]<span class="comment"># hostnamectl --pretty</span></span><br><span class="line">flink01</span><br></pre></td></tr></table></figure>
+<h2 id="重启CentOS-7之后，查看主机名"><a href="#重启CentOS-7之后，查看主机名" class="headerlink" title="重启CentOS 7之后，查看主机名"></a>重启CentOS 7之后，查看主机名</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@flink01 ~]<span class="comment"># hostname</span></span><br><span class="line">flink01</span><br></pre></td></tr></table></figure>
+<h2 id="三台机器都配置hosts-配置本机的hostname到ip地址的映射"><a href="#三台机器都配置hosts-配置本机的hostname到ip地址的映射" class="headerlink" title="三台机器都配置hosts(配置本机的hostname到ip地址的映射)"></a>三台机器都配置hosts(配置本机的hostname到ip地址的映射)</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/hosts</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">192.168.239.180 flink01</span><br><span class="line">192.168.239.181 flink02</span><br><span class="line">192.168.239.182 flink03</span><br></pre></td></tr></table></figure>
+<h2 id="关闭防火墙"><a href="#关闭防火墙" class="headerlink" title="关闭防火墙"></a>关闭防火墙</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">systemctl status firewalld.service</span><br><span class="line">systemctl stop firewalld.service</span><br><span class="line">systemctl <span class="built_in">disable</span> firewalld.service</span><br></pre></td></tr></table></figure>
+<p>关闭windows的防火墙</p>
+<p>后面要搭建集群，有的大数据技术的集群之间，在本地你给了防火墙的话，可能会没有办法互相连接，会导致搭建失败</p>
+<h2 id="配置yum"><a href="#配置yum" class="headerlink" title="配置yum"></a>配置yum</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">yum clean all</span><br><span class="line">yum makecache</span><br><span class="line">yum install wget</span><br></pre></td></tr></table></figure>
+<h2 id="安装JDK"><a href="#安装JDK" class="headerlink" title="安装JDK"></a>安装JDK</h2><h3 id="将jdk-8u131-linux-x64-rpm通过WinSCP上传到虚拟机中"><a href="#将jdk-8u131-linux-x64-rpm通过WinSCP上传到虚拟机中" class="headerlink" title="将jdk-8u131-linux-x64.rpm通过WinSCP上传到虚拟机中"></a>将jdk-8u131-linux-x64.rpm通过WinSCP上传到虚拟机中</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">scp -C -r jdk-8u131-linux-x64.rpm root@192.168.0.180:/root</span><br></pre></td></tr></table></figure>
+<h3 id="安装JDK-1"><a href="#安装JDK-1" class="headerlink" title="安装JDK"></a>安装JDK</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rpm -ivh jdk-8u131-linux-x64.rpm</span><br></pre></td></tr></table></figure>
+<h3 id="配置jdk相关的环境变量"><a href="#配置jdk相关的环境变量" class="headerlink" title="配置jdk相关的环境变量"></a>配置jdk相关的环境变量</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@flink01 ~]<span class="comment"># vi .bashrc</span></span><br><span class="line"><span class="built_in">export</span> JAVA_HOME=/usr/java/latest</span><br><span class="line"><span class="built_in">export</span> PATH=<span class="variable">$PATH</span>:<span class="variable">$JAVA_HOME</span>/bin</span><br><span class="line">[root@flink01 ~]<span class="comment"># source .bashrc</span></span><br></pre></td></tr></table></figure>
+<h3 id="测试jdk安装是否成功"><a href="#测试jdk安装是否成功" class="headerlink" title="测试jdk安装是否成功"></a>测试jdk安装是否成功</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -version</span><br></pre></td></tr></table></figure>
+<h2 id="配置5台CentOS为ssh免密码互相通信"><a href="#配置5台CentOS为ssh免密码互相通信" class="headerlink" title="配置5台CentOS为ssh免密码互相通信"></a>配置5台CentOS为ssh免密码互相通信</h2><h3 id="在5台机器上配置对本机的ssh免密码登录"><a href="#在5台机器上配置对本机的ssh免密码登录" class="headerlink" title="在5台机器上配置对本机的ssh免密码登录"></a>在5台机器上配置对本机的ssh免密码登录</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh-keygen -t rsa</span><br></pre></td></tr></table></figure>
+<p>生成本机的公钥，过程中不断敲回车即可，ssh-keygen命令默认会将公钥放在/root/.ssh目录下</p>
+<h3 id="配置本机免密码登录"><a href="#配置本机免密码登录" class="headerlink" title="配置本机免密码登录"></a>配置本机免密码登录</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /root/.ssh</span><br><span class="line">cp id_rsa.pub authorized_keys</span><br></pre></td></tr></table></figure>
+<p>将公钥复制为authorized_keys文件，此时使用ssh连接本机就不需要输入密码了</p>
+<h3 id="配置五台机器互相之间的ssh免密码登录"><a href="#配置五台机器互相之间的ssh免密码登录" class="headerlink" title="配置五台机器互相之间的ssh免密码登录"></a>配置五台机器互相之间的ssh免密码登录</h3><p>使用ssh-copy-id -i hostname命令将本机的公钥拷贝到指定机器的authorized_keys文件中</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[root@flink01 ~]<span class="comment"># ssh-copy-id -i flink02</span></span><br><span class="line">[root@flink01 ~]<span class="comment"># ssh-copy-id -i flink03</span></span><br><span class="line"></span><br><span class="line">[root@flink02 ~]<span class="comment"># ssh-copy-id -i flink01</span></span><br><span class="line">[root@flink02 ~]<span class="comment"># ssh-copy-id -i flink03</span></span><br><span class="line"></span><br><span class="line">[root@flink03 ~]<span class="comment"># ssh-copy-id -i flink01</span></span><br><span class="line">[root@flink03 ~]<span class="comment"># ssh-copy-id -i flink02</span></span><br></pre></td></tr></table></figure>
+<h2 id="同步集群时间"><a href="#同步集群时间" class="headerlink" title="同步集群时间"></a>同步集群时间</h2><h3 id="使用yum安装ntpdate"><a href="#使用yum安装ntpdate" class="headerlink" title="使用yum安装ntpdate"></a>使用yum安装ntpdate</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install -y ntpdate</span><br></pre></td></tr></table></figure>
+<h3 id="设置定时同步时间"><a href="#设置定时同步时间" class="headerlink" title="设置定时同步时间"></a>设置定时同步时间</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">crontab -e</span><br><span class="line">*/10 * * * * /usr/sbin/ntpdate time.nist.gov</span><br></pre></td></tr></table></figure>
+<h2 id="下载Flink"><a href="#下载Flink" class="headerlink" title="下载Flink"></a>下载Flink</h2><h3 id="下载Flink安装文件"><a href="#下载Flink安装文件" class="headerlink" title="下载Flink安装文件"></a>下载Flink安装文件</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget http://apache.01link.hk/flink/flink-1.7.1/flink-1.7.1-bin-scala_2.11.tgz</span><br></pre></td></tr></table></figure>
+<h3 id="解压压缩文件"><a href="#解压压缩文件" class="headerlink" title="解压压缩文件"></a>解压压缩文件</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@flink01 data]<span class="comment"># tar -zxvf flink-1.7.1-bin-scala_2.11.tgz  -C ./</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>目录重命名</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@flink01 data]<span class="comment"># mv flink-1.7.1 flink</span></span><br></pre></td></tr></table></figure>
+<h2 id="编辑Flink配置文件"><a href="#编辑Flink配置文件" class="headerlink" title="编辑Flink配置文件"></a>编辑Flink配置文件</h2><h3 id="编辑conf-flink-conf-yaml"><a href="#编辑conf-flink-conf-yaml" class="headerlink" title="编辑conf/flink-conf.yaml"></a>编辑conf/flink-conf.yaml</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi conf/flink-conf.yaml</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>配置Master地址</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jobmanager.rpc.address: 192.168.239.180</span><br></pre></td></tr></table></figure>
+<h3 id="编辑conf-slaves"><a href="#编辑conf-slaves" class="headerlink" title="编辑conf/slaves"></a>编辑conf/slaves</h3><blockquote>
+<p>配合slave地址</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi conf/slaves</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">192.168.239.181</span><br><span class="line">192.168.239.182</span><br></pre></td></tr></table></figure>
+<h3 id="配置Flink环境变量"><a href="#配置Flink环境变量" class="headerlink" title="配置Flink环境变量"></a>配置Flink环境变量</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">vi .bashrc</span><br><span class="line"><span class="built_in">export</span> FLINK_HOME=/data/flink</span><br><span class="line"><span class="built_in">export</span> PATH=<span class="variable">$PATH</span>:<span class="variable">$FLINK_HOME</span>/bin</span><br><span class="line"><span class="built_in">source</span> .bashrc</span><br></pre></td></tr></table></figure>
+<h2 id="将flink目录发送到flink02、flink03机器"><a href="#将flink目录发送到flink02、flink03机器" class="headerlink" title="将flink目录发送到flink02、flink03机器"></a>将flink目录发送到flink02、flink03机器</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">scp -r /data/flink root@flink02:/data/flink</span><br><span class="line">scp -r /data/flink root@flink03:/data/flink</span><br><span class="line"></span><br><span class="line">scp -r /root/.bashrc root@flink02:/root</span><br><span class="line">scp -r /root/.bashrc root@flink03:/root</span><br></pre></td></tr></table></figure>
+<h2 id="启动Flink"><a href="#启动Flink" class="headerlink" title="启动Flink"></a>启动Flink</h2><h3 id="启动Flink-1"><a href="#启动Flink-1" class="headerlink" title="启动Flink"></a>启动Flink</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./bin/start-cluster.sh</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[root@flink01 ~]<span class="comment"># start-cluster.sh</span></span><br><span class="line">Starting cluster.</span><br><span class="line">Starting standalonesession daemon on host flink01.</span><br><span class="line">Starting taskexecutor daemon on host flink02.</span><br><span class="line">Starting taskexecutor daemon on host flink03.</span><br></pre></td></tr></table></figure>
+<h3 id="查看Flink进程"><a href="#查看Flink进程" class="headerlink" title="查看Flink进程"></a>查看Flink进程</h3><blockquote>
+<p>flink01进程</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@flink01 flink]<span class="comment"># jps</span></span><br><span class="line">2726 StandaloneSessionClusterEntrypoint</span><br><span class="line">2780 Jps</span><br><span class="line">[root@flink01 flink]<span class="comment">#</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>flink02进程</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@flink02 ~]<span class="comment"># jps</span></span><br><span class="line">2604 Jps</span><br><span class="line">2558 TaskManagerRunner</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>flink03进程</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@flink03 ~]<span class="comment"># jps</span></span><br><span class="line">2605 Jps</span><br><span class="line">2559 TaskManagerRunner</span><br></pre></td></tr></table></figure>
+<h3 id="查看Flink-WebUI"><a href="#查看Flink-WebUI" class="headerlink" title="查看Flink WebUI"></a>查看Flink WebUI</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://192.168.239.180:8081/<span class="comment">#/overview</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fyucsx3574j22jy1g2k0k.jpg" alt="All text"></p>
+<h3 id="暂停Flink"><a href="#暂停Flink" class="headerlink" title="暂停Flink"></a>暂停Flink</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./bin/stop-cluster.sh</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@flink01 ~]<span class="comment"># stop-cluster.sh</span></span><br><span class="line">Stopping taskexecutor daemon (pid: 2558) on host flink02.</span><br><span class="line">Stopping taskexecutor daemon (pid: 2559) on host flink03.</span><br><span class="line">Stopping standalonesession daemon (pid: 2726) on host flink01.</span><br></pre></td></tr></table></figure>
+<h2 id="分步启动Master、Slave进程"><a href="#分步启动Master、Slave进程" class="headerlink" title="分步启动Master、Slave进程"></a>分步启动Master、Slave进程</h2><h3 id="启动JobManager"><a href="#启动JobManager" class="headerlink" title="启动JobManager"></a>启动JobManager</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./bin/jobmanager.sh ((start|start-foreground) [host] [webui-port])|stop|stop-all</span><br></pre></td></tr></table></figure>
+<h3 id="启动TaskManager"><a href="#启动TaskManager" class="headerlink" title="启动TaskManager"></a>启动TaskManager</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./bin/taskmanager.sh start|start-foreground|stop|stop-all</span><br></pre></td></tr></table></figure>
+<h2 id="Flink流处理-Demo"><a href="#Flink流处理-Demo" class="headerlink" title="Flink流处理 Demo"></a>Flink流处理 Demo</h2><h2 id="FlinkSQL-Demo"><a href="#FlinkSQL-Demo" class="headerlink" title="FlinkSQL Demo"></a>FlinkSQL Demo</h2>
+    </div>
+  </div>
+  
+    <div class="copy-right">
+      <div class="markdown-body">
+        <blockquote>
+        
+        
+          本文作者 : Matrix <br>
+        
+        原文链接 : <a href="">http://yoursite.com/2019/01/05/使用VMware Fusion搭建Flink分布式集群/</a><br>
+        版权声明 : 本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+        </blockquote>
+      </div>
+    </div>
+  
+  
+  
+    <div class="social-share" style="margin-top: -2rem" data-wechat-qrcode-title="<p>微信扫一扫</p>" data-wechat-qrcode-helper="<p>微信右上角, 扫一扫分享</p>" data-sites="qzone, qq, weibo, wechat, douban, google, facebook, twitter">
+  <span style="color: #6b7487; font-size: 1.4rem;">分享到: </span>
+</div>
+<script src="https://cdn.bootcss.com/social-share.js/1.0.16/js/social-share.min.js" async></script>
+  
+
+  
+    <div id="reward">
+  
+    <p id="reward-meta">知识 & 情怀 | 二者兼得</p>
+  
+  <button id="reward-btn">
+    
+    <span>投食</span>
+  </button>
+  <div id="reward-qrcode">
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/wechatpay.jpg" alt="微信扫一扫, 向我投食">
+        <p class="qrcode-meta">微信扫一扫, 向我投食</p>
+      </div>
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/alipaypay.jpg" alt="支付宝扫一扫, 向我投食">
+        <p class="qrcode-meta">支付宝扫一扫, 向我投食</p>
+      </div>
+    
+  </div>
+
+</div>
+
+<script>
+  (() => {
+    let button = document.querySelector('#reward-btn'),
+      qrcode = document.querySelector('#reward-qrcode'),
+      display = false;
+    
+    button.addEventListener('click', () => {
+      qrcode.style.display = display ? 'none' : 'block'
+      display = !display
+    }, false)
+  })()
+</script>
+  
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+      <span>
+        
+          <i class="iconfont icon-06tags"></i>标签: 
+          
+          <span class="span--tag">
+            <a href="/tags/大数据/">
+              #大数据
+            </a>
+          </span>
+          
+          <span class="span--tag">
+            <a href="/tags/Flink/">
+              #Flink
+            </a>
+          </span>
+          
+        
+      </span>
+    </div>
+    <div class="article-meta pull-right">
+    </div>
+  </div>
+</div>
+
+
+  <aside id="sidebar">
+    <p id="sidebar-header"></p>
+    <ol id="sidebar-toc"></ol>
+  </aside>
+  <script async>setTimeout(generateToc, 10);</script>
+
+
+  <nav class="post-navigation">
+    
+      <div class="nav-pre">
+        <i class="iconfont icon-prev"></i>
+        上一篇:
+        <a href="/2018/01/14/Redshift入坑指南/" target="_self">Redshift入坑指南</a>
+      </div>
+    
+    
+      <div class="nav-next">
+        下一篇:
+        <a href="/2019/01/05/从零构建第一个Apache Flink应用/" target="_self">从零构建第一个 Apache Flink 应用</a>
+        <i class="iconfont icon-next"></i>
+      </div>
+    
+  </nav>
+
+  
+    <a href="#comment" class="comment-anchor"></a>
+<div class="comment-title"><i class="iconfont icon-footprint"></i> 留下足迹 <i class="iconfont icon-footprint"></i></div>
+<div id="vcomments"></div>
+
+<script defer>
+  if( true ) {
+    let path = getRealPath()
+    new Valine({
+      el: "#vcomments",
+      appId: "Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz",
+      appKey: "WaR7nrzhliHj9aVwdQzkdlGd",
+      notify: false,
+      verify: false,
+      avatar: "robohash",
+      placeholder: "正确填写邮箱, 才能及时收到回复哦♪(^∇^*)",
+      path
+    });
+  }
+</script>
+   
+
+  
+    <script defer>
+const valineAPI = (() => {
+  try {
+    AV.init("Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz", "WaR7nrzhliHj9aVwdQzkdlGd");
+  } catch(error) {}
+  const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+      query.equalTo("identity", identity);
+      query.find().then(results => {
+        resolve(results.length > 0);
+      }, error => reject(error));
+    })
+  }
+
+  const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+      let querys = [];
+      for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+      }
+      query = AV.Query.or.apply(null ,querys);
+    } else {
+      identity = identity || getRealPath();
+      query = new AV.Query("Timer");
+      query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+      query.find()
+      .then(results => resolve(results))
+      .catch(error => reject(error))
+    })
+  }
+
+  const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let Todo = AV.Object.extend('Timer');
+      let todo = new Todo();
+      todo.set("times", 1);
+      todo.set("identity", identity);
+      todo.save().then(res => resolve(true), error => reject(error));
+    })
+  }
+
+  const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let query = new AV.Query('Timer');
+      query.equalTo("identity", identity);
+      query.find().then(todos => {
+        todos.forEach(todo => {
+          todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+      }).then(todos => resolve(true), error => reject(error));
+    })
+  }
+
+  return {
+    isExist,
+    _get,
+    update,
+    create
+  }
+})()
+
+const calcAndWriteTimes = () => {
+  let isPost = true;
+
+  let timerAllDOM = document.querySelectorAll(".article-timer");
+
+  if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+      if(exist) {
+        return valineAPI.update(identity);
+      }
+      return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+  }
+
+  let timerDOMCache = {};
+
+  for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+      timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+      timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+      };
+    }
+  }
+
+  let identities = Object.keys(timerDOMCache);
+  valineAPI._get(identities).then(results => {
+    for(let result of results) {
+      let {identity, times} = result.attributes;
+      timerDOMCache[identity].times = times;
+      timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+      if(timerDOMCache[identity].times){
+        continue;
+      }
+      timerDOMCache[identity].dom.map(item => item.innerText = 1);
+      valineAPI.create(identity);
+    }
+  }).catch(error => console.log(error.message))
+}
+
+if(true){
+  calcAndWriteTimes();
+}
+</script>
+   
+
+</div>
+
+
+      <footer>
+  <p class="site-info">
+    博客已萌萌哒运行<span id="time-to-now"></span><span class="my-face">(●'◡'●)ﾉ♥</span>
+    <br>
+    Theme - <a href="https://github.com/dongyuanxin/theme-bmw">BMW</a> | Powered by <a href="https://godbmw.com/">GodBMW</a>
+    <br>
+    
+      Copyright © 2019 Matrix
+    
+  </p>
+</footer>
+
+
+
+<script>
+const timeToNowDOM = document.querySelector("#time-to-now");
+const startTimestamp = new Date(2016, 4, 10).getTime();
+
+const updateTimeStr = () => {
+  let offset = parseInt(
+      (new Date().getTime() - startTimestamp) / 1000,
+      10
+    ),
+    day = Math.floor(offset / 86400),
+    hour = Math.floor((offset % 86400) / 3600),
+    minute = Math.floor(((offset % 86400) % 3600) / 60),
+    second = Math.floor(((offset % 86400) % 3600) % 60);
+  timeToNowDOM.innerHTML =
+    day + "天" + hour + "小时" + minute + "分钟" + second + "秒";
+  setTimeout(updateTimeStr, 500);
+}
+
+setTimeout(updateTimeStr, 500);
+</script>
+
+
+      <div class="back-to-top hidden">
+  <span>
+    <i class="iconfont icon-60"></i><span></span>%
+  </span>
+</div>
+
+<script>
+const updateIconToTop = percent => {
+  let dom = document.querySelector(".back-to-top span span");
+  dom.innerText = percent;
+  if(percent < 1) {
+    document.querySelector(".back-to-top").className = "back-to-top hidden";
+  } else {
+    document.querySelector(".back-to-top").className = "back-to-top";
+  }
+}
+
+const handleScoll = () => {
+  let isRunning = false;
+  return () => {
+    if (isRunning) return;
+    isRunning = true;
+    window.requestAnimationFrame(timestamp => {
+      let scrollTop =
+          document.documentElement.scrollTop || document.body.scrollTop,
+        scrollHeight =
+          document.documentElement.scrollHeight ||
+          document.body.scrollHeight,
+        clientHeight =
+          document.documentElement.clientHeight ||
+          document.body.clientHeight;
+      isRunning = false;
+      if (scrollTop <= 1) {
+        updateIconToTop(0);
+        return;
+      }
+      if (scrollTop + clientHeight >= scrollHeight) {
+        updateIconToTop(100);
+      } else {
+        updateIconToTop(parseInt(
+          100 * scrollTop / (scrollHeight - clientHeight),
+          10
+        ));
+      }
+    });
+  };
+}
+
+const backToTop = () => {
+  let scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop,
+    delay = 10,
+    time = 200;
+  if (scrollTop <= 20) {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    return;
+  }
+  let step = Math.ceil(scrollTop * delay / time);
+  let timer = setInterval(() => {
+    scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop;
+    if (scrollTop - step <= 0) {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      clearInterval(timer);
+    } else {
+      document.documentElement.scrollTop = scrollTop - step;
+      document.body.scrollTop = scrollTop - step;
+    }
+  }, delay);
+}
+
+document.addEventListener("scroll", handleScoll(), false);
+
+document.querySelector(".back-to-top").addEventListener("click", backToTop, false);
+
+</script>
+
+    </div>
+
+    
+      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  (() => {
+    const mathjaxConfig = {
+      showProcessingMessages: false, //关闭js加载过程信息
+      messageStyle: "none", //不显示信息
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]], //行内公式选择符
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]], //段内公式选择符
+        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"] //避开某些标签
+      },
+      "HTML-CSS": {
+        availableFonts: ["STIX", "TeX"], //可选字体
+        showMathMenu: false //关闭右击菜单显示
+      }
+    }
+
+    let mathjaxInterval = setInterval(() => {
+      if(!window.MathJax){
+        return;
+      }
+      window.MathJax.Hub.Config(mathjaxConfig)
+      window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')])
+
+      clearInterval(mathjaxInterval)
+    }, 10)    
+  })()
+</script>
+    
+
+    <script src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script>
+<script async>
+  let fancyTimer = setInterval(function(){
+    if(!window.$){
+      return;
+    }
+    $(document).ready(function() {
+      $(".post img").each(function () {
+        if($(this).parent().get(0).tagName.toLowerCase() === "a") {
+          return;
+        }
+        // $(this).attr("data-fancybox", "gallery"); // if you add 'data-fancybox', img will display after showed
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "gallery");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      });
+      
+      clearInterval(fancyTimer);
+    });
+  }, 10);
+</script>
+
+    
+  </body>
+
+</html>

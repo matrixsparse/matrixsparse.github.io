@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta name="author" content="董沅鑫, yuanxin.me@gmail.com">
+  
+  
+  
+  <title>Redis搭建主从复制&amp;高可用&amp;多master的cluster集群 | 每天遇到更好的你</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="大数据,大数据,Redis,">
+  
+
+  <script>
+    console.log('\n%c Hexo-theme-bmw v4.0 ' + '%c 🎉 https://github.com/dongyuanxin/theme-bmw 🎉\n' + '\n%c View demo online ' + '%c 🔍 https://godbmw.com/ 🔍  \n' , 'color: #fadfa3; background: #030307; padding:3px 0;', '', 'color: #fadfa3; background: #030307; padding:3px 0;', '');
+  </script>
+
+  
+
+  
+
+  
+    <link rel="icon" href="/images/favicon.png">
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+  
+
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/icon/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+  <script src="/js/util.js"></script>
+<script src="/js/valine.min.js"></script>
+
+  
+
+  
+    <link href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js" async></script>
+  
+
+  
+    <link href="https://cdn.bootcss.com/social-share.js/1.0.16/css/share.min.css" rel="stylesheet">
+  
+  
+  <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js" async></script>
+  
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.0/dist/av-min.js"></script>
+  
+
+</head>
+
+  <body>
+
+    
+
+    <div id="app">
+
+      <div class="header-wrap">
+  <header>
+    <div class="site-brand">
+      <div class="site-title">
+        <!-- <a href="/">MatrixSparse</a> -->
+        <img alt="logo" class="antd-pro-layouts-user-layout-logo" src="/images/favicon.png" style="width: 40px;height: 40px;margin-top: 10px;margin-left: 5px;">
+      </div>
+    </div>
+    <nav class="site-navigation">
+      <ul class="nav-menu">
+      
+        <li class="nav-item" data-path="/">
+          
+            <a href="/" target="_self">
+              主页
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          
+            <a href="/archives/" target="_self">
+              归档
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          
+            <a href="/categories/" target="_self">
+              分类
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          
+            <a href="/tags/" target="_self">
+              标签
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="">
+          
+            <a href="javascript:void(0);" v-else="">博客地址</a>
+            <ul class="nav-menu--dropdown">
+              
+                <li>
+                  <a href="https://blog.csdn.net/qq_25371579" target="_blank">
+                    CSDN
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://github.com/matrixsparse" target="_blank">
+                    Github
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://matrixsparse.github.io/" target="_blank">
+                    Github Page
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+      </ul>
+    </nav>
+    <i class="iconfont icon-menu"></i>
+  </header>
+</div>
+
+<script>
+  let links = document.querySelectorAll('.nav-item');
+  for(let link of links){
+    let childrenLink = link.querySelector('ul');
+    link.addEventListener('mouseenter', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown active";
+      }
+    })
+    link.addEventListener('mouseleave', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown";
+      }
+    })
+  }
+  let rootRealPath = getRealPath(window.location.pathname, true);
+  for(let link of links) {
+    let linkPath = link.getAttribute("data-path");
+    if(linkPath && getRealPath(linkPath, true) === rootRealPath) {
+      link.className = "nav-item hover";
+    }
+  }
+
+  let iconMenu = document.querySelector("i.iconfont.icon-menu"),
+    iconMenuClicked = false;
+  let navDOM = document.querySelector("nav.site-navigation");
+  iconMenu.addEventListener("click", () => {
+    iconMenuClicked
+      ? navDOM.className = "site-navigation active"
+      : navDOM.className = "site-navigation";
+    iconMenuClicked = !iconMenuClicked;
+  })
+</script>
+
+
+      
+
+
+
+
+
+
+
+
+<div class="container post-index">
+
+  
+
+<div class="post">
+  <h1 class="article-title">
+    <span>Redis搭建主从复制&高可用&多master的cluster集群</span>
+  </h1>
+  <div class="article-top-meta">
+    <span>
+      发布 : 
+      2017-06-24
+    </span>
+    
+      <span>
+        分类 : 
+          <a href="/categories/大数据/">
+            大数据
+          </a>
+      </span>
+    
+    
+      <span>
+        浏览 : <span class="article-timer" data-identity="Redis搭建主从复制&高可用&多master的cluster集群"></span>
+      </span>
+    
+  </div>
+
+  
+
+  <div class="article-content">
+    <div class="markdown-body">
+      <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">redis cluster: 自动master+slave复制和读写分离</span><br><span class="line">master+slave高可用和主备切换</span><br><span class="line">支持多个master的<span class="built_in">hash</span> slot支持数据分布式存储</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">192.168.31.231 matrix-cache01</span><br><span class="line">192.168.31.232 matrix-cache02</span><br><span class="line">192.168.31.233 matrix-cache03</span><br></pre></td></tr></table></figure>
+<h2 id="部署Redis-Cluster集群前提"><a href="#部署Redis-Cluster集群前提" class="headerlink" title="部署Redis Cluster集群前提"></a>部署Redis Cluster集群前提</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">停止之前所有的实例，包括redis主从和哨兵集群</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[root@matrix-cache01 ~]<span class="comment"># ps aux | grep redis</span></span><br><span class="line">root      1164  0.0  0.0   5976   764 pts/0    S+   21:42   0:00 grep redis</span><br><span class="line">[root@matrix-cache02 ~]<span class="comment"># ps aux | grep redis</span></span><br><span class="line">root      1087  0.0  0.0   5976   768 pts/0    S+   21:43   0:00 grep redis</span><br><span class="line">[root@matrix-cache03 ~]<span class="comment"># ps aux | grep redis</span></span><br><span class="line">root      1094  0.0  0.0   5976   768 pts/0    S+   21:43   0:00 grep redis</span><br></pre></td></tr></table></figure>
+<h2 id="redis-cluster的重要配置"><a href="#redis-cluster的重要配置" class="headerlink" title="redis cluster的重要配置"></a>redis cluster的重要配置</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">cluster-enabled &lt;yes/no&gt;</span><br><span class="line"></span><br><span class="line">cluster-config-file &lt;filename&gt;：</span><br><span class="line">这是指定一个文件，供cluster模式下的redis实例将集群状态保存在那里</span><br><span class="line">包括集群中其他机器的信息</span><br><span class="line">比如节点的上线和下限，故障转移，不是我们去维护的</span><br><span class="line">给它指定一个文件，让redis自己去维护的</span><br><span class="line"></span><br><span class="line">cluster-node-timeout &lt;milliseconds&gt;：</span><br><span class="line">节点存活超时时长，超过一定时长，认为节点宕机</span><br><span class="line">master宕机的话就会触发主备切换</span><br><span class="line">slave宕机就不会提供服务</span><br></pre></td></tr></table></figure>
+<h2 id="在三台机器上启动6个redis实例"><a href="#在三台机器上启动6个redis实例" class="headerlink" title="在三台机器上启动6个redis实例"></a>在三台机器上启动6个redis实例</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">redis cluster集群，要求至少3个master</span><br><span class="line">去组成一个高可用，健壮的分布式的集群</span><br><span class="line"></span><br><span class="line">每个master都建议至少给一个slave</span><br><span class="line">3个master</span><br><span class="line">3个slave</span><br><span class="line">最少的要求</span><br><span class="line"></span><br><span class="line">正式环境下，建议都是说在6台机器上去搭建，至少3台机器</span><br><span class="line"></span><br><span class="line">保证，每个master都跟自己的slave不在同一台机器上</span><br><span class="line">如果是6台自然更好，一个master + 一个slave就死了</span><br></pre></td></tr></table></figure>
+<h2 id="3台机器搭建6个redis实例的redis-cluster"><a href="#3台机器搭建6个redis实例的redis-cluster" class="headerlink" title="3台机器搭建6个redis实例的redis cluster"></a>3台机器搭建6个redis实例的redis cluster</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">至少要用3个master节点启动，每个master加一个slave节点，先选择6个节点，启动6个实例</span><br><span class="line"></span><br><span class="line">将上面的配置文件，在/etc/redis下放6个</span><br><span class="line">分别为: 7001.conf，7002.conf，7003.conf，7004.conf，7005.conf，7006.conf</span><br></pre></td></tr></table></figure>
+<h3 id="matrix-cache01节点"><a href="#matrix-cache01节点" class="headerlink" title="matrix-cache01节点"></a>matrix-cache01节点</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@matrix-cache01 ~]<span class="comment"># mkdir -p /etc/redis-cluster</span></span><br><span class="line">[root@matrix-cache01 ~]<span class="comment"># mkdir -p /var/log/redis</span></span><br><span class="line">[root@matrix-cache01 ~]<span class="comment"># mkdir -p /var/redis/7001</span></span><br><span class="line">[root@matrix-cache01 ~]<span class="comment"># mkdir -p /var/redis/7002</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@matrix-cache01 ~]<span class="comment"># cd /etc/redis</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>[root@matrix-cache01 redis]# vi 7001.conf</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">port 7001</span><br><span class="line">cluster-enabled yes</span><br><span class="line">cluster-config-file /etc/redis-cluster/node-7001.conf</span><br><span class="line">cluster-node-timeout 5000</span><br><span class="line">daemonize yes							</span><br><span class="line">pidfile /var/run/redis_7001.pid 						</span><br><span class="line">dir /var/redis/7001		</span><br><span class="line">logfile /var/<span class="built_in">log</span>/redis/7001.log</span><br><span class="line"><span class="built_in">bind</span> 192.168.31.231		</span><br><span class="line">appendonly yes</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>[root@matrix-cache01 redis]# vi 7002.conf</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">port 7002</span><br><span class="line">cluster-enabled yes</span><br><span class="line">cluster-config-file /etc/redis-cluster/node-7002.conf</span><br><span class="line">cluster-node-timeout 5000</span><br><span class="line">daemonize yes							</span><br><span class="line">pidfile /var/run/redis_7002.pid 						</span><br><span class="line">dir /var/redis/7002		</span><br><span class="line">logfile /var/<span class="built_in">log</span>/redis/7002.log</span><br><span class="line"><span class="built_in">bind</span> 192.168.31.231		</span><br><span class="line">appendonly yes</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[root@matrix-cache01 redis]<span class="comment"># ll</span></span><br><span class="line">总用量 12</span><br><span class="line">-rw-r--r-- 1 root root 221 6月  24 11:50 6379.conf</span><br><span class="line">-rw-r--r-- 1 root root 261 6月  24 21:11 7001.conf</span><br><span class="line">-rw-r--r-- 1 root root 261 6月  24 21:10 7002.conf</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@matrix-cache01 ~]<span class="comment"># cd /etc/init.d</span></span><br><span class="line">[root@matrix-cache01 init.d]<span class="comment"># cp redis_6379 redis_7001</span></span><br><span class="line">[root@matrix-cache01 init.d]<span class="comment"># cp redis_6379 redis_7002</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@matrix-cache01 init.d]<span class="comment"># vi redis_7001</span></span><br><span class="line">REDISPORT 7001</span><br></pre></td></tr></table></figure>
+<p><img src="http://i1.buimg.com/581590/638acdad8e81efbe.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@matrix-cache01 init.d]<span class="comment"># vi redis_7002</span></span><br><span class="line">REDISPORT 7002</span><br></pre></td></tr></table></figure>
+<p><img src="http://i1.buimg.com/581590/65bf9f437b78d390.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@matrix-cache01 ~]<span class="comment"># cd /etc/init.d</span></span><br><span class="line">[root@matrix-cache01 init.d]<span class="comment"># ./redis_7001 start</span></span><br><span class="line">[root@matrix-cache01 init.d]<span class="comment"># ./redis_7002 start</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@matrix-cache01 init.d]<span class="comment"># cat /var/log/redis/7001.log</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://i1.buimg.com/581590/c631f5e0ab009125.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@matrix-cache01 init.d]<span class="comment"># cat /var/log/redis/7002.log</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://i1.buimg.com/581590/3f0e5e7db37bc3fe.png" alt="Markdown"></p>
+<h3 id="matrix-cache02节点"><a href="#matrix-cache02节点" class="headerlink" title="matrix-cache02节点"></a>matrix-cache02节点</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@matrix-cache02 ~]<span class="comment"># mkdir -p /etc/redis-cluster</span></span><br><span class="line">[root@matrix-cache02 ~]<span class="comment"># mkdir -p /var/log/redis</span></span><br><span class="line">[root@matrix-cache02 ~]<span class="comment"># mkdir -p /var/redis/7003</span></span><br><span class="line">[root@matrix-cache02 ~]<span class="comment"># mkdir -p /var/redis/7004</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@matrix-cache02 ~]<span class="comment"># cd /etc/redis</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>[root@matrix-cache02 redis]# vi 7003.conf</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">port 7003</span><br><span class="line">cluster-enabled yes</span><br><span class="line">cluster-config-file /etc/redis-cluster/node-7003.conf</span><br><span class="line">cluster-node-timeout 5000</span><br><span class="line">daemonize yes							</span><br><span class="line">pidfile /var/run/redis_7003.pid 						</span><br><span class="line">dir /var/redis/7003		</span><br><span class="line">logfile /var/<span class="built_in">log</span>/redis/7003.log</span><br><span class="line"><span class="built_in">bind</span> 192.168.31.232		</span><br><span class="line">appendonly yes</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>[root@matrix-cache02 redis]# vi 7004.conf</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">port 7004</span><br><span class="line">cluster-enabled yes</span><br><span class="line">cluster-config-file /etc/redis-cluster/node-7004.conf</span><br><span class="line">cluster-node-timeout 5000</span><br><span class="line">daemonize yes							</span><br><span class="line">pidfile /var/run/redis_7004.pid 						</span><br><span class="line">dir /var/redis/7004		</span><br><span class="line">logfile /var/<span class="built_in">log</span>/redis/7004.log</span><br><span class="line"><span class="built_in">bind</span> 192.168.31.232</span><br><span class="line">appendonly yes</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[root@matrix-cache02 redis]<span class="comment"># ll</span></span><br><span class="line">总用量 12</span><br><span class="line">-rw-r--r-- 1 root root 241 6月  24 11:39 6379.conf</span><br><span class="line">-rw-r--r-- 1 root root 261 6月  24 21:40 7003.conf</span><br><span class="line">-rw-r--r-- 1 root root 260 6月  24 21:40 7004.conf</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@matrix-cache02 ~]<span class="comment"># cd /etc/init.d</span></span><br><span class="line">[root@matrix-cache02 init.d]<span class="comment"># cp redis_6379 redis_7003</span></span><br><span class="line">[root@matrix-cache02 init.d]<span class="comment"># cp redis_6379 redis_7004</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@matrix-cache02 init.d]<span class="comment"># vi redis_7003</span></span><br><span class="line">REDISPORT 7003</span><br></pre></td></tr></table></figure>
+<p><img src="http://i2.kiimg.com/581590/acd7b41e5211ee38.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@matrix-cache02 init.d]<span class="comment"># vi redis_7004</span></span><br><span class="line">REDISPORT 7004</span><br></pre></td></tr></table></figure>
+<p><img src="http://i2.kiimg.com/581590/58ee1d244094b725.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@matrix-cache02 ~]<span class="comment"># cd /etc/init.d</span></span><br><span class="line">[root@matrix-cache02 init.d]<span class="comment"># ./redis_7003 start</span></span><br><span class="line">[root@matrix-cache02 init.d]<span class="comment"># ./redis_7004 start</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@matrix-cache02 init.d]<span class="comment"># cat /var/log/redis/7003.log</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://i1.buimg.com/581590/714b44d1d3534f13.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@matrix-cache02 init.d]<span class="comment"># cat /var/log/redis/7004.log</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://i1.buimg.com/581590/82e01c4d0457849a.png" alt="Markdown"></p>
+<h3 id="matrix-cache03节点"><a href="#matrix-cache03节点" class="headerlink" title="matrix-cache03节点"></a>matrix-cache03节点</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@matrix-cache03 ~]<span class="comment"># mkdir -p /etc/redis-cluster</span></span><br><span class="line">[root@matrix-cache03 ~]<span class="comment"># mkdir -p /var/log/redis</span></span><br><span class="line">[root@matrix-cache03 ~]<span class="comment"># mkdir -p /var/redis/7005</span></span><br><span class="line">[root@matrix-cache03 ~]<span class="comment"># mkdir -p /var/redis/7006</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@matrix-cache03 ~]<span class="comment"># cd /etc/redis</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>[root@matrix-cache03 redis]# vi 7005.conf</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">port 7005</span><br><span class="line">cluster-enabled yes</span><br><span class="line">cluster-config-file /etc/redis-cluster/node-7005.conf</span><br><span class="line">cluster-node-timeout 5000</span><br><span class="line">daemonize yes							</span><br><span class="line">pidfile /var/run/redis_7005.pid 						</span><br><span class="line">dir /var/redis/7005		</span><br><span class="line">logfile /var/<span class="built_in">log</span>/redis/7005.log</span><br><span class="line"><span class="built_in">bind</span> 192.168.31.233</span><br><span class="line">appendonly yes</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>[root@matrix-cache03 redis]# vi 7006.conf</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">port 7006</span><br><span class="line">cluster-enabled yes</span><br><span class="line">cluster-config-file /etc/redis-cluster/node-7006.conf</span><br><span class="line">cluster-node-timeout 5000</span><br><span class="line">daemonize yes							</span><br><span class="line">pidfile /var/run/redis_7006.pid 						</span><br><span class="line">dir /var/redis/7006		</span><br><span class="line">logfile /var/<span class="built_in">log</span>/redis/7006.log</span><br><span class="line"><span class="built_in">bind</span> 192.168.31.233		</span><br><span class="line">appendonly yes</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[root@matrix-cache03 redis]<span class="comment"># ll</span></span><br><span class="line">总用量 12</span><br><span class="line">-rw-rw-r-- 1 root root 214 6月  24 11:39 6379.conf</span><br><span class="line">-rw-r--r-- 1 root root 260 6月  24 21:41 7005.conf</span><br><span class="line">-rw-r--r-- 1 root root 261 6月  24 21:41 7006.conf</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@matrix-cache03 ~]<span class="comment"># cd /etc/init.d</span></span><br><span class="line">[root@matrix-cache03 init.d]<span class="comment"># cp redis_6379 redis_7005</span></span><br><span class="line">[root@matrix-cache03 init.d]<span class="comment"># cp redis_6379 redis_7006</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@matrix-cache03 init.d]<span class="comment"># vi redis_7005</span></span><br><span class="line">REDISPORT=7005</span><br></pre></td></tr></table></figure>
+<p><img src="http://i2.kiimg.com/581590/c4869a6c186233e2.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@matrix-cache03 init.d]<span class="comment"># vi redis_7006</span></span><br><span class="line">REDISPORT=7006</span><br></pre></td></tr></table></figure>
+<p><img src="http://i2.kiimg.com/581590/61fc877855d09dac.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@matrix-cache03 ~]<span class="comment"># cd /etc/init.d</span></span><br><span class="line">[root@matrix-cache03 init.d]<span class="comment"># ./redis_7005 start</span></span><br><span class="line">[root@matrix-cache03 init.d]<span class="comment"># ./redis_7006 start</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@matrix-cache03 init.d]<span class="comment"># cat /var/log/redis/7005.log</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://i1.buimg.com/581590/e85d080cc3ee03eb.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@matrix-cache03 init.d]<span class="comment"># cat /var/log/redis/7006.log</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://i1.buimg.com/581590/004cf0a4739d2a7e.png" alt="Markdown"></p>
+<h2 id="创建集群"><a href="#创建集群" class="headerlink" title="创建集群"></a>创建集群</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@matrix-cache01 ~]<span class="comment">#yum install -y ruby</span></span><br><span class="line">[root@matrix-cache01 ~]<span class="comment">#yum install -y rubygems</span></span><br><span class="line">[root@matrix-cache01 ~]<span class="comment">#gem install redis</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@matrix-cache01 ~]<span class="comment"># cp redis-3.2.8/src/redis-trib.rb /usr/local/bin</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@matrix-cache01 ~]<span class="comment"># cd /usr/local</span></span><br><span class="line">[root@matrix-cache01 <span class="built_in">local</span>]<span class="comment"># redis-trib.rb create --replicas 1 192.168.31.231:7001 192.168.31.231:7002 192.168.31.232:7003 192.168.31.232:7004 192.168.31.233:7005 192.168.31.233:7006</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://i1.buimg.com/581590/5e34dfec01b4884c.png" alt="Markdown"></p>
+<p><img src="http://i1.buimg.com/581590/3e4fe3fefa07c583.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@matrix-cache01 <span class="built_in">local</span>]<span class="comment"># redis-trib.rb check 192.168.31.231:7001</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://i1.buimg.com/581590/79be2b0dfda04faa.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">--replicas: 每个master有几个slave</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">6台机器，3个master，3个slave，尽量自己让master和slave不在一台机器上</span><br></pre></td></tr></table></figure>
+<h2 id="集群效果"><a href="#集群效果" class="headerlink" title="集群效果"></a>集群效果</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">读写分离：每个master都有一个slave</span><br><span class="line">高可用：master宕机，slave自动被切换过去</span><br><span class="line">多master：横向扩容支持更大数据量</span><br></pre></td></tr></table></figure>
+
+    </div>
+  </div>
+  
+    <div class="copy-right">
+      <div class="markdown-body">
+        <blockquote>
+        
+        
+          本文作者 : Matrix <br>
+        
+        原文链接 : <a href="">http://yoursite.com/2017/06/24/Redis搭建主从复制&高可用&多master的cluster集群/</a><br>
+        版权声明 : 本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+        </blockquote>
+      </div>
+    </div>
+  
+  
+  
+    <div class="social-share" style="margin-top: -2rem" data-wechat-qrcode-title="<p>微信扫一扫</p>" data-wechat-qrcode-helper="<p>微信右上角, 扫一扫分享</p>" data-sites="qzone, qq, weibo, wechat, douban, google, facebook, twitter">
+  <span style="color: #6b7487; font-size: 1.4rem;">分享到: </span>
+</div>
+<script src="https://cdn.bootcss.com/social-share.js/1.0.16/js/social-share.min.js" async></script>
+  
+
+  
+    <div id="reward">
+  
+    <p id="reward-meta">知识 & 情怀 | 二者兼得</p>
+  
+  <button id="reward-btn">
+    
+    <span>投食</span>
+  </button>
+  <div id="reward-qrcode">
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/wechatpay.jpg" alt="微信扫一扫, 向我投食">
+        <p class="qrcode-meta">微信扫一扫, 向我投食</p>
+      </div>
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/alipaypay.jpg" alt="支付宝扫一扫, 向我投食">
+        <p class="qrcode-meta">支付宝扫一扫, 向我投食</p>
+      </div>
+    
+  </div>
+
+</div>
+
+<script>
+  (() => {
+    let button = document.querySelector('#reward-btn'),
+      qrcode = document.querySelector('#reward-qrcode'),
+      display = false;
+    
+    button.addEventListener('click', () => {
+      qrcode.style.display = display ? 'none' : 'block'
+      display = !display
+    }, false)
+  })()
+</script>
+  
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+      <span>
+        
+          <i class="iconfont icon-06tags"></i>标签: 
+          
+          <span class="span--tag">
+            <a href="/tags/大数据/">
+              #大数据
+            </a>
+          </span>
+          
+          <span class="span--tag">
+            <a href="/tags/Redis/">
+              #Redis
+            </a>
+          </span>
+          
+        
+      </span>
+    </div>
+    <div class="article-meta pull-right">
+    </div>
+  </div>
+</div>
+
+
+  <aside id="sidebar">
+    <p id="sidebar-header"></p>
+    <ol id="sidebar-toc"></ol>
+  </aside>
+  <script async>setTimeout(generateToc, 10);</script>
+
+
+  <nav class="post-navigation">
+    
+      <div class="nav-pre">
+        <i class="iconfont icon-prev"></i>
+        上一篇:
+        <a href="/2017/06/22/国外免费正版图片网站汇总/" target="_self">国外免费正版图片网站汇总</a>
+      </div>
+    
+    
+      <div class="nav-next">
+        下一篇:
+        <a href="/2017/06/24/健身指南/" target="_self">健身指南</a>
+        <i class="iconfont icon-next"></i>
+      </div>
+    
+  </nav>
+
+  
+    <a href="#comment" class="comment-anchor"></a>
+<div class="comment-title"><i class="iconfont icon-footprint"></i> 留下足迹 <i class="iconfont icon-footprint"></i></div>
+<div id="vcomments"></div>
+
+<script defer>
+  if( true ) {
+    let path = getRealPath()
+    new Valine({
+      el: "#vcomments",
+      appId: "Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz",
+      appKey: "WaR7nrzhliHj9aVwdQzkdlGd",
+      notify: false,
+      verify: false,
+      avatar: "robohash",
+      placeholder: "正确填写邮箱, 才能及时收到回复哦♪(^∇^*)",
+      path
+    });
+  }
+</script>
+   
+
+  
+    <script defer>
+const valineAPI = (() => {
+  try {
+    AV.init("Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz", "WaR7nrzhliHj9aVwdQzkdlGd");
+  } catch(error) {}
+  const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+      query.equalTo("identity", identity);
+      query.find().then(results => {
+        resolve(results.length > 0);
+      }, error => reject(error));
+    })
+  }
+
+  const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+      let querys = [];
+      for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+      }
+      query = AV.Query.or.apply(null ,querys);
+    } else {
+      identity = identity || getRealPath();
+      query = new AV.Query("Timer");
+      query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+      query.find()
+      .then(results => resolve(results))
+      .catch(error => reject(error))
+    })
+  }
+
+  const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let Todo = AV.Object.extend('Timer');
+      let todo = new Todo();
+      todo.set("times", 1);
+      todo.set("identity", identity);
+      todo.save().then(res => resolve(true), error => reject(error));
+    })
+  }
+
+  const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let query = new AV.Query('Timer');
+      query.equalTo("identity", identity);
+      query.find().then(todos => {
+        todos.forEach(todo => {
+          todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+      }).then(todos => resolve(true), error => reject(error));
+    })
+  }
+
+  return {
+    isExist,
+    _get,
+    update,
+    create
+  }
+})()
+
+const calcAndWriteTimes = () => {
+  let isPost = true;
+
+  let timerAllDOM = document.querySelectorAll(".article-timer");
+
+  if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+      if(exist) {
+        return valineAPI.update(identity);
+      }
+      return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+  }
+
+  let timerDOMCache = {};
+
+  for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+      timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+      timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+      };
+    }
+  }
+
+  let identities = Object.keys(timerDOMCache);
+  valineAPI._get(identities).then(results => {
+    for(let result of results) {
+      let {identity, times} = result.attributes;
+      timerDOMCache[identity].times = times;
+      timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+      if(timerDOMCache[identity].times){
+        continue;
+      }
+      timerDOMCache[identity].dom.map(item => item.innerText = 1);
+      valineAPI.create(identity);
+    }
+  }).catch(error => console.log(error.message))
+}
+
+if(true){
+  calcAndWriteTimes();
+}
+</script>
+   
+
+</div>
+
+
+      <footer>
+  <p class="site-info">
+    博客已萌萌哒运行<span id="time-to-now"></span><span class="my-face">(●'◡'●)ﾉ♥</span>
+    <br>
+    Theme - <a href="https://github.com/dongyuanxin/theme-bmw">BMW</a> | Powered by <a href="https://godbmw.com/">GodBMW</a>
+    <br>
+    
+      Copyright © 2019 Matrix
+    
+  </p>
+</footer>
+
+
+
+<script>
+const timeToNowDOM = document.querySelector("#time-to-now");
+const startTimestamp = new Date(2016, 4, 10).getTime();
+
+const updateTimeStr = () => {
+  let offset = parseInt(
+      (new Date().getTime() - startTimestamp) / 1000,
+      10
+    ),
+    day = Math.floor(offset / 86400),
+    hour = Math.floor((offset % 86400) / 3600),
+    minute = Math.floor(((offset % 86400) % 3600) / 60),
+    second = Math.floor(((offset % 86400) % 3600) % 60);
+  timeToNowDOM.innerHTML =
+    day + "天" + hour + "小时" + minute + "分钟" + second + "秒";
+  setTimeout(updateTimeStr, 500);
+}
+
+setTimeout(updateTimeStr, 500);
+</script>
+
+
+      <div class="back-to-top hidden">
+  <span>
+    <i class="iconfont icon-60"></i><span></span>%
+  </span>
+</div>
+
+<script>
+const updateIconToTop = percent => {
+  let dom = document.querySelector(".back-to-top span span");
+  dom.innerText = percent;
+  if(percent < 1) {
+    document.querySelector(".back-to-top").className = "back-to-top hidden";
+  } else {
+    document.querySelector(".back-to-top").className = "back-to-top";
+  }
+}
+
+const handleScoll = () => {
+  let isRunning = false;
+  return () => {
+    if (isRunning) return;
+    isRunning = true;
+    window.requestAnimationFrame(timestamp => {
+      let scrollTop =
+          document.documentElement.scrollTop || document.body.scrollTop,
+        scrollHeight =
+          document.documentElement.scrollHeight ||
+          document.body.scrollHeight,
+        clientHeight =
+          document.documentElement.clientHeight ||
+          document.body.clientHeight;
+      isRunning = false;
+      if (scrollTop <= 1) {
+        updateIconToTop(0);
+        return;
+      }
+      if (scrollTop + clientHeight >= scrollHeight) {
+        updateIconToTop(100);
+      } else {
+        updateIconToTop(parseInt(
+          100 * scrollTop / (scrollHeight - clientHeight),
+          10
+        ));
+      }
+    });
+  };
+}
+
+const backToTop = () => {
+  let scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop,
+    delay = 10,
+    time = 200;
+  if (scrollTop <= 20) {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    return;
+  }
+  let step = Math.ceil(scrollTop * delay / time);
+  let timer = setInterval(() => {
+    scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop;
+    if (scrollTop - step <= 0) {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      clearInterval(timer);
+    } else {
+      document.documentElement.scrollTop = scrollTop - step;
+      document.body.scrollTop = scrollTop - step;
+    }
+  }, delay);
+}
+
+document.addEventListener("scroll", handleScoll(), false);
+
+document.querySelector(".back-to-top").addEventListener("click", backToTop, false);
+
+</script>
+
+    </div>
+
+    
+      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  (() => {
+    const mathjaxConfig = {
+      showProcessingMessages: false, //关闭js加载过程信息
+      messageStyle: "none", //不显示信息
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]], //行内公式选择符
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]], //段内公式选择符
+        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"] //避开某些标签
+      },
+      "HTML-CSS": {
+        availableFonts: ["STIX", "TeX"], //可选字体
+        showMathMenu: false //关闭右击菜单显示
+      }
+    }
+
+    let mathjaxInterval = setInterval(() => {
+      if(!window.MathJax){
+        return;
+      }
+      window.MathJax.Hub.Config(mathjaxConfig)
+      window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')])
+
+      clearInterval(mathjaxInterval)
+    }, 10)    
+  })()
+</script>
+    
+
+    <script src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script>
+<script async>
+  let fancyTimer = setInterval(function(){
+    if(!window.$){
+      return;
+    }
+    $(document).ready(function() {
+      $(".post img").each(function () {
+        if($(this).parent().get(0).tagName.toLowerCase() === "a") {
+          return;
+        }
+        // $(this).attr("data-fancybox", "gallery"); // if you add 'data-fancybox', img will display after showed
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "gallery");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      });
+      
+      clearInterval(fancyTimer);
+    });
+  }, 10);
+</script>
+
+    
+  </body>
+
+</html>

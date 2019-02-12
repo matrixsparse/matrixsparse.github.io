@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta name="author" content="董沅鑫, yuanxin.me@gmail.com">
+  
+  
+  
+  <title>日志采集框架Flume的安装及使用 | 每天遇到更好的你</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="大数据,大数据,">
+  
+
+  <script>
+    console.log('\n%c Hexo-theme-bmw v4.0 ' + '%c 🎉 https://github.com/dongyuanxin/theme-bmw 🎉\n' + '\n%c View demo online ' + '%c 🔍 https://godbmw.com/ 🔍  \n' , 'color: #fadfa3; background: #030307; padding:3px 0;', '', 'color: #fadfa3; background: #030307; padding:3px 0;', '');
+  </script>
+
+  
+
+  
+
+  
+    <link rel="icon" href="/images/favicon.png">
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+  
+
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/icon/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+  <script src="/js/util.js"></script>
+<script src="/js/valine.min.js"></script>
+
+  
+
+  
+    <link href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js" async></script>
+  
+
+  
+    <link href="https://cdn.bootcss.com/social-share.js/1.0.16/css/share.min.css" rel="stylesheet">
+  
+  
+  <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js" async></script>
+  
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.0/dist/av-min.js"></script>
+  
+
+</head>
+
+  <body>
+
+    
+
+    <div id="app">
+
+      <div class="header-wrap">
+  <header>
+    <div class="site-brand">
+      <div class="site-title">
+        <!-- <a href="/">MatrixSparse</a> -->
+        <img alt="logo" class="antd-pro-layouts-user-layout-logo" src="/images/favicon.png" style="width: 40px;height: 40px;margin-top: 10px;margin-left: 5px;">
+      </div>
+    </div>
+    <nav class="site-navigation">
+      <ul class="nav-menu">
+      
+        <li class="nav-item" data-path="/">
+          
+            <a href="/" target="_self">
+              主页
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          
+            <a href="/archives/" target="_self">
+              归档
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          
+            <a href="/categories/" target="_self">
+              分类
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          
+            <a href="/tags/" target="_self">
+              标签
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="">
+          
+            <a href="javascript:void(0);" v-else="">博客地址</a>
+            <ul class="nav-menu--dropdown">
+              
+                <li>
+                  <a href="https://blog.csdn.net/qq_25371579" target="_blank">
+                    CSDN
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://github.com/matrixsparse" target="_blank">
+                    Github
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://matrixsparse.github.io/" target="_blank">
+                    Github Page
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+      </ul>
+    </nav>
+    <i class="iconfont icon-menu"></i>
+  </header>
+</div>
+
+<script>
+  let links = document.querySelectorAll('.nav-item');
+  for(let link of links){
+    let childrenLink = link.querySelector('ul');
+    link.addEventListener('mouseenter', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown active";
+      }
+    })
+    link.addEventListener('mouseleave', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown";
+      }
+    })
+  }
+  let rootRealPath = getRealPath(window.location.pathname, true);
+  for(let link of links) {
+    let linkPath = link.getAttribute("data-path");
+    if(linkPath && getRealPath(linkPath, true) === rootRealPath) {
+      link.className = "nav-item hover";
+    }
+  }
+
+  let iconMenu = document.querySelector("i.iconfont.icon-menu"),
+    iconMenuClicked = false;
+  let navDOM = document.querySelector("nav.site-navigation");
+  iconMenu.addEventListener("click", () => {
+    iconMenuClicked
+      ? navDOM.className = "site-navigation active"
+      : navDOM.className = "site-navigation";
+    iconMenuClicked = !iconMenuClicked;
+  })
+</script>
+
+
+      
+
+
+
+
+
+
+
+
+<div class="container post-index">
+
+  
+
+<div class="post">
+  <h1 class="article-title">
+    <span>日志采集框架Flume的安装及使用</span>
+  </h1>
+  <div class="article-top-meta">
+    <span>
+      发布 : 
+      2016-02-12
+    </span>
+    
+      <span>
+        分类 : 
+          <a href="/categories/大数据/">
+            大数据
+          </a>
+      </span>
+    
+    
+      <span>
+        浏览 : <span class="article-timer" data-identity="日志采集框架Flume的安装及使用"></span>
+      </span>
+    
+  </div>
+
+  
+
+  <div class="article-content">
+    <div class="markdown-body">
+      <h2 id="1-Flume介绍"><a href="#1-Flume介绍" class="headerlink" title="1.Flume介绍"></a>1.Flume介绍</h2><h3 id="1-1-Flume概述"><a href="#1-1-Flume概述" class="headerlink" title="1.1.Flume概述"></a>1.1.Flume概述</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Flume是一个分布式、可靠、和高可用(旧版Flume og才有高可用)的海量日志采集、传输和聚合的系统。</span><br><span class="line">Flume可以采集文件，socket数据包等各种形式源数据，</span><br><span class="line">又可以将采集到的数据输出到HDFS、hbase、hive、kafka等众多外部存储系统中</span><br><span class="line">一般的采集需求，通过对flume的简单配置即可实现</span><br><span class="line">Flume针对特殊场景也具备良好的自定义扩展能力，因此，flume可以适用于大部分的日常数据采集场景</span><br></pre></td></tr></table></figure>
+<h3 id="1-2-运行机制"><a href="#1-2-运行机制" class="headerlink" title="1.2.运行机制"></a>1.2.运行机制</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">1、Flume分布式系统中最核心的角色是agent，flume采集系统就是由一个个agent所连接起来形成</span><br><span class="line">2、每一个agent相当于一个数据传递员，内部有三个组件：</span><br><span class="line">a)Source：采集源，用于跟数据源对接，以获取数据</span><br><span class="line">b)Sink：下沉地，采集数据的传送目的，用于往下一级agent传递数据或者往最终存储系统传递数据</span><br><span class="line">c)Channel：angent内部的数据传输通道，用于从<span class="built_in">source</span>中将数据传递到sink</span><br></pre></td></tr></table></figure>
+<p><img src="http://i1.piimg.com/1949/033389fa9221da11.png" alt="Markdown"></p>
+<h3 id="1-3-Flume采集系统结构图"><a href="#1-3-Flume采集系统结构图" class="headerlink" title="1.3.Flume采集系统结构图"></a>1.3.Flume采集系统结构图</h3><h3 id="1-3-1-简单结构"><a href="#1-3-1-简单结构" class="headerlink" title="1.3.1.简单结构"></a>1.3.1.简单结构</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">单个agent采集数据</span><br></pre></td></tr></table></figure>
+<p><img src="http://i1.piimg.com/1949/033389fa9221da11.png" alt="Markdown"></p>
+<h3 id="1-3-2-复杂结构"><a href="#1-3-2-复杂结构" class="headerlink" title="1.3.2.复杂结构"></a>1.3.2.复杂结构</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">多级agent之间串联</span><br></pre></td></tr></table></figure>
+<p><img src="http://i1.piimg.com/1949/7745c6bbadf90b9f.png" alt="Markdown"></p>
+<h2 id="2-安装Flume"><a href="#2-安装Flume" class="headerlink" title="2.安装Flume"></a>2.安装Flume</h2><h3 id="2-1-解压Flume压缩文件到指定目录"><a href="#2-1-解压Flume压缩文件到指定目录" class="headerlink" title="2.1.解压Flume压缩文件到指定目录"></a>2.1.解压Flume压缩文件到指定目录</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node02 software]<span class="comment"># tar -zxvf apache-flume-1.6.0-bin.tar.gz -C /opt/modules/</span></span><br></pre></td></tr></table></figure>
+<h3 id="2-2-文件重命名"><a href="#2-2-文件重命名" class="headerlink" title="2.2.文件重命名"></a>2.2.文件重命名</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">[root@node02 modules]<span class="comment"># mv apache-flume-1.6.0-bin flume-1.6.0</span></span><br><span class="line">You have new mail <span class="keyword">in</span> /var/spool/mail/root</span><br><span class="line">[root@node02 modules]<span class="comment"># ll</span></span><br><span class="line">total 24</span><br><span class="line">drwxr-xr-x.  9 matrix matrix 4096 Jan  7 13:44 elasticsearch-2.4.2</span><br><span class="line">drwxr-xr-x.  7 root   root   4096 Jan 24 13:09 flume-1.6.0</span><br><span class="line">drwxr-xr-x. 12 matrix matrix 4096 Jan 23 21:00 hadoop-2.5.1</span><br><span class="line">drwxr-xr-x.  8 root   root   4096 Jan 23 18:43 hive-1.2.1</span><br><span class="line">drwxr-xr-x.  3 matrix matrix 4096 Dec 19 16:01 journalnode</span><br><span class="line">drwxr-xr-x. 12 matrix matrix 4096 Dec 17 21:20 zookeeper</span><br></pre></td></tr></table></figure>
+<h3 id="2-3-配置Flume环境变量"><a href="#2-3-配置Flume环境变量" class="headerlink" title="2.3.配置Flume环境变量"></a>2.3.配置Flume环境变量</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@node02 ~]<span class="comment"># ls -a</span></span><br><span class="line">.   anaconda-ks.cfg  .bash_logout   .bashrc  .hivehistory  install.log.syslog  .mysql_history  .ssh zookeeper.out</span><br><span class="line">..  .bash_history.bash_profile  .cshrc   install.log   jdk-7u79-linux-x64.rpm  .pki.tcshrc</span><br><span class="line">[root@node02 ~]<span class="comment"># vi .bash_profile</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/1949/d3332495ac648392.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> FLUME_HOME=/opt/modules/flume-1.6.0</span><br><span class="line"><span class="built_in">export</span> PATH=<span class="variable">$PATH</span>:<span class="variable">$FLUME_HOME</span>/bin</span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/1949/4f1eaf6ed58d37b9.png" alt="Markdown"></p>
+<h3 id="2-4-使配置生效"><a href="#2-4-使配置生效" class="headerlink" title="2.4.使配置生效"></a>2.4.使配置生效</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node02 ~]<span class="comment"># source .bash_profile</span></span><br></pre></td></tr></table></figure>
+<h3 id="2-5-采集文件到HDFS"><a href="#2-5-采集文件到HDFS" class="headerlink" title="2.5.采集文件到HDFS"></a>2.5.采集文件到HDFS</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">采集需求：比如业务系统使用log4j生成的日志，日志内容不断增加，</span><br><span class="line">需要把追加到日志文件中的数据实时采集到hdfs</span><br><span class="line"></span><br><span class="line">根据需求，首先定义以下3大要素</span><br><span class="line">采集源，即<span class="built_in">source</span>——监控文件内容更新：<span class="built_in">exec</span>  <span class="string">'tail -F file'</span></span><br><span class="line">下沉目标，即sink——HDFS文件系统：hdfs sink</span><br><span class="line">Source和sink之间的传递通道——channel，可用file channel也可以用内存channel</span><br></pre></td></tr></table></figure>
+<h4 id="2-5-1-配置Flume配置文件"><a href="#2-5-1-配置Flume配置文件" class="headerlink" title="2.5.1.配置Flume配置文件"></a>2.5.1.配置Flume配置文件</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node02 flume-1.6.0]<span class="comment"># vi conf/tail-hdfs.conf</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/1949/61970282aeda1a59.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Name the components on this agent</span></span><br><span class="line">a1.sources = r1</span><br><span class="line">a1.sinks = k1</span><br><span class="line">a1.channels = c1</span><br><span class="line"></span><br><span class="line"><span class="comment">#exec 指的是命令</span></span><br><span class="line"><span class="comment"># Describe/configure the source</span></span><br><span class="line">a1.sources.r1.type = <span class="built_in">exec</span></span><br><span class="line"><span class="comment">#F根据文件名追中, f根据文件的nodeid追中</span></span><br><span class="line">a1.sources.r1.command = tail -F /home/hadoop/<span class="built_in">log</span>/test.log</span><br><span class="line">a1.sources.r1.channels = c1</span><br><span class="line"></span><br><span class="line"><span class="comment"># Describe the sink</span></span><br><span class="line"><span class="comment">#下沉目标</span></span><br><span class="line">a1.sinks.k1.type = hdfs</span><br><span class="line">a1.sinks.k1.channel = c1</span><br><span class="line"><span class="comment">#指定目录, flum帮做目的替换</span></span><br><span class="line">a1.sinks.k1.hdfs.path = /flume/events/%y-%m-%d/%H%M/</span><br><span class="line"><span class="comment">#文件的命名, 前缀</span></span><br><span class="line">a1.sinks.k1.hdfs.filePrefix = events-</span><br><span class="line"></span><br><span class="line"><span class="comment">#10 分钟就改目录</span></span><br><span class="line">a1.sinks.k1.hdfs.round = <span class="literal">true</span></span><br><span class="line">a1.sinks.k1.hdfs.roundValue = 10</span><br><span class="line">a1.sinks.k1.hdfs.roundUnit = minute</span><br><span class="line"></span><br><span class="line"><span class="comment">#文件滚动之前的等待时间(秒)</span></span><br><span class="line">a1.sinks.k1.hdfs.rollInterval = 3</span><br><span class="line"></span><br><span class="line"><span class="comment">#文件滚动的大小限制(bytes)</span></span><br><span class="line">a1.sinks.k1.hdfs.rollSize = 500</span><br><span class="line"></span><br><span class="line"><span class="comment">#写入多少个event数据后滚动文件(事件个数)</span></span><br><span class="line">a1.sinks.k1.hdfs.rollCount = 20</span><br><span class="line"></span><br><span class="line"><span class="comment">#5个事件就往里面写入</span></span><br><span class="line">a1.sinks.k1.hdfs.batchSize = 5</span><br><span class="line"></span><br><span class="line"><span class="comment">#用本地时间格式化目录</span></span><br><span class="line">a1.sinks.k1.hdfs.useLocalTimeStamp = <span class="literal">true</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#下沉后, 生成的文件类型，默认是Sequencefile，可用DataStream，则为普通文本</span></span><br><span class="line">a1.sinks.k1.hdfs.fileType = DataStream</span><br><span class="line"></span><br><span class="line"><span class="comment"># Use a channel which buffers events in memory</span></span><br><span class="line">a1.channels.c1.type = memory</span><br><span class="line">a1.channels.c1.capacity = 1000</span><br><span class="line">a1.channels.c1.transactionCapacity = 100</span><br><span class="line"></span><br><span class="line"><span class="comment"># Bind the source and sink to the channel</span></span><br><span class="line">a1.sources.r1.channels = c1</span><br><span class="line">a1.sinks.k1.channel = c1</span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/1949/30f5242e00ea0183.png" alt="Markdown"></p>
+<h3 id="2-6-写数据到指定的文件中"><a href="#2-6-写数据到指定的文件中" class="headerlink" title="2.6.写数据到指定的文件中"></a>2.6.写数据到指定的文件中</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[root@node02 flume-1.6.0]<span class="comment"># mkdir -p /home/hadoop/log</span></span><br><span class="line">[root@node02 flume-1.6.0]<span class="comment"># touch /home/hadoop/log/test.log</span></span><br><span class="line">[root@node02 ~]<span class="comment"># while true</span></span><br><span class="line">&gt; <span class="keyword">do</span></span><br><span class="line">&gt; <span class="built_in">echo</span> 11111111111 &gt;&gt; /home/hadoop/<span class="built_in">log</span>/test.log</span><br><span class="line">&gt; sleep 0.6</span><br><span class="line">&gt; <span class="keyword">done</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span> <span class="literal">true</span></span><br><span class="line"><span class="keyword">do</span></span><br><span class="line"><span class="built_in">echo</span> 11111111111 &gt;&gt; /home/hadoop/<span class="built_in">log</span>/test.log</span><br><span class="line">sleep 0.6</span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://i1.piimg.com/1949/110de4fa152b7234.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node02 flume-1.6.0]<span class="comment"># tail -f /home/hadoop/log/test.log</span></span><br></pre></td></tr></table></figure>
+<h3 id="2-7-启动Flume日志收集"><a href="#2-7-启动Flume日志收集" class="headerlink" title="2.7.启动Flume日志收集"></a>2.7.启动Flume日志收集</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">注意：检查Hadoop HDFS是否启动，如没有启动，则启动</span><br><span class="line">[root@node02 flume-1.6.0]<span class="comment"># ./bin/flume-ng agent -c conf -f conf/tail-hdfs.conf -n a1</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://i1.piimg.com/1949/a25b38b7b357a3cf.png" alt="Markdown"></p>
+<p><img src="http://i1.piimg.com/1949/dfce12af9d518a5f.png" alt="Markdown"></p>
+<h3 id="2-8-通过Hadoop-Web-UI查看Flume在HDFS上创建的目录"><a href="#2-8-通过Hadoop-Web-UI查看Flume在HDFS上创建的目录" class="headerlink" title="2.8.通过Hadoop Web UI查看Flume在HDFS上创建的目录"></a>2.8.通过Hadoop Web UI查看Flume在HDFS上创建的目录</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">[root@node02 hadoop-2.5.1]<span class="comment"># ./bin/hdfs dfs -ls -R /flume</span></span><br><span class="line">drwxr-xr-x   - root supergroup  0 2017-01-24 13:36 /flume/events</span><br><span class="line">drwxr-xr-x   - root supergroup  0 2017-01-24 13:36 /flume/events/17-01-24</span><br><span class="line">drwxr-xr-x   - root supergroup  0 2017-01-24 13:38 /flume/events/17-01-24/1330</span><br><span class="line">-rw-r--r--   3 root supergroup140 2017-01-24 13:36 /flume/events/17-01-24/1330/events-.1485236169660</span><br><span class="line">-rw-r--r--   3 root supergroup140 2017-01-24 13:36 /flume/events/17-01-24/1330/events-.1485236169661</span><br><span class="line">-rw-r--r--   3 root supergroup 70 2017-01-24 13:36 /flume/events/17-01-24/1330/events-.1485236169662</span><br><span class="line">-rw-r--r--   3 root supergroup 77 2017-01-24 13:36 /flume/events/17-01-24/1330/events-.1485236189653</span><br><span class="line">-rw-r--r--   3 root supergroup 77 2017-01-24 13:36 /flume/events/17-01-24/1330/events-.1485236195683</span><br><span class="line">-rw-r--r--   3 root supergroup 77 2017-01-24 13:36 /flume/events/17-01-24/1330/events-.1485236201641</span><br><span class="line">-rw-r--r--   3 root supergroup 77 2017-01-24 13:36 /flume/events/17-01-24/1330/events-.1485236207790</span><br><span class="line">-rw-r--r--   3 root supergroup 84 2017-01-24 13:36 /flume/events/17-01-24/1330/events-.1485236213809</span><br><span class="line">-rw-r--r--   3 root supergroup 70 2017-01-24 13:37 /flume/events/17-01-24/1330/events-.1485236219808</span><br><span class="line">-rw-r--r--   3 root supergroup 84 2017-01-24 13:37 /flume/events/17-01-24/1330/events-.1485236225867</span><br><span class="line">-rw-r--r--   3 root supergroup 77 2017-01-24 13:37 /flume/events/17-01-24/1330/events-.1485236231852</span><br><span class="line">-rw-r--r--   3 root supergroup 70 2017-01-24 13:37 /flume/events/17-01-24/1330/events-.1485236238116</span><br><span class="line">-rw-r--r--   3 root supergroup 84 2017-01-24 13:37 /flume/events/17-01-24/1330/events-.1485236244133</span><br><span class="line">-rw-r--r--   3 root supergroup 63 2017-01-24 13:37 /flume/events/17-01-24/1330/events-.1485236250160</span><br><span class="line">-rw-r--r--   3 root supergroup 56 2017-01-24 13:37 /flume/events/17-01-24/1330/events-.1485236254744</span><br><span class="line">-rw-r--r--   3 root supergroup 42 2017-01-24 13:37 /flume/events/17-01-24/1330/events-.1485236260456</span><br><span class="line">-rw-r--r--   3 root supergroup 35 2017-01-24 13:37 /flume/events/17-01-24/1330/events-.1485236264210</span><br><span class="line">-rw-r--r--   3 root supergroup 35 2017-01-24 13:37 /flume/events/17-01-24/1330/events-.1485236267832</span><br><span class="line">-rw-r--r--   3 root supergroup 49 2017-01-24 13:37 /flume/events/17-01-24/1330/events-.1485236271410</span><br><span class="line">-rw-r--r--   3 root supergroup 84 2017-01-24 13:38 /flume/events/17-01-24/1330/events-.1485236275630</span><br><span class="line">-rw-r--r--   3 root supergroup 77 2017-01-24 13:38 /flume/events/17-01-24/1330/events-.1485236281581</span><br><span class="line">-rw-r--r--   3 root supergroup 77 2017-01-24 13:38 /flume/events/17-01-24/1330/events-.1485236287587</span><br><span class="line">-rw-r--r--   3 root supergroup 84 2017-01-24 13:38 /flume/events/17-01-24/1330/events-.1485236293646</span><br><span class="line">-rw-r--r--   3 root supergroup 70 2017-01-24 13:38 /flume/events/17-01-24/1330/events-.1485236299642</span><br><span class="line">-rw-r--r--   3 root supergroup 49 2017-01-24 13:38 /flume/events/17-01-24/1330/events-.1485236305888</span><br><span class="line">-rw-r--r--   3 root supergroup 70 2017-01-24 13:38 /flume/events/17-01-24/1330/events-.1485236311177</span><br><span class="line">-rw-r--r--   3 root supergroup 35 2017-01-24 13:38 /flume/events/17-01-24/1330/events-.1485236315362</span><br><span class="line">-rw-r--r--   3 root supergroup 77 2017-01-24 13:38 /flume/events/17-01-24/1330/events-.1485236320019</span><br><span class="line">-rw-r--r--   3 root supergroup 77 2017-01-24 13:38 /flume/events/17-01-24/1330/events-.1485236324629</span><br><span class="line">-rw-r--r--   3 root supergroup 42 2017-01-24 13:38 /flume/events/17-01-24/1330/events-.1485236330636</span><br></pre></td></tr></table></figure>
+<p><img src="http://i1.piimg.com/1949/dfce12af9d518a5f.png" alt="Markdown"></p>
+<h2 id="3-Flume多个agent连接"><a href="#3-Flume多个agent连接" class="headerlink" title="3.Flume多个agent连接"></a>3.Flume多个agent连接</h2><p><img src="http://p1.bqimg.com/1949/15fc839be5c9f7ec.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">从tail命令获取数据发送到avro端口(tail-&gt;avro)</span><br><span class="line">另一个节点可配置一个avro源来中继数据，发送外部存储(avro-&gt;<span class="built_in">log</span>)</span><br></pre></td></tr></table></figure>
+<h3 id="3-1-在node03上安装Flume"><a href="#3-1-在node03上安装Flume" class="headerlink" title="3.1.在node03上安装Flume"></a>3.1.在node03上安装Flume</h3><h3 id="3-2-配置node02上的Flume"><a href="#3-2-配置node02上的Flume" class="headerlink" title="3.2.配置node02上的Flume"></a>3.2.配置node02上的Flume</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">从tail命令获取数据发送到avro端口</span><br><span class="line">[root@node02 flume-1.6.0]<span class="comment"># vi conf/tail-avro.conf</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Name the components on this agent</span></span><br><span class="line">a1.sources = r1</span><br><span class="line">a1.sinks = k1</span><br><span class="line">a1.channels = c1</span><br><span class="line"></span><br><span class="line"><span class="comment"># Describe/configure the source</span></span><br><span class="line">a1.sources.r1.type = <span class="built_in">exec</span></span><br><span class="line">a1.sources.r1.command = tail -F /home/hadoop/<span class="built_in">log</span>/test.log</span><br><span class="line">a1.sources.r1.channels = c1</span><br><span class="line"></span><br><span class="line"><span class="comment"># Describe the sink</span></span><br><span class="line"><span class="comment">#绑定的不是本机, 是另外一台机器的服务地址, sink端的avro是一个发送端, avro的客户端, 往node03这个机器上发</span></span><br><span class="line">a1.sinks = k1</span><br><span class="line">a1.sinks.k1.type = avro</span><br><span class="line">a1.sinks.k1.channel = c1</span><br><span class="line">a1.sinks.k1.hostname = 192.168.230.12</span><br><span class="line">a1.sinks.k1.port = 4141</span><br><span class="line">a1.sinks.k1.batch-size = 2</span><br><span class="line"></span><br><span class="line"><span class="comment"># Use a channel which buffers events in memory</span></span><br><span class="line">a1.channels.c1.type = memory</span><br><span class="line">a1.channels.c1.capacity = 1000</span><br><span class="line">a1.channels.c1.transactionCapacity = 100</span><br><span class="line"></span><br><span class="line"><span class="comment"># Bind the source and sink to the channel</span></span><br><span class="line">a1.sources.r1.channels = c1</span><br><span class="line">a1.sinks.k1.channel = c1</span><br></pre></td></tr></table></figure>
+<h4 id="3-2-1-运行node02上的Flume-发送数据给node03"><a href="#3-2-1-运行node02上的Flume-发送数据给node03" class="headerlink" title="3.2.1.运行node02上的Flume,发送数据给node03"></a>3.2.1.运行node02上的Flume,发送数据给node03</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node02 flume-1.6.0]<span class="comment"># ./bin/flume-ng agent -c conf -f conf/tail-avro.conf -n a1</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bpimg.com/1949/803cacf1136b015f.png" alt="Markdown"></p>
+<h3 id="3-3-配置node03上的Flume"><a href="#3-3-配置node03上的Flume" class="headerlink" title="3.3.配置node03上的Flume"></a>3.3.配置node03上的Flume</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">配置一个avro源来中继数据，发送外部存储/hdfs(avro-&gt;<span class="built_in">log</span>)</span><br><span class="line"></span><br><span class="line">[root@node03 flume-1.6.0]<span class="comment"># vi conf/avro-hdfs.conf</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Name the components on this agent</span></span><br><span class="line">a1.sources = r1</span><br><span class="line">a1.sinks = k1</span><br><span class="line">a1.channels = c1</span><br><span class="line"></span><br><span class="line"><span class="comment"># Describe/configure the source</span></span><br><span class="line"><span class="comment">#source中的avro组件是接收者服务, 绑定本机</span></span><br><span class="line">a1.sources.r1.type = avro</span><br><span class="line">a1.sources.r1.channels = c1</span><br><span class="line">a1.sources.r1.bind = 0.0.0.0</span><br><span class="line">a1.sources.r1.port = 4141</span><br><span class="line"></span><br><span class="line"><span class="comment"># Describe the sink</span></span><br><span class="line">a1.sinks.k1.type = logger</span><br><span class="line"></span><br><span class="line"><span class="comment"># Use a channel which buffers events in memory</span></span><br><span class="line">a1.channels.c1.type = memory</span><br><span class="line">a1.channels.c1.capacity = 1000</span><br><span class="line">a1.channels.c1.transactionCapacity = 100</span><br><span class="line"></span><br><span class="line"><span class="comment"># Bind the source and sink to the channel</span></span><br><span class="line">a1.sources.r1.channels = c1</span><br><span class="line">a1.sinks.k1.channel = c1</span><br></pre></td></tr></table></figure>
+<h4 id="3-3-1-运行node03上的Flume-接收来自node02的数据"><a href="#3-3-1-运行node03上的Flume-接收来自node02的数据" class="headerlink" title="3.3.1.运行node03上的Flume,接收来自node02的数据"></a>3.3.1.运行node03上的Flume,接收来自node02的数据</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node03 flume-1.6.0]<span class="comment"># ./bin/flume-ng agent -c conf -f conf/avro-hdfs.conf -n a1 -Dflume.root.logger=INFO,console</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bpimg.com/1949/6917bfd7e789a121.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">可以看到4141端口有监听</span><br><span class="line">[root@node03 ~]<span class="comment"># netstat -nltp</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bpimg.com/1949/34eac9f2dc9fe371.png" alt="Markdown"></p>
+<p><img src="http://p1.bpimg.com/1949/63c1ead75a2bb7a2.png" alt="Markdown"></p>
+<h3 id="3-3-发送数据"><a href="#3-3-发送数据" class="headerlink" title="3.3.发送数据"></a>3.3.发送数据</h3>
+    </div>
+  </div>
+  
+    <div class="copy-right">
+      <div class="markdown-body">
+        <blockquote>
+        
+        
+          本文作者 : Matrix <br>
+        
+        原文链接 : <a href="">http://yoursite.com/2016/02/12/日志采集框架Flume的安装及使用/</a><br>
+        版权声明 : 本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+        </blockquote>
+      </div>
+    </div>
+  
+  
+  
+    <div class="social-share" style="margin-top: -2rem" data-wechat-qrcode-title="<p>微信扫一扫</p>" data-wechat-qrcode-helper="<p>微信右上角, 扫一扫分享</p>" data-sites="qzone, qq, weibo, wechat, douban, google, facebook, twitter">
+  <span style="color: #6b7487; font-size: 1.4rem;">分享到: </span>
+</div>
+<script src="https://cdn.bootcss.com/social-share.js/1.0.16/js/social-share.min.js" async></script>
+  
+
+  
+    <div id="reward">
+  
+    <p id="reward-meta">知识 & 情怀 | 二者兼得</p>
+  
+  <button id="reward-btn">
+    
+    <span>投食</span>
+  </button>
+  <div id="reward-qrcode">
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/wechatpay.jpg" alt="微信扫一扫, 向我投食">
+        <p class="qrcode-meta">微信扫一扫, 向我投食</p>
+      </div>
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/alipaypay.jpg" alt="支付宝扫一扫, 向我投食">
+        <p class="qrcode-meta">支付宝扫一扫, 向我投食</p>
+      </div>
+    
+  </div>
+
+</div>
+
+<script>
+  (() => {
+    let button = document.querySelector('#reward-btn'),
+      qrcode = document.querySelector('#reward-qrcode'),
+      display = false;
+    
+    button.addEventListener('click', () => {
+      qrcode.style.display = display ? 'none' : 'block'
+      display = !display
+    }, false)
+  })()
+</script>
+  
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+      <span>
+        
+          <i class="iconfont icon-06tags"></i>标签: 
+          
+          <span class="span--tag">
+            <a href="/tags/大数据/">
+              #大数据
+            </a>
+          </span>
+          
+        
+      </span>
+    </div>
+    <div class="article-meta pull-right">
+    </div>
+  </div>
+</div>
+
+
+  <aside id="sidebar">
+    <p id="sidebar-header"></p>
+    <ol id="sidebar-toc"></ol>
+  </aside>
+  <script async>setTimeout(generateToc, 10);</script>
+
+
+  <nav class="post-navigation">
+    
+      <div class="nav-pre">
+        <i class="iconfont icon-prev"></i>
+        上一篇:
+        <a href="/2016/02/12/cdh安装与测试/" target="_self">CDH安装与测试</a>
+      </div>
+    
+    
+      <div class="nav-next">
+        下一篇:
+        <a href="/2016/02/12/Hive中metastore（元数据存储）三种方式区别和搭建/" target="_self">Hive中metastore（元数据存储）三种方式区别和搭建</a>
+        <i class="iconfont icon-next"></i>
+      </div>
+    
+  </nav>
+
+  
+    <a href="#comment" class="comment-anchor"></a>
+<div class="comment-title"><i class="iconfont icon-footprint"></i> 留下足迹 <i class="iconfont icon-footprint"></i></div>
+<div id="vcomments"></div>
+
+<script defer>
+  if( true ) {
+    let path = getRealPath()
+    new Valine({
+      el: "#vcomments",
+      appId: "Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz",
+      appKey: "WaR7nrzhliHj9aVwdQzkdlGd",
+      notify: false,
+      verify: false,
+      avatar: "robohash",
+      placeholder: "正确填写邮箱, 才能及时收到回复哦♪(^∇^*)",
+      path
+    });
+  }
+</script>
+   
+
+  
+    <script defer>
+const valineAPI = (() => {
+  try {
+    AV.init("Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz", "WaR7nrzhliHj9aVwdQzkdlGd");
+  } catch(error) {}
+  const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+      query.equalTo("identity", identity);
+      query.find().then(results => {
+        resolve(results.length > 0);
+      }, error => reject(error));
+    })
+  }
+
+  const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+      let querys = [];
+      for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+      }
+      query = AV.Query.or.apply(null ,querys);
+    } else {
+      identity = identity || getRealPath();
+      query = new AV.Query("Timer");
+      query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+      query.find()
+      .then(results => resolve(results))
+      .catch(error => reject(error))
+    })
+  }
+
+  const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let Todo = AV.Object.extend('Timer');
+      let todo = new Todo();
+      todo.set("times", 1);
+      todo.set("identity", identity);
+      todo.save().then(res => resolve(true), error => reject(error));
+    })
+  }
+
+  const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let query = new AV.Query('Timer');
+      query.equalTo("identity", identity);
+      query.find().then(todos => {
+        todos.forEach(todo => {
+          todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+      }).then(todos => resolve(true), error => reject(error));
+    })
+  }
+
+  return {
+    isExist,
+    _get,
+    update,
+    create
+  }
+})()
+
+const calcAndWriteTimes = () => {
+  let isPost = true;
+
+  let timerAllDOM = document.querySelectorAll(".article-timer");
+
+  if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+      if(exist) {
+        return valineAPI.update(identity);
+      }
+      return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+  }
+
+  let timerDOMCache = {};
+
+  for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+      timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+      timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+      };
+    }
+  }
+
+  let identities = Object.keys(timerDOMCache);
+  valineAPI._get(identities).then(results => {
+    for(let result of results) {
+      let {identity, times} = result.attributes;
+      timerDOMCache[identity].times = times;
+      timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+      if(timerDOMCache[identity].times){
+        continue;
+      }
+      timerDOMCache[identity].dom.map(item => item.innerText = 1);
+      valineAPI.create(identity);
+    }
+  }).catch(error => console.log(error.message))
+}
+
+if(true){
+  calcAndWriteTimes();
+}
+</script>
+   
+
+</div>
+
+
+      <footer>
+  <p class="site-info">
+    博客已萌萌哒运行<span id="time-to-now"></span><span class="my-face">(●'◡'●)ﾉ♥</span>
+    <br>
+    Theme - <a href="https://github.com/dongyuanxin/theme-bmw">BMW</a> | Powered by <a href="https://godbmw.com/">GodBMW</a>
+    <br>
+    
+      Copyright © 2019 Matrix
+    
+  </p>
+</footer>
+
+
+
+<script>
+const timeToNowDOM = document.querySelector("#time-to-now");
+const startTimestamp = new Date(2016, 4, 10).getTime();
+
+const updateTimeStr = () => {
+  let offset = parseInt(
+      (new Date().getTime() - startTimestamp) / 1000,
+      10
+    ),
+    day = Math.floor(offset / 86400),
+    hour = Math.floor((offset % 86400) / 3600),
+    minute = Math.floor(((offset % 86400) % 3600) / 60),
+    second = Math.floor(((offset % 86400) % 3600) % 60);
+  timeToNowDOM.innerHTML =
+    day + "天" + hour + "小时" + minute + "分钟" + second + "秒";
+  setTimeout(updateTimeStr, 500);
+}
+
+setTimeout(updateTimeStr, 500);
+</script>
+
+
+      <div class="back-to-top hidden">
+  <span>
+    <i class="iconfont icon-60"></i><span></span>%
+  </span>
+</div>
+
+<script>
+const updateIconToTop = percent => {
+  let dom = document.querySelector(".back-to-top span span");
+  dom.innerText = percent;
+  if(percent < 1) {
+    document.querySelector(".back-to-top").className = "back-to-top hidden";
+  } else {
+    document.querySelector(".back-to-top").className = "back-to-top";
+  }
+}
+
+const handleScoll = () => {
+  let isRunning = false;
+  return () => {
+    if (isRunning) return;
+    isRunning = true;
+    window.requestAnimationFrame(timestamp => {
+      let scrollTop =
+          document.documentElement.scrollTop || document.body.scrollTop,
+        scrollHeight =
+          document.documentElement.scrollHeight ||
+          document.body.scrollHeight,
+        clientHeight =
+          document.documentElement.clientHeight ||
+          document.body.clientHeight;
+      isRunning = false;
+      if (scrollTop <= 1) {
+        updateIconToTop(0);
+        return;
+      }
+      if (scrollTop + clientHeight >= scrollHeight) {
+        updateIconToTop(100);
+      } else {
+        updateIconToTop(parseInt(
+          100 * scrollTop / (scrollHeight - clientHeight),
+          10
+        ));
+      }
+    });
+  };
+}
+
+const backToTop = () => {
+  let scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop,
+    delay = 10,
+    time = 200;
+  if (scrollTop <= 20) {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    return;
+  }
+  let step = Math.ceil(scrollTop * delay / time);
+  let timer = setInterval(() => {
+    scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop;
+    if (scrollTop - step <= 0) {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      clearInterval(timer);
+    } else {
+      document.documentElement.scrollTop = scrollTop - step;
+      document.body.scrollTop = scrollTop - step;
+    }
+  }, delay);
+}
+
+document.addEventListener("scroll", handleScoll(), false);
+
+document.querySelector(".back-to-top").addEventListener("click", backToTop, false);
+
+</script>
+
+    </div>
+
+    
+      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  (() => {
+    const mathjaxConfig = {
+      showProcessingMessages: false, //关闭js加载过程信息
+      messageStyle: "none", //不显示信息
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]], //行内公式选择符
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]], //段内公式选择符
+        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"] //避开某些标签
+      },
+      "HTML-CSS": {
+        availableFonts: ["STIX", "TeX"], //可选字体
+        showMathMenu: false //关闭右击菜单显示
+      }
+    }
+
+    let mathjaxInterval = setInterval(() => {
+      if(!window.MathJax){
+        return;
+      }
+      window.MathJax.Hub.Config(mathjaxConfig)
+      window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')])
+
+      clearInterval(mathjaxInterval)
+    }, 10)    
+  })()
+</script>
+    
+
+    <script src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script>
+<script async>
+  let fancyTimer = setInterval(function(){
+    if(!window.$){
+      return;
+    }
+    $(document).ready(function() {
+      $(".post img").each(function () {
+        if($(this).parent().get(0).tagName.toLowerCase() === "a") {
+          return;
+        }
+        // $(this).attr("data-fancybox", "gallery"); // if you add 'data-fancybox', img will display after showed
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "gallery");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      });
+      
+      clearInterval(fancyTimer);
+    });
+  }, 10);
+</script>
+
+    
+  </body>
+
+</html>

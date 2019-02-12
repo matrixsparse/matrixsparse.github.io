@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta name="author" content="董沅鑫, yuanxin.me@gmail.com">
+  
+  
+  
+  <title>Python进程管理工具Supervisor | 每天遇到更好的你</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="大数据,大数据,Python,">
+  
+
+  <script>
+    console.log('\n%c Hexo-theme-bmw v4.0 ' + '%c 🎉 https://github.com/dongyuanxin/theme-bmw 🎉\n' + '\n%c View demo online ' + '%c 🔍 https://godbmw.com/ 🔍  \n' , 'color: #fadfa3; background: #030307; padding:3px 0;', '', 'color: #fadfa3; background: #030307; padding:3px 0;', '');
+  </script>
+
+  
+
+  
+
+  
+    <link rel="icon" href="/images/favicon.png">
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+  
+
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/icon/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+  <script src="/js/util.js"></script>
+<script src="/js/valine.min.js"></script>
+
+  
+
+  
+    <link href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js" async></script>
+  
+
+  
+    <link href="https://cdn.bootcss.com/social-share.js/1.0.16/css/share.min.css" rel="stylesheet">
+  
+  
+  <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js" async></script>
+  
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.0/dist/av-min.js"></script>
+  
+
+</head>
+
+  <body>
+
+    
+
+    <div id="app">
+
+      <div class="header-wrap">
+  <header>
+    <div class="site-brand">
+      <div class="site-title">
+        <!-- <a href="/">MatrixSparse</a> -->
+        <img alt="logo" class="antd-pro-layouts-user-layout-logo" src="/images/favicon.png" style="width: 40px;height: 40px;margin-top: 10px;margin-left: 5px;">
+      </div>
+    </div>
+    <nav class="site-navigation">
+      <ul class="nav-menu">
+      
+        <li class="nav-item" data-path="/">
+          
+            <a href="/" target="_self">
+              主页
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          
+            <a href="/archives/" target="_self">
+              归档
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          
+            <a href="/categories/" target="_self">
+              分类
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          
+            <a href="/tags/" target="_self">
+              标签
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="">
+          
+            <a href="javascript:void(0);" v-else="">博客地址</a>
+            <ul class="nav-menu--dropdown">
+              
+                <li>
+                  <a href="https://blog.csdn.net/qq_25371579" target="_blank">
+                    CSDN
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://github.com/matrixsparse" target="_blank">
+                    Github
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://matrixsparse.github.io/" target="_blank">
+                    Github Page
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+      </ul>
+    </nav>
+    <i class="iconfont icon-menu"></i>
+  </header>
+</div>
+
+<script>
+  let links = document.querySelectorAll('.nav-item');
+  for(let link of links){
+    let childrenLink = link.querySelector('ul');
+    link.addEventListener('mouseenter', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown active";
+      }
+    })
+    link.addEventListener('mouseleave', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown";
+      }
+    })
+  }
+  let rootRealPath = getRealPath(window.location.pathname, true);
+  for(let link of links) {
+    let linkPath = link.getAttribute("data-path");
+    if(linkPath && getRealPath(linkPath, true) === rootRealPath) {
+      link.className = "nav-item hover";
+    }
+  }
+
+  let iconMenu = document.querySelector("i.iconfont.icon-menu"),
+    iconMenuClicked = false;
+  let navDOM = document.querySelector("nav.site-navigation");
+  iconMenu.addEventListener("click", () => {
+    iconMenuClicked
+      ? navDOM.className = "site-navigation active"
+      : navDOM.className = "site-navigation";
+    iconMenuClicked = !iconMenuClicked;
+  })
+</script>
+
+
+      
+
+
+
+
+
+
+
+
+<div class="container post-index">
+
+  
+
+<div class="post">
+  <h1 class="article-title">
+    <span>Python进程管理工具Supervisor</span>
+  </h1>
+  <div class="article-top-meta">
+    <span>
+      发布 : 
+      2017-11-02
+    </span>
+    
+      <span>
+        分类 : 
+          <a href="/categories/大数据/">
+            大数据
+          </a>
+      </span>
+    
+    
+      <span>
+        浏览 : <span class="article-timer" data-identity="python进程管理工具supervisor"></span>
+      </span>
+    
+  </div>
+
+  
+
+  <div class="article-content">
+    <div class="markdown-body">
+      <h2 id="Linux下安装pip"><a href="#Linux下安装pip" class="headerlink" title="Linux下安装pip"></a>Linux下安装pip</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">wget https://bootstrap.pypa.io/get-pip.py</span><br><span class="line">python get-pip.py</span><br><span class="line">pip -V　　<span class="comment">#查看pip版本</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Supervisor是基于Python的进程管理工具，可以更简单的监听、启停、重启服务器上的一个或多个后台进程，是Linux服务器管理的高效工具</span><br><span class="line"></span><br><span class="line">Supervisor管理的进程，当一个进程意外被杀死，supervisort监听到进程挂掉后，会自动将它重新拉起</span><br><span class="line">其进程自动恢复的功能，不再需要自己写shell脚本来控制</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>Supervisor 有两个主要的组成部分：</p>
+</blockquote>
+<ul>
+<li><p>supervisord，运行Supervisor时会启动一个进程supervisord，它负责启动所管理的进程，并将所管理的进程作为自己的子进程来启动，而且可以在所管理的进程出现崩溃时自动重启</p>
+</li>
+<li><p>supervisorctl，是命令行管理工具，可以用来执行stop、start、restart等命令，来对这些子进程进行管理</p>
+</li>
+</ul>
+<h2 id="安装setuptools"><a href="#安装setuptools" class="headerlink" title="安装setuptools"></a>安装setuptools</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">wget --no-check-certificate https://pypi.python.org/packages/<span class="built_in">source</span>/s/setuptools/setuptools-12.0.3.tar.gz<span class="comment">#md5=f07e4b0f4c1c9368fcd980d888b29a65</span></span><br><span class="line">tar -zxvf setuptools-12.0.3.tar.gz</span><br><span class="line"><span class="built_in">cd</span> setuptools-12.0.3</span><br><span class="line">python setup.py install</span><br></pre></td></tr></table></figure>
+<h2 id="安装pip"><a href="#安装pip" class="headerlink" title="安装pip"></a>安装pip</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">easy_install pip</span><br></pre></td></tr></table></figure>
+<h2 id="安装supervisor"><a href="#安装supervisor" class="headerlink" title="安装supervisor"></a>安装supervisor</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">easy_install supervisor</span><br></pre></td></tr></table></figure>
+<h2 id="测试是否安装成功"><a href="#测试是否安装成功" class="headerlink" title="测试是否安装成功"></a>测试是否安装成功</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">echo_supervisord_conf</span><br></pre></td></tr></table></figure>
+<h2 id="创建配置文件"><a href="#创建配置文件" class="headerlink" title="创建配置文件"></a>创建配置文件</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">echo_supervisord_conf &gt; /etc/supervisord.conf</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>如果出现没有权限的问题，可以使用这条命令</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo su - root -c <span class="string">"echo_supervisord_conf &gt; /etc/supervisord.conf"</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>supervisor安装完成后会生成三个执行程序：</p>
+<ul>
+<li>supervisortd【supervisor的守护进程服务（用于接收进程管理命令）】</li>
+<li>supervisorctl【客户端（用于和守护进程通信，发送管理进程的指令）】</li>
+<li>echo_supervisord_conf【生成初始配置文件程序】</li>
+</ul>
+</blockquote>
+<h2 id="配置文件说明"><a href="#配置文件说明" class="headerlink" title="配置文件说明"></a>配置文件说明</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">想要了解怎么配置需要管理的进程，只要打开 supervisord.conf 就可以了，里面有很详细的注释信息</span><br></pre></td></tr></table></figure>
+<p>打开配置文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/supervisord.conf</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">默认的配置文件是下面这样的，但是这里有个坑需要注意，supervisord.pid 以及 supervisor.sock 是放在 /tmp 目录下</span><br><span class="line"></span><br><span class="line">但是 /tmp 目录是存放临时文件，里面的文件是会被 Linux 系统删除的</span><br><span class="line"></span><br><span class="line">一旦这些文件丢失，就无法再通过 supervisorctl 来执行 restart 和 stop 命令了，</span><br><span class="line"></span><br><span class="line">将只会得到 unix:///tmp/supervisor.sock 不存在的错误</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">因此可以单独建一个文件夹，来存放这些文件，比如放在 /etc/supervisord.d/</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">默认情况下，进程的日志文件达到50MB时，将进行分割，最多保留10个文件，当然这些配置也可以对每个进程单独配置</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>创建文件夹</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p /etc/supervisord.d</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>创建日志目录</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p /var/<span class="built_in">log</span>/supervisor/</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>supervisord.conf</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br></pre></td><td class="code"><pre><span class="line">; Sample supervisor config file.</span><br><span class="line">;</span><br><span class="line">; For more information on the config file, please see:</span><br><span class="line">; http://supervisord.org/configuration.html</span><br><span class="line">;</span><br><span class="line">; Notes:</span><br><span class="line">;  - Shell expansion (<span class="string">"~"</span> or <span class="string">"<span class="variable">$HOME</span>"</span>) is not supported.  Environment</span><br><span class="line">;    variables can be expanded using this syntax: <span class="string">"%(ENV_HOME)s"</span>.</span><br><span class="line">;  - Quotes around values are not supported, except <span class="keyword">in</span> the <span class="keyword">case</span> of</span><br><span class="line">;    the environment= options as shown below.</span><br><span class="line">;  - Comments must have a leading space: <span class="string">"a=b ;comment"</span> not <span class="string">"a=b;comment"</span>.</span><br><span class="line">;  - Command will be truncated <span class="keyword">if</span> it looks like a config file comment, e.g.</span><br><span class="line">;    <span class="string">"command=bash -c 'foo ; bar'"</span> will truncate to <span class="string">"command=bash -c 'foo "</span>.</span><br><span class="line"></span><br><span class="line">[unix_http_server]</span><br><span class="line">; 修改为/etc/supervisord.d目录，避免被系统删除</span><br><span class="line">file=/etc/supervisord.d/supervisor.sock   ; the path to the socket file</span><br><span class="line">;chmod=0700                 ; socket file mode (default 0700)</span><br><span class="line">;chown=nobody:nogroup       ; socket file uid:gid owner</span><br><span class="line">;username=user              ; default is no username (open server)</span><br><span class="line">;password=123               ; default is no password (open server)</span><br><span class="line"></span><br><span class="line">;[inet_http_server]         ; inet (TCP) server disabled by default</span><br><span class="line">;port=127.0.0.1:9001        ; ip_address:port specifier, *:port <span class="keyword">for</span> all iface</span><br><span class="line">;username=user              ; default is no username (open server)</span><br><span class="line">;password=123               ; default is no password (open server)</span><br><span class="line"></span><br><span class="line">[supervisord]</span><br><span class="line">; logfile=/tmp/supervisord.log ; main <span class="built_in">log</span> file; default <span class="variable">$CWD</span>/supervisord.log</span><br><span class="line">; 修改为 /var/<span class="built_in">log</span> 目录，避免被系统删除</span><br><span class="line">logfile=/var/<span class="built_in">log</span>/supervisor/supervisord.log ;</span><br><span class="line">; 日志文件多大时进行分割</span><br><span class="line">logfile_maxbytes=50MB        ; max main logfile bytes b4 rotation; default 50MB</span><br><span class="line">; 最多保留多少份日志文件</span><br><span class="line">logfile_backups=10           ; <span class="comment"># of main logfile backups; 0 means none, default 10</span></span><br><span class="line">loglevel=info                ; <span class="built_in">log</span> level; default info; others: debug,warn,trace</span><br><span class="line">; 修改为/etc/supervisord.d目录，避免被系统删除</span><br><span class="line">pidfile=/etc/supervisord.d/supervisord.pid ; supervisord pidfile; default supervisord.pid</span><br><span class="line">nodaemon=<span class="literal">false</span>               ; start <span class="keyword">in</span> foreground <span class="keyword">if</span> <span class="literal">true</span>; default <span class="literal">false</span></span><br><span class="line">minfds=1024                  ; min. avail startup file descriptors; default 1024</span><br><span class="line">minprocs=200                 ; min. avail process descriptors;default 200</span><br><span class="line">;<span class="built_in">umask</span>=022                   ; process file creation <span class="built_in">umask</span>; default 022</span><br><span class="line">; 设置启动supervisord的用户，一般情况下不要轻易用root用户来启动，除非你真的确定要这么做</span><br><span class="line">user=root                 ; default is current user, required <span class="keyword">if</span> root</span><br><span class="line">;identifier=supervisor       ; supervisord identifier, default is <span class="string">'supervisor'</span></span><br><span class="line">;directory=/tmp              ; default is not to <span class="built_in">cd</span> during start</span><br><span class="line">;nocleanup=<span class="literal">true</span>              ; don<span class="string">'t clean up tempfiles at start; default false</span></span><br><span class="line"><span class="string">;childlogdir=/tmp            ; '</span>AUTO<span class="string">' child log dir, default $TEMP</span></span><br><span class="line"><span class="string">;environment=KEY="value"     ; key value pairs to add to environment</span></span><br><span class="line"><span class="string">;strip_ansi=false            ; strip ansi escape codes in logs; def. false</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">; The rpcinterface:supervisor section must remain in the config file for</span></span><br><span class="line"><span class="string">; RPC (supervisorctl/web interface) to work.  Additional interfaces may be</span></span><br><span class="line"><span class="string">; added by defining them in separate [rpcinterface:x] sections.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">[rpcinterface:supervisor]</span></span><br><span class="line"><span class="string">supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">; The supervisorctl section configures how supervisorctl will connect to</span></span><br><span class="line"><span class="string">; supervisord.  configure it match the settings in either the unix_http_server</span></span><br><span class="line"><span class="string">; or inet_http_server section.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">[supervisorctl]</span></span><br><span class="line"><span class="string">; 必须和'</span>unix_http_server<span class="string">'里面的设定匹配</span></span><br><span class="line"><span class="string">; 修改为/etc/supervisor目录，避免被系统删除</span></span><br><span class="line"><span class="string">;serverurl=unix:///tmp/supervisor.sock ; use a unix:// URL  for a unix socket</span></span><br><span class="line"><span class="string">serverurl=unix:///etc/supervisord.d/supervisor.sock ;</span></span><br><span class="line"><span class="string">;serverurl=http://127.0.0.1:9001 ; use an http:// url to specify an inet socket</span></span><br><span class="line"><span class="string">;username=chris              ; should be same as in [*_http_server] if set</span></span><br><span class="line"><span class="string">;password=123                ; should be same as in [*_http_server] if set</span></span><br><span class="line"><span class="string">;prompt=mysupervisor         ; cmd line prompt (default "supervisor")</span></span><br><span class="line"><span class="string">;history_file=~/.sc_history  ; use readline history if available</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">; The sample program section below shows all possible program subsection values.</span></span><br><span class="line"><span class="string">; Create one or more '</span>real<span class="string">' program: sections to be able to control them under</span></span><br><span class="line"><span class="string">; supervisor.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">;[program:theprogramname]</span></span><br><span class="line"><span class="string">;command=/bin/cat              ; the program (relative uses PATH, can take args)</span></span><br><span class="line"><span class="string">;process_name=%(program_name)s ; process_name expr (default %(program_name)s)</span></span><br><span class="line"><span class="string">;numprocs=1                    ; number of processes copies to start (def 1)</span></span><br><span class="line"><span class="string">;directory=/tmp                ; directory to cwd to before exec (def no cwd)</span></span><br><span class="line"><span class="string">;umask=022                     ; umask for process (default None)</span></span><br><span class="line"><span class="string">;priority=999                  ; the relative start priority (default 999)</span></span><br><span class="line"><span class="string">;autostart=true                ; start at supervisord start (default: true)</span></span><br><span class="line"><span class="string">;startsecs=1                   ; # of secs prog must stay up to be running (def. 1)</span></span><br><span class="line"><span class="string">;startretries=3                ; max # of serial start failures when starting (default 3)</span></span><br><span class="line"><span class="string">;autorestart=unexpected        ; when to restart if exited after running (def: unexpected)</span></span><br><span class="line"><span class="string">;exitcodes=0,2                 ; '</span>expected<span class="string">' exit codes used with autorestart (default 0,2)</span></span><br><span class="line"><span class="string">;stopsignal=QUIT               ; signal used to kill process (default TERM)</span></span><br><span class="line"><span class="string">;stopwaitsecs=10               ; max num secs to wait b4 SIGKILL (default 10)</span></span><br><span class="line"><span class="string">;stopasgroup=false             ; send stop signal to the UNIX process group (default false)</span></span><br><span class="line"><span class="string">;killasgroup=false             ; SIGKILL the UNIX process group (def false)</span></span><br><span class="line"><span class="string">;user=chrism                   ; setuid to this UNIX account to run the program</span></span><br><span class="line"><span class="string">;redirect_stderr=true          ; redirect proc stderr to stdout (default false)</span></span><br><span class="line"><span class="string">;stdout_logfile=/a/path        ; stdout log path, NONE for none; default AUTO</span></span><br><span class="line"><span class="string">;stdout_logfile_maxbytes=1MB   ; max # logfile bytes b4 rotation (default 50MB)</span></span><br><span class="line"><span class="string">;stdout_logfile_backups=10     ; # of stdout logfile backups (0 means none, default 10)</span></span><br><span class="line"><span class="string">;stdout_capture_maxbytes=1MB   ; number of bytes in '</span>capturemode<span class="string">' (default 0)</span></span><br><span class="line"><span class="string">;stdout_events_enabled=false   ; emit events on stdout writes (default false)</span></span><br><span class="line"><span class="string">;stderr_logfile=/a/path        ; stderr log path, NONE for none; default AUTO</span></span><br><span class="line"><span class="string">;stderr_logfile_maxbytes=1MB   ; max # logfile bytes b4 rotation (default 50MB)</span></span><br><span class="line"><span class="string">;stderr_logfile_backups=10     ; # of stderr logfile backups (0 means none, default 10)</span></span><br><span class="line"><span class="string">;stderr_capture_maxbytes=1MB   ; number of bytes in '</span>capturemode<span class="string">' (default 0)</span></span><br><span class="line"><span class="string">;stderr_events_enabled=false   ; emit events on stderr writes (default false)</span></span><br><span class="line"><span class="string">;environment=A="1",B="2"       ; process environment additions (def no adds)</span></span><br><span class="line"><span class="string">;serverurl=AUTO                ; override serverurl computation (childutils)</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">; The sample eventlistener section below shows all possible eventlistener</span></span><br><span class="line"><span class="string">; subsection values.  Create one or more '</span>real<span class="string">' eventlistener: sections to be</span></span><br><span class="line"><span class="string">; able to handle event notifications sent by supervisord.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">;[eventlistener:theeventlistenername]</span></span><br><span class="line"><span class="string">;command=/bin/eventlistener    ; the program (relative uses PATH, can take args)</span></span><br><span class="line"><span class="string">;process_name=%(program_name)s ; process_name expr (default %(program_name)s)</span></span><br><span class="line"><span class="string">;numprocs=1                    ; number of processes copies to start (def 1)</span></span><br><span class="line"><span class="string">;events=EVENT                  ; event notif. types to subscribe to (req'</span>d)</span><br><span class="line">;buffer_size=10                ; event buffer queue size (default 10)</span><br><span class="line">;directory=/tmp                ; directory to cwd to before <span class="built_in">exec</span> (def no cwd)</span><br><span class="line">;<span class="built_in">umask</span>=022                     ; <span class="built_in">umask</span> <span class="keyword">for</span> process (default None)</span><br><span class="line">;priority=-1                   ; the relative start priority (default -1)</span><br><span class="line">;autostart=<span class="literal">true</span>                ; start at supervisord start (default: <span class="literal">true</span>)</span><br><span class="line">;startsecs=1                   ; <span class="comment"># of secs prog must stay up to be running (def. 1)</span></span><br><span class="line">;startretries=3                ; max <span class="comment"># of serial start failures when starting (default 3)</span></span><br><span class="line">;autorestart=unexpected        ; autorestart <span class="keyword">if</span> exited after running (def: unexpected)</span><br><span class="line">;exitcodes=0,2                 ; <span class="string">'expected'</span> <span class="built_in">exit</span> codes used with autorestart (default 0,2)</span><br><span class="line">;stopsignal=QUIT               ; signal used to <span class="built_in">kill</span> process (default TERM)</span><br><span class="line">;stopwaitsecs=10               ; max num secs to <span class="built_in">wait</span> b4 SIGKILL (default 10)</span><br><span class="line">;stopasgroup=<span class="literal">false</span>             ; send stop signal to the UNIX process group (default <span class="literal">false</span>)</span><br><span class="line">;killasgroup=<span class="literal">false</span>             ; SIGKILL the UNIX process group (def <span class="literal">false</span>)</span><br><span class="line">;user=chrism                   ; setuid to this UNIX account to run the program</span><br><span class="line">;redirect_stderr=<span class="literal">false</span>         ; redirect_stderr=<span class="literal">true</span> is not allowed <span class="keyword">for</span> eventlisteners</span><br><span class="line">;stdout_logfile=/a/path        ; stdout <span class="built_in">log</span> path, NONE <span class="keyword">for</span> none; default AUTO</span><br><span class="line">;stdout_logfile_maxbytes=1MB   ; max <span class="comment"># logfile bytes b4 rotation (default 50MB)</span></span><br><span class="line">;stdout_logfile_backups=10     ; <span class="comment"># of stdout logfile backups (0 means none, default 10)</span></span><br><span class="line">;stdout_events_enabled=<span class="literal">false</span>   ; emit events on stdout writes (default <span class="literal">false</span>)</span><br><span class="line">;stderr_logfile=/a/path        ; stderr <span class="built_in">log</span> path, NONE <span class="keyword">for</span> none; default AUTO</span><br><span class="line">;stderr_logfile_maxbytes=1MB   ; max <span class="comment"># logfile bytes b4 rotation (default 50MB)</span></span><br><span class="line">;stderr_logfile_backups=10     ; <span class="comment"># of stderr logfile backups (0 means none, default 10)</span></span><br><span class="line">;stderr_events_enabled=<span class="literal">false</span>   ; emit events on stderr writes (default <span class="literal">false</span>)</span><br><span class="line">;environment=A=<span class="string">"1"</span>,B=<span class="string">"2"</span>       ; process environment additions</span><br><span class="line">;serverurl=AUTO                ; override serverurl computation (childutils)</span><br><span class="line"></span><br><span class="line">; The sample group section below shows all possible group values.  Create one</span><br><span class="line">; or more <span class="string">'real'</span> group: sections to create <span class="string">"heterogeneous"</span> process groups.</span><br><span class="line"></span><br><span class="line">;[group:thegroupname]</span><br><span class="line">;programs=progname1,progname2  ; each refers to <span class="string">'x'</span> <span class="keyword">in</span> [program:x] definitions</span><br><span class="line">;priority=999                  ; the relative start priority (default 999)</span><br><span class="line"></span><br><span class="line">; The [include] section can just contain the <span class="string">"files"</span> setting.  This</span><br><span class="line">; setting can list multiple files (separated by whitespace or</span><br><span class="line">; newlines).  It can also contain wildcards.  The filenames are</span><br><span class="line">; interpreted as relative to this file.  Included files *cannot*</span><br><span class="line">; include files themselves.</span><br><span class="line"></span><br><span class="line">[include]</span><br><span class="line">files = /etc/supervisord.d/config/*.ini</span><br></pre></td></tr></table></figure>
+<h3 id="使用include"><a href="#使用include" class="headerlink" title="使用include"></a>使用include</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">在配置文件的最后，有一个 [include] 的配置项，跟 Nginx 一样，可以 include 某个文件夹下的所有配置文件，这样我们就可以为每个进程或相关的几个进程的配置单独写成一个文件</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[include]</span><br><span class="line">files = /etc/supervisord.d/config/*.ini</span><br></pre></td></tr></table></figure>
+<h3 id="创建进程的配置文件"><a href="#创建进程的配置文件" class="headerlink" title="创建进程的配置文件"></a>创建进程的配置文件</h3><blockquote>
+<p>编辑/etc/supervisord.d/config/matrix.ini</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">[group:matrix]</span><br><span class="line">programs = matrix.print</span><br><span class="line"></span><br><span class="line">[program:matrix.print]</span><br><span class="line">; 启动命令，可以看出与手动在命令行启动的命令是一样的</span><br><span class="line"><span class="built_in">command</span>=python /data/demo/demo.py</span><br><span class="line">numprocs=1</span><br><span class="line">numprocs_start=0</span><br><span class="line">priority=999</span><br><span class="line">; 在supervisord启动的时候也自动启动</span><br><span class="line">autostart=<span class="literal">true</span></span><br><span class="line">; 启动3秒后没有异常退出，就当作已经正常启动了</span><br><span class="line">startsecs=3</span><br><span class="line">; 启动失败自动重试次数，默认是3</span><br><span class="line">startretries=3</span><br><span class="line">exitcodes=0,2</span><br><span class="line">stopsignal=QUIT</span><br><span class="line">stopwaitsecs=60</span><br><span class="line">directory=/data/demo</span><br><span class="line">user=root</span><br><span class="line">; 默认为<span class="literal">false</span>,进程被杀死时，是否向这个进程组发送stop信号，包括子进程</span><br><span class="line">stopasgroup=<span class="literal">false</span></span><br><span class="line">; 默认为<span class="literal">false</span>，向进程组发送<span class="built_in">kill</span>信号，包括子进程</span><br><span class="line">killasgroup=<span class="literal">false</span></span><br><span class="line">redirect_stderr=<span class="literal">true</span></span><br><span class="line">;stdout 日志文件，需要注意当指定目录不存在时无法正常启动，所以需要手动创建目录（supervisord 会自动创建日志文件）</span><br><span class="line">stdout_logfile=/data/demo/data.log</span><br><span class="line">; 日志文件多大时进行分割</span><br><span class="line">stdout_logfile_maxbytes=250MB</span><br><span class="line">; 最多保留多少份日志文件</span><br><span class="line">stdout_logfile_backups=10</span><br><span class="line">stderr_logfile=/data/demo/data.err</span><br><span class="line">stderr_logfile_maxbytes=250MB</span><br><span class="line">stderr_logfile_backups=10</span><br><span class="line">; 可以通过 environment 来添加需要的环境变量，一种常见的用法是修改 PYTHONPATH</span><br><span class="line">environment=PYTHONPATH=<span class="string">"/data/demo"</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>创建测试脚本&amp;日志目录</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p /data/demo</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>/data/demo/demo.py</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi /data/demo/demo.py</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line">import os</span><br><span class="line">import time</span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> 1:</span><br><span class="line">   f = open(<span class="string">'data.log'</span>, <span class="string">'a+'</span>)</span><br><span class="line">   time.sleep(5)</span><br><span class="line">   f.write(<span class="string">'This is a Test!'</span>)</span><br></pre></td></tr></table></figure>
+<h2 id="启动supervisor"><a href="#启动supervisor" class="headerlink" title="启动supervisor"></a>启动supervisor</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">supervisord -c /etc/supervisord.conf</span><br></pre></td></tr></table></figure>
+<h3 id="查看supervisor是否启动成功"><a href="#查看supervisor是否启动成功" class="headerlink" title="查看supervisor是否启动成功"></a>查看supervisor是否启动成功</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ps -ef | grep <span class="string">'/etc/supervisord.conf'</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">root     23542     1  0 17:46 ?        00:00:00 /usr/bin/python /usr/bin/supervisord -c /etc/supervisord.conf</span><br><span class="line">root     23566 23079  0 17:54 pts/0    00:00:00 grep /etc/supervisord.conf</span><br></pre></td></tr></table></figure>
+<h3 id="查看supervisord-log"><a href="#查看supervisord-log" class="headerlink" title="查看supervisord.log"></a>查看supervisord.log</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tail -f /var/<span class="built_in">log</span>/supervisor/supervisord.log</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">2017-10-31 17:46:18,672 CRIT Set uid to user 0</span><br><span class="line">2017-10-31 17:46:18,678 INFO RPC interface <span class="string">'supervisor'</span> initialized</span><br><span class="line">2017-10-31 17:46:18,678 CRIT Server <span class="string">'unix_http_server'</span> running without any HTTP authentication checking</span><br><span class="line">2017-10-31 17:46:18,679 INFO daemonizing the supervisord process</span><br><span class="line">2017-10-31 17:46:18,679 INFO supervisord started with pid 23542</span><br><span class="line">2017-10-31 17:48:14,042 INFO spawned: <span class="string">'matrix.print'</span> with pid 23555</span><br><span class="line">2017-10-31 17:48:17,047 INFO success: matrix.print entered RUNNING state, process has stayed up <span class="keyword">for</span> &gt; than 3 seconds (startsecs)</span><br></pre></td></tr></table></figure>
+<h2 id="supervisord-conf配置文件参数说明"><a href="#supervisord-conf配置文件参数说明" class="headerlink" title="supervisord.conf配置文件参数说明"></a>supervisord.conf配置文件参数说明</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line">[unix_http_server]</span><br><span class="line">file=/tmp/supervisor.sock   ;UNIX socket 文件，supervisorctl 会使用</span><br><span class="line">;chmod=0700                 ;socket文件的mode，默认是0700</span><br><span class="line">;chown=nobody:nogroup       ;socket文件的owner，格式：uid:gid</span><br><span class="line"></span><br><span class="line">;[inet_http_server]         ;HTTP服务器，提供web管理界面</span><br><span class="line">;port=127.0.0.1:9001        ;Web管理后台运行的IP和端口，如果开放到公网，需要注意安全性</span><br><span class="line">;username=user              ;登录管理后台的用户名</span><br><span class="line">;password=123               ;登录管理后台的密码</span><br><span class="line"></span><br><span class="line">[supervisord]</span><br><span class="line">logfile=/tmp/supervisord.log ;日志文件，默认是 <span class="variable">$CWD</span>/supervisord.log</span><br><span class="line">logfile_maxbytes=50MB        ;日志文件大小，超出会rotate，默认 50MB，如果设成0，表示不限制大小</span><br><span class="line">logfile_backups=10           ;日志文件保留备份数量默认10，设为0表示不备份</span><br><span class="line">loglevel=info                ;日志级别，默认info，其它: debug,warn,trace</span><br><span class="line">pidfile=/tmp/supervisord.pid ;pid 文件</span><br><span class="line">nodaemon=<span class="literal">false</span>               ;是否在前台启动，默认是<span class="literal">false</span>，即以 daemon 的方式启动</span><br><span class="line">minfds=1024                  ;可以打开的文件描述符的最小值，默认 1024</span><br><span class="line">minprocs=200                 ;可以打开的进程数的最小值，默认 200</span><br><span class="line"></span><br><span class="line">[supervisorctl]</span><br><span class="line">serverurl=unix:///tmp/supervisor.sock ;通过UNIX socket连接supervisord，路径与unix_http_server部分的file一致</span><br><span class="line">;serverurl=http://127.0.0.1:9001 ; 通过HTTP的方式连接supervisord</span><br><span class="line"></span><br><span class="line">; [program:xx]是被管理的进程配置参数，xx是进程的名称</span><br><span class="line">[program:xx]</span><br><span class="line"><span class="built_in">command</span>=/opt/apache-tomcat-8.0.35/bin/catalina.sh run  ; 程序启动命令</span><br><span class="line">autostart=<span class="literal">true</span>       ; 在supervisord启动的时候也自动启动</span><br><span class="line">startsecs=10         ; 启动10秒后没有异常退出，就表示进程正常启动了，默认为1秒</span><br><span class="line">autorestart=<span class="literal">true</span>     ; 程序退出后自动重启,可选值：[unexpected,<span class="literal">true</span>,<span class="literal">false</span>]，默认为unexpected，表示进程意外杀死后才重启</span><br><span class="line">startretries=3       ; 启动失败自动重试次数，默认是3</span><br><span class="line">user=tomcat          ; 用哪个用户启动进程，默认是root</span><br><span class="line">priority=999         ; 进程启动优先级，默认999，值小的优先启动</span><br><span class="line">redirect_stderr=<span class="literal">true</span> ; 把stderr重定向到stdout，默认<span class="literal">false</span></span><br><span class="line">stdout_logfile_maxbytes=20MB  ; stdout 日志文件大小，默认50MB</span><br><span class="line">stdout_logfile_backups = 20   ; stdout 日志文件备份数，默认是10</span><br><span class="line">; stdout 日志文件，需要注意当指定目录不存在时无法正常启动，所以需要手动创建目录（supervisord 会自动创建日志文件）</span><br><span class="line">stdout_logfile=/opt/apache-tomcat-8.0.35/logs/catalina.out</span><br><span class="line">stopasgroup=<span class="literal">false</span>     ;默认为<span class="literal">false</span>,进程被杀死时，是否向这个进程组发送stop信号，包括子进程</span><br><span class="line">killasgroup=<span class="literal">false</span>     ;默认为<span class="literal">false</span>，向进程组发送<span class="built_in">kill</span>信号，包括子进程</span><br><span class="line"></span><br><span class="line">;包含其它配置文件</span><br><span class="line">[include]</span><br><span class="line">files = relative/directory/*.ini    ;可以指定一个或多个以.ini结束的配置文件</span><br></pre></td></tr></table></figure>
+<h2 id="supervisorctl命令介绍"><a href="#supervisorctl命令介绍" class="headerlink" title="supervisorctl命令介绍"></a>supervisorctl命令介绍</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 停止某一个进程，program_name 为 [program:x] 里的 x</span></span><br><span class="line">supervisorctl stop program_name</span><br><span class="line"><span class="comment"># 启动某个进程</span></span><br><span class="line">supervisorctl start program_name</span><br><span class="line"><span class="comment"># 重启某个进程</span></span><br><span class="line">supervisorctl restart program_name</span><br><span class="line"><span class="comment"># 结束所有属于名为 groupworker 这个分组的进程 (start，restart 同理)</span></span><br><span class="line">supervisorctl stop groupworker:</span><br><span class="line"><span class="comment"># 结束 groupworker:name1 这个进程 (start，restart 同理)</span></span><br><span class="line">supervisorctl stop groupworker:name1</span><br><span class="line"><span class="comment"># 停止全部进程，注：start、restart、stop 都不会载入最新的配置文件</span></span><br><span class="line">supervisorctl stop all</span><br><span class="line"><span class="comment"># 载入最新的配置文件，停止原有进程并按新的配置启动、管理所有进程</span></span><br><span class="line">supervisorctl reload</span><br><span class="line"><span class="comment"># 根据最新的配置文件，启动新配置或有改动的进程，配置没有改动的进程不会受影响而重启</span></span><br><span class="line">supervisorctl update</span><br><span class="line"><span class="comment"># 查看进程的状态</span></span><br><span class="line">supervisorctl status</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>查看进程状态</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">supervisorctl status</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">matrix:matrix.print              RUNNING   pid 23555, uptime 0:10:00</span><br></pre></td></tr></table></figure>
+<h2 id="查看supervisord所在路径"><a href="#查看supervisord所在路径" class="headerlink" title="查看supervisord所在路径"></a>查看supervisord所在路径</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">which</span> supervisord</span><br></pre></td></tr></table></figure>
+<h2 id="使用浏览器来管理"><a href="#使用浏览器来管理" class="headerlink" title="使用浏览器来管理"></a>使用浏览器来管理</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">supervisor 同时提供了通过浏览器来管理进程的方法，只需要注释掉如下几行就可以了</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">;[inet_http_server]         ; inet (TCP) server disabled by default</span><br><span class="line">;port=192.168.3.244:9001        ; (ip_address:port specifier, *:port <span class="keyword">for</span> ;all iface)</span><br><span class="line">;username=user              ; (default is no username (open server))</span><br><span class="line">;password=123               ; (default is no password (open server))</span><br><span class="line">[supervisorctl]</span><br><span class="line">...</span><br><span class="line">;serverurl=http://192.168.3.244:9001 ; use an http:// url to specify an inet socket</span><br><span class="line">;username=chris              ; should be same as http_username <span class="keyword">if</span> <span class="built_in">set</span></span><br><span class="line">;password=123                ; should be same as http_password <span class="keyword">if</span> <span class="built_in">set</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>访问浏览器地址栏：<a href="http://192.168.3.244:9001/" target="_blank" rel="noopener">http://192.168.3.244:9001/</a></p>
+</blockquote>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fl1lvrh2stj20ws07mt98.jpg" alt="All text"></p>
+<h2 id="开机自动启动Supervisord"><a href="#开机自动启动Supervisord" class="headerlink" title="开机自动启动Supervisord"></a>开机自动启动Supervisord</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Linux在启动的时候会执行/etc/rc.local里面的脚本，所以在这里添加执行命令就可以</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 如果是 Ubuntu 添加以下内容</span></span><br><span class="line">/usr/<span class="built_in">local</span>/bin/supervisord -c /etc/supervisord.conf</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 如果是 Centos 添加以下内容</span></span><br><span class="line">/usr/bin/supervisord -c /etc/supervisord.conf</span><br></pre></td></tr></table></figure>
+<h3 id="启用rc-local服务"><a href="#启用rc-local服务" class="headerlink" title="启用rc.local服务"></a>启用rc.local服务</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo systemctl <span class="built_in">enable</span> rc-local.service</span><br></pre></td></tr></table></figure>
+
+    </div>
+  </div>
+  
+    <div class="copy-right">
+      <div class="markdown-body">
+        <blockquote>
+        
+        
+          本文作者 : Matrix <br>
+        
+        原文链接 : <a href="">http://yoursite.com/2017/11/02/python进程管理工具supervisor/</a><br>
+        版权声明 : 本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+        </blockquote>
+      </div>
+    </div>
+  
+  
+  
+    <div class="social-share" style="margin-top: -2rem" data-wechat-qrcode-title="<p>微信扫一扫</p>" data-wechat-qrcode-helper="<p>微信右上角, 扫一扫分享</p>" data-sites="qzone, qq, weibo, wechat, douban, google, facebook, twitter">
+  <span style="color: #6b7487; font-size: 1.4rem;">分享到: </span>
+</div>
+<script src="https://cdn.bootcss.com/social-share.js/1.0.16/js/social-share.min.js" async></script>
+  
+
+  
+    <div id="reward">
+  
+    <p id="reward-meta">知识 & 情怀 | 二者兼得</p>
+  
+  <button id="reward-btn">
+    
+    <span>投食</span>
+  </button>
+  <div id="reward-qrcode">
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/wechatpay.jpg" alt="微信扫一扫, 向我投食">
+        <p class="qrcode-meta">微信扫一扫, 向我投食</p>
+      </div>
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/alipaypay.jpg" alt="支付宝扫一扫, 向我投食">
+        <p class="qrcode-meta">支付宝扫一扫, 向我投食</p>
+      </div>
+    
+  </div>
+
+</div>
+
+<script>
+  (() => {
+    let button = document.querySelector('#reward-btn'),
+      qrcode = document.querySelector('#reward-qrcode'),
+      display = false;
+    
+    button.addEventListener('click', () => {
+      qrcode.style.display = display ? 'none' : 'block'
+      display = !display
+    }, false)
+  })()
+</script>
+  
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+      <span>
+        
+          <i class="iconfont icon-06tags"></i>标签: 
+          
+          <span class="span--tag">
+            <a href="/tags/大数据/">
+              #大数据
+            </a>
+          </span>
+          
+          <span class="span--tag">
+            <a href="/tags/Python/">
+              #Python
+            </a>
+          </span>
+          
+        
+      </span>
+    </div>
+    <div class="article-meta pull-right">
+    </div>
+  </div>
+</div>
+
+
+  <aside id="sidebar">
+    <p id="sidebar-header"></p>
+    <ol id="sidebar-toc"></ol>
+  </aside>
+  <script async>setTimeout(generateToc, 10);</script>
+
+
+  <nav class="post-navigation">
+    
+      <div class="nav-pre">
+        <i class="iconfont icon-prev"></i>
+        上一篇:
+        <a href="/2017/11/02/ES集群中的索引管理(2)/" target="_self">ES集群中的索引管理(2)</a>
+      </div>
+    
+    
+      <div class="nav-next">
+        下一篇:
+        <a href="/2017/11/07/Nginx+Flask+UWSGI/" target="_self">Nginx+Flask+UWSGI</a>
+        <i class="iconfont icon-next"></i>
+      </div>
+    
+  </nav>
+
+  
+    <a href="#comment" class="comment-anchor"></a>
+<div class="comment-title"><i class="iconfont icon-footprint"></i> 留下足迹 <i class="iconfont icon-footprint"></i></div>
+<div id="vcomments"></div>
+
+<script defer>
+  if( true ) {
+    let path = getRealPath()
+    new Valine({
+      el: "#vcomments",
+      appId: "Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz",
+      appKey: "WaR7nrzhliHj9aVwdQzkdlGd",
+      notify: false,
+      verify: false,
+      avatar: "robohash",
+      placeholder: "正确填写邮箱, 才能及时收到回复哦♪(^∇^*)",
+      path
+    });
+  }
+</script>
+   
+
+  
+    <script defer>
+const valineAPI = (() => {
+  try {
+    AV.init("Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz", "WaR7nrzhliHj9aVwdQzkdlGd");
+  } catch(error) {}
+  const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+      query.equalTo("identity", identity);
+      query.find().then(results => {
+        resolve(results.length > 0);
+      }, error => reject(error));
+    })
+  }
+
+  const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+      let querys = [];
+      for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+      }
+      query = AV.Query.or.apply(null ,querys);
+    } else {
+      identity = identity || getRealPath();
+      query = new AV.Query("Timer");
+      query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+      query.find()
+      .then(results => resolve(results))
+      .catch(error => reject(error))
+    })
+  }
+
+  const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let Todo = AV.Object.extend('Timer');
+      let todo = new Todo();
+      todo.set("times", 1);
+      todo.set("identity", identity);
+      todo.save().then(res => resolve(true), error => reject(error));
+    })
+  }
+
+  const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let query = new AV.Query('Timer');
+      query.equalTo("identity", identity);
+      query.find().then(todos => {
+        todos.forEach(todo => {
+          todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+      }).then(todos => resolve(true), error => reject(error));
+    })
+  }
+
+  return {
+    isExist,
+    _get,
+    update,
+    create
+  }
+})()
+
+const calcAndWriteTimes = () => {
+  let isPost = true;
+
+  let timerAllDOM = document.querySelectorAll(".article-timer");
+
+  if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+      if(exist) {
+        return valineAPI.update(identity);
+      }
+      return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+  }
+
+  let timerDOMCache = {};
+
+  for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+      timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+      timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+      };
+    }
+  }
+
+  let identities = Object.keys(timerDOMCache);
+  valineAPI._get(identities).then(results => {
+    for(let result of results) {
+      let {identity, times} = result.attributes;
+      timerDOMCache[identity].times = times;
+      timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+      if(timerDOMCache[identity].times){
+        continue;
+      }
+      timerDOMCache[identity].dom.map(item => item.innerText = 1);
+      valineAPI.create(identity);
+    }
+  }).catch(error => console.log(error.message))
+}
+
+if(true){
+  calcAndWriteTimes();
+}
+</script>
+   
+
+</div>
+
+
+      <footer>
+  <p class="site-info">
+    博客已萌萌哒运行<span id="time-to-now"></span><span class="my-face">(●'◡'●)ﾉ♥</span>
+    <br>
+    Theme - <a href="https://github.com/dongyuanxin/theme-bmw">BMW</a> | Powered by <a href="https://godbmw.com/">GodBMW</a>
+    <br>
+    
+      Copyright © 2019 Matrix
+    
+  </p>
+</footer>
+
+
+
+<script>
+const timeToNowDOM = document.querySelector("#time-to-now");
+const startTimestamp = new Date(2016, 4, 10).getTime();
+
+const updateTimeStr = () => {
+  let offset = parseInt(
+      (new Date().getTime() - startTimestamp) / 1000,
+      10
+    ),
+    day = Math.floor(offset / 86400),
+    hour = Math.floor((offset % 86400) / 3600),
+    minute = Math.floor(((offset % 86400) % 3600) / 60),
+    second = Math.floor(((offset % 86400) % 3600) % 60);
+  timeToNowDOM.innerHTML =
+    day + "天" + hour + "小时" + minute + "分钟" + second + "秒";
+  setTimeout(updateTimeStr, 500);
+}
+
+setTimeout(updateTimeStr, 500);
+</script>
+
+
+      <div class="back-to-top hidden">
+  <span>
+    <i class="iconfont icon-60"></i><span></span>%
+  </span>
+</div>
+
+<script>
+const updateIconToTop = percent => {
+  let dom = document.querySelector(".back-to-top span span");
+  dom.innerText = percent;
+  if(percent < 1) {
+    document.querySelector(".back-to-top").className = "back-to-top hidden";
+  } else {
+    document.querySelector(".back-to-top").className = "back-to-top";
+  }
+}
+
+const handleScoll = () => {
+  let isRunning = false;
+  return () => {
+    if (isRunning) return;
+    isRunning = true;
+    window.requestAnimationFrame(timestamp => {
+      let scrollTop =
+          document.documentElement.scrollTop || document.body.scrollTop,
+        scrollHeight =
+          document.documentElement.scrollHeight ||
+          document.body.scrollHeight,
+        clientHeight =
+          document.documentElement.clientHeight ||
+          document.body.clientHeight;
+      isRunning = false;
+      if (scrollTop <= 1) {
+        updateIconToTop(0);
+        return;
+      }
+      if (scrollTop + clientHeight >= scrollHeight) {
+        updateIconToTop(100);
+      } else {
+        updateIconToTop(parseInt(
+          100 * scrollTop / (scrollHeight - clientHeight),
+          10
+        ));
+      }
+    });
+  };
+}
+
+const backToTop = () => {
+  let scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop,
+    delay = 10,
+    time = 200;
+  if (scrollTop <= 20) {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    return;
+  }
+  let step = Math.ceil(scrollTop * delay / time);
+  let timer = setInterval(() => {
+    scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop;
+    if (scrollTop - step <= 0) {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      clearInterval(timer);
+    } else {
+      document.documentElement.scrollTop = scrollTop - step;
+      document.body.scrollTop = scrollTop - step;
+    }
+  }, delay);
+}
+
+document.addEventListener("scroll", handleScoll(), false);
+
+document.querySelector(".back-to-top").addEventListener("click", backToTop, false);
+
+</script>
+
+    </div>
+
+    
+      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  (() => {
+    const mathjaxConfig = {
+      showProcessingMessages: false, //关闭js加载过程信息
+      messageStyle: "none", //不显示信息
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]], //行内公式选择符
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]], //段内公式选择符
+        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"] //避开某些标签
+      },
+      "HTML-CSS": {
+        availableFonts: ["STIX", "TeX"], //可选字体
+        showMathMenu: false //关闭右击菜单显示
+      }
+    }
+
+    let mathjaxInterval = setInterval(() => {
+      if(!window.MathJax){
+        return;
+      }
+      window.MathJax.Hub.Config(mathjaxConfig)
+      window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')])
+
+      clearInterval(mathjaxInterval)
+    }, 10)    
+  })()
+</script>
+    
+
+    <script src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script>
+<script async>
+  let fancyTimer = setInterval(function(){
+    if(!window.$){
+      return;
+    }
+    $(document).ready(function() {
+      $(".post img").each(function () {
+        if($(this).parent().get(0).tagName.toLowerCase() === "a") {
+          return;
+        }
+        // $(this).attr("data-fancybox", "gallery"); // if you add 'data-fancybox', img will display after showed
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "gallery");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      });
+      
+      clearInterval(fancyTimer);
+    });
+  }, 10);
+</script>
+
+    
+  </body>
+
+</html>

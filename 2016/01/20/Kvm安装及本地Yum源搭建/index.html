@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta name="author" content="董沅鑫, yuanxin.me@gmail.com">
+  
+  
+  
+  <title>Kvm安装及本地Yum源搭建 | 每天遇到更好的你</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="大数据,大数据,">
+  
+
+  <script>
+    console.log('\n%c Hexo-theme-bmw v4.0 ' + '%c 🎉 https://github.com/dongyuanxin/theme-bmw 🎉\n' + '\n%c View demo online ' + '%c 🔍 https://godbmw.com/ 🔍  \n' , 'color: #fadfa3; background: #030307; padding:3px 0;', '', 'color: #fadfa3; background: #030307; padding:3px 0;', '');
+  </script>
+
+  
+
+  
+
+  
+    <link rel="icon" href="/images/favicon.png">
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+  
+
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/icon/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+  <script src="/js/util.js"></script>
+<script src="/js/valine.min.js"></script>
+
+  
+
+  
+    <link href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js" async></script>
+  
+
+  
+    <link href="https://cdn.bootcss.com/social-share.js/1.0.16/css/share.min.css" rel="stylesheet">
+  
+  
+  <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js" async></script>
+  
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.0/dist/av-min.js"></script>
+  
+
+</head>
+
+  <body>
+
+    
+
+    <div id="app">
+
+      <div class="header-wrap">
+  <header>
+    <div class="site-brand">
+      <div class="site-title">
+        <!-- <a href="/">MatrixSparse</a> -->
+        <img alt="logo" class="antd-pro-layouts-user-layout-logo" src="/images/favicon.png" style="width: 40px;height: 40px;margin-top: 10px;margin-left: 5px;">
+      </div>
+    </div>
+    <nav class="site-navigation">
+      <ul class="nav-menu">
+      
+        <li class="nav-item" data-path="/">
+          
+            <a href="/" target="_self">
+              主页
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          
+            <a href="/archives/" target="_self">
+              归档
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          
+            <a href="/categories/" target="_self">
+              分类
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          
+            <a href="/tags/" target="_self">
+              标签
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="">
+          
+            <a href="javascript:void(0);" v-else="">博客地址</a>
+            <ul class="nav-menu--dropdown">
+              
+                <li>
+                  <a href="https://blog.csdn.net/qq_25371579" target="_blank">
+                    CSDN
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://github.com/matrixsparse" target="_blank">
+                    Github
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://matrixsparse.github.io/" target="_blank">
+                    Github Page
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+      </ul>
+    </nav>
+    <i class="iconfont icon-menu"></i>
+  </header>
+</div>
+
+<script>
+  let links = document.querySelectorAll('.nav-item');
+  for(let link of links){
+    let childrenLink = link.querySelector('ul');
+    link.addEventListener('mouseenter', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown active";
+      }
+    })
+    link.addEventListener('mouseleave', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown";
+      }
+    })
+  }
+  let rootRealPath = getRealPath(window.location.pathname, true);
+  for(let link of links) {
+    let linkPath = link.getAttribute("data-path");
+    if(linkPath && getRealPath(linkPath, true) === rootRealPath) {
+      link.className = "nav-item hover";
+    }
+  }
+
+  let iconMenu = document.querySelector("i.iconfont.icon-menu"),
+    iconMenuClicked = false;
+  let navDOM = document.querySelector("nav.site-navigation");
+  iconMenu.addEventListener("click", () => {
+    iconMenuClicked
+      ? navDOM.className = "site-navigation active"
+      : navDOM.className = "site-navigation";
+    iconMenuClicked = !iconMenuClicked;
+  })
+</script>
+
+
+      
+
+
+
+
+
+
+
+
+<div class="container post-index">
+
+  
+
+<div class="post">
+  <h1 class="article-title">
+    <span>Kvm安装及本地Yum源搭建</span>
+  </h1>
+  <div class="article-top-meta">
+    <span>
+      发布 : 
+      2016-01-20
+    </span>
+    
+      <span>
+        分类 : 
+          <a href="/categories/大数据/">
+            大数据
+          </a>
+      </span>
+    
+    
+      <span>
+        浏览 : <span class="article-timer" data-identity="Kvm安装及本地Yum源搭建"></span>
+      </span>
+    
+  </div>
+
+  
+
+  <div class="article-content">
+    <div class="markdown-body">
+      <h1 id="Kvm安装及本地Yum源搭建"><a href="#Kvm安装及本地Yum源搭建" class="headerlink" title="Kvm安装及本地Yum源搭建"></a>Kvm安装及本地Yum源搭建</h1><p><img src="http://i1.piimg.com/581590/70f3c649c40262a2.png" alt="Markdown"></p>
+<h2 id="0-查看Linux运行级别"><a href="#0-查看Linux运行级别" class="headerlink" title="0.查看Linux运行级别"></a>0.查看Linux运行级别</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@kvm ~]<span class="comment"># runlevel</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bpimg.com/581590/bc547ad222881759.png" alt="Markdown"></p>
+<h2 id="1-更换yum源"><a href="#1-更换yum源" class="headerlink" title="1.更换yum源"></a>1.更换yum源</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://mirrors.aliyun.com/</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-17/39594523.jpg" alt=""></p>
+<h3 id="1-1-选择centos、epel镜像"><a href="#1-1-选择centos、epel镜像" class="headerlink" title="1.1.选择centos、epel镜像"></a>1.1.选择centos、epel镜像</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-6.repo</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-17/92012314.jpg" alt=""></p>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-17/62188297.jpg" alt=""></p>
+<h3 id="1-2-修改默认yum源"><a href="#1-2-修改默认yum源" class="headerlink" title="1.2.修改默认yum源"></a>1.2.修改默认yum源</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@kvm ~]<span class="comment"># cd /etc/yum.repos.d/</span></span><br><span class="line">[root@kvm yum.repos.d]<span class="comment"># vi yum.sh</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-17/26264903.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mv /etc/yum.repos.d/epel.repo /etc/yum.repos.d/epel.repo.backup</span><br><span class="line">mv /etc/yum.repos.d/epel-testing.repo /etc/yum.repos.d/epel-testing.repo.backup</span><br><span class="line">wget -O /etc/yum.repos.d/epel.repo http://mirrors.aliyun.com/repo/epel-6.repo</span><br><span class="line">wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-6.repo</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-17/91464447.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@kvm yum.repos.d]<span class="comment"># sh yum.sh</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-17/12884366.jpg" alt=""></p>
+<h3 id="1-3-清除yum缓存"><a href="#1-3-清除yum缓存" class="headerlink" title="1.3.清除yum缓存"></a>1.3.清除yum缓存</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@kvm yum.repos.d]<span class="comment"># yum clean all</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-17/46829243.jpg" alt=""></p>
+<h3 id="1-4-生成缓存"><a href="#1-4-生成缓存" class="headerlink" title="1.4.生成缓存"></a>1.4.生成缓存</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@kvm yum.repos.d]<span class="comment"># yum makecache</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-17/94273016.jpg" alt=""></p>
+<h2 id="2-安装kvm命令"><a href="#2-安装kvm命令" class="headerlink" title="2.安装kvm命令"></a>2.安装kvm命令</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@kvm ~]<span class="comment"># yum install qemu-kvm</span></span><br><span class="line">qemu/模拟器，具备模拟加速功能</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-17/1233870.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">libvirt：操作和管理KVM虚机的虚拟化 API，使用 C 语言编写，可以</span><br><span class="line">由 Python,Ruby, Perl, PHP, Java 等语言调用。可以操作包括 KVM，</span><br><span class="line">vmware，XEN，Hyper-v, LXC 等 Hypervisor。</span><br><span class="line">• Virsh：基于 libvirt 的 命令行工具 （CLI）</span><br><span class="line">• Virt-Manager：基于 libvirt 的 GUI 工具</span><br></pre></td></tr></table></figure>
+<h2 id="3-安装虚拟化管理工具"><a href="#3-安装虚拟化管理工具" class="headerlink" title="3.安装虚拟化管理工具"></a>3.安装虚拟化管理工具</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@kvm ~]<span class="comment"># yum -y install virt-manager libvirt libvirt-python python-virtinst bridge-utils</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bpimg.com/581590/09b725735209c926.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum -y install httpd(安装Apache服务器) createrepo(创建私有云窗口的软件) reposync(创建同步的软件)</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@kvm ~]<span class="comment"># yum -y install httpd createrepo reposync</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bpimg.com/581590/3c13900cdc5d7e6f.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@kvm ~]<span class="comment"># netstat -natp</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bpimg.com/581590/c25d87152ce3729d.png" alt="Markdown"></p>
+<h3 id="3-1-查看yum源中仓库"><a href="#3-1-查看yum源中仓库" class="headerlink" title="3.1.查看yum源中仓库"></a>3.1.查看yum源中仓库</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@kvm html]<span class="comment"># yum repolist</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bpimg.com/581590/9838381ba8036a60.png" alt="Markdown"></p>
+<h3 id="3-2-搭建本地yum源"><a href="#3-2-搭建本地yum源" class="headerlink" title="3.2.搭建本地yum源"></a>3.2.搭建本地yum源</h3><h4 id="3-2-1搭建本地yum源会节约大量的出口带宽"><a href="#3-2-1搭建本地yum源会节约大量的出口带宽" class="headerlink" title="3.2.1搭建本地yum源会节约大量的出口带宽"></a>3.2.1搭建本地yum源会节约大量的出口带宽</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@kvm yum.repos.d]<span class="comment"># yum -y install yum-utils </span></span><br><span class="line"><span class="comment">#yum-utils中有个命令是同步命令reposync 用来同步远程的yum repository</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/581590/b20efbcb283b08e2.png" alt="Markdown"></p>
+<h4 id="3-2-2参考reposync的帮助，直接把想要同步的yum源直接定位到希望下载的某个目录，"><a href="#3-2-2参考reposync的帮助，直接把想要同步的yum源直接定位到希望下载的某个目录，" class="headerlink" title="3.2.2参考reposync的帮助，直接把想要同步的yum源直接定位到希望下载的某个目录，"></a>3.2.2参考reposync的帮助，直接把想要同步的yum源直接定位到希望下载的某个目录，</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@kvm yum.repos.d]<span class="comment"># reposync --help</span></span><br><span class="line">-d 来删除本地老旧， yum 源已经不存的安装包</span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/581590/035835c84740d66c.png" alt="Markdown"></p>
+<h4 id="3-2-3开始自动更新-yum-源到本地文件夹"><a href="#3-2-3开始自动更新-yum-源到本地文件夹" class="headerlink" title="3.2.3开始自动更新 yum 源到本地文件夹"></a>3.2.3开始自动更新 yum 源到本地文件夹</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@kvm html]<span class="comment"># reposync --repoid=base</span></span><br><span class="line">[root@kvm html]<span class="comment"># reposync --repoid=epel</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bpimg.com/581590/3a92a55117a46257.png" alt="Markdown"></p>
+<h4 id="3-2-4启动Apache服务"><a href="#3-2-4启动Apache服务" class="headerlink" title="3.2.4启动Apache服务"></a>3.2.4启动Apache服务</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@kvm ~]<span class="comment"># service httpd start</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/581590/b653432e7060b377.png" alt="Markdown"></p>
+<h3 id="3-3-访问本地YUM源"><a href="#3-3-访问本地YUM源" class="headerlink" title="3.3.访问本地YUM源"></a>3.3.访问本地YUM源</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://192.168.230.88/base/</span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/581590/b84a085e9b919a08.png" alt="Markdown"></p>
+<h3 id="3-4-创建本地Yum源的仓库"><a href="#3-4-创建本地Yum源的仓库" class="headerlink" title="3.4.创建本地Yum源的仓库"></a>3.4.创建本地Yum源的仓库</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">reposync自动同步想要的yum源到指定的路径，因为每次同步后，内容可能有所改变，所以需要重新执行createrepo命令重新创建YUM仓库</span><br><span class="line">[root@kvm ~]<span class="comment"># createrepo --help</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bpimg.com/581590/b57586facb43f9ce.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@kvm ~]<span class="comment"># cretaerepo --update /var/www/html/base/</span></span><br></pre></td></tr></table></figure>
+<h3 id="3-5-使用本地Yum源"><a href="#3-5-使用本地Yum源" class="headerlink" title="3.5.使用本地Yum源"></a>3.5.使用本地Yum源</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@kvm yum.repos.d]<span class="comment"># vi /etc/yum.repos.d/CentOS-Base.repo</span></span><br><span class="line">http://192.168.230.88/base/</span><br></pre></td></tr></table></figure>
+<h2 id="4-Kvm内核模块"><a href="#4-Kvm内核模块" class="headerlink" title="4.Kvm内核模块"></a>4.Kvm内核模块</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">kvm嵌入到了Linux内核中去</span><br><span class="line">[root@kvm ~]<span class="comment"># lsmod | grep kvm</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://i1.piimg.com/581590/3fd893f58b854012.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">如果kvm没有嵌入到Linux内核中</span><br><span class="line">可以通过命令强制嵌入到Linux内核中</span><br><span class="line">[root@kvm ~]<span class="comment"># modprobe kvm</span></span><br><span class="line">[root@kvm ~]<span class="comment"># modprobe kvm-intel</span></span><br></pre></td></tr></table></figure>
+<h2 id="5-在kvm中创建虚拟机"><a href="#5-在kvm中创建虚拟机" class="headerlink" title="5.在kvm中创建虚拟机"></a>5.在kvm中创建虚拟机</h2><h3 id="5-1-创建虚拟机磁盘"><a href="#5-1-创建虚拟机磁盘" class="headerlink" title="5.1.创建虚拟机磁盘"></a>5.1.创建虚拟机磁盘</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@kvm kvmtest]<span class="comment"># qemu-img create -f qcow2 /kvmtest/centos-6.5.qcow2 10G</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/581590/cc1ed595462428e8.png" alt="Markdown"></p>
+<h3 id="5-2-上传centos镜像文件"><a href="#5-2-上传centos镜像文件" class="headerlink" title="5.2.上传centos镜像文件"></a>5.2.上传centos镜像文件</h3><p><img src="http://i1.piimg.com/581590/04e22138f967d74e.png" alt="Markdown"></p>
+<h3 id="5-3-yum源删除冲突软件"><a href="#5-3-yum源删除冲突软件" class="headerlink" title="5.3.yum源删除冲突软件"></a>5.3.yum源删除冲突软件</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@kvm kvmtest]<span class="comment"># yum -y install virt-install</span></span><br><span class="line">[root@kvm kvmtest]<span class="comment"># yum -y remove virt-install</span></span><br></pre></td></tr></table></figure>
+<h3 id="5-4-创建虚拟机"><a href="#5-4-创建虚拟机" class="headerlink" title="5.4.创建虚拟机"></a>5.4.创建虚拟机</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[root@kvm kvmtest]<span class="comment"># virt-install --virt-type kvm --name centos-6.6 --ram 1024 \</span></span><br><span class="line">&gt; --vcpus 1 \</span><br><span class="line">&gt; --cdrom=/kvmtest/CentOS-6.6-x86_64-minimal.iso \</span><br><span class="line">&gt; --disk /kvmtest/centos-6.6.qcow2,format=qcow2 \</span><br><span class="line">&gt; --network network=default \</span><br><span class="line">&gt; --graphics vnc,listen=0.0.0.0 --noautoconsole \</span><br><span class="line">&gt; --os-type=linux --os-variant=rhel6</span><br><span class="line">ERROR    Failed to connect socket to <span class="string">'/var/run/libvirt/libvirt-sock'</span>: No such file or directory</span><br></pre></td></tr></table></figure>
+<h4 id="出现错误"><a href="#出现错误" class="headerlink" title="出现错误"></a>出现错误</h4><p><img src="http://p1.bqimg.com/581590/84fdfeabd653f138.png" alt="Markdown"></p>
+<h4 id="5-4-1-出错是因为libvirted服务没有启动"><a href="#5-4-1-出错是因为libvirted服务没有启动" class="headerlink" title="5.4.1.出错是因为libvirted服务没有启动"></a>5.4.1.出错是因为libvirted服务没有启动</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[root@kvm kvmtest]<span class="comment"># service libvirtd start</span></span><br><span class="line">Starting libvirtd daemon:                                  [  OK  ]</span><br><span class="line">[root@kvm kvmtest]<span class="comment"># service libvirtd status</span></span><br><span class="line">libvirtd (pid  1951) is running...</span><br><span class="line">[root@kvm kvmtest]<span class="comment"># chkconfig libvirtd on</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/581590/ce5e525a6ad51919.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">[root@kvm kvmtest]<span class="comment"># virt-install --virt-type kvm --name centos-6.5 --ram 1024 \</span></span><br><span class="line">&gt; --vcpus 1 \</span><br><span class="line">&gt; --cdrom=/kvmtest/CentOS-6.5-x86_64-minimal.iso \</span><br><span class="line">&gt; --disk /kvmtest/centos-6.5.qcow2,format=qcow2 \</span><br><span class="line">&gt; --network network=default \</span><br><span class="line">&gt; --graphics vnc,listen=0.0.0.0 --noautoconsole \</span><br><span class="line">&gt; --os-type=linux --os-variant=rhel6</span><br><span class="line"></span><br><span class="line">virt-install --virt-type kvm --name centos-6.5 --ram 1024 \</span><br><span class="line">--vcpus 1 \</span><br><span class="line">--cdrom=/kvmtest/CentOS-6.5-x86_64-minimal.iso \</span><br><span class="line">--disk /kvmtest/centos-6.5.qcow2,format=qcow2 \</span><br><span class="line">--network network=default \</span><br><span class="line">--graphics vnc,listen=0.0.0.0 --noautoconsole \</span><br><span class="line">--os-type=linux --os-variant=rhel6</span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bpimg.com/581590/a2f38176f042d49f.png" alt="Markdown"></p>
+<h3 id="5-5-打开远程网络连接软件"><a href="#5-5-打开远程网络连接软件" class="headerlink" title="5.5.打开远程网络连接软件"></a>5.5.打开远程网络连接软件</h3><p><img src="http://p1.bpimg.com/581590/32c7465bab59e0e5.png" alt="Markdown"></p>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-17/25862826.jpg" alt=""></p>
+<h3 id="5-6-进入虚拟机交互终端"><a href="#5-6-进入虚拟机交互终端" class="headerlink" title="5.6.进入虚拟机交互终端"></a>5.6.进入虚拟机交互终端</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@kvm kvmtest]<span class="comment"># virsh</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bpimg.com/581590/4ab93b9d980bfc11.png" alt="Markdown"></p>
+<h4 id="5-6-1-启动虚拟机"><a href="#5-6-1-启动虚拟机" class="headerlink" title="5.6.1.启动虚拟机"></a>5.6.1.启动虚拟机</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">virsh <span class="comment"># start centos-6.5</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bpimg.com/581590/a2cc2c91ff6fadb2.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">virsh <span class="comment"># list --all</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bpimg.com/581590/b2fcfa04290f279d.png" alt="Markdown"></p>
+<p><img src="http://p1.bpimg.com/581590/2936a4f705506d00.png" alt="Markdown"></p>
+<p><img src="http://p1.bpimg.com/581590/115277108796fd1a.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">发现多了一个桥接设备</span><br><span class="line">[root@kvm kvmtest]<span class="comment"># brctl show</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bpimg.com/581590/46c1ec71a5336e80.png" alt="Markdown"></p>
+<p><img src="http://p1.bpimg.com/581590/906d390b932d4c64.png" alt="Markdown"></p>
+<h4 id="5-6-2-进入虚拟机交互终端"><a href="#5-6-2-进入虚拟机交互终端" class="headerlink" title="5.6.2.进入虚拟机交互终端"></a>5.6.2.进入虚拟机交互终端</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">发现无法用键盘操作的原因是中文输入法对这个工具产生了干扰</span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bpimg.com/581590/4eec278447d51738.png" alt="Markdown"></p>
+<h4 id="5-6-3-编写kvm虚拟机的配置文件"><a href="#5-6-3-编写kvm虚拟机的配置文件" class="headerlink" title="5.6.3.编写kvm虚拟机的配置文件"></a>5.6.3.编写kvm虚拟机的配置文件</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost ~]<span class="comment"># vi /etc/sysconfig/network-scripts/ifcfg-eth0</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bpimg.com/581590/0050cbf47bd9e584.png" alt="Markdown"></p>
+<p><img src="http://p1.bpimg.com/581590/e94d3700b74457c2.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost ~]<span class="comment"># service network restart</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bpimg.com/581590/55f4710ac394d27f.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost ~]<span class="comment"># ifconfig</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bpimg.com/581590/b92577507a5a03fd.png" alt="Markdown"></p>
+<h4 id="5-6-4-virsh交互终端命令"><a href="#5-6-4-virsh交互终端命令" class="headerlink" title="5.6.4.virsh交互终端命令"></a>5.6.4.virsh交互终端命令</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">• virsh list <span class="comment"># 显示本地活动虚拟机</span></span><br><span class="line">• virsh start openSuse <span class="comment"># 启动名字为ubuntu的非活动虚拟机</span></span><br><span class="line">• virsh create ubuntu.xml <span class="comment"># 创建虚拟机（创建后，虚拟机立即执行，成为活动主机）</span></span><br><span class="line">• virsh <span class="built_in">suspend</span> openSuse <span class="comment"># 暂停虚拟机</span></span><br><span class="line">• virsh resume ubuntu <span class="comment"># 启动暂停的虚拟机</span></span><br><span class="line">• virsh shutdown ubuntu <span class="comment"># 正常关闭虚拟机</span></span><br><span class="line">• virsh destroy ubuntu <span class="comment"># 强制关闭虚拟机</span></span><br><span class="line">• virsh dominfo openSuse <span class="comment"># 显示虚拟机的基本信息</span></span><br><span class="line">• virsh dumpxml openSuse <span class="comment"># 显示虚拟机的当前配置文件</span></span><br><span class="line">• virsh setmem ubuntu 51200 <span class="comment"># 给不活动虚拟机设置内存大小</span></span><br><span class="line">• virsh setvcpus ubuntu 4 <span class="comment"># 给不活动虚拟机设置cpu个数</span></span><br><span class="line">• virsh edit ubuntu <span class="comment"># 编辑配置文件（一般用在刚定义完VM）</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">[root@kvm kvmtest]<span class="comment"># cd /etc/libvirt/</span></span><br><span class="line">[root@kvm libvirt]<span class="comment"># ll</span></span><br><span class="line">total 48</span><br><span class="line">-rw-r--r-- 1 root root   518 May 11  2016 libvirt.conf</span><br><span class="line">-rw-r--r-- 1 root root 12963 May 11  2016 libvirtd.conf</span><br><span class="line">-rw-r--r-- 1 root root  1176 May 11  2016 lxc.conf</span><br><span class="line">drwx------ 2 root root  4096 Jan 14 09:38 nwfilter</span><br><span class="line">drwx------ 3 root root  4096 Jan 14 16:55 qemu</span><br><span class="line">-rw-r--r-- 1 root root 14998 May 11  2016 qemu.conf</span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/581590/a337e208d4e7a96d.png" alt="Markdown"> </p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">virsh <span class="comment"># vcpuinfo 2</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://i1.piimg.com/581590/e9a7b7293b2f7f51.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">virsh <span class="comment"># edit 2</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/581590/8b398d8631b27e88.png" alt="Markdown"></p>
+<p><img src="http://p1.bqimg.com/581590/6b151d37e56f993b.png" alt="Markdown"></p>
+<h2 id="6-CPU虚拟化"><a href="#6-CPU虚拟化" class="headerlink" title="6.CPU虚拟化"></a>6.CPU虚拟化</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"> 一个 KVM 虚机即一个 Linux qemu-kvm 进程，与其他Linux 进程一样被Linux 进程调度器调度。</span><br><span class="line">• KVM虚机包括虚拟内存、虚拟CPU和虚机I/O设备，其中，内存和CPU的虚拟化由KVM内核模块负责实现，I/O 设备的虚拟化由QEMU负责实现。</span><br><span class="line">• KVM户机系统的内存是qumu-kvm进程的地址空间的一部分。</span><br><span class="line">• KVM虚机的vCPU作为线程运行在qemu-kvm进程的上下文中。</span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bpimg.com/581590/c7c679ec5fa95a80.png" alt="Markdown"></p>
+<h2 id="7-CPU硬件情况"><a href="#7-CPU硬件情况" class="headerlink" title="7.CPU硬件情况"></a>7.CPU硬件情况</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@kvm libvirt]<span class="comment"># numactl --hardware</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bpimg.com/581590/28484cf0fa7eea72.png" alt="Markdown"></p>
+<h2 id="8-管理VM-重启，关闭"><a href="#8-管理VM-重启，关闭" class="headerlink" title="8.管理VM(重启，关闭)"></a>8.管理VM(重启，关闭)</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">要通过xshell对kvm虚拟机进行管理的话</span><br><span class="line">要在虚拟机上安装acpid</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost ~]<span class="comment"># yum install acpid</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://i1.piimg.com/581590/2b7732cb26862f63.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost ~]<span class="comment"># service acpid start</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://i1.piimg.com/581590/c8bd543c9108d87a.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost ~]<span class="comment"># chkconfig acpid on</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://i1.piimg.com/581590/75bc508ad336a27c.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">virsh <span class="comment"># shutdown 2</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/581590/88dfa16a204c1dc1.png" alt="Markdown"></p>
+<p><img src="http://p1.bqimg.com/581590/6d787d2ff1c28cfb.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">virsh <span class="comment"># list</span></span><br><span class="line">Id    Name                           State</span><br><span class="line">----------------------------------------------------</span><br><span class="line"></span><br><span class="line">virsh <span class="comment"># list --all</span></span><br><span class="line">Id    Name                           State</span><br><span class="line">----------------------------------------------------</span><br><span class="line"> -     centos-6.5                     shut off</span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/581590/765701020912b891.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">virsh <span class="comment"># vcpuinfo centos-6.5</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/581590/55b4b8c5dd481e45.png" alt="Markdown"></p>
+<p><img src="http://p1.bqimg.com/581590/f3483aa98f3a530d.png" alt="Markdown"></p>
+<p><img src="http://p1.bqimg.com/581590/994c687808cd8cd7.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@kvm ~]<span class="comment"># iptables -t nat -S</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bpimg.com/581590/5e66c5e5dcd7de8c.png" alt="Markdown"></p>
+
+    </div>
+  </div>
+  
+    <div class="copy-right">
+      <div class="markdown-body">
+        <blockquote>
+        
+        
+          本文作者 : Matrix <br>
+        
+        原文链接 : <a href="">http://yoursite.com/2016/01/20/Kvm安装及本地Yum源搭建/</a><br>
+        版权声明 : 本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+        </blockquote>
+      </div>
+    </div>
+  
+  
+  
+    <div class="social-share" style="margin-top: -2rem" data-wechat-qrcode-title="<p>微信扫一扫</p>" data-wechat-qrcode-helper="<p>微信右上角, 扫一扫分享</p>" data-sites="qzone, qq, weibo, wechat, douban, google, facebook, twitter">
+  <span style="color: #6b7487; font-size: 1.4rem;">分享到: </span>
+</div>
+<script src="https://cdn.bootcss.com/social-share.js/1.0.16/js/social-share.min.js" async></script>
+  
+
+  
+    <div id="reward">
+  
+    <p id="reward-meta">知识 & 情怀 | 二者兼得</p>
+  
+  <button id="reward-btn">
+    
+    <span>投食</span>
+  </button>
+  <div id="reward-qrcode">
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/wechatpay.jpg" alt="微信扫一扫, 向我投食">
+        <p class="qrcode-meta">微信扫一扫, 向我投食</p>
+      </div>
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/alipaypay.jpg" alt="支付宝扫一扫, 向我投食">
+        <p class="qrcode-meta">支付宝扫一扫, 向我投食</p>
+      </div>
+    
+  </div>
+
+</div>
+
+<script>
+  (() => {
+    let button = document.querySelector('#reward-btn'),
+      qrcode = document.querySelector('#reward-qrcode'),
+      display = false;
+    
+    button.addEventListener('click', () => {
+      qrcode.style.display = display ? 'none' : 'block'
+      display = !display
+    }, false)
+  })()
+</script>
+  
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+      <span>
+        
+          <i class="iconfont icon-06tags"></i>标签: 
+          
+          <span class="span--tag">
+            <a href="/tags/大数据/">
+              #大数据
+            </a>
+          </span>
+          
+        
+      </span>
+    </div>
+    <div class="article-meta pull-right">
+    </div>
+  </div>
+</div>
+
+
+  <aside id="sidebar">
+    <p id="sidebar-header"></p>
+    <ol id="sidebar-toc"></ol>
+  </aside>
+  <script async>setTimeout(generateToc, 10);</script>
+
+
+  <nav class="post-navigation">
+    
+      <div class="nav-pre">
+        <i class="iconfont icon-prev"></i>
+        上一篇:
+        <a href="/2016/01/20/配置本地Yum源/" target="_self">配置Yum源</a>
+      </div>
+    
+    
+      <div class="nav-next">
+        下一篇:
+        <a href="/2016/01/20/Kibana安装/" target="_self">Kibana安装</a>
+        <i class="iconfont icon-next"></i>
+      </div>
+    
+  </nav>
+
+  
+    <a href="#comment" class="comment-anchor"></a>
+<div class="comment-title"><i class="iconfont icon-footprint"></i> 留下足迹 <i class="iconfont icon-footprint"></i></div>
+<div id="vcomments"></div>
+
+<script defer>
+  if( true ) {
+    let path = getRealPath()
+    new Valine({
+      el: "#vcomments",
+      appId: "Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz",
+      appKey: "WaR7nrzhliHj9aVwdQzkdlGd",
+      notify: false,
+      verify: false,
+      avatar: "robohash",
+      placeholder: "正确填写邮箱, 才能及时收到回复哦♪(^∇^*)",
+      path
+    });
+  }
+</script>
+   
+
+  
+    <script defer>
+const valineAPI = (() => {
+  try {
+    AV.init("Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz", "WaR7nrzhliHj9aVwdQzkdlGd");
+  } catch(error) {}
+  const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+      query.equalTo("identity", identity);
+      query.find().then(results => {
+        resolve(results.length > 0);
+      }, error => reject(error));
+    })
+  }
+
+  const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+      let querys = [];
+      for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+      }
+      query = AV.Query.or.apply(null ,querys);
+    } else {
+      identity = identity || getRealPath();
+      query = new AV.Query("Timer");
+      query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+      query.find()
+      .then(results => resolve(results))
+      .catch(error => reject(error))
+    })
+  }
+
+  const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let Todo = AV.Object.extend('Timer');
+      let todo = new Todo();
+      todo.set("times", 1);
+      todo.set("identity", identity);
+      todo.save().then(res => resolve(true), error => reject(error));
+    })
+  }
+
+  const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let query = new AV.Query('Timer');
+      query.equalTo("identity", identity);
+      query.find().then(todos => {
+        todos.forEach(todo => {
+          todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+      }).then(todos => resolve(true), error => reject(error));
+    })
+  }
+
+  return {
+    isExist,
+    _get,
+    update,
+    create
+  }
+})()
+
+const calcAndWriteTimes = () => {
+  let isPost = true;
+
+  let timerAllDOM = document.querySelectorAll(".article-timer");
+
+  if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+      if(exist) {
+        return valineAPI.update(identity);
+      }
+      return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+  }
+
+  let timerDOMCache = {};
+
+  for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+      timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+      timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+      };
+    }
+  }
+
+  let identities = Object.keys(timerDOMCache);
+  valineAPI._get(identities).then(results => {
+    for(let result of results) {
+      let {identity, times} = result.attributes;
+      timerDOMCache[identity].times = times;
+      timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+      if(timerDOMCache[identity].times){
+        continue;
+      }
+      timerDOMCache[identity].dom.map(item => item.innerText = 1);
+      valineAPI.create(identity);
+    }
+  }).catch(error => console.log(error.message))
+}
+
+if(true){
+  calcAndWriteTimes();
+}
+</script>
+   
+
+</div>
+
+
+      <footer>
+  <p class="site-info">
+    博客已萌萌哒运行<span id="time-to-now"></span><span class="my-face">(●'◡'●)ﾉ♥</span>
+    <br>
+    Theme - <a href="https://github.com/dongyuanxin/theme-bmw">BMW</a> | Powered by <a href="https://godbmw.com/">GodBMW</a>
+    <br>
+    
+      Copyright © 2019 Matrix
+    
+  </p>
+</footer>
+
+
+
+<script>
+const timeToNowDOM = document.querySelector("#time-to-now");
+const startTimestamp = new Date(2016, 4, 10).getTime();
+
+const updateTimeStr = () => {
+  let offset = parseInt(
+      (new Date().getTime() - startTimestamp) / 1000,
+      10
+    ),
+    day = Math.floor(offset / 86400),
+    hour = Math.floor((offset % 86400) / 3600),
+    minute = Math.floor(((offset % 86400) % 3600) / 60),
+    second = Math.floor(((offset % 86400) % 3600) % 60);
+  timeToNowDOM.innerHTML =
+    day + "天" + hour + "小时" + minute + "分钟" + second + "秒";
+  setTimeout(updateTimeStr, 500);
+}
+
+setTimeout(updateTimeStr, 500);
+</script>
+
+
+      <div class="back-to-top hidden">
+  <span>
+    <i class="iconfont icon-60"></i><span></span>%
+  </span>
+</div>
+
+<script>
+const updateIconToTop = percent => {
+  let dom = document.querySelector(".back-to-top span span");
+  dom.innerText = percent;
+  if(percent < 1) {
+    document.querySelector(".back-to-top").className = "back-to-top hidden";
+  } else {
+    document.querySelector(".back-to-top").className = "back-to-top";
+  }
+}
+
+const handleScoll = () => {
+  let isRunning = false;
+  return () => {
+    if (isRunning) return;
+    isRunning = true;
+    window.requestAnimationFrame(timestamp => {
+      let scrollTop =
+          document.documentElement.scrollTop || document.body.scrollTop,
+        scrollHeight =
+          document.documentElement.scrollHeight ||
+          document.body.scrollHeight,
+        clientHeight =
+          document.documentElement.clientHeight ||
+          document.body.clientHeight;
+      isRunning = false;
+      if (scrollTop <= 1) {
+        updateIconToTop(0);
+        return;
+      }
+      if (scrollTop + clientHeight >= scrollHeight) {
+        updateIconToTop(100);
+      } else {
+        updateIconToTop(parseInt(
+          100 * scrollTop / (scrollHeight - clientHeight),
+          10
+        ));
+      }
+    });
+  };
+}
+
+const backToTop = () => {
+  let scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop,
+    delay = 10,
+    time = 200;
+  if (scrollTop <= 20) {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    return;
+  }
+  let step = Math.ceil(scrollTop * delay / time);
+  let timer = setInterval(() => {
+    scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop;
+    if (scrollTop - step <= 0) {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      clearInterval(timer);
+    } else {
+      document.documentElement.scrollTop = scrollTop - step;
+      document.body.scrollTop = scrollTop - step;
+    }
+  }, delay);
+}
+
+document.addEventListener("scroll", handleScoll(), false);
+
+document.querySelector(".back-to-top").addEventListener("click", backToTop, false);
+
+</script>
+
+    </div>
+
+    
+      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  (() => {
+    const mathjaxConfig = {
+      showProcessingMessages: false, //关闭js加载过程信息
+      messageStyle: "none", //不显示信息
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]], //行内公式选择符
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]], //段内公式选择符
+        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"] //避开某些标签
+      },
+      "HTML-CSS": {
+        availableFonts: ["STIX", "TeX"], //可选字体
+        showMathMenu: false //关闭右击菜单显示
+      }
+    }
+
+    let mathjaxInterval = setInterval(() => {
+      if(!window.MathJax){
+        return;
+      }
+      window.MathJax.Hub.Config(mathjaxConfig)
+      window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')])
+
+      clearInterval(mathjaxInterval)
+    }, 10)    
+  })()
+</script>
+    
+
+    <script src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script>
+<script async>
+  let fancyTimer = setInterval(function(){
+    if(!window.$){
+      return;
+    }
+    $(document).ready(function() {
+      $(".post img").each(function () {
+        if($(this).parent().get(0).tagName.toLowerCase() === "a") {
+          return;
+        }
+        // $(this).attr("data-fancybox", "gallery"); // if you add 'data-fancybox', img will display after showed
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "gallery");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      });
+      
+      clearInterval(fancyTimer);
+    });
+  }, 10);
+</script>
+
+    
+  </body>
+
+</html>

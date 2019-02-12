@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta name="author" content="董沅鑫, yuanxin.me@gmail.com">
+  
+  
+  
+  <title>运营之数据分析 | 每天遇到更好的你</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="互联网运营,互联网运营,">
+  
+
+  <script>
+    console.log('\n%c Hexo-theme-bmw v4.0 ' + '%c 🎉 https://github.com/dongyuanxin/theme-bmw 🎉\n' + '\n%c View demo online ' + '%c 🔍 https://godbmw.com/ 🔍  \n' , 'color: #fadfa3; background: #030307; padding:3px 0;', '', 'color: #fadfa3; background: #030307; padding:3px 0;', '');
+  </script>
+
+  
+
+  
+
+  
+    <link rel="icon" href="/images/favicon.png">
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+  
+
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/icon/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+  <script src="/js/util.js"></script>
+<script src="/js/valine.min.js"></script>
+
+  
+
+  
+    <link href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js" async></script>
+  
+
+  
+    <link href="https://cdn.bootcss.com/social-share.js/1.0.16/css/share.min.css" rel="stylesheet">
+  
+  
+  <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js" async></script>
+  
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.0/dist/av-min.js"></script>
+  
+
+</head>
+
+  <body>
+
+    
+
+    <div id="app">
+
+      <div class="header-wrap">
+  <header>
+    <div class="site-brand">
+      <div class="site-title">
+        <!-- <a href="/">MatrixSparse</a> -->
+        <img alt="logo" class="antd-pro-layouts-user-layout-logo" src="/images/favicon.png" style="width: 40px;height: 40px;margin-top: 10px;margin-left: 5px;">
+      </div>
+    </div>
+    <nav class="site-navigation">
+      <ul class="nav-menu">
+      
+        <li class="nav-item" data-path="/">
+          
+            <a href="/" target="_self">
+              主页
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          
+            <a href="/archives/" target="_self">
+              归档
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          
+            <a href="/categories/" target="_self">
+              分类
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          
+            <a href="/tags/" target="_self">
+              标签
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="">
+          
+            <a href="javascript:void(0);" v-else="">博客地址</a>
+            <ul class="nav-menu--dropdown">
+              
+                <li>
+                  <a href="https://blog.csdn.net/qq_25371579" target="_blank">
+                    CSDN
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://github.com/matrixsparse" target="_blank">
+                    Github
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://matrixsparse.github.io/" target="_blank">
+                    Github Page
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+      </ul>
+    </nav>
+    <i class="iconfont icon-menu"></i>
+  </header>
+</div>
+
+<script>
+  let links = document.querySelectorAll('.nav-item');
+  for(let link of links){
+    let childrenLink = link.querySelector('ul');
+    link.addEventListener('mouseenter', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown active";
+      }
+    })
+    link.addEventListener('mouseleave', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown";
+      }
+    })
+  }
+  let rootRealPath = getRealPath(window.location.pathname, true);
+  for(let link of links) {
+    let linkPath = link.getAttribute("data-path");
+    if(linkPath && getRealPath(linkPath, true) === rootRealPath) {
+      link.className = "nav-item hover";
+    }
+  }
+
+  let iconMenu = document.querySelector("i.iconfont.icon-menu"),
+    iconMenuClicked = false;
+  let navDOM = document.querySelector("nav.site-navigation");
+  iconMenu.addEventListener("click", () => {
+    iconMenuClicked
+      ? navDOM.className = "site-navigation active"
+      : navDOM.className = "site-navigation";
+    iconMenuClicked = !iconMenuClicked;
+  })
+</script>
+
+
+      
+
+
+
+
+
+
+
+
+<div class="container post-index">
+
+  
+
+<div class="post">
+  <h1 class="article-title">
+    <span>运营之数据分析</span>
+  </h1>
+  <div class="article-top-meta">
+    <span>
+      发布 : 
+      2017-03-27
+    </span>
+    
+      <span>
+        分类 : 
+          <a href="/categories/互联网运营/">
+            互联网运营
+          </a>
+      </span>
+    
+    
+      <span>
+        浏览 : <span class="article-timer" data-identity="运营之数据分析篇"></span>
+      </span>
+    
+  </div>
+
+  
+
+  <div class="article-content">
+    <div class="markdown-body">
+      <h2 id="数据分析帮你实际解决10个问题"><a href="#数据分析帮你实际解决10个问题" class="headerlink" title="数据分析帮你实际解决10个问题"></a>数据分析帮你实际解决10个问题</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">(1).监测广告效果</span><br><span class="line">(2).发现网站流程问题</span><br><span class="line">    一次活动带来1000个流量</span><br><span class="line">    点击注册按钮的人数是6个</span><br><span class="line">    点击注册成功的人数是3个</span><br><span class="line">    转化率是0.3%</span><br><span class="line">(3).监测目标达成结果(Goal)</span><br><span class="line">    目标达成：付款？注册？留下电话号码？</span><br><span class="line">(4).找到流量最多的媒介或渠道</span><br><span class="line">    某淘宝店一天1000次到店浏览</span><br><span class="line">    其中：</span><br><span class="line">    1.淘宝直通车带来150次访问</span><br><span class="line">    2.淘宝聚划算带来600次访问</span><br><span class="line">    3.淘宝直通车带来250次访问</span><br><span class="line">(5).知道用户用什么浏览器和设备访问你的网站</span><br><span class="line">    如果80%的用户用手机访问你的网站，你不做移动端，还等什么</span><br><span class="line">(6).找到最有价值的访客来自哪里(访客的行为)</span><br><span class="line">    QQ会员2012年收入54亿人民币</span><br><span class="line">    其中26亿元来自于山东、广东、福建</span><br><span class="line">(7).发现是否在一个活动上浪费钱</span><br><span class="line">    某匹萨在线订购网站</span><br><span class="line">    投入3000元获得1000个点击 -&gt; 0购买 -&gt; 浪费3000元人民币 -&gt; 转化率为0</span><br><span class="line">(8).了解用户在你的网站上喜欢做什么</span><br><span class="line">(9).测试不同版本的广告，哪个用户更喜欢</span><br><span class="line">(10).知道用户付款前都做了什么</span><br><span class="line">    一家淘宝卖空气净化器的店家</span><br><span class="line">    客户A -&gt; 打开网站 -&gt; 访问客服5分钟</span><br><span class="line">    客户B -&gt; 打开网站 -&gt; 宝贝详情页停留5分钟</span><br><span class="line">    客户C -&gt; 打开网站 -&gt; 宝贝详情页停留3分钟+询问客服3分钟</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>总结</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">检测广告效果</span><br><span class="line">清晰展示流量来源</span><br><span class="line">计算一次推广亏欠还是赚钱</span><br><span class="line">找到你的产品流程问题</span><br><span class="line">测试哪个广告版本好</span><br><span class="line">了解用户在你网站的行为</span><br><span class="line">分析地址位置和访客设备</span><br></pre></td></tr></table></figure>
+<h2 id="数据分析基本术语"><a href="#数据分析基本术语" class="headerlink" title="数据分析基本术语"></a>数据分析基本术语</h2><h3 id="visit"><a href="#visit" class="headerlink" title="visit"></a>visit</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">一个visit，就是一个访问</span><br><span class="line"></span><br><span class="line">比如xxx网站是一个四合院，你来我这院子</span><br><span class="line">西厢房看看、东厢房看看，总之你看了好几个房间，离开了我家</span><br><span class="line">对于四合院来说，你刚才的一系列行为，完成了一次<span class="string">"访问"</span></span><br></pre></td></tr></table></figure>
+<h3 id="UV-Unique-Visitor-独立访客"><a href="#UV-Unique-Visitor-独立访客" class="headerlink" title="UV(Unique Visitor)独立访客"></a>UV(Unique Visitor)独立访客</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">独立访客是某个站点被多少台电脑访问过，以用户电脑的Cookie作为统计依据</span><br><span class="line"></span><br><span class="line">还用四合院举票子，你一天分别上午下午晚上都来我的四合院转了一圈</span><br><span class="line">其实你是来了3次，但是始终都是你一个人，所以对于四合院来说，UV就是7</span><br><span class="line">如果2不同的人一共来了12次，那UC就是2</span><br></pre></td></tr></table></figure>
+<h3 id="PV-Page-View-页面浏览"><a href="#PV-Page-View-页面浏览" class="headerlink" title="PV(Page View)页面浏览"></a>PV(Page View)页面浏览</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">页面浏览量或点击量，用户每次刷新即被计算一次</span><br><span class="line">某站点总共有被浏览多少个页面，它是重复累计的，同一个页面被重复浏览也被计入PV</span><br><span class="line"></span><br><span class="line">我四合院一共有8间房，你进了一个房间，就是浏览了一个我的房间</span><br><span class="line">PV+1，你一共看了4个房间，那么PV就是4</span><br></pre></td></tr></table></figure>
+<h3 id="跳出率-Bounce-Rate"><a href="#跳出率-Bounce-Rate" class="headerlink" title="跳出率(Bounce Rate)"></a>跳出率(Bounce Rate)</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">指用通过搜索关键词来到你的网站，只浏览了一个页面就离开与全部浏览数量的百分比</span><br><span class="line"></span><br><span class="line">如果你成功进入一个网站，却没有点击它其上的任何链接，那么就为这个网站创造了一个Bounce</span><br><span class="line"></span><br><span class="line">Bounce Rate = 只浏览了一个页面的Visit/全部的Visits</span><br><span class="line"></span><br><span class="line">用人话来解释。就是你来到我的四合院，刚进门，一个房间都没看呢</span><br><span class="line"></span><br><span class="line">但是你已经觉得这个四合院你不喜欢不和你胃口，你转身就走了，那四合院多了一次bounce</span><br></pre></td></tr></table></figure>
+<h3 id="主页-Home-Page"><a href="#主页-Home-Page" class="headerlink" title="主页(Home Page)"></a>主页(Home Page)</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">主页是一个网站的起点站或者说主目录</span><br><span class="line"></span><br><span class="line">对于Home pages，不难理解，大多数互联网的冲浪者都知道，那就是一个网站的<span class="string">"门面页"</span>，也就是首页</span><br><span class="line"></span><br><span class="line">你来四合院，进到院子里，这个院子可以看到去往各个房间的入口，这个院子就是Home Page</span><br></pre></td></tr></table></figure>
+<h3 id="着陆页-Landing-Page"><a href="#着陆页-Landing-Page" class="headerlink" title="着陆页(Landing Page)"></a>着陆页(Landing Page)</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">如果说HomePage是对应于网络本身的一个页面概念，那么Landing Page就是对应于网络广告</span><br><span class="line">或者网上网站推广的一个概念</span><br><span class="line"></span><br><span class="line">举例子：</span><br><span class="line">北京西单人流量很大，然后我在那放了一个传动门，告诉大家这里有一个xxx的四合院</span><br><span class="line">里面有一个情趣房你懂得，谁有的兴趣可以来玩</span><br><span class="line"></span><br><span class="line">然后你一听情趣房，走起，你就进了传送门，然后你就直接在情趣房里面了</span><br><span class="line">这个情趣房就是你来到四合院的第一个房间，就是landing Page</span><br></pre></td></tr></table></figure>
+<h3 id="CTR-点击率"><a href="#CTR-点击率" class="headerlink" title="CTR(点击率)"></a>CTR(点击率)</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">指网站页面某一内容被点击的次数与显示次数之比</span><br><span class="line"></span><br><span class="line">CRT10%是什么意思，刚刚说了，50个人进了我的传送门，那么多少人看见了传送门呢</span><br><span class="line"></span><br><span class="line">10%就是说，放传送门这段时间，路过传送门的一共有500人，有50个人进了传送门</span><br><span class="line">所以，点击率是10%</span><br><span class="line"></span><br><span class="line">所以，你想到了，放了<span class="string">"情趣房"</span>的传送门你怎么点击率才10%，那可能我不应该放<span class="string">"如花"</span>的图片来吸引大家</span><br></pre></td></tr></table></figure>
+<h3 id="漏斗"><a href="#漏斗" class="headerlink" title="漏斗"></a>漏斗</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">产生目标转化的明确流程</span><br><span class="line">数据分析里面说的漏斗，就是用户从进入这个网站，到达成你设定的目标所经历的所有步骤，以及每一个步骤流失的人数</span><br><span class="line"></span><br><span class="line">票子：</span><br><span class="line">大众点评希望你团购一家菜馆的饭菜，这是他的目标</span><br><span class="line"></span><br><span class="line">通过宣传带来100人访问大众点评，然后有50人点击了团购的菜品，结果有10个人团购了这个产品</span><br><span class="line">那么这个广告的最终转化率是10%</span><br></pre></td></tr></table></figure>
+<h3 id="广告系列"><a href="#广告系列" class="headerlink" title="广告系列"></a>广告系列</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">付费广告活动的名称，如春季促销(横幅广告)简报(电子邮件)</span><br><span class="line">Weibo宣传(社交媒体宣传)</span><br><span class="line"></span><br><span class="line">票子：</span><br><span class="line">某避孕套企业打算在微博上投放广告，他们分别发布了微博内容、做了微博活动、还投放了微博评论粉丝通硬广</span><br><span class="line"></span><br><span class="line">所以他们针对微博做了不同类型的投放，我把这些投放都归类整理</span><br><span class="line">于是我分别给他们取的名字是：weibo-neirong;weibo-huodong;weibo-FST</span><br><span class="line">他们都会在我的广告系列报表里</span><br></pre></td></tr></table></figure>
+<h3 id="媒介"><a href="#媒介" class="headerlink" title="媒介"></a>媒介</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">对广告系列跟踪而言，媒介标示访问网站的访客到达网站的渠道</span><br><span class="line"></span><br><span class="line">比如：CPC(来自搜索引擎)或者EDM(电子邮件)Direct(表示访客在浏览器中输入网址)</span><br></pre></td></tr></table></figure>
+<h3 id="引荐流量"><a href="#引荐流量" class="headerlink" title="引荐流量"></a>引荐流量</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">引荐流量(Referrer)将访客引导至网站HTML页面的URL</span><br><span class="line"></span><br><span class="line">访客从这个外部网页来到你的网络</span><br><span class="line"></span><br><span class="line">有人从知乎看到了关于xxx的信息，从知乎的链接访问过来</span><br><span class="line">那么这个访客从知乎来到我的网络，这个访问是被知乎推荐过来的</span><br></pre></td></tr></table></figure>
+<h3 id="跟踪代码"><a href="#跟踪代码" class="headerlink" title="跟踪代码"></a>跟踪代码</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">跟踪代码就是标记你想记录数据的网页</span><br><span class="line"></span><br><span class="line">票子：</span><br><span class="line">你想宣传xxx里面的一篇博客，你个这篇博客的链接加了跟踪代码</span><br><span class="line">然后你分别在微博、微信、论坛都扔出去了这条你加过跟踪代码的链接</span><br><span class="line"></span><br><span class="line">最后发现这个博客一共访问了100次，其中80次是有代码的，那么你的代码但不可以告诉你那些事你帮助网站带来的</span><br><span class="line"></span><br><span class="line">还可以具体指导哪些渠道带来了多少次访问</span><br></pre></td></tr></table></figure>
+<h2 id="Google-Analystics"><a href="#Google-Analystics" class="headerlink" title="Google Analystics"></a>Google Analystics</h2><p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fh93tszrs6j21bb0qjagc.jpg" alt=""></p>
+<h3 id="实时数据"><a href="#实时数据" class="headerlink" title="实时数据"></a>实时数据</h3><h3 id="受众群体"><a href="#受众群体" class="headerlink" title="受众群体"></a>受众群体</h3><h3 id="用户流量"><a href="#用户流量" class="headerlink" title="用户流量"></a>用户流量</h3><h3 id="流量获取"><a href="#流量获取" class="headerlink" title="流量获取"></a>流量获取</h3><h3 id="行为流"><a href="#行为流" class="headerlink" title="行为流"></a>行为流</h3><h2 id="给广告设置检测链接"><a href="#给广告设置检测链接" class="headerlink" title="给广告设置检测链接"></a>给广告设置检测链接</h2><p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fh94g3f5w5j20ys0hxtcj.jpg" alt=""></p>
+
+    </div>
+  </div>
+  
+    <div class="copy-right">
+      <div class="markdown-body">
+        <blockquote>
+        
+        
+          本文作者 : Matrix <br>
+        
+        原文链接 : <a href="">http://yoursite.com/2017/03/27/运营之数据分析篇/</a><br>
+        版权声明 : 本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+        </blockquote>
+      </div>
+    </div>
+  
+  
+  
+    <div class="social-share" style="margin-top: -2rem" data-wechat-qrcode-title="<p>微信扫一扫</p>" data-wechat-qrcode-helper="<p>微信右上角, 扫一扫分享</p>" data-sites="qzone, qq, weibo, wechat, douban, google, facebook, twitter">
+  <span style="color: #6b7487; font-size: 1.4rem;">分享到: </span>
+</div>
+<script src="https://cdn.bootcss.com/social-share.js/1.0.16/js/social-share.min.js" async></script>
+  
+
+  
+    <div id="reward">
+  
+    <p id="reward-meta">知识 & 情怀 | 二者兼得</p>
+  
+  <button id="reward-btn">
+    
+    <span>投食</span>
+  </button>
+  <div id="reward-qrcode">
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/wechatpay.jpg" alt="微信扫一扫, 向我投食">
+        <p class="qrcode-meta">微信扫一扫, 向我投食</p>
+      </div>
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/alipaypay.jpg" alt="支付宝扫一扫, 向我投食">
+        <p class="qrcode-meta">支付宝扫一扫, 向我投食</p>
+      </div>
+    
+  </div>
+
+</div>
+
+<script>
+  (() => {
+    let button = document.querySelector('#reward-btn'),
+      qrcode = document.querySelector('#reward-qrcode'),
+      display = false;
+    
+    button.addEventListener('click', () => {
+      qrcode.style.display = display ? 'none' : 'block'
+      display = !display
+    }, false)
+  })()
+</script>
+  
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+      <span>
+        
+          <i class="iconfont icon-06tags"></i>标签: 
+          
+          <span class="span--tag">
+            <a href="/tags/互联网运营/">
+              #互联网运营
+            </a>
+          </span>
+          
+        
+      </span>
+    </div>
+    <div class="article-meta pull-right">
+    </div>
+  </div>
+</div>
+
+
+  <aside id="sidebar">
+    <p id="sidebar-header"></p>
+    <ol id="sidebar-toc"></ol>
+  </aside>
+  <script async>setTimeout(generateToc, 10);</script>
+
+
+  <nav class="post-navigation">
+    
+      <div class="nav-pre">
+        <i class="iconfont icon-prev"></i>
+        上一篇:
+        <a href="/2017/03/03/Redis数据操作/" target="_self">Redis数据操作</a>
+      </div>
+    
+    
+      <div class="nav-next">
+        下一篇:
+        <a href="/2017/04/11/Requests实现人人网登录/" target="_self">Requests实现人人网登录</a>
+        <i class="iconfont icon-next"></i>
+      </div>
+    
+  </nav>
+
+  
+    <a href="#comment" class="comment-anchor"></a>
+<div class="comment-title"><i class="iconfont icon-footprint"></i> 留下足迹 <i class="iconfont icon-footprint"></i></div>
+<div id="vcomments"></div>
+
+<script defer>
+  if( true ) {
+    let path = getRealPath()
+    new Valine({
+      el: "#vcomments",
+      appId: "Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz",
+      appKey: "WaR7nrzhliHj9aVwdQzkdlGd",
+      notify: false,
+      verify: false,
+      avatar: "robohash",
+      placeholder: "正确填写邮箱, 才能及时收到回复哦♪(^∇^*)",
+      path
+    });
+  }
+</script>
+   
+
+  
+    <script defer>
+const valineAPI = (() => {
+  try {
+    AV.init("Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz", "WaR7nrzhliHj9aVwdQzkdlGd");
+  } catch(error) {}
+  const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+      query.equalTo("identity", identity);
+      query.find().then(results => {
+        resolve(results.length > 0);
+      }, error => reject(error));
+    })
+  }
+
+  const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+      let querys = [];
+      for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+      }
+      query = AV.Query.or.apply(null ,querys);
+    } else {
+      identity = identity || getRealPath();
+      query = new AV.Query("Timer");
+      query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+      query.find()
+      .then(results => resolve(results))
+      .catch(error => reject(error))
+    })
+  }
+
+  const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let Todo = AV.Object.extend('Timer');
+      let todo = new Todo();
+      todo.set("times", 1);
+      todo.set("identity", identity);
+      todo.save().then(res => resolve(true), error => reject(error));
+    })
+  }
+
+  const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let query = new AV.Query('Timer');
+      query.equalTo("identity", identity);
+      query.find().then(todos => {
+        todos.forEach(todo => {
+          todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+      }).then(todos => resolve(true), error => reject(error));
+    })
+  }
+
+  return {
+    isExist,
+    _get,
+    update,
+    create
+  }
+})()
+
+const calcAndWriteTimes = () => {
+  let isPost = true;
+
+  let timerAllDOM = document.querySelectorAll(".article-timer");
+
+  if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+      if(exist) {
+        return valineAPI.update(identity);
+      }
+      return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+  }
+
+  let timerDOMCache = {};
+
+  for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+      timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+      timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+      };
+    }
+  }
+
+  let identities = Object.keys(timerDOMCache);
+  valineAPI._get(identities).then(results => {
+    for(let result of results) {
+      let {identity, times} = result.attributes;
+      timerDOMCache[identity].times = times;
+      timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+      if(timerDOMCache[identity].times){
+        continue;
+      }
+      timerDOMCache[identity].dom.map(item => item.innerText = 1);
+      valineAPI.create(identity);
+    }
+  }).catch(error => console.log(error.message))
+}
+
+if(true){
+  calcAndWriteTimes();
+}
+</script>
+   
+
+</div>
+
+
+      <footer>
+  <p class="site-info">
+    博客已萌萌哒运行<span id="time-to-now"></span><span class="my-face">(●'◡'●)ﾉ♥</span>
+    <br>
+    Theme - <a href="https://github.com/dongyuanxin/theme-bmw">BMW</a> | Powered by <a href="https://godbmw.com/">GodBMW</a>
+    <br>
+    
+      Copyright © 2019 Matrix
+    
+  </p>
+</footer>
+
+
+
+<script>
+const timeToNowDOM = document.querySelector("#time-to-now");
+const startTimestamp = new Date(2016, 4, 10).getTime();
+
+const updateTimeStr = () => {
+  let offset = parseInt(
+      (new Date().getTime() - startTimestamp) / 1000,
+      10
+    ),
+    day = Math.floor(offset / 86400),
+    hour = Math.floor((offset % 86400) / 3600),
+    minute = Math.floor(((offset % 86400) % 3600) / 60),
+    second = Math.floor(((offset % 86400) % 3600) % 60);
+  timeToNowDOM.innerHTML =
+    day + "天" + hour + "小时" + minute + "分钟" + second + "秒";
+  setTimeout(updateTimeStr, 500);
+}
+
+setTimeout(updateTimeStr, 500);
+</script>
+
+
+      <div class="back-to-top hidden">
+  <span>
+    <i class="iconfont icon-60"></i><span></span>%
+  </span>
+</div>
+
+<script>
+const updateIconToTop = percent => {
+  let dom = document.querySelector(".back-to-top span span");
+  dom.innerText = percent;
+  if(percent < 1) {
+    document.querySelector(".back-to-top").className = "back-to-top hidden";
+  } else {
+    document.querySelector(".back-to-top").className = "back-to-top";
+  }
+}
+
+const handleScoll = () => {
+  let isRunning = false;
+  return () => {
+    if (isRunning) return;
+    isRunning = true;
+    window.requestAnimationFrame(timestamp => {
+      let scrollTop =
+          document.documentElement.scrollTop || document.body.scrollTop,
+        scrollHeight =
+          document.documentElement.scrollHeight ||
+          document.body.scrollHeight,
+        clientHeight =
+          document.documentElement.clientHeight ||
+          document.body.clientHeight;
+      isRunning = false;
+      if (scrollTop <= 1) {
+        updateIconToTop(0);
+        return;
+      }
+      if (scrollTop + clientHeight >= scrollHeight) {
+        updateIconToTop(100);
+      } else {
+        updateIconToTop(parseInt(
+          100 * scrollTop / (scrollHeight - clientHeight),
+          10
+        ));
+      }
+    });
+  };
+}
+
+const backToTop = () => {
+  let scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop,
+    delay = 10,
+    time = 200;
+  if (scrollTop <= 20) {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    return;
+  }
+  let step = Math.ceil(scrollTop * delay / time);
+  let timer = setInterval(() => {
+    scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop;
+    if (scrollTop - step <= 0) {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      clearInterval(timer);
+    } else {
+      document.documentElement.scrollTop = scrollTop - step;
+      document.body.scrollTop = scrollTop - step;
+    }
+  }, delay);
+}
+
+document.addEventListener("scroll", handleScoll(), false);
+
+document.querySelector(".back-to-top").addEventListener("click", backToTop, false);
+
+</script>
+
+    </div>
+
+    
+      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  (() => {
+    const mathjaxConfig = {
+      showProcessingMessages: false, //关闭js加载过程信息
+      messageStyle: "none", //不显示信息
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]], //行内公式选择符
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]], //段内公式选择符
+        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"] //避开某些标签
+      },
+      "HTML-CSS": {
+        availableFonts: ["STIX", "TeX"], //可选字体
+        showMathMenu: false //关闭右击菜单显示
+      }
+    }
+
+    let mathjaxInterval = setInterval(() => {
+      if(!window.MathJax){
+        return;
+      }
+      window.MathJax.Hub.Config(mathjaxConfig)
+      window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')])
+
+      clearInterval(mathjaxInterval)
+    }, 10)    
+  })()
+</script>
+    
+
+    <script src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script>
+<script async>
+  let fancyTimer = setInterval(function(){
+    if(!window.$){
+      return;
+    }
+    $(document).ready(function() {
+      $(".post img").each(function () {
+        if($(this).parent().get(0).tagName.toLowerCase() === "a") {
+          return;
+        }
+        // $(this).attr("data-fancybox", "gallery"); // if you add 'data-fancybox', img will display after showed
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "gallery");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      });
+      
+      clearInterval(fancyTimer);
+    });
+  }, 10);
+</script>
+
+    
+  </body>
+
+</html>

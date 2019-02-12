@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta name="author" content="董沅鑫, yuanxin.me@gmail.com">
+  
+  
+  
+  <title>ElasticSearch集群部署 | 每天遇到更好的你</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="elasticsearch,elasticsearch,">
+  
+
+  <script>
+    console.log('\n%c Hexo-theme-bmw v4.0 ' + '%c 🎉 https://github.com/dongyuanxin/theme-bmw 🎉\n' + '\n%c View demo online ' + '%c 🔍 https://godbmw.com/ 🔍  \n' , 'color: #fadfa3; background: #030307; padding:3px 0;', '', 'color: #fadfa3; background: #030307; padding:3px 0;', '');
+  </script>
+
+  
+
+  
+
+  
+    <link rel="icon" href="/images/favicon.png">
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+  
+
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/icon/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+  <script src="/js/util.js"></script>
+<script src="/js/valine.min.js"></script>
+
+  
+
+  
+    <link href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js" async></script>
+  
+
+  
+    <link href="https://cdn.bootcss.com/social-share.js/1.0.16/css/share.min.css" rel="stylesheet">
+  
+  
+  <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js" async></script>
+  
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.0/dist/av-min.js"></script>
+  
+
+</head>
+
+  <body>
+
+    
+
+    <div id="app">
+
+      <div class="header-wrap">
+  <header>
+    <div class="site-brand">
+      <div class="site-title">
+        <!-- <a href="/">MatrixSparse</a> -->
+        <img alt="logo" class="antd-pro-layouts-user-layout-logo" src="/images/favicon.png" style="width: 40px;height: 40px;margin-top: 10px;margin-left: 5px;">
+      </div>
+    </div>
+    <nav class="site-navigation">
+      <ul class="nav-menu">
+      
+        <li class="nav-item" data-path="/">
+          
+            <a href="/" target="_self">
+              主页
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          
+            <a href="/archives/" target="_self">
+              归档
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          
+            <a href="/categories/" target="_self">
+              分类
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          
+            <a href="/tags/" target="_self">
+              标签
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="">
+          
+            <a href="javascript:void(0);" v-else="">博客地址</a>
+            <ul class="nav-menu--dropdown">
+              
+                <li>
+                  <a href="https://blog.csdn.net/qq_25371579" target="_blank">
+                    CSDN
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://github.com/matrixsparse" target="_blank">
+                    Github
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://matrixsparse.github.io/" target="_blank">
+                    Github Page
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+      </ul>
+    </nav>
+    <i class="iconfont icon-menu"></i>
+  </header>
+</div>
+
+<script>
+  let links = document.querySelectorAll('.nav-item');
+  for(let link of links){
+    let childrenLink = link.querySelector('ul');
+    link.addEventListener('mouseenter', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown active";
+      }
+    })
+    link.addEventListener('mouseleave', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown";
+      }
+    })
+  }
+  let rootRealPath = getRealPath(window.location.pathname, true);
+  for(let link of links) {
+    let linkPath = link.getAttribute("data-path");
+    if(linkPath && getRealPath(linkPath, true) === rootRealPath) {
+      link.className = "nav-item hover";
+    }
+  }
+
+  let iconMenu = document.querySelector("i.iconfont.icon-menu"),
+    iconMenuClicked = false;
+  let navDOM = document.querySelector("nav.site-navigation");
+  iconMenu.addEventListener("click", () => {
+    iconMenuClicked
+      ? navDOM.className = "site-navigation active"
+      : navDOM.className = "site-navigation";
+    iconMenuClicked = !iconMenuClicked;
+  })
+</script>
+
+
+      
+
+
+
+
+
+
+
+
+<div class="container post-index">
+
+  
+
+<div class="post">
+  <h1 class="article-title">
+    <span>ElasticSearch集群部署</span>
+  </h1>
+  <div class="article-top-meta">
+    <span>
+      发布 : 
+      2017-07-24
+    </span>
+    
+      <span>
+        分类 : 
+          <a href="/categories/elasticsearch/">
+            elasticsearch
+          </a>
+      </span>
+    
+    
+      <span>
+        浏览 : <span class="article-timer" data-identity="ElasticSearch集群部署"></span>
+      </span>
+    
+  </div>
+
+  
+
+  <div class="article-content">
+    <div class="markdown-body">
+      <h2 id="CentOS-7中启用并使用”ifconfig”命令"><a href="#CentOS-7中启用并使用”ifconfig”命令" class="headerlink" title="CentOS 7中启用并使用”ifconfig”命令"></a>CentOS 7中启用并使用”ifconfig”命令</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install net-tools -y</span><br></pre></td></tr></table></figure>
+<h2 id="ES集群"><a href="#ES集群" class="headerlink" title="ES集群"></a>ES集群</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">192.168.31.180 elasticsearch01</span><br><span class="line">192.168.31.181 elasticsearch02</span><br><span class="line">192.168.31.182 elasticsearch03</span><br></pre></td></tr></table></figure>
+<h2 id="解压ES压缩文件-amp-重命名"><a href="#解压ES压缩文件-amp-重命名" class="headerlink" title="解压ES压缩文件&amp;重命名"></a>解压ES压缩文件&amp;重命名</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@elasticsearch01 ~]<span class="comment"># tar -zxvf elasticsearch-5.5.0.tar.gz -C /usr/local</span></span><br><span class="line">[root@elasticsearch01 ~]<span class="comment"># cd /usr/local/</span></span><br><span class="line">[root@elasticsearch01 <span class="built_in">local</span>]<span class="comment"># mv elasticsearch-5.5.0 elasticsearch</span></span><br></pre></td></tr></table></figure>
+<h2 id="zen-discovery集群发现机制"><a href="#zen-discovery集群发现机制" class="headerlink" title="zen discovery集群发现机制"></a>zen discovery集群发现机制</h2><h3 id="如何让多台机器上的多个es进程，互相发现对方，然后组成生产环境集群"><a href="#如何让多台机器上的多个es进程，互相发现对方，然后组成生产环境集群" class="headerlink" title="如何让多台机器上的多个es进程，互相发现对方，然后组成生产环境集群"></a>如何让多台机器上的多个es进程，互相发现对方，然后组成生产环境集群</h3><p>默认情况下，es进程会绑定在自己的回环地址上，也就是127.0.0.1，然后扫描本机上的<code>9300~9305</code>端口号，尝试跟那些端口上启动的其他es进程进行通信，然后组成一个集群。这对于在本机上搭建es集群的开发环境是很方便的。但是对于<code>生产环境</code>下的集群是不行的，需要将每台<code>es进程</code>绑定在一个<code>非回环的ip地址</code>上，才能跟其他节点进行通信，同时需要使用集群发现机制来跟其他节点上的es node进行通信</p>
+<p>在生产环境中的多台机器上部署es集群，涉及到<code>es的discovery机制</code>，也就是集群中各个节点互相发现后组成一个集群的机制，同时<code>discovery机制</code>也<code>负责es集群的master选举</code></p>
+<h3 id="master-node和data-node两种角色"><a href="#master-node和data-node两种角色" class="headerlink" title="master node和data node两种角色"></a>master node和data node两种角色</h3><p>es是一种peer to peer，<code>p2p点对点的分布式系统架构</code>(集群中的每个node直接跟其他节点进行通信，几乎所有API操作，如index，delete，search，都不是client跟master通信，而是client跟任何一个node进行通信，node再将请求转发给对应的node进行执行)，不是hadoop生态采用的master-slave主从架构的分布式系统架构</p>
+<p>两个角色，master node，data node。正常情况下，就只有一个master node</p>
+<p>master node<code>负责维护整个集群的状态信息</code>[集群元数据信息]，同时在node加入集群或者从集群中下限覅按时，重新分配shard，或者是创建或删除了一个索引。包括每次cluster state如果有改变的化，那么master都会负责将集群状态同步给所有的node</p>
+<p>master node<code>负责接收所有的cluster state相关的变化信息</code>，将这个改变后的最新的cluster state推动给集群中所有的data node，集群中所有的node都有一份完整的cluster state,master node负责维护</p>
+<p>data node<code>负责数据的存储和读写的</code>，写入索引，搜索数据</p>
+<h3 id="设置cluster-name"><a href="#设置cluster-name" class="headerlink" title="设置cluster.name"></a>设置cluster.name</h3><blockquote>
+<p>如果要让多个node组成一个es集群，<code>第一个要设置的参数</code>，是<code>cluster.name</code>，多个node的cluster.name一样，才满足组成一个集群的基本条件</p>
+</blockquote>
+<p>这个cluster.name的默认值是elasticsearch，在生产环境中，一定要修改这个值，否则可能会导致未知的node无端加入集群，造成集群运行异常。</p>
+<p>而es中默认的discovery机制，就是zen discovery机制</p>
+<p>zen discovery机制提供了unicast discovery集群发现机制，集群发现时的节点间通信是依赖的transport module，也就是es底层的网络通信模块和协议。</p>
+<p>es默认配置为使用unicast集群发现机制，以让经过特殊配置的节点可以组成一个集群，而不是随便哪个节点都可以组成一个集群。但是默认配置下，unicast是本机，也就是localhost，因此只能在一台机器上启动多个node来组成一个集群。虽然es还是会提供multicast plugin作为一个发现机制，但是已经不建议在生产环境中使用了。虽然我们可能想要multicast的简单性，就是所有的node可以再接收到一条multicast ping之后就立即自动加入集群。但是multicast机制有很多的问题，而且很脆弱，比如网络有轻微的调整，就可能导致节点无法发现对方。因此现在建议在生产环境中用unicast机制，提供一个es种子node作为中转路由节点就可以</p>
+<h3 id="master-node、data-node、network-host"><a href="#master-node、data-node、network-host" class="headerlink" title="master node、data node、network.host"></a>master node、data node、network.host</h3><p>给集群规划出专门的master eligible node和data node</p>
+<p>master node，master eligible node，data node</p>
+<p>配置多个node变成master eligible node，从这些master eligible node选举一个node出来作为master node，其他master eligible node只是接下来有那个master node故障的时候，接替他的资格，但是还是作为data node去使用的</p>
+<p>一般建议master eligible node给3个即可：node.master: true，node.data: false<br>剩下的node都设置为data node：node.master: false，node.data: true</p>
+<p>但是如果一个小集群，就10个以内的节点，那就所有节点都可以作为master eligible node以及data node即可，超过10个node的集群再单独拆分master和data node吧</p>
+<p>如果你的节点数量小于10个，小集群，那所有的node，就不要做额外的配置了，master eligible node，同时也是data node</p>
+<p>默认情况下，es会将自己绑定到127.0.0.1上，对于运行一个单节点的开发模式下的es是ok的。但是为了让节点间可以互相通信以组成一个集群，需要让节点绑定到一个ip地址上，非回环的地址，一般会配置：<br>network.host: 192.168.1.10</p>
+<p>一旦我们配置了network.host，那么es就会认为我们从开发模式迁移到生产模式，同时会启用一系列的bootstrap check</p>
+<h3 id="ping"><a href="#ping" class="headerlink" title="ping"></a>ping</h3><p>ping是一个node用discovery机制来发现其他node的一个过程</p>
+<h3 id="unicast"><a href="#unicast" class="headerlink" title="unicast"></a>unicast</h3><p>unicast discovery集群发现机制是要求<code>配置一个主机列表</code>，用来作为gossip（流言式）通信协议的路由器。这些机器如果通过hostname来指定，那么在ping的时候会被解析为ip地址。unicast discovery机制最重要的两个配置如下所示：</p>
+<p>hosts：用逗号分割的主机列表<br>hosts.resolve_timeout：hostname被DNS解析为ip地址的timeout等待时长</p>
+<p>简单来说，如果要让多个节点发现对方并且组成一个集群，那么就得有一个中间的公共节点，然后不同的节点就发送请求到这些公共节点，接着通过这些公共节点交换各自的信息，进而让所有的node感知到其他的node存在，并且进行通信，最后组成一个集群。这就是基于gossip流言式通信协议的unicast集群发现机制。</p>
+<p>当一个node与unicast node list中的一个成员通信之后，就会接收到一份完整的集群状态，这里会列出集群中所有的node。接着那个node再通过cluster state跟master通信，并且加入集群中。这就意味着，我们的unicast list node是不需要列出集群中的所有节点的。只要提供少数几个node，比如3个，让新的node可以连接上即可。如果我们给集群中分配了几个节点作为专门的master节点，那么只要列出我们那三个专门的master节点即可。用如下的配置即可：discovery.zen.ping.unicast.hosts: [“host1”, “host2:port”]。</p>
+<p>cluster.name<br>node.name<br>network.host<br>discovery.zen.ping.unicast.hosts</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">（1）通过network.host绑定到了非回环的ip地址，从而可以跟其他节点通信</span><br><span class="line">（2）通过discovery.zen.ping.unicast.hosts配置了一批unicast中间路由的node</span><br><span class="line">（3）所有node都可以发送ping消息到路由node，再从路由node获取cluster state回来</span><br><span class="line">（4）接着所有node会选举出一个master</span><br><span class="line">（5）所有node都会跟master进行通信，然后加入master的集群</span><br><span class="line">（6）要求cluster.name必须一样，才能组成一个集群</span><br><span class="line">（7）node.name就标识出了每个node我们自己设置的一个名称</span><br></pre></td></tr></table></figure>
+<h3 id="master选举"><a href="#master选举" class="headerlink" title="master选举"></a>master选举</h3><p>在ping发现过程中，为集群选举出一个master也是很重要的，es集群会自动完成这个操作。设置<code>discovery.zen.ping_timeout</code>参数（默认是3s），如果网络慢或者拥塞，导致master选举超时，可以增加这个参数，确保集群启动的稳定性。</p>
+<p>在完成一个集群的master选举之后，每次一个新的node加入集群，都会发送一个join request到master node，可以<code>设置discovery.zen.join_timeout</code>，保证node稳定加入集群，增加join的timeout等待时长，如果一次join不上，默认会<code>重试20次</code></p>
+<p>如果master node被停止了，或者自己宕机了，那么集群中的node会再次进行一次ping过程，并且选举出一个新的master。discovery.zen.master_election.ignore_non_master_pings设置为true，会强制区分master候选节点，如果node的node.master设置为了false，还来发送ping请求参与master选举，那么这些node会被忽略掉，因为他们没有资格参与。</p>
+<p>discovery.zen.minimum_master_nodes参数用于设置对于一个新选举的master，要求必须有多少个master候选node去连接那个新选举的master。而且还用于设置一个集群中必须拥有的master候选node。如果这些要求没有被满足，那么master node就会被停止，然后会重新选举一个新的master。这个参数必须设置为我们的master候选node的quorum数量。一般避免说只有两个master候选node，因为2的quorum还是2。如果在那个情况下，任何一个master候选节点宕机了，集群就无法正常运作了。</p>
+<h3 id="集群故障的探查"><a href="#集群故障的探查" class="headerlink" title="集群故障的探查"></a>集群故障的探查</h3><p>es有两种集群故障探查机制</p>
+<ul>
+<li>第一种是通过master进行的，master会ping集群中所有的其他node，确保它们是否是存活着的</li>
+<li>第二种，每个node都会去ping master node来确保master node是存活的，否则就会发起一个选举过程。</li>
+</ul>
+<p>有下面三个参数用来配置集群故障的探查过程：</p>
+<ul>
+<li>ping_interval：每隔多长时间会ping一次node，默认是1s</li>
+<li>ping_timeout：每次ping的timeout等待时长是多长时间，默认是30s</li>
+<li>ping_retries：一个node被ping多少次都失败了，就会认为node故障，默认是3次</li>
+</ul>
+<h3 id="集群状态更新"><a href="#集群状态更新" class="headerlink" title="集群状态更新"></a>集群状态更新</h3><p>master node是集群中唯一一个可以对cluster state进行更新的node。master node每次会处理一个集群状态的更新事件，应用这次状态更新，然后将更新后的状态发布到集群中所有的node上去。每个node都会接收publish message，ack这个message，但是不会应用这个更新。如果master没有在discovery.zen.commit_timeout指定的时间内（默认是30s），从至少discovery.zen.minimum_master_nodes个节点获取ack响应，那么这次cluster state change事件就会被reject，不会应用。</p>
+<p>但是一旦在指定时间内，指定数量的node都返回了ack消息，那么cluster state就会被commit，然后一个message会被发送给所有的node。所有的node接收到那个commit message之后，接着才会将之前接收到的集群状态应用到自己本地的状态副本中去。接着master会等待所有节点再次响应是否更新自己本地副本状态成功，在一个等待超时时长内，如果接收到了响应，那么就会继续处理内存queue中保存的下一个更新状态。discovery.zen.publish_timeout默认是30s，这个超时等待时长是从plublish cluster state开始计算的。</p>
+<blockquote>
+<p>不因为master宕机阻塞集群操作</p>
+</blockquote>
+<p>如果要让集群正常运转，那么必须有一个master，还有discovery.zen.minimum_master_nodes指定数量的master候选node，都在运行</p>
+<p>discovery.zen.no_master_block可以控制当master当即时，什么样的操作应该被拒绝。有下面两个选项：<br>all：一旦master当即，那么所有的操作都会被拒绝<br>write：这是默认的选项，所有的写操作都会被拒绝，但是读操作是被允许的</p>
+<blockquote>
+<p>在三台机器上创建目录</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p /var/<span class="built_in">log</span>/elasticsearch</span><br><span class="line">mkdir -p /var/data/elasticsearch</span><br><span class="line">mkdir -p /var/plugin/elasticsearch</span><br><span class="line">mkdir -p /etc/elasticsearch</span><br><span class="line"></span><br><span class="line">chown -R elasticsearch /usr/<span class="built_in">local</span>/elasticsearch</span><br><span class="line">chown -R elasticsearch /var/<span class="built_in">log</span>/elasticsearch</span><br><span class="line">chown -R elasticsearch /var/data/elasticsearch</span><br><span class="line">chown -R elasticsearch /var/plugin/elasticsearch</span><br><span class="line">chown -R elasticsearch /etc/elasticsearch</span><br><span class="line">chown -R elasticsearch /usr/<span class="built_in">local</span>/tmp</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>修改配置文件</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@elasticsearch01 ~]<span class="comment"># cp /usr/local/elasticsearch/config/elasticsearch.yml  /etc/elasticsearch/</span></span><br><span class="line">[root@elasticsearch01 ~]<span class="comment"># cp /usr/local/elasticsearch/config/log4j2.properties /etc/elasticsearch/</span></span><br><span class="line">[root@elasticsearch01 ~]<span class="comment"># cp /usr/local/elasticsearch/config/jvm.options /etc/elasticsearch/</span></span><br><span class="line">[root@elasticsearch01 ~]<span class="comment"># cd /etc/elasticsearch/</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">[root@elasticsearch01 elasticsearch]<span class="comment"># vi elasticsearch.yml</span></span><br><span class="line"><span class="comment"># 与其他机器组成的集群名称</span></span><br><span class="line">cluster.name: cluster-elasticsearch-prod</span><br><span class="line"><span class="comment"># 节点名称</span></span><br><span class="line">node.name: node-elasticsearch-01</span><br><span class="line"><span class="comment"># bootstrap.memory_lock: false</span></span><br><span class="line"><span class="comment"># 绑定到非回环ip地址，可以与其他机器进行通信</span></span><br><span class="line">network.host: 192.168.31.180</span><br><span class="line">discovery.zen.ping.unicast.hosts: [<span class="string">"elasticsearch01"</span>, <span class="string">"elasticsearch02"</span>,<span class="string">"elasticsearch03"</span>]</span><br><span class="line">discovery.zen.ping_timeout: 60s</span><br><span class="line">discovery.zen.join_timeout: 60s</span><br><span class="line">discovery.zen.master_election.ignore_non_master_pings: <span class="literal">true</span></span><br><span class="line"><span class="comment"># 预防集群脑裂</span></span><br><span class="line">discovery.zen.minimum_master_nodes: 3</span><br><span class="line"><span class="comment"># 设置数据文件目录</span></span><br><span class="line">path.data: /var/data/elasticsearch</span><br><span class="line"><span class="comment"># 设置日志文件目录，可以指定多个目录，用逗号分隔即可</span></span><br><span class="line">path.logs: /var/<span class="built_in">log</span>/elasticsearch</span><br><span class="line"><span class="comment"># 设置插件存放目录</span></span><br><span class="line"><span class="comment"># path.plugins: /var/plugin/elasticsearch</span></span><br><span class="line"><span class="comment"># path.conf: /etc/elasticsearch</span></span><br><span class="line"><span class="comment"># 设置预防脑裂，预防一个集群中存在两个master</span></span><br><span class="line">discovery.zen.minimum_master_nodes: 2</span><br><span class="line"><span class="comment"># es直到有足够的node都上线之后，再开始shard recovery的过程</span></span><br><span class="line">gateway.recover_after_nodes: 2</span><br><span class="line"><span class="comment"># 设置一个集群中至少有多少个node</span></span><br><span class="line">gateway.expected_nodes: 3</span><br><span class="line"><span class="comment"># 设置等待node的时间</span></span><br><span class="line">gateway.recover_after_time: 5m</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>日志配置详解</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 配置了appender类型RollingFile</span></span><br><span class="line">appender.rolling.type = RollingFile</span><br><span class="line">appender.rolling.name = rolling</span><br><span class="line"><span class="comment"># 配置日志路径</span></span><br><span class="line">appender.rolling.fileName = <span class="variable">$&#123;sys:es.logs.base_path&#125;</span><span class="variable">$&#123;sys:file.separator&#125;</span><span class="variable">$&#123;sys:es.logs.cluster_name&#125;</span>.<span class="built_in">log</span></span><br><span class="line"><span class="comment"># 配置基于时间的roll策略</span></span><br><span class="line">appender.rolling.layout.type = PatternLayout</span><br><span class="line">appender.rolling.layout.pattern = [%d&#123;ISO8601&#125;][%-5p][%-25c] %.10000m%n</span><br><span class="line"><span class="comment"># 配置将日志每天写一份到/var/log/elasticsearch/production-2017-01-01.log文件中</span></span><br><span class="line">appender.rolling.filePattern = <span class="variable">$&#123;sys:es.logs.base_path&#125;</span><span class="variable">$&#123;sys:file.separator&#125;</span><span class="variable">$&#123;sys:es.logs.cluster_name&#125;</span>-%d&#123;yyyy-MM-dd&#125;.<span class="built_in">log</span></span><br><span class="line">appender.rolling.policies.type = Policies</span><br><span class="line"><span class="comment"># 配置基于时间的roll策略</span></span><br><span class="line">appender.rolling.policies.time.type = TimeBasedTriggeringPolicy</span><br><span class="line"><span class="comment"># 设置每天一份日志文件</span></span><br><span class="line">appender.rolling.policies.time.interval = 1</span><br><span class="line"><span class="comment"># 设置根据自然天来划分文件，而不是24小时</span></span><br><span class="line">appender.rolling.policies.time.modulate = <span class="literal">true</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>日志配置</p>
+</blockquote>
+<p>es使用log4j2来记录日志，log4j2可以通过log4j2.properties文件来进行配置</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">appender.rolling.strategy.type = DefaultRolloverStrategy </span><br><span class="line">appender.rolling.strategy.action.type = Delete </span><br><span class="line">appender.rolling.strategy.action.basepath = <span class="variable">$&#123;sys:es.logs.base_path&#125;</span> </span><br><span class="line">appender.rolling.strategy.action.condition.type = IfLastModified </span><br><span class="line">appender.rolling.strategy.action.condition.age = 7D </span><br><span class="line">appender.rolling.strategy.action.PathConditions.type = IfFileName </span><br><span class="line">appender.rolling.strategy.action.PathConditions.glob = <span class="variable">$&#123;sys:es.logs.cluster_name&#125;</span>-*</span><br></pre></td></tr></table></figure>
+<h3 id="禁止swapping"><a href="#禁止swapping" class="headerlink" title="禁止swapping"></a>禁止swapping</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">[root@elasticsearch01 ~]<span class="comment"># vi /etc/fstab</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># /etc/fstab</span></span><br><span class="line"><span class="comment"># Created by anaconda on Mon Jul 17 23:05:14 2017</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># Accessible filesystems, by reference, are maintained under '/dev/disk'</span></span><br><span class="line"><span class="comment"># See man pages fstab(5), findfs(8), mount(8) and/or blkid(8) for more info</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line">/dev/mapper/cl-root     /                       xfs     defaults        0 0</span><br><span class="line">UUID=bf320a34-67d2-4125-ba31-e3a76bac0480 /boot                   xfs     defaults        0 0</span><br><span class="line"><span class="comment"># /dev/mapper/cl-swap     swap                    swap    defaults        0 0</span></span><br></pre></td></tr></table></figure>
+<h3 id="指定一个新的临时目录"><a href="#指定一个新的临时目录" class="headerlink" title="指定一个新的临时目录"></a>指定一个新的临时目录</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@elasticsearch01 ~]<span class="comment"># mkdir -p /usr/local/tmp</span></span><br><span class="line">[root@elasticsearch01 ~]<span class="comment"># cd /etc/elasticsearch/</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@elasticsearch01 elasticsearch]<span class="comment"># vi jvm.options</span></span><br><span class="line">-Djava.io.tmpdir=/usr/<span class="built_in">local</span>/tmp</span><br></pre></td></tr></table></figure>
+<h3 id="虚拟内存设置"><a href="#虚拟内存设置" class="headerlink" title="虚拟内存设置"></a>虚拟内存设置</h3><p>es使用hybrid mmapfs / niofs目录来存储index数据，操作系统的默认mmap count限制是很低的，可能会导致内存耗尽的异常。</p>
+<p>需要提升mmap count的限制：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sysctl -w vm.max_map_count=262144</span><br></pre></td></tr></table></figure>
+<p>如果要永久性设置这个值，要修改/etc/sysctl.conf，将vm.max_map_count的值修改一下，重启过后，用sysctl vm.max_map_count来验证一下数值是否修改成功</p>
+<p>es同时会用NioFS和MMapFS来处理不同的文件，我们需要设置最大的map刷另，这样我们才能有足够的虚拟内存来给mmapped文件使用，可以用sysctl来设置：sysctl -w vm.max_map_count=262144。还可以再/etc/sysctl.conf中，对vm.max_map_count来设置</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@elasticsearch01 ~]<span class="comment"># sysctl -w vm.max_map_count=262144</span></span><br><span class="line">vm.max_map_count = 262144</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@elasticsearch01 ~]<span class="comment"># vi /etc/sysctl.conf</span></span><br><span class="line">vm.max_map_count=262144</span><br><span class="line"><span class="comment"># 配置swappiness</span></span><br><span class="line">vm.swappiness=1</span><br></pre></td></tr></table></figure>
+<h3 id="设置线程的数量，设置es用户能创建的最大线程数量至少在2048"><a href="#设置线程的数量，设置es用户能创建的最大线程数量至少在2048" class="headerlink" title="设置线程的数量，设置es用户能创建的最大线程数量至少在2048"></a>设置线程的数量，设置es用户能创建的最大线程数量至少在2048</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">es用了很多线程池来应对不同类型的操作</span><br><span class="line">在需要的时候创建新的线程是很重要的</span><br><span class="line">要确保es用户能创建的最大线程数量至少在2048以上。</span><br><span class="line"></span><br><span class="line">可以通过<span class="built_in">ulimit</span> -u 2048来临时设置</span><br><span class="line">也可以在/etc/security/limits.conf中</span><br><span class="line">设置nproc为2048来永久性设置。</span><br></pre></td></tr></table></figure>
+<h3 id="配置-etc-security-limits-conf文件"><a href="#配置-etc-security-limits-conf文件" class="headerlink" title="配置/etc/security/limits.conf文件"></a>配置/etc/security/limits.conf文件</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[root@elasticsearch01 ~]<span class="comment"># vi /etc/security/limits.conf</span></span><br><span class="line"><span class="comment"># 启动es进程的用户没有权限去lock memory，需要通过以下方式进行授权</span></span><br><span class="line">elasticsearch hard memlock unlimited</span><br><span class="line">elasticsearch soft memlock unlimited</span><br><span class="line"><span class="comment"># 设置线程的数量，设置es用户能创建的最大线程数量至少在2048</span></span><br><span class="line">elasticsearch hard nproc 2048</span><br><span class="line">elasticsearch hard nofile 65536</span><br><span class="line">elasticsearch hard as unlimited</span><br></pre></td></tr></table></figure>
+<h2 id="将ES配置文件发送到另外三台机器上"><a href="#将ES配置文件发送到另外三台机器上" class="headerlink" title="将ES配置文件发送到另外三台机器上"></a>将ES配置文件发送到另外三台机器上</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@elasticsearch01 ~]<span class="comment"># scp -r /usr/local/elasticsearch/ root@elasticsearch02:/usr/local/elasticsearch/</span></span><br><span class="line">[root@elasticsearch01 ~]<span class="comment"># scp -r /usr/local/elasticsearch/ root@elasticsearch03:/usr/local/elasticsearch/</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@elasticsearch01 ~]<span class="comment"># scp -r /etc/security/limits.conf root@elasticsearch02:/etc/security/limits.conf</span></span><br><span class="line">[root@elasticsearch01 ~]<span class="comment"># scp -r /etc/security/limits.conf root@elasticsearch03:/etc/security/limits.conf</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@elasticsearch01 ~]<span class="comment"># scp -r /etc/elasticsearch/ root@elasticsearch02:/etc/</span></span><br><span class="line">[root@elasticsearch01 ~]<span class="comment"># scp -r /etc/elasticsearch/ root@elasticsearch03:/etc/</span></span><br></pre></td></tr></table></figure>
+<h3 id="修改其余机器上ES配置文件中的节点名称、非回环地址"><a href="#修改其余机器上ES配置文件中的节点名称、非回环地址" class="headerlink" title="修改其余机器上ES配置文件中的节点名称、非回环地址"></a>修改其余机器上ES配置文件中的节点名称、非回环地址</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[root@elasticsearch02 ~]<span class="comment"># cd /etc/elasticsearch/</span></span><br><span class="line">[root@elasticsearch02 config]<span class="comment"># vi elasticsearch.yml</span></span><br><span class="line"><span class="comment"># 节点名称</span></span><br><span class="line">node.name: node-elasticsearch-02</span><br><span class="line"><span class="comment"># 配置主机上的非回环地址</span></span><br><span class="line">network.host: 192.168.31.181</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[root@elasticsearch03 ~]<span class="comment"># cd /etc/elasticsearch/</span></span><br><span class="line">[root@elasticsearch03 config]<span class="comment"># vi elasticsearch.yml</span></span><br><span class="line"><span class="comment"># 节点名称</span></span><br><span class="line">node.name: node-elasticsearch-03</span><br><span class="line"><span class="comment"># 配置主机上的非回环地址</span></span><br><span class="line">network.host: 192.168.31.182</span><br></pre></td></tr></table></figure>
+<h3 id="设置ES环境变量"><a href="#设置ES环境变量" class="headerlink" title="设置ES环境变量"></a>设置ES环境变量</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@elasticsearch01 ~]<span class="comment"># vi .bashrc</span></span><br><span class="line"><span class="built_in">export</span> ES_HOME=/usr/<span class="built_in">local</span>/elasticsearch/</span><br><span class="line"><span class="built_in">export</span> PATH=<span class="variable">$PATH</span>:<span class="variable">$ES_HOME</span>/bin</span><br><span class="line">[root@elasticsearch01 ~]<span class="comment"># source .bashrc</span></span><br></pre></td></tr></table></figure>
+<h3 id="切换到elasticsearch用户来启动es进程"><a href="#切换到elasticsearch用户来启动es进程" class="headerlink" title="切换到elasticsearch用户来启动es进程"></a>切换到elasticsearch用户来启动es进程</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">su elasticsearch</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /usr/<span class="built_in">local</span>/elasticsearch/bin</span><br><span class="line">elasticsearch -d -Epath.conf=/etc/elasticsearch</span><br></pre></td></tr></table></figure>
+<p>或者</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[elasticsearch@elasticsearch01 ~]$ elasticsearch -d -Epath.conf=/etc/elasticsearch</span><br><span class="line">[elasticsearch@elasticsearch02 ~]$ elasticsearch -d -Epath.conf=/etc/elasticsearch</span><br><span class="line">[elasticsearch@elasticsearch03 ~]$ elasticsearch -d -Epath.conf=/etc/elasticsearch</span><br></pre></td></tr></table></figure>
+<h3 id="查看elasticsearch日志"><a href="#查看elasticsearch日志" class="headerlink" title="查看elasticsearch日志"></a>查看elasticsearch日志</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[elasticsearch@elasticsearch01 ~]$ ll /var/<span class="built_in">log</span>/elasticsearch/</span><br><span class="line">总用量 32</span><br><span class="line">-rw-rw-r--. 1 elasticsearch elasticsearch     0 10月 15 23:10 cluster-elasticsearch-prod_deprecation.log</span><br><span class="line">-rw-rw-r--. 1 elasticsearch elasticsearch     0 10月 15 23:10 cluster-elasticsearch-prod_index_indexing_slowlog.log</span><br><span class="line">-rw-rw-r--. 1 elasticsearch elasticsearch     0 10月 15 23:10 cluster-elasticsearch-prod_index_search_slowlog.log</span><br><span class="line">-rw-rw-r--. 1 elasticsearch elasticsearch 31979 10月 15 23:42 cluster-elasticsearch-prod.log</span><br></pre></td></tr></table></figure>
+<h3 id="查看ES集群是否启动成功"><a href="#查看ES集群是否启动成功" class="headerlink" title="查看ES集群是否启动成功"></a>查看ES集群是否启动成功</h3><blockquote>
+<p>在浏览器地址栏访问：<a href="http://192.168.31.180:9200/" target="_blank" rel="noopener">http://192.168.31.180:9200/</a></p>
+</blockquote>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fkjf0hsw9oj21a60godjo.jpg" alt="All text"></p>
+<blockquote>
+<p>在浏览器地址栏访问：<a href="http://192.168.31.181:9200/" target="_blank" rel="noopener">http://192.168.31.181:9200/</a></p>
+</blockquote>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fkjf0ie8zmj21740g8429.jpg" alt="All text"></p>
+<blockquote>
+<p>在浏览器地址栏访问：<a href="http://192.168.31.182:9200/" target="_blank" rel="noopener">http://192.168.31.182:9200/</a></p>
+</blockquote>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fkjf0i3rucj216i0gcn0y.jpg" alt="All text"></p>
+<h2 id="访问es"><a href="#访问es" class="headerlink" title="访问es"></a>访问es</h2><p>一般建议在管理机上安装一个curl工具，可以手工发送rest api请求</p>
+<p>可以对启动了es的节点的9200端口，发送一个GET /请求，可以看看es是否启动成功</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -XGET elasticsearch03:9200</span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fkjfh28ytsj21ku0jm474.jpg" alt="All text"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -XGET elasticsearch01:9200/_cat/nodes?v</span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fkm38wdmkgj21vu078wkn.jpg" alt="All text"></p>
+<h2 id="停止es"><a href="#停止es" class="headerlink" title="停止es"></a>停止es</h2><p>优雅的关闭es，可以确保es关闭的很干净，并且优雅关闭资源。<br>举例来说，如果node在一个合理的顺序下关闭了，首先会将自己从cluster中优雅移除，fsync translog日志到磁盘中去，然后执行其他相关的cleanup活动。</p>
+<p>如果我们将es用service的方式来运行，那么可以通过server管理功能来停止es。</p>
+<p>如果我们是直接启动es的，可以control-C停止es，或者是发送SEGTERM信号给es进程</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[elasticsearch@elasticsearch01 elasticsearch]$ jps | grep Elasticsearch</span><br><span class="line">3661 Elasticsearch</span><br><span class="line">[elasticsearch@elasticsearch01 elasticsearch]$ <span class="built_in">kill</span> -SIGTERM 3661</span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fkm3ubf4roj21ag05madh.jpg" alt="All text"></p>
+<p>如果es发生了fatal error，类似out of memory error，代码bug，或者io error，等等</p>
+<p>当es发现jvm有一个fatal error，就会尝试记录在log里面，然后尝试去停止jvm。此时es是不会按照优雅关闭的模式去执行的，而是会直接关闭，并且返回一个错误码</p>
+<p>JVM internal error                     128<br>Out of memory error                 127<br>Stack overflow error                 126<br>Unknown virtual machine error         125<br>Serious I/O error                     124<br>Unknown fatal error                 1</p>
+
+    </div>
+  </div>
+  
+    <div class="copy-right">
+      <div class="markdown-body">
+        <blockquote>
+        
+        
+          本文作者 : Matrix <br>
+        
+        原文链接 : <a href="">http://yoursite.com/2017/07/24/ElasticSearch集群部署/</a><br>
+        版权声明 : 本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+        </blockquote>
+      </div>
+    </div>
+  
+  
+  
+    <div class="social-share" style="margin-top: -2rem" data-wechat-qrcode-title="<p>微信扫一扫</p>" data-wechat-qrcode-helper="<p>微信右上角, 扫一扫分享</p>" data-sites="qzone, qq, weibo, wechat, douban, google, facebook, twitter">
+  <span style="color: #6b7487; font-size: 1.4rem;">分享到: </span>
+</div>
+<script src="https://cdn.bootcss.com/social-share.js/1.0.16/js/social-share.min.js" async></script>
+  
+
+  
+    <div id="reward">
+  
+    <p id="reward-meta">知识 & 情怀 | 二者兼得</p>
+  
+  <button id="reward-btn">
+    
+    <span>投食</span>
+  </button>
+  <div id="reward-qrcode">
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/wechatpay.jpg" alt="微信扫一扫, 向我投食">
+        <p class="qrcode-meta">微信扫一扫, 向我投食</p>
+      </div>
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/alipaypay.jpg" alt="支付宝扫一扫, 向我投食">
+        <p class="qrcode-meta">支付宝扫一扫, 向我投食</p>
+      </div>
+    
+  </div>
+
+</div>
+
+<script>
+  (() => {
+    let button = document.querySelector('#reward-btn'),
+      qrcode = document.querySelector('#reward-qrcode'),
+      display = false;
+    
+    button.addEventListener('click', () => {
+      qrcode.style.display = display ? 'none' : 'block'
+      display = !display
+    }, false)
+  })()
+</script>
+  
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+      <span>
+        
+          <i class="iconfont icon-06tags"></i>标签: 
+          
+          <span class="span--tag">
+            <a href="/tags/elasticsearch/">
+              #elasticsearch
+            </a>
+          </span>
+          
+        
+      </span>
+    </div>
+    <div class="article-meta pull-right">
+    </div>
+  </div>
+</div>
+
+
+  <aside id="sidebar">
+    <p id="sidebar-header"></p>
+    <ol id="sidebar-toc"></ol>
+  </aside>
+  <script async>setTimeout(generateToc, 10);</script>
+
+
+  <nav class="post-navigation">
+    
+      <div class="nav-pre">
+        <i class="iconfont icon-prev"></i>
+        上一篇:
+        <a href="/2017/07/21/ChatScript初始化机器人/" target="_self">ChatScript初始化机器人</a>
+      </div>
+    
+    
+      <div class="nav-next">
+        下一篇:
+        <a href="/2017/07/31/ECMAScript 6彩票项目-项目构建/" target="_self">ECMAScript 6彩票项目-项目构建</a>
+        <i class="iconfont icon-next"></i>
+      </div>
+    
+  </nav>
+
+  
+    <a href="#comment" class="comment-anchor"></a>
+<div class="comment-title"><i class="iconfont icon-footprint"></i> 留下足迹 <i class="iconfont icon-footprint"></i></div>
+<div id="vcomments"></div>
+
+<script defer>
+  if( true ) {
+    let path = getRealPath()
+    new Valine({
+      el: "#vcomments",
+      appId: "Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz",
+      appKey: "WaR7nrzhliHj9aVwdQzkdlGd",
+      notify: false,
+      verify: false,
+      avatar: "robohash",
+      placeholder: "正确填写邮箱, 才能及时收到回复哦♪(^∇^*)",
+      path
+    });
+  }
+</script>
+   
+
+  
+    <script defer>
+const valineAPI = (() => {
+  try {
+    AV.init("Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz", "WaR7nrzhliHj9aVwdQzkdlGd");
+  } catch(error) {}
+  const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+      query.equalTo("identity", identity);
+      query.find().then(results => {
+        resolve(results.length > 0);
+      }, error => reject(error));
+    })
+  }
+
+  const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+      let querys = [];
+      for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+      }
+      query = AV.Query.or.apply(null ,querys);
+    } else {
+      identity = identity || getRealPath();
+      query = new AV.Query("Timer");
+      query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+      query.find()
+      .then(results => resolve(results))
+      .catch(error => reject(error))
+    })
+  }
+
+  const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let Todo = AV.Object.extend('Timer');
+      let todo = new Todo();
+      todo.set("times", 1);
+      todo.set("identity", identity);
+      todo.save().then(res => resolve(true), error => reject(error));
+    })
+  }
+
+  const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let query = new AV.Query('Timer');
+      query.equalTo("identity", identity);
+      query.find().then(todos => {
+        todos.forEach(todo => {
+          todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+      }).then(todos => resolve(true), error => reject(error));
+    })
+  }
+
+  return {
+    isExist,
+    _get,
+    update,
+    create
+  }
+})()
+
+const calcAndWriteTimes = () => {
+  let isPost = true;
+
+  let timerAllDOM = document.querySelectorAll(".article-timer");
+
+  if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+      if(exist) {
+        return valineAPI.update(identity);
+      }
+      return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+  }
+
+  let timerDOMCache = {};
+
+  for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+      timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+      timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+      };
+    }
+  }
+
+  let identities = Object.keys(timerDOMCache);
+  valineAPI._get(identities).then(results => {
+    for(let result of results) {
+      let {identity, times} = result.attributes;
+      timerDOMCache[identity].times = times;
+      timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+      if(timerDOMCache[identity].times){
+        continue;
+      }
+      timerDOMCache[identity].dom.map(item => item.innerText = 1);
+      valineAPI.create(identity);
+    }
+  }).catch(error => console.log(error.message))
+}
+
+if(true){
+  calcAndWriteTimes();
+}
+</script>
+   
+
+</div>
+
+
+      <footer>
+  <p class="site-info">
+    博客已萌萌哒运行<span id="time-to-now"></span><span class="my-face">(●'◡'●)ﾉ♥</span>
+    <br>
+    Theme - <a href="https://github.com/dongyuanxin/theme-bmw">BMW</a> | Powered by <a href="https://godbmw.com/">GodBMW</a>
+    <br>
+    
+      Copyright © 2019 Matrix
+    
+  </p>
+</footer>
+
+
+
+<script>
+const timeToNowDOM = document.querySelector("#time-to-now");
+const startTimestamp = new Date(2016, 4, 10).getTime();
+
+const updateTimeStr = () => {
+  let offset = parseInt(
+      (new Date().getTime() - startTimestamp) / 1000,
+      10
+    ),
+    day = Math.floor(offset / 86400),
+    hour = Math.floor((offset % 86400) / 3600),
+    minute = Math.floor(((offset % 86400) % 3600) / 60),
+    second = Math.floor(((offset % 86400) % 3600) % 60);
+  timeToNowDOM.innerHTML =
+    day + "天" + hour + "小时" + minute + "分钟" + second + "秒";
+  setTimeout(updateTimeStr, 500);
+}
+
+setTimeout(updateTimeStr, 500);
+</script>
+
+
+      <div class="back-to-top hidden">
+  <span>
+    <i class="iconfont icon-60"></i><span></span>%
+  </span>
+</div>
+
+<script>
+const updateIconToTop = percent => {
+  let dom = document.querySelector(".back-to-top span span");
+  dom.innerText = percent;
+  if(percent < 1) {
+    document.querySelector(".back-to-top").className = "back-to-top hidden";
+  } else {
+    document.querySelector(".back-to-top").className = "back-to-top";
+  }
+}
+
+const handleScoll = () => {
+  let isRunning = false;
+  return () => {
+    if (isRunning) return;
+    isRunning = true;
+    window.requestAnimationFrame(timestamp => {
+      let scrollTop =
+          document.documentElement.scrollTop || document.body.scrollTop,
+        scrollHeight =
+          document.documentElement.scrollHeight ||
+          document.body.scrollHeight,
+        clientHeight =
+          document.documentElement.clientHeight ||
+          document.body.clientHeight;
+      isRunning = false;
+      if (scrollTop <= 1) {
+        updateIconToTop(0);
+        return;
+      }
+      if (scrollTop + clientHeight >= scrollHeight) {
+        updateIconToTop(100);
+      } else {
+        updateIconToTop(parseInt(
+          100 * scrollTop / (scrollHeight - clientHeight),
+          10
+        ));
+      }
+    });
+  };
+}
+
+const backToTop = () => {
+  let scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop,
+    delay = 10,
+    time = 200;
+  if (scrollTop <= 20) {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    return;
+  }
+  let step = Math.ceil(scrollTop * delay / time);
+  let timer = setInterval(() => {
+    scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop;
+    if (scrollTop - step <= 0) {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      clearInterval(timer);
+    } else {
+      document.documentElement.scrollTop = scrollTop - step;
+      document.body.scrollTop = scrollTop - step;
+    }
+  }, delay);
+}
+
+document.addEventListener("scroll", handleScoll(), false);
+
+document.querySelector(".back-to-top").addEventListener("click", backToTop, false);
+
+</script>
+
+    </div>
+
+    
+      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  (() => {
+    const mathjaxConfig = {
+      showProcessingMessages: false, //关闭js加载过程信息
+      messageStyle: "none", //不显示信息
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]], //行内公式选择符
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]], //段内公式选择符
+        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"] //避开某些标签
+      },
+      "HTML-CSS": {
+        availableFonts: ["STIX", "TeX"], //可选字体
+        showMathMenu: false //关闭右击菜单显示
+      }
+    }
+
+    let mathjaxInterval = setInterval(() => {
+      if(!window.MathJax){
+        return;
+      }
+      window.MathJax.Hub.Config(mathjaxConfig)
+      window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')])
+
+      clearInterval(mathjaxInterval)
+    }, 10)    
+  })()
+</script>
+    
+
+    <script src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script>
+<script async>
+  let fancyTimer = setInterval(function(){
+    if(!window.$){
+      return;
+    }
+    $(document).ready(function() {
+      $(".post img").each(function () {
+        if($(this).parent().get(0).tagName.toLowerCase() === "a") {
+          return;
+        }
+        // $(this).attr("data-fancybox", "gallery"); // if you add 'data-fancybox', img will display after showed
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "gallery");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      });
+      
+      clearInterval(fancyTimer);
+    });
+  }, 10);
+</script>
+
+    
+  </body>
+
+</html>

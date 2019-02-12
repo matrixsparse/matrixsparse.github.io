@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta name="author" content="董沅鑫, yuanxin.me@gmail.com">
+  
+  
+  
+  <title>Python爬虫实现腾讯招聘自动翻页采集 | 每天遇到更好的你</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="Python,大数据,Python,">
+  
+
+  <script>
+    console.log('\n%c Hexo-theme-bmw v4.0 ' + '%c 🎉 https://github.com/dongyuanxin/theme-bmw 🎉\n' + '\n%c View demo online ' + '%c 🔍 https://godbmw.com/ 🔍  \n' , 'color: #fadfa3; background: #030307; padding:3px 0;', '', 'color: #fadfa3; background: #030307; padding:3px 0;', '');
+  </script>
+
+  
+
+  
+
+  
+    <link rel="icon" href="/images/favicon.png">
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+  
+
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/icon/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+  <script src="/js/util.js"></script>
+<script src="/js/valine.min.js"></script>
+
+  
+
+  
+    <link href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js" async></script>
+  
+
+  
+    <link href="https://cdn.bootcss.com/social-share.js/1.0.16/css/share.min.css" rel="stylesheet">
+  
+  
+  <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js" async></script>
+  
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.0/dist/av-min.js"></script>
+  
+
+</head>
+
+  <body>
+
+    
+
+    <div id="app">
+
+      <div class="header-wrap">
+  <header>
+    <div class="site-brand">
+      <div class="site-title">
+        <!-- <a href="/">MatrixSparse</a> -->
+        <img alt="logo" class="antd-pro-layouts-user-layout-logo" src="/images/favicon.png" style="width: 40px;height: 40px;margin-top: 10px;margin-left: 5px;">
+      </div>
+    </div>
+    <nav class="site-navigation">
+      <ul class="nav-menu">
+      
+        <li class="nav-item" data-path="/">
+          
+            <a href="/" target="_self">
+              主页
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          
+            <a href="/archives/" target="_self">
+              归档
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          
+            <a href="/categories/" target="_self">
+              分类
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          
+            <a href="/tags/" target="_self">
+              标签
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="">
+          
+            <a href="javascript:void(0);" v-else="">博客地址</a>
+            <ul class="nav-menu--dropdown">
+              
+                <li>
+                  <a href="https://blog.csdn.net/qq_25371579" target="_blank">
+                    CSDN
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://github.com/matrixsparse" target="_blank">
+                    Github
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://matrixsparse.github.io/" target="_blank">
+                    Github Page
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+      </ul>
+    </nav>
+    <i class="iconfont icon-menu"></i>
+  </header>
+</div>
+
+<script>
+  let links = document.querySelectorAll('.nav-item');
+  for(let link of links){
+    let childrenLink = link.querySelector('ul');
+    link.addEventListener('mouseenter', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown active";
+      }
+    })
+    link.addEventListener('mouseleave', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown";
+      }
+    })
+  }
+  let rootRealPath = getRealPath(window.location.pathname, true);
+  for(let link of links) {
+    let linkPath = link.getAttribute("data-path");
+    if(linkPath && getRealPath(linkPath, true) === rootRealPath) {
+      link.className = "nav-item hover";
+    }
+  }
+
+  let iconMenu = document.querySelector("i.iconfont.icon-menu"),
+    iconMenuClicked = false;
+  let navDOM = document.querySelector("nav.site-navigation");
+  iconMenu.addEventListener("click", () => {
+    iconMenuClicked
+      ? navDOM.className = "site-navigation active"
+      : navDOM.className = "site-navigation";
+    iconMenuClicked = !iconMenuClicked;
+  })
+</script>
+
+
+      
+
+
+
+
+
+
+
+
+<div class="container post-index">
+
+  
+
+<div class="post">
+  <h1 class="article-title">
+    <span>Python爬虫实现腾讯招聘自动翻页采集</span>
+  </h1>
+  <div class="article-top-meta">
+    <span>
+      发布 : 
+      2017-04-22
+    </span>
+    
+      <span>
+        分类 : 
+          <a href="/categories/Python/">
+            Python
+          </a>
+      </span>
+    
+    
+      <span>
+        浏览 : <span class="article-timer" data-identity="python爬虫实现腾讯招聘自动翻页采集"></span>
+      </span>
+    
+  </div>
+
+  
+
+  <div class="article-content">
+    <div class="markdown-body">
+      <h2 id="spider"><a href="#spider" class="headerlink" title="spider"></a>spider</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">Spider类定义了如何爬取某个(或某些)网站。</span><br><span class="line">包括了爬取的动作(例如:是否跟进链接)以及如何从网页的内容中提取结构化数据(爬取item)。</span><br><span class="line">换句话说，Spider就是您定义爬取的动作及分析某个网页(或者是有些网页)的地方。</span><br><span class="line"></span><br><span class="line">class scrapy.Spider是最基本的类，所有编写的爬虫必须继承这个类。</span><br><span class="line"></span><br><span class="line">主要用到的函数及调用顺序为：</span><br><span class="line"></span><br><span class="line">__init__() : 初始化爬虫名字和start_urls列表</span><br><span class="line">start_requests() 调用make_requests_from url():生成Requests对象交给Scrapy下载并返回response</span><br><span class="line">parse() : 解析response，并返回Item或Requests（需指定回调函数）。Item传给Item pipline持久化 ， 而Requests交由Scrapy下载，并由指定的回调函数处理（默认parse())，一直进行循环，直到处理完所有的数据为止。</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>源码</p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#所有爬虫的基类，用户定义的爬虫必须从这个类继承</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Spider</span><span class="params">(object_ref)</span>:</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">#定义spider名字的字符串(string)。spider的名字定义了Scrapy如何定位(并初始化)spider，所以其必须是唯一的。</span></span><br><span class="line">    <span class="comment">#name是spider最重要的属性，而且是必须的。</span></span><br><span class="line">    <span class="comment">#一般做法是以该网站(domain)(加或不加 后缀 )来命名spider。 例如，如果spider爬取 mywebsite.com ，该spider通常会被命名为 mywebsite</span></span><br><span class="line">    name = <span class="keyword">None</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">#初始化，提取爬虫名字，start_ruls</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, name=None, **kwargs)</span>:</span></span><br><span class="line">        <span class="keyword">if</span> name <span class="keyword">is</span> <span class="keyword">not</span> <span class="keyword">None</span>:</span><br><span class="line">            self.name = name</span><br><span class="line">        <span class="comment"># 如果爬虫没有名字，中断后续操作则报错</span></span><br><span class="line">        <span class="keyword">elif</span> <span class="keyword">not</span> getattr(self, <span class="string">'name'</span>, <span class="keyword">None</span>):</span><br><span class="line">            <span class="keyword">raise</span> ValueError(<span class="string">"%s must have a name"</span> % type(self).__name__)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># python 对象或类型通过内置成员__dict__来存储成员信息</span></span><br><span class="line">        self.__dict__.update(kwargs)</span><br><span class="line"></span><br><span class="line">        <span class="comment">#URL列表。当没有指定的URL时，spider将从该列表中开始进行爬取。 因此，第一个被获取到的页面的URL将是该列表之一。 后续的URL将会从获取到的数据中提取。</span></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> hasattr(self, <span class="string">'start_urls'</span>):</span><br><span class="line">            self.start_urls = []</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 打印Scrapy执行后的log信息</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">log</span><span class="params">(self, message, level=log.DEBUG, **kw)</span>:</span></span><br><span class="line">        log.msg(message, spider=self, level=level, **kw)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 判断对象object的属性是否存在，不存在做断言处理</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">set_crawler</span><span class="params">(self, crawler)</span>:</span></span><br><span class="line">        <span class="keyword">assert</span> <span class="keyword">not</span> hasattr(self, <span class="string">'_crawler'</span>), <span class="string">"Spider already bounded to %s"</span> % crawler</span><br><span class="line">        self._crawler = crawler</span><br><span class="line"></span><br><span class="line"><span class="meta">    @property</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">crawler</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">assert</span> hasattr(self, <span class="string">'_crawler'</span>), <span class="string">"Spider not bounded to any crawler"</span></span><br><span class="line">        <span class="keyword">return</span> self._crawler</span><br><span class="line"></span><br><span class="line"><span class="meta">    @property</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">settings</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">return</span> self.crawler.settings</span><br><span class="line"></span><br><span class="line">    <span class="comment">#该方法将读取start_urls内的地址，并为每一个地址生成一个Request对象，交给Scrapy下载并返回Response</span></span><br><span class="line">    <span class="comment">#该方法仅调用一次</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">start_requests</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">for</span> url <span class="keyword">in</span> self.start_urls:</span><br><span class="line">            <span class="keyword">yield</span> self.make_requests_from_url(url)</span><br><span class="line"></span><br><span class="line">    <span class="comment">#start_requests()中调用，实际生成Request的函数。</span></span><br><span class="line">    <span class="comment">#Request对象默认的回调函数为parse()，提交的方式为get</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">make_requests_from_url</span><span class="params">(self, url)</span>:</span></span><br><span class="line">        <span class="keyword">return</span> Request(url, dont_filter=<span class="keyword">True</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment">#默认的Request对象回调函数，处理返回的response。</span></span><br><span class="line">    <span class="comment">#生成Item或者Request对象。用户必须实现这个类</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">parse</span><span class="params">(self, response)</span>:</span></span><br><span class="line">        <span class="keyword">raise</span> NotImplementedError</span><br><span class="line"></span><br><span class="line"><span class="meta">    @classmethod</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">handles_request</span><span class="params">(cls, request)</span>:</span></span><br><span class="line">        <span class="keyword">return</span> url_is_from_spider(request.url, cls)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__str__</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">return</span> <span class="string">"&lt;%s %r at 0x%0x&gt;"</span> % (type(self).__name__, self.name, id(self))</span><br><span class="line"></span><br><span class="line">    __repr__ = __str__</span><br></pre></td></tr></table></figure>
+<h3 id="主要属性和方法"><a href="#主要属性和方法" class="headerlink" title="主要属性和方法"></a>主要属性和方法</h3><blockquote>
+<p>name</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">定义spider名字的字符串。</span><br><span class="line"></span><br><span class="line">例如，如果spider爬取 mywebsite.com ，该spider通常会被命名为 mywebsite</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>allowed_domains</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">包含了spider允许爬取的域名(domain)的列表，可选。</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>start_urls</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">初始URL元祖/列表。当没有制定特定的URL时，spider将从该列表中开始进行爬取。</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>start_requests(self)</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">该方法必须返回一个可迭代对象(iterable)。</span><br><span class="line">该对象包含了spider用于爬取（默认实现是使用 start_urls 的url）的第一个Request。</span><br><span class="line"></span><br><span class="line">当spider启动爬取并且未指定start_urls时，该方法被调用。</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>parse(self, response)</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">当请求url返回网页没有指定回调函数时，默认的Request对象回调函数。</span><br><span class="line">用来处理网页返回的response，以及生成Item或者Request对象。</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>log(self, message[, level, component])</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">使用scrapy.log.msg()方法记录(<span class="built_in">log</span>)message。</span><br></pre></td></tr></table></figure>
+<h2 id="Python实现数据自动翻页采集"><a href="#Python实现数据自动翻页采集" class="headerlink" title="Python实现数据自动翻页采集"></a>Python实现数据自动翻页采集</h2><blockquote>
+<p>新建Scrapy项目</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">scrapy startproject tencentspider</span><br></pre></td></tr></table></figure>
+<p><img src="http://i1.piimg.com/581590/2b7f3e2fb871b5d7.png" alt="Markdown"></p>
+<blockquote>
+<p>创建爬虫</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">scrapy genspider tencent <span class="string">"tencent.com"</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://i1.piimg.com/581590/3994c11953cfbe74.png" alt="Markdown"></p>
+<blockquote>
+<p>编写items.py</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">获取职位名称、详细信息</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> scrapy</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TencentspiderItem</span><span class="params">(scrapy.Item)</span>:</span></span><br><span class="line">    <span class="comment"># define the fields for your item here like:</span></span><br><span class="line">    name = scrapy.Field()</span><br><span class="line">    detailLink = scrapy.Field()</span><br><span class="line">    positionInfo = scrapy.Field()</span><br><span class="line">    peopleNumber = scrapy.Field()</span><br><span class="line">    workLocation = scrapy.Field()</span><br><span class="line">    publicTime = scrapy.Field()</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>编写tencent.py文件</p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="keyword">import</span> scrapy</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">from</span> tencentspider.items <span class="keyword">import</span> TencentspiderItem</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TencentSpider</span><span class="params">(scrapy.Spider)</span>:</span></span><br><span class="line">    name = <span class="string">"tencent"</span></span><br><span class="line">    allowed_domains = [<span class="string">"hr.tencent.com"</span>]</span><br><span class="line">    start_urls = [<span class="string">'http://hr.tencent.com/position.php?&amp;start=0#a'</span>]</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">parse</span><span class="params">(self, response)</span>:</span></span><br><span class="line">        oddList = response.xpath(<span class="string">'//*[@class="odd"]'</span>)</span><br><span class="line">        evenList = response.xpath(<span class="string">'//*[@class="even"]'</span>)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> odd,even <span class="keyword">in</span> zip(oddList, evenList):</span><br><span class="line">            odditem = TencentspiderItem()</span><br><span class="line">            evenitem = TencentspiderItem()</span><br><span class="line">            odditem[<span class="string">'name'</span>] = odd.xpath(<span class="string">'./td[1]/a/text()'</span>).extract()[<span class="number">0</span>]</span><br><span class="line">            odditem[<span class="string">'detailLink'</span>] = odd.xpath(<span class="string">'.//td[1]/a/@href'</span>).extract()[<span class="number">0</span>]</span><br><span class="line">            odditem[<span class="string">'positionInfo'</span>] = odd.xpath(<span class="string">'./td[2]/text()'</span>).extract()[<span class="number">0</span>]</span><br><span class="line">            odditem[<span class="string">'peopleNumber'</span>] = odd.xpath(<span class="string">'./td[3]/text()'</span>).extract()[<span class="number">0</span>]</span><br><span class="line">            odditem[<span class="string">'workLocation'</span>] = odd.xpath(<span class="string">'./td[4]/text()'</span>).extract()[<span class="number">0</span>]</span><br><span class="line">            odditem[<span class="string">'publicTime'</span>] = odd.xpath(<span class="string">'./td[5]/text()'</span>).extract()[<span class="number">0</span>]</span><br><span class="line">            evenitem[<span class="string">'name'</span>] = even.xpath(<span class="string">'./td[1]/a/text()'</span>).extract()[<span class="number">0</span>]</span><br><span class="line">            evenitem[<span class="string">'detailLink'</span>] = even.xpath(<span class="string">'.//td[1]/a/@href'</span>).extract()[<span class="number">0</span>]</span><br><span class="line">            evenitem[<span class="string">'positionInfo'</span>] = even.xpath(<span class="string">'./td[2]/text()'</span>).extract()[<span class="number">0</span>]</span><br><span class="line">            evenitem[<span class="string">'peopleNumber'</span>] = even.xpath(<span class="string">'./td[3]/text()'</span>).extract()[<span class="number">0</span>]</span><br><span class="line">            evenitem[<span class="string">'workLocation'</span>] = even.xpath(<span class="string">'./td[4]/text()'</span>).extract()[<span class="number">0</span>]</span><br><span class="line">            evenitem[<span class="string">'publicTime'</span>] = even.xpath(<span class="string">'./td[5]/text()'</span>).extract()[<span class="number">0</span>]</span><br><span class="line">            <span class="comment"># 设置自动翻页</span></span><br><span class="line">            curpage = re.search(<span class="string">'(\d+)'</span>, response.url).group(<span class="number">1</span>)</span><br><span class="line">            page = int(curpage) + <span class="number">10</span></span><br><span class="line">            url = re.sub(<span class="string">'(\d+)'</span>, str(page), response.url)</span><br><span class="line">            <span class="comment"># 发送新的url请求加入待爬队列，并调用回调函数self.parse</span></span><br><span class="line">            <span class="keyword">yield</span> scrapy.Request(url, callback=self.parse)</span><br><span class="line">            <span class="comment"># 将获取的数据交给pipeline</span></span><br><span class="line">            <span class="keyword">yield</span> odditem</span><br><span class="line">            <span class="keyword">yield</span> evenitem</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>编写pipeline.py文件</p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Define your item pipelines here</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># Don't forget to add your pipeline to the ITEM_PIPELINES setting</span></span><br><span class="line"><span class="comment"># See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> json</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TencentspiderPipeline</span><span class="params">(object)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></span><br><span class="line">        self.file = open(<span class="string">'tencent.json'</span>, <span class="string">'wb'</span>)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">process_item</span><span class="params">(self, item, spider)</span>:</span></span><br><span class="line">        content = json.dumps(dict(item), ensure_ascii=<span class="keyword">False</span>) + <span class="string">"\n"</span></span><br><span class="line">        self.file.write(bytes(content, encoding=<span class="string">'utf-8'</span>))</span><br><span class="line">        <span class="keyword">return</span> item</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">close_spider</span><span class="params">(self, spider)</span>:</span></span><br><span class="line">        self.file.close()</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>在setting.py里设置ITEM_PIPELINES</p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ITEM_PIPELINES = &#123;</span><br><span class="line">   <span class="string">'tencentspider.pipelines.TencentspiderPipeline'</span>: <span class="number">300</span>,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="http://i4.buimg.com/581590/f3d1b7124064d119.png" alt="Markdown"></p>
+<blockquote>
+<p>执行爬虫</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">scrapy crawl tencent</span><br></pre></td></tr></table></figure>
+<p><img src="http://i4.buimg.com/581590/7d32b6a97b75d6c4.png" alt="Markdown"></p>
+<blockquote>
+<p> parse()方法的工作机制</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">1.因为使用的yield，而不是<span class="built_in">return</span>。parse函数将会被当做一个生成器使用。</span><br><span class="line">scrapy会逐一获取parse方法中生成的结果，并判断该结果是一个什么样的类型；</span><br><span class="line">2.如果是request则加入爬取队列，如果是item类型则使用pipeline处理，其他类型则返回错误信息。</span><br><span class="line">3.scrapy取到第一部分的request不会立马就去发送这个request，只是把这个request放到队列里，然后接着从生成器里获取；</span><br><span class="line">4.取尽第一部分的request，然后再获取第二部分的item，取到item了，就会放到对应的pipeline里处理；</span><br><span class="line">5.parse()方法作为回调函数(callback)赋值给了Request，指定parse()方法来处理这些请求 scrapy.Request(url, callback=self.parse)</span><br><span class="line">6.Request对象经过调度，执行生成scrapy.http.response()的响应对象，并送回给parse()方法，直到调度器中没有Request（递归的思路）</span><br><span class="line">7.取尽之后，parse()工作结束，引擎再根据队列和pipelines中的内容去执行相应的操作；</span><br><span class="line">8.程序在取得各个页面的items前，会先处理完之前所有的request队列里的请求，然后再提取items。</span><br><span class="line">7.这一切的一切，Scrapy引擎和调度器将负责到底。</span><br></pre></td></tr></table></figure>
+<h3 id="CrawlSpiders"><a href="#CrawlSpiders" class="headerlink" title="CrawlSpiders"></a>CrawlSpiders</h3><blockquote>
+<p>创建CrawlSpider模板</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">scrapy genspider -t crawl tencent tencent.com</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">class scrapy.spiders.CrawlSpider</span><br><span class="line"></span><br><span class="line">它是Spider的派生类，Spider类的设计原则是只爬取start_url列表中的网页，</span><br><span class="line"></span><br><span class="line">而CrawlSpider类定义了一些规则(rule)来提供跟进link的方便的机制，</span><br><span class="line"></span><br><span class="line">从爬取的网页中获取link并继续爬取的工作更适合。</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>源码</p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CrawlSpider</span><span class="params">(Spider)</span>:</span></span><br><span class="line">    rules = ()</span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, *a, **kw)</span>:</span></span><br><span class="line">        super(CrawlSpider, self).__init__(*a, **kw)</span><br><span class="line">        self._compile_rules()</span><br><span class="line"></span><br><span class="line">    <span class="comment">#首先调用parse()来处理start_urls中返回的response对象</span></span><br><span class="line">    <span class="comment">#parse()则将这些response对象传递给了_parse_response()函数处理，并设置回调函数为parse_start_url()</span></span><br><span class="line">    <span class="comment">#设置了跟进标志位True</span></span><br><span class="line">    <span class="comment">#parse将返回item和跟进了的Request对象    </span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">parse</span><span class="params">(self, response)</span>:</span></span><br><span class="line">        <span class="keyword">return</span> self._parse_response(response, self.parse_start_url, cb_kwargs=&#123;&#125;, follow=<span class="keyword">True</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment">#处理start_url中返回的response，需要重写</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">parse_start_url</span><span class="params">(self, response)</span>:</span></span><br><span class="line">        <span class="keyword">return</span> []</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">process_results</span><span class="params">(self, response, results)</span>:</span></span><br><span class="line">        <span class="keyword">return</span> results</span><br><span class="line"></span><br><span class="line">    <span class="comment">#从response中抽取符合任一用户定义'规则'的链接，并构造成Resquest对象返回</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">_requests_to_follow</span><span class="params">(self, response)</span>:</span></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> isinstance(response, HtmlResponse):</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line">        seen = set()</span><br><span class="line">        <span class="comment">#抽取之内的所有链接，只要通过任意一个'规则'，即表示合法</span></span><br><span class="line">        <span class="keyword">for</span> n, rule <span class="keyword">in</span> enumerate(self._rules):</span><br><span class="line">            links = [l <span class="keyword">for</span> l <span class="keyword">in</span> rule.link_extractor.extract_links(response) <span class="keyword">if</span> l <span class="keyword">not</span> <span class="keyword">in</span> seen]</span><br><span class="line">            <span class="comment">#使用用户指定的process_links处理每个连接</span></span><br><span class="line">            <span class="keyword">if</span> links <span class="keyword">and</span> rule.process_links:</span><br><span class="line">                links = rule.process_links(links)</span><br><span class="line">            <span class="comment">#将链接加入seen集合，为每个链接生成Request对象，并设置回调函数为_repsonse_downloaded()</span></span><br><span class="line">            <span class="keyword">for</span> link <span class="keyword">in</span> links:</span><br><span class="line">                seen.add(link)</span><br><span class="line">                <span class="comment">#构造Request对象，并将Rule规则中定义的回调函数作为这个Request对象的回调函数</span></span><br><span class="line">                r = Request(url=link.url, callback=self._response_downloaded)</span><br><span class="line">                r.meta.update(rule=n, link_text=link.text)</span><br><span class="line">                <span class="comment">#对每个Request调用process_request()函数。该函数默认为indentify，即不做任何处理，直接返回该Request.</span></span><br><span class="line">                <span class="keyword">yield</span> rule.process_request(r)</span><br><span class="line"></span><br><span class="line">    <span class="comment">#处理通过rule提取出的连接，并返回item以及request</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">_response_downloaded</span><span class="params">(self, response)</span>:</span></span><br><span class="line">        rule = self._rules[response.meta[<span class="string">'rule'</span>]]</span><br><span class="line">        <span class="keyword">return</span> self._parse_response(response, rule.callback, rule.cb_kwargs, rule.follow)</span><br><span class="line"></span><br><span class="line">    <span class="comment">#解析response对象，会用callback解析处理他，并返回request或Item对象</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">_parse_response</span><span class="params">(self, response, callback, cb_kwargs, follow=True)</span>:</span></span><br><span class="line">        <span class="comment">#首先判断是否设置了回调函数。（该回调函数可能是rule中的解析函数，也可能是 parse_start_url函数）</span></span><br><span class="line">        <span class="comment">#如果设置了回调函数（parse_start_url()），那么首先用parse_start_url()处理response对象，</span></span><br><span class="line">        <span class="comment">#然后再交给process_results处理。返回cb_res的一个列表</span></span><br><span class="line">        <span class="keyword">if</span> callback:</span><br><span class="line">            <span class="comment">#如果是parse调用的，则会解析成Request对象</span></span><br><span class="line">            <span class="comment">#如果是rule callback，则会解析成Item</span></span><br><span class="line">            cb_res = callback(response, **cb_kwargs) <span class="keyword">or</span> ()</span><br><span class="line">            cb_res = self.process_results(response, cb_res)</span><br><span class="line">            <span class="keyword">for</span> requests_or_item <span class="keyword">in</span> iterate_spider_output(cb_res):</span><br><span class="line">                <span class="keyword">yield</span> requests_or_item</span><br><span class="line"></span><br><span class="line">        <span class="comment">#如果需要跟进，那么使用定义的Rule规则提取并返回这些Request对象</span></span><br><span class="line">        <span class="keyword">if</span> follow <span class="keyword">and</span> self._follow_links:</span><br><span class="line">            <span class="comment">#返回每个Request对象</span></span><br><span class="line">            <span class="keyword">for</span> request_or_item <span class="keyword">in</span> self._requests_to_follow(response):</span><br><span class="line">                <span class="keyword">yield</span> request_or_item</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">_compile_rules</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="function"><span class="keyword">def</span> <span class="title">get_method</span><span class="params">(method)</span>:</span></span><br><span class="line">            <span class="keyword">if</span> callable(method):</span><br><span class="line">                <span class="keyword">return</span> method</span><br><span class="line">            <span class="keyword">elif</span> isinstance(method, basestring):</span><br><span class="line">                <span class="keyword">return</span> getattr(self, method, <span class="keyword">None</span>)</span><br><span class="line"></span><br><span class="line">        self._rules = [copy.copy(r) <span class="keyword">for</span> r <span class="keyword">in</span> self.rules]</span><br><span class="line">        <span class="keyword">for</span> rule <span class="keyword">in</span> self._rules:</span><br><span class="line">            rule.callback = get_method(rule.callback)</span><br><span class="line">            rule.process_links = get_method(rule.process_links)</span><br><span class="line">            rule.process_request = get_method(rule.process_request)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">set_crawler</span><span class="params">(self, crawler)</span>:</span></span><br><span class="line">        super(CrawlSpider, self).set_crawler(crawler)</span><br><span class="line">        self._follow_links = crawler.settings.getbool(<span class="string">'CRAWLSPIDER_FOLLOW_LINKS'</span>, <span class="keyword">True</span>)</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CrawlSpider继承于Spider类，除了继承过来的属性外（name、allow_domains），还提供了新的属性和方法:</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>LinkExtractors</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">class scrapy.linkextractors.LinkExtractor</span><br><span class="line"></span><br><span class="line">Link Extractors的目的很简单:提取链接｡</span><br><span class="line"></span><br><span class="line">每个LinkExtractor有唯一的公共方法是extract_links()，它接收一个Response对象，并返回一个scrapy.link.Link对象。</span><br><span class="line"></span><br><span class="line">Link Extractors要实例化一次，并且extract_links方法会根据不同的response调用多次提取链接｡</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">class scrapy.linkextractors.LinkExtractor(</span><br><span class="line">    allow = (),</span><br><span class="line">    deny = (),</span><br><span class="line">    allow_domains = (),</span><br><span class="line">    deny_domains = (),</span><br><span class="line">    deny_extensions = None,</span><br><span class="line">    restrict_xpaths = (),</span><br><span class="line">    tags = (<span class="string">'a'</span>,<span class="string">'area'</span>),</span><br><span class="line">    attrs = (<span class="string">'href'</span>),</span><br><span class="line">    canonicalize = True,</span><br><span class="line">    unique = True,</span><br><span class="line">    process_value = None</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>主要参数</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">allow：满足括号中<span class="string">"正则表达式"</span>的值会被提取，如果为空，则全部匹配</span><br><span class="line"></span><br><span class="line">deny：与这个正则表达式(或正则表达式列表)不匹配的URL一定不提取</span><br><span class="line"></span><br><span class="line">allow_domains：会被提取的链接的domains</span><br><span class="line"></span><br><span class="line">deny_domains：一定不会被提取链接的domains</span><br><span class="line"></span><br><span class="line">restrict_xpaths：使用xpath表达式，和allow共同作用过滤链接</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>rules</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">在rules中包含一个或多个Rule对象，每个Rule对爬取网站的动作定义了特定操作</span><br><span class="line"></span><br><span class="line">如果多个rule匹配了相同的链接，则根据规则在本集合中被定义的顺序，第一个会被使用</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">class scrapy.spiders.Rule(</span><br><span class="line">        link_extractor,</span><br><span class="line">        callback = None,</span><br><span class="line">        cb_kwargs = None,</span><br><span class="line">        follow = None,</span><br><span class="line">        process_links = None,</span><br><span class="line">        process_request = None</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">link_extractor：是一个Link Extractor对象，用于定义需要提取的链接。</span><br><span class="line"></span><br><span class="line">callback：从link_extractor中每获取到链接时，参数所指定的值作为回调函数，该回调函数接受一个response作为其第一个参数。</span><br><span class="line"></span><br><span class="line">注意：当编写爬虫规则时，避免使用parse作为回调函数。</span><br><span class="line">由于CrawlSpider使用parse方法来实现其逻辑，</span><br><span class="line">如果覆盖了parse方法，crawl spider将会运行失败。</span><br><span class="line"></span><br><span class="line">follow：是一个布尔(boolean)值，指定了根据该规则从response提取的链接是否需要跟进。 如果callback为None，follow默认设置为True ，否则默认为False。</span><br><span class="line"></span><br><span class="line">process_links：指定该spider中哪个的函数将会被调用，</span><br><span class="line">从link_extractor中获取到链接列表时将会调用该函数，该方法主要用来过滤。</span><br><span class="line"></span><br><span class="line">process_request：指定该spider中哪个的函数将会被调用，</span><br><span class="line">该规则提取到每个request时都会调用该函数。(用来过滤request)</span><br></pre></td></tr></table></figure>
+<h3 id="爬取规则-Crawling-rules"><a href="#爬取规则-Crawling-rules" class="headerlink" title="爬取规则(Crawling rules)"></a>爬取规则(Crawling rules)</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">以上面获取腾讯招聘的数据为例，给出配合rule使用CrawlSpider的例子:</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>运行Scrapy shell</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">scrapy shell http://hr.tencent.com/position.php?&amp;start=0<span class="comment">#a</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>导入LinkExtractor，创建LinkExtractor实例对象</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">from scrapy.linkextractors import LinkExtractor</span><br><span class="line"></span><br><span class="line">page_lx = LinkExtractor(allow=(<span class="string">'position.php?&amp;start=\d+'</span>))</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">allow : LinkExtractor对象最重要的参数之一，这是一个正则表达式，</span><br><span class="line">必须要匹配这个正则表达式(或正则表达式列表)的URL才会被提取，</span><br><span class="line">如果没有给出(或为空), 它会匹配所有的链接｡</span><br><span class="line"></span><br><span class="line">deny : 用法同allow，只不过与这个正则表达式匹配的URL不会被提取)｡它的优先级高于 allow 的参数，如果没有给出(或None), 将不排除任何链接｡</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>调用LinkExtractor实例的extract_links()方法查询匹配结果</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">page_lx.extract_links(response)</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>没有查到</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[]</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>注意转义字符的问题，继续重新匹配</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">page_lx = LinkExtractor(allow=(<span class="string">'position\.php\?&amp;start=\d+'</span>))</span><br><span class="line">page_lx.extract_links(response)</span><br></pre></td></tr></table></figure>
+<p><img src="http://i4.buimg.com/581590/5897238dcd09cd04.png" alt="Markdown"></p>
+<h2 id="Python实现数据自动翻页采集-CrawlSpider版本"><a href="#Python实现数据自动翻页采集-CrawlSpider版本" class="headerlink" title="Python实现数据自动翻页采集(CrawlSpider版本)"></a>Python实现数据自动翻页采集(CrawlSpider版本)</h2><blockquote>
+<p>由于CrawlSpider使用parse方法来实现其逻辑，如果覆盖了 parse方法，crawl spider将会运行失败。</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">scrapy shell测试完成之后，修改以下代码</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>tencent.py</p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="keyword">import</span> scrapy</span><br><span class="line"><span class="keyword">from</span> scrapy.spider <span class="keyword">import</span> CrawlSpider, Rule</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">from</span> tencentspider.items <span class="keyword">import</span> TencentspiderItem</span><br><span class="line"><span class="keyword">from</span> scrapy.linkextractors <span class="keyword">import</span> LinkExtractor</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TencentSpider</span><span class="params">(CrawlSpider)</span>:</span></span><br><span class="line">    name = <span class="string">"tencent"</span></span><br><span class="line">    allowed_domains = [<span class="string">"hr.tencent.com"</span>]</span><br><span class="line">    start_urls = [<span class="string">'http://hr.tencent.com/position.php?&amp;start=0#a'</span>]</span><br><span class="line"></span><br><span class="line">    page_lx = LinkExtractor(allow=(<span class="string">"start=\d+"</span>))</span><br><span class="line"></span><br><span class="line">    rules = [</span><br><span class="line">        Rule(page_lx, callback=<span class="string">"parseContent"</span>, follow=<span class="keyword">True</span>)</span><br><span class="line">    ]</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">parseContent</span><span class="params">(self, response)</span>:</span></span><br><span class="line">        oddList = response.xpath(<span class="string">'//*[@class="odd"]'</span>)</span><br><span class="line">        evenList = response.xpath(<span class="string">'//*[@class="even"]'</span>)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> odd, even <span class="keyword">in</span> zip(oddList, evenList):</span><br><span class="line">            odditem = TencentspiderItem()</span><br><span class="line">            evenitem = TencentspiderItem()</span><br><span class="line">            odditem[<span class="string">'name'</span>] = odd.xpath(<span class="string">'./td[1]/a/text()'</span>).extract()[<span class="number">0</span>]</span><br><span class="line">            odditem[<span class="string">'detailLink'</span>] = odd.xpath(<span class="string">'.//td[1]/a/@href'</span>).extract()[<span class="number">0</span>]</span><br><span class="line">            odditem[<span class="string">'positionInfo'</span>] = odd.xpath(<span class="string">'./td[2]/text()'</span>).extract()[<span class="number">0</span>]</span><br><span class="line">            odditem[<span class="string">'peopleNumber'</span>] = odd.xpath(<span class="string">'./td[3]/text()'</span>).extract()[<span class="number">0</span>]</span><br><span class="line">            odditem[<span class="string">'workLocation'</span>] = odd.xpath(<span class="string">'./td[4]/text()'</span>).extract()[<span class="number">0</span>]</span><br><span class="line">            odditem[<span class="string">'publicTime'</span>] = odd.xpath(<span class="string">'./td[5]/text()'</span>).extract()[<span class="number">0</span>]</span><br><span class="line">            evenitem[<span class="string">'name'</span>] = even.xpath(<span class="string">'./td[1]/a/text()'</span>).extract()[<span class="number">0</span>]</span><br><span class="line">            evenitem[<span class="string">'detailLink'</span>] = even.xpath(<span class="string">'.//td[1]/a/@href'</span>).extract()[<span class="number">0</span>]</span><br><span class="line">            evenitem[<span class="string">'positionInfo'</span>] = even.xpath(<span class="string">'./td[2]/text()'</span>).extract()[<span class="number">0</span>]</span><br><span class="line">            evenitem[<span class="string">'peopleNumber'</span>] = even.xpath(<span class="string">'./td[3]/text()'</span>).extract()[<span class="number">0</span>]</span><br><span class="line">            evenitem[<span class="string">'workLocation'</span>] = even.xpath(<span class="string">'./td[4]/text()'</span>).extract()[<span class="number">0</span>]</span><br><span class="line">            evenitem[<span class="string">'publicTime'</span>] = even.xpath(<span class="string">'./td[5]/text()'</span>).extract()[<span class="number">0</span>]</span><br><span class="line">            <span class="comment"># 将获取的数据交给pipeline</span></span><br><span class="line">            <span class="keyword">yield</span> odditem</span><br><span class="line">            <span class="keyword">yield</span> evenitem</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>运行scrapy</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">scrapy crawl tencent</span><br></pre></td></tr></table></figure>
+<p><img src="http://i4.buimg.com/581590/e91ddb214f13049e.png" alt="Markdown"></p>
+<h3 id="Logging"><a href="#Logging" class="headerlink" title="Logging"></a>Logging</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Scrapy提供了<span class="built_in">log</span>功能，可以通过logging模块使用</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>可以修改配置文件settings.py，任意位置添加下面两行，效果会清爽很多。</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">LOG_FILE = <span class="string">"TencentSpider.log"</span></span><br><span class="line">LOG_LEVEL = <span class="string">"INFO"</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>Log levels</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">Scrapy提供5层logging级别:</span><br><span class="line"></span><br><span class="line">CRITICAL - 严重错误(critical)</span><br><span class="line"></span><br><span class="line">ERROR - 一般错误(regular errors)</span><br><span class="line">WARNING - 警告信息(warning messages)</span><br><span class="line">INFO - 一般信息(informational messages)</span><br><span class="line">DEBUG - 调试信息(debugging messages)</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>logging设置</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">通过在setting.py中进行以下设置可以被用来配置logging:</span><br><span class="line"></span><br><span class="line">LOG_ENABLED 默认: True，启用logging</span><br><span class="line">LOG_ENCODING 默认: <span class="string">'utf-8'</span>，logging使用的编码</span><br><span class="line">LOG_FILE 默认: None，在当前目录里创建logging输出文件的文件名</span><br><span class="line">LOG_LEVEL 默认: <span class="string">'DEBUG'</span>，<span class="built_in">log</span>的最低级别</span><br><span class="line">LOG_STDOUT 默认: False如果为True，进程所有的标准输出(及错误)将会被重定向到<span class="built_in">log</span>中。例如，执行<span class="built_in">print</span><span class="string">"hello"</span>，其将会在Scrapy <span class="built_in">log</span>中显示。</span><br></pre></td></tr></table></figure>
+
+    </div>
+  </div>
+  
+    <div class="copy-right">
+      <div class="markdown-body">
+        <blockquote>
+        
+        
+          本文作者 : Matrix <br>
+        
+        原文链接 : <a href="">http://yoursite.com/2017/04/22/python爬虫实现腾讯招聘自动翻页采集/</a><br>
+        版权声明 : 本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+        </blockquote>
+      </div>
+    </div>
+  
+  
+  
+    <div class="social-share" style="margin-top: -2rem" data-wechat-qrcode-title="<p>微信扫一扫</p>" data-wechat-qrcode-helper="<p>微信右上角, 扫一扫分享</p>" data-sites="qzone, qq, weibo, wechat, douban, google, facebook, twitter">
+  <span style="color: #6b7487; font-size: 1.4rem;">分享到: </span>
+</div>
+<script src="https://cdn.bootcss.com/social-share.js/1.0.16/js/social-share.min.js" async></script>
+  
+
+  
+    <div id="reward">
+  
+    <p id="reward-meta">知识 & 情怀 | 二者兼得</p>
+  
+  <button id="reward-btn">
+    
+    <span>投食</span>
+  </button>
+  <div id="reward-qrcode">
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/wechatpay.jpg" alt="微信扫一扫, 向我投食">
+        <p class="qrcode-meta">微信扫一扫, 向我投食</p>
+      </div>
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/alipaypay.jpg" alt="支付宝扫一扫, 向我投食">
+        <p class="qrcode-meta">支付宝扫一扫, 向我投食</p>
+      </div>
+    
+  </div>
+
+</div>
+
+<script>
+  (() => {
+    let button = document.querySelector('#reward-btn'),
+      qrcode = document.querySelector('#reward-qrcode'),
+      display = false;
+    
+    button.addEventListener('click', () => {
+      qrcode.style.display = display ? 'none' : 'block'
+      display = !display
+    }, false)
+  })()
+</script>
+  
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+      <span>
+        
+          <i class="iconfont icon-06tags"></i>标签: 
+          
+          <span class="span--tag">
+            <a href="/tags/大数据/">
+              #大数据
+            </a>
+          </span>
+          
+          <span class="span--tag">
+            <a href="/tags/Python/">
+              #Python
+            </a>
+          </span>
+          
+        
+      </span>
+    </div>
+    <div class="article-meta pull-right">
+    </div>
+  </div>
+</div>
+
+
+  <aside id="sidebar">
+    <p id="sidebar-header"></p>
+    <ol id="sidebar-toc"></ol>
+  </aside>
+  <script async>setTimeout(generateToc, 10);</script>
+
+
+  <nav class="post-navigation">
+    
+      <div class="nav-pre">
+        <i class="iconfont icon-prev"></i>
+        上一篇:
+        <a href="/2017/04/22/Linux Centos6.5安装python3/" target="_self">Linux Centos6.5安装python3</a>
+      </div>
+    
+    
+      <div class="nav-next">
+        下一篇:
+        <a href="/2017/04/22/Python实现爬取赶集网10万二手商品数据/" target="_self">Python实现爬取赶集网10万二手商品数据</a>
+        <i class="iconfont icon-next"></i>
+      </div>
+    
+  </nav>
+
+  
+    <a href="#comment" class="comment-anchor"></a>
+<div class="comment-title"><i class="iconfont icon-footprint"></i> 留下足迹 <i class="iconfont icon-footprint"></i></div>
+<div id="vcomments"></div>
+
+<script defer>
+  if( true ) {
+    let path = getRealPath()
+    new Valine({
+      el: "#vcomments",
+      appId: "Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz",
+      appKey: "WaR7nrzhliHj9aVwdQzkdlGd",
+      notify: false,
+      verify: false,
+      avatar: "robohash",
+      placeholder: "正确填写邮箱, 才能及时收到回复哦♪(^∇^*)",
+      path
+    });
+  }
+</script>
+   
+
+  
+    <script defer>
+const valineAPI = (() => {
+  try {
+    AV.init("Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz", "WaR7nrzhliHj9aVwdQzkdlGd");
+  } catch(error) {}
+  const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+      query.equalTo("identity", identity);
+      query.find().then(results => {
+        resolve(results.length > 0);
+      }, error => reject(error));
+    })
+  }
+
+  const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+      let querys = [];
+      for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+      }
+      query = AV.Query.or.apply(null ,querys);
+    } else {
+      identity = identity || getRealPath();
+      query = new AV.Query("Timer");
+      query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+      query.find()
+      .then(results => resolve(results))
+      .catch(error => reject(error))
+    })
+  }
+
+  const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let Todo = AV.Object.extend('Timer');
+      let todo = new Todo();
+      todo.set("times", 1);
+      todo.set("identity", identity);
+      todo.save().then(res => resolve(true), error => reject(error));
+    })
+  }
+
+  const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let query = new AV.Query('Timer');
+      query.equalTo("identity", identity);
+      query.find().then(todos => {
+        todos.forEach(todo => {
+          todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+      }).then(todos => resolve(true), error => reject(error));
+    })
+  }
+
+  return {
+    isExist,
+    _get,
+    update,
+    create
+  }
+})()
+
+const calcAndWriteTimes = () => {
+  let isPost = true;
+
+  let timerAllDOM = document.querySelectorAll(".article-timer");
+
+  if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+      if(exist) {
+        return valineAPI.update(identity);
+      }
+      return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+  }
+
+  let timerDOMCache = {};
+
+  for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+      timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+      timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+      };
+    }
+  }
+
+  let identities = Object.keys(timerDOMCache);
+  valineAPI._get(identities).then(results => {
+    for(let result of results) {
+      let {identity, times} = result.attributes;
+      timerDOMCache[identity].times = times;
+      timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+      if(timerDOMCache[identity].times){
+        continue;
+      }
+      timerDOMCache[identity].dom.map(item => item.innerText = 1);
+      valineAPI.create(identity);
+    }
+  }).catch(error => console.log(error.message))
+}
+
+if(true){
+  calcAndWriteTimes();
+}
+</script>
+   
+
+</div>
+
+
+      <footer>
+  <p class="site-info">
+    博客已萌萌哒运行<span id="time-to-now"></span><span class="my-face">(●'◡'●)ﾉ♥</span>
+    <br>
+    Theme - <a href="https://github.com/dongyuanxin/theme-bmw">BMW</a> | Powered by <a href="https://godbmw.com/">GodBMW</a>
+    <br>
+    
+      Copyright © 2019 Matrix
+    
+  </p>
+</footer>
+
+
+
+<script>
+const timeToNowDOM = document.querySelector("#time-to-now");
+const startTimestamp = new Date(2016, 4, 10).getTime();
+
+const updateTimeStr = () => {
+  let offset = parseInt(
+      (new Date().getTime() - startTimestamp) / 1000,
+      10
+    ),
+    day = Math.floor(offset / 86400),
+    hour = Math.floor((offset % 86400) / 3600),
+    minute = Math.floor(((offset % 86400) % 3600) / 60),
+    second = Math.floor(((offset % 86400) % 3600) % 60);
+  timeToNowDOM.innerHTML =
+    day + "天" + hour + "小时" + minute + "分钟" + second + "秒";
+  setTimeout(updateTimeStr, 500);
+}
+
+setTimeout(updateTimeStr, 500);
+</script>
+
+
+      <div class="back-to-top hidden">
+  <span>
+    <i class="iconfont icon-60"></i><span></span>%
+  </span>
+</div>
+
+<script>
+const updateIconToTop = percent => {
+  let dom = document.querySelector(".back-to-top span span");
+  dom.innerText = percent;
+  if(percent < 1) {
+    document.querySelector(".back-to-top").className = "back-to-top hidden";
+  } else {
+    document.querySelector(".back-to-top").className = "back-to-top";
+  }
+}
+
+const handleScoll = () => {
+  let isRunning = false;
+  return () => {
+    if (isRunning) return;
+    isRunning = true;
+    window.requestAnimationFrame(timestamp => {
+      let scrollTop =
+          document.documentElement.scrollTop || document.body.scrollTop,
+        scrollHeight =
+          document.documentElement.scrollHeight ||
+          document.body.scrollHeight,
+        clientHeight =
+          document.documentElement.clientHeight ||
+          document.body.clientHeight;
+      isRunning = false;
+      if (scrollTop <= 1) {
+        updateIconToTop(0);
+        return;
+      }
+      if (scrollTop + clientHeight >= scrollHeight) {
+        updateIconToTop(100);
+      } else {
+        updateIconToTop(parseInt(
+          100 * scrollTop / (scrollHeight - clientHeight),
+          10
+        ));
+      }
+    });
+  };
+}
+
+const backToTop = () => {
+  let scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop,
+    delay = 10,
+    time = 200;
+  if (scrollTop <= 20) {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    return;
+  }
+  let step = Math.ceil(scrollTop * delay / time);
+  let timer = setInterval(() => {
+    scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop;
+    if (scrollTop - step <= 0) {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      clearInterval(timer);
+    } else {
+      document.documentElement.scrollTop = scrollTop - step;
+      document.body.scrollTop = scrollTop - step;
+    }
+  }, delay);
+}
+
+document.addEventListener("scroll", handleScoll(), false);
+
+document.querySelector(".back-to-top").addEventListener("click", backToTop, false);
+
+</script>
+
+    </div>
+
+    
+      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  (() => {
+    const mathjaxConfig = {
+      showProcessingMessages: false, //关闭js加载过程信息
+      messageStyle: "none", //不显示信息
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]], //行内公式选择符
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]], //段内公式选择符
+        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"] //避开某些标签
+      },
+      "HTML-CSS": {
+        availableFonts: ["STIX", "TeX"], //可选字体
+        showMathMenu: false //关闭右击菜单显示
+      }
+    }
+
+    let mathjaxInterval = setInterval(() => {
+      if(!window.MathJax){
+        return;
+      }
+      window.MathJax.Hub.Config(mathjaxConfig)
+      window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')])
+
+      clearInterval(mathjaxInterval)
+    }, 10)    
+  })()
+</script>
+    
+
+    <script src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script>
+<script async>
+  let fancyTimer = setInterval(function(){
+    if(!window.$){
+      return;
+    }
+    $(document).ready(function() {
+      $(".post img").each(function () {
+        if($(this).parent().get(0).tagName.toLowerCase() === "a") {
+          return;
+        }
+        // $(this).attr("data-fancybox", "gallery"); // if you add 'data-fancybox', img will display after showed
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "gallery");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      });
+      
+      clearInterval(fancyTimer);
+    });
+  }, 10);
+</script>
+
+    
+  </body>
+
+</html>

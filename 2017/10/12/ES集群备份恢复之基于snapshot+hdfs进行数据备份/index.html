@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta name="author" content="董沅鑫, yuanxin.me@gmail.com">
+  
+  
+  
+  <title>ES集群备份恢复之基于snapshot+hdfs进行数据备份 | 每天遇到更好的你</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="elasticsearch,elasticsearch,">
+  
+
+  <script>
+    console.log('\n%c Hexo-theme-bmw v4.0 ' + '%c 🎉 https://github.com/dongyuanxin/theme-bmw 🎉\n' + '\n%c View demo online ' + '%c 🔍 https://godbmw.com/ 🔍  \n' , 'color: #fadfa3; background: #030307; padding:3px 0;', '', 'color: #fadfa3; background: #030307; padding:3px 0;', '');
+  </script>
+
+  
+
+  
+
+  
+    <link rel="icon" href="/images/favicon.png">
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+  
+
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/icon/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+  <script src="/js/util.js"></script>
+<script src="/js/valine.min.js"></script>
+
+  
+
+  
+    <link href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js" async></script>
+  
+
+  
+    <link href="https://cdn.bootcss.com/social-share.js/1.0.16/css/share.min.css" rel="stylesheet">
+  
+  
+  <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js" async></script>
+  
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.0/dist/av-min.js"></script>
+  
+
+</head>
+
+  <body>
+
+    
+
+    <div id="app">
+
+      <div class="header-wrap">
+  <header>
+    <div class="site-brand">
+      <div class="site-title">
+        <!-- <a href="/">MatrixSparse</a> -->
+        <img alt="logo" class="antd-pro-layouts-user-layout-logo" src="/images/favicon.png" style="width: 40px;height: 40px;margin-top: 10px;margin-left: 5px;">
+      </div>
+    </div>
+    <nav class="site-navigation">
+      <ul class="nav-menu">
+      
+        <li class="nav-item" data-path="/">
+          
+            <a href="/" target="_self">
+              主页
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          
+            <a href="/archives/" target="_self">
+              归档
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          
+            <a href="/categories/" target="_self">
+              分类
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          
+            <a href="/tags/" target="_self">
+              标签
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="">
+          
+            <a href="javascript:void(0);" v-else="">博客地址</a>
+            <ul class="nav-menu--dropdown">
+              
+                <li>
+                  <a href="https://blog.csdn.net/qq_25371579" target="_blank">
+                    CSDN
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://github.com/matrixsparse" target="_blank">
+                    Github
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://matrixsparse.github.io/" target="_blank">
+                    Github Page
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+      </ul>
+    </nav>
+    <i class="iconfont icon-menu"></i>
+  </header>
+</div>
+
+<script>
+  let links = document.querySelectorAll('.nav-item');
+  for(let link of links){
+    let childrenLink = link.querySelector('ul');
+    link.addEventListener('mouseenter', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown active";
+      }
+    })
+    link.addEventListener('mouseleave', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown";
+      }
+    })
+  }
+  let rootRealPath = getRealPath(window.location.pathname, true);
+  for(let link of links) {
+    let linkPath = link.getAttribute("data-path");
+    if(linkPath && getRealPath(linkPath, true) === rootRealPath) {
+      link.className = "nav-item hover";
+    }
+  }
+
+  let iconMenu = document.querySelector("i.iconfont.icon-menu"),
+    iconMenuClicked = false;
+  let navDOM = document.querySelector("nav.site-navigation");
+  iconMenu.addEventListener("click", () => {
+    iconMenuClicked
+      ? navDOM.className = "site-navigation active"
+      : navDOM.className = "site-navigation";
+    iconMenuClicked = !iconMenuClicked;
+  })
+</script>
+
+
+      
+
+
+
+
+
+
+
+
+<div class="container post-index">
+
+  
+
+<div class="post">
+  <h1 class="article-title">
+    <span>ES集群备份恢复之基于snapshot+hdfs进行数据备份</span>
+  </h1>
+  <div class="article-top-meta">
+    <span>
+      发布 : 
+      2017-10-12
+    </span>
+    
+      <span>
+        分类 : 
+          <a href="/categories/elasticsearch/">
+            elasticsearch
+          </a>
+      </span>
+    
+    
+      <span>
+        浏览 : <span class="article-timer" data-identity="ES集群备份恢复之基于snapshot+hdfs进行数据备份"></span>
+      </span>
+    
+  </div>
+
+  
+
+  <div class="article-content">
+    <div class="markdown-body">
+      <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">hadoop hdfs，提供的是分布式的文件存储，数据存储</span><br><span class="line">hadoop yarn，提供的是分布式的资源调度</span><br><span class="line">hadoop mapreduce，提供的是分布式的计算引擎，跑在yarn上面的，由yarn去做资源调度</span><br><span class="line">hadoop hive，提供的是分布式的数据仓库引擎，基于mapreduce</span><br><span class="line">hadoop hbase，提供的是分布式的NoSQL数据库，基于hdfs去做的</span><br></pre></td></tr></table></figure>
+<h2 id="liunx-bash-ls-command-not-found"><a href="#liunx-bash-ls-command-not-found" class="headerlink" title="liunx -bash:ls:command not found"></a>liunx -bash:ls:command not found</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> PATH=/usr/<span class="built_in">local</span>/sbin:/usr/<span class="built_in">local</span>/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin</span><br></pre></td></tr></table></figure>
+<h2 id="关闭firewall"><a href="#关闭firewall" class="headerlink" title="关闭firewall"></a>关闭firewall</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">systemctl stop firewalld.service <span class="comment">#停止firewall</span></span><br><span class="line">systemctl <span class="built_in">disable</span> firewalld.service <span class="comment">#禁止firewall开机启动</span></span><br><span class="line">firewall-cmd --state <span class="comment">#查看默认防火墙状态（关闭后显示notrunning，开启后显示running）</span></span><br></pre></td></tr></table></figure>
+<h2 id="使用ip-addr查看ip地址"><a href="#使用ip-addr查看ip地址" class="headerlink" title="使用ip addr查看ip地址"></a>使用ip addr查看ip地址</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip addr</span><br></pre></td></tr></table></figure>
+<h2 id="将压缩文件上传到CentOS的-usr-local目录下"><a href="#将压缩文件上传到CentOS的-usr-local目录下" class="headerlink" title="将压缩文件上传到CentOS的/usr/local目录下"></a>将压缩文件上传到CentOS的/usr/local目录下</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">scp -r hadoop-2.7.1.tar.gz root@192.168.31.180:/usr/<span class="built_in">local</span></span><br></pre></td></tr></table></figure>
+<h2 id="将hadoop包进行解压缩"><a href="#将hadoop包进行解压缩" class="headerlink" title="将hadoop包进行解压缩"></a>将hadoop包进行解压缩</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@elasticsearch01 <span class="built_in">local</span>]<span class="comment"># tar -zxvf hadoop-2.7.1.tar.gz</span></span><br></pre></td></tr></table></figure>
+<h2 id="对hadoop目录进行重命名"><a href="#对hadoop目录进行重命名" class="headerlink" title="对hadoop目录进行重命名"></a>对hadoop目录进行重命名</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mv hadoop-2.7.1 hadoop</span><br></pre></td></tr></table></figure>
+<h2 id="配置hadoop相关环境变量"><a href="#配置hadoop相关环境变量" class="headerlink" title="配置hadoop相关环境变量"></a>配置hadoop相关环境变量</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">vi .bashrc</span><br><span class="line"><span class="built_in">export</span> HADOOP_HOME=/usr/<span class="built_in">local</span>/hadoop</span><br><span class="line"><span class="built_in">export</span> PATH=<span class="variable">$PATH</span>:<span class="variable">$HADOOP_HOME</span>/bin:<span class="variable">$HADOOP_HOME</span>/sbin</span><br><span class="line"><span class="built_in">source</span> .bashrc</span><br></pre></td></tr></table></figure>
+<h2 id="在-usr-local目录下创建data目录"><a href="#在-usr-local目录下创建data目录" class="headerlink" title="在/usr/local目录下创建data目录"></a>在/usr/local目录下创建data目录</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p /usr/<span class="built_in">local</span>/data</span><br></pre></td></tr></table></figure>
+<h2 id="修改配置文件"><a href="#修改配置文件" class="headerlink" title="修改配置文件"></a>修改配置文件</h2><h3 id="usr-local-hadoop-etc-hadoop-core-site-xml"><a href="#usr-local-hadoop-etc-hadoop-core-site-xml" class="headerlink" title="/usr/local/hadoop/etc/hadoop/core-site.xml"></a>/usr/local/hadoop/etc/hadoop/core-site.xml</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;property&gt;</span><br><span class="line">  &lt;name&gt;fs.defaultFS&lt;/name&gt;</span><br><span class="line">  &lt;value&gt;hdfs://elasticsearch01:9000&lt;/value&gt;</span><br><span class="line">&lt;/property&gt;</span><br></pre></td></tr></table></figure>
+<h3 id="usr-local-hadoop-etc-hadoop-hdfs-site-xml"><a href="#usr-local-hadoop-etc-hadoop-hdfs-site-xml" class="headerlink" title="/usr/local/hadoop/etc/hadoop/hdfs-site.xml"></a>/usr/local/hadoop/etc/hadoop/hdfs-site.xml</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&lt;!-- 禁止权限检查 --&gt;</span><br><span class="line">&lt;property&gt;</span><br><span class="line">  &lt;name&gt;dfs.permissions&lt;/name&gt;</span><br><span class="line">  &lt;value&gt;<span class="literal">false</span>&lt;/value&gt;</span><br><span class="line">&lt;/property&gt;</span><br><span class="line">&lt;property&gt;</span><br><span class="line">  &lt;name&gt;dfs.namenode.name.dir&lt;/name&gt;</span><br><span class="line">  &lt;value&gt;/usr/<span class="built_in">local</span>/data/namenode&lt;/value&gt;</span><br><span class="line">&lt;/property&gt;</span><br><span class="line">&lt;property&gt;</span><br><span class="line">  &lt;name&gt;dfs.datanode.data.dir&lt;/name&gt;</span><br><span class="line">  &lt;value&gt;/usr/<span class="built_in">local</span>/data/datanode&lt;/value&gt;</span><br><span class="line">&lt;/property&gt;</span><br></pre></td></tr></table></figure>
+<h3 id="usr-local-hadoop-etc-hadoop-yarn-site-xml"><a href="#usr-local-hadoop-etc-hadoop-yarn-site-xml" class="headerlink" title="/usr/local/hadoop/etc/hadoop/yarn-site.xml"></a>/usr/local/hadoop/etc/hadoop/yarn-site.xml</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;property&gt;</span><br><span class="line">  &lt;name&gt;yarn.resourcemanager.hostname&lt;/name&gt;</span><br><span class="line">  &lt;value&gt;elasticsearch01&lt;/value&gt;</span><br><span class="line">&lt;/property&gt;</span><br></pre></td></tr></table></figure>
+<h3 id="usr-local-hadoop-etc-hadoop-mapred-site-xml"><a href="#usr-local-hadoop-etc-hadoop-mapred-site-xml" class="headerlink" title="/usr/local/hadoop/etc/hadoop/mapred-site.xml"></a>/usr/local/hadoop/etc/hadoop/mapred-site.xml</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;property&gt;</span><br><span class="line">  &lt;name&gt;mapreduce.framework.name&lt;/name&gt;</span><br><span class="line">  &lt;value&gt;yarn&lt;/value&gt;</span><br><span class="line">&lt;/property&gt;</span><br></pre></td></tr></table></figure>
+<h3 id="usr-local-hadoop-etc-hadoop-slaves"><a href="#usr-local-hadoop-etc-hadoop-slaves" class="headerlink" title="/usr/local/hadoop/etc/hadoop/slaves"></a>/usr/local/hadoop/etc/hadoop/slaves</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">elasticsearch01</span><br><span class="line">elasticsearch02</span><br><span class="line">elasticsearch03</span><br></pre></td></tr></table></figure>
+<h2 id="在另外两台机器上部署"><a href="#在另外两台机器上部署" class="headerlink" title="在另外两台机器上部署"></a>在另外两台机器上部署</h2><blockquote>
+<p>拷贝环境变量</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@elasticsearch01 ~]<span class="comment"># scp -r .bashrc root@elasticsearch02:/root</span></span><br><span class="line">[root@elasticsearch01 ~]<span class="comment"># scp -r .bashrc root@elasticsearch03:/root</span></span><br><span class="line">[root@elasticsearch02 ~]<span class="comment"># source .bashrc</span></span><br><span class="line">[root@elasticsearch03 ~]<span class="comment"># source .bashrc</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>拷贝hadoop安装文件</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@elasticsearch01 ~]<span class="comment"># scp -r /usr/local/hadoop root@elasticsearch02:/usr/local</span></span><br><span class="line">[root@elasticsearch01 ~]<span class="comment"># scp -r /usr/local/hadoop root@elasticsearch03:/usr/local</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>创建data目录</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@elasticsearch02 ~]<span class="comment"># mkdir -p /usr/local/data</span></span><br><span class="line">[root@elasticsearch03 ~]<span class="comment"># mkdir -p /usr/local/data</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>配置ssh免密码登录</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">ssh-keygen -t rsa</span><br><span class="line">生成本机的公钥，过程中不断敲回车即可，ssh-keygen命令默认会将公钥放在/root/.ssh目录下</span><br><span class="line"><span class="built_in">cd</span> .ssh</span><br><span class="line">cp id_rsa.pub authorized_keys</span><br><span class="line">将公钥复制为authorized_keys文件，此时使用ssh连接本机就不需要输入密码了</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">[elasticsearch@elasticsearch01 ~]$ ssh-copy-id -i elasticsearch01</span><br><span class="line">[elasticsearch@elasticsearch01 ~]$ ssh-copy-id -i elasticsearch02</span><br><span class="line">[elasticsearch@elasticsearch01 ~]$ ssh-copy-id -i elasticsearch03</span><br><span class="line"></span><br><span class="line">[elasticsearch@elasticsearch02 ~]$ ssh-copy-id -i elasticsearch01</span><br><span class="line">[elasticsearch@elasticsearch02 ~]$ ssh-copy-id -i elasticsearch02</span><br><span class="line">[elasticsearch@elasticsearch02 ~]$ ssh-copy-id -i elasticsearch03</span><br><span class="line"></span><br><span class="line">[elasticsearch@elasticsearch03 ~]$ ssh-copy-id -i elasticsearch01</span><br><span class="line">[elasticsearch@elasticsearch03 ~]$ ssh-copy-id -i elasticsearch02</span><br><span class="line">[elasticsearch@elasticsearch03 ~]$ ssh-copy-id -i elasticsearch03</span><br></pre></td></tr></table></figure>
+<h2 id="启动hdfs集群"><a href="#启动hdfs集群" class="headerlink" title="启动hdfs集群"></a>启动hdfs集群</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">su elasticsearch</span><br><span class="line">chown -R elasticsearch:elasticsearch /usr/<span class="built_in">local</span>/hadoop</span><br><span class="line">chown -R elasticsearch:elasticsearch /usr/<span class="built_in">local</span>/data</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">vi .bashrc</span><br><span class="line"><span class="built_in">export</span> JAVA_HOME=/usr/java/latest</span><br><span class="line"><span class="built_in">export</span> PATH=<span class="variable">$PATH</span>:<span class="variable">$JAVA_HOME</span>/bin</span><br><span class="line"></span><br><span class="line"><span class="built_in">export</span> ES_HOME=/usr/<span class="built_in">local</span>/elasticsearch/</span><br><span class="line"><span class="built_in">export</span> PATH=<span class="variable">$PATH</span>:<span class="variable">$ES_HOME</span>/bin</span><br><span class="line"></span><br><span class="line"><span class="built_in">export</span> HADOOP_HOME=/usr/<span class="built_in">local</span>/hadoop</span><br><span class="line"><span class="built_in">export</span> PATH=<span class="variable">$PATH</span>:<span class="variable">$HADOOP_HOME</span>/bin:<span class="variable">$HADOOP_HOME</span>/sbin</span><br><span class="line"><span class="built_in">source</span> .bashrc</span><br></pre></td></tr></table></figure>
+<h3 id="格式化namenode"><a href="#格式化namenode" class="headerlink" title="格式化namenode"></a>格式化namenode</h3><blockquote>
+<p>在elasticsearch01上执行以下命令</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hdfs namenode -format</span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fkkk3s0nagj225u0w47wh.jpg" alt="All text"></p>
+<h3 id="启动hdfs集群-1"><a href="#启动hdfs集群-1" class="headerlink" title="启动hdfs集群"></a>启动hdfs集群</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">start-dfs.sh</span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fkm3pq2t1mj221w0b87f9.jpg" alt="All text"></p>
+<h3 id="验证启动是否成功"><a href="#验证启动是否成功" class="headerlink" title="验证启动是否成功"></a>验证启动是否成功</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jps、50070端口</span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fkmt9jcv89j22kg134tja.jpg" alt="All text"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">elasticsearch01：namenode、datanode、secondarynamenode</span><br><span class="line">elasticsearch02：datanode</span><br><span class="line">elasticsearch03：datanode</span><br></pre></td></tr></table></figure>
+<h2 id="es集群数据备份"><a href="#es集群数据备份" class="headerlink" title="es集群数据备份"></a>es集群数据备份</h2><p>任何一个存储数据的软件，都需要定期的备份我们的数据。es replica提供了运行时的高可用保障机制，可以容忍少数节点的故障和部分数据的丢失，但是整体上却不会丢失任何数据，而且不会影响集群运行。但是replica没法进行灾难性的数据保护，比如说机房彻底停电，所有机器全部当即，等等情况。对于这种灾难性的故障，我们就需要对集群中的数据进行备份了，集群中数据的完整备份。</p>
+<p>要备份集群数据，就要使用snapshot api。这个api会将集群当前的状态和数据全部存储到一个外部的共享目录中去，比如NAS，或者hdfs。而且备份过程是非常智能的，第一次会备份全量的数据，但是接下来的snapshot就是备份两次snapshot之间的增量数据了。数据是增量进入es集群或者从es中删除的，那么每次做snapshot备份的时候，也会自动在snapshot备份中增量增加数据或者删除部分数据。因此这就意味着每次增量备份的速度都是非常快的。</p>
+<p>如果要使用这个功能，我们需要有一个预先准备好的独立于es之外的共享目录，用来保存我们的snapshot备份数据。es支持多种不同的目录类型：shared filesystem，比如NAS；Amazon S3；hdfs；Azure Cloud。不过对于国内的情况而言，其实NAS应该很少用，一般来说，就用hdfs会比较多一些，跟hadoop这种离线大数据技术栈整合起来使用。</p>
+<h2 id="创建备份仓库"><a href="#创建备份仓库" class="headerlink" title="创建备份仓库"></a>创建备份仓库</h2><h3 id="创建和查询仓库的命令"><a href="#创建和查询仓库的命令" class="headerlink" title="创建和查询仓库的命令"></a>创建和查询仓库的命令</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">PUT _snapshot/my_backup </span><br><span class="line">&#123;</span><br><span class="line">    <span class="string">"type"</span>: <span class="string">"fs"</span>, </span><br><span class="line">    <span class="string">"settings"</span>: &#123;</span><br><span class="line">        <span class="string">"location"</span>: <span class="string">"/mount/backups/my_backup"</span> </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里用了shared filesystem作为仓库类型，包括了仓库名称以及仓库类型是fs，还有仓库的地址。这个里面就包含了仓库的一些必要的元数据了。可能还有其他的一些参数可以配置，主要是基于我们的node和网络的性能来配置。max_snapshot_bytes_per_sec，这个参数用于指定数据从es灌入仓库的时候，进行限流，默认是20mb/s。max_restore_bytes_per_sec，这个参数用于指定数据从仓库中恢复到es的时候，进行限流，默认也是20mb/s。假如说网络是非常快速的，那么可以提高这两个参数的值，可以加快每次备份和恢复的速度，比如下面：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">POST _snapshot/my_backup/ </span><br><span class="line">&#123;</span><br><span class="line">    <span class="string">"type"</span>: <span class="string">"fs"</span>,</span><br><span class="line">    <span class="string">"settings"</span>: &#123;</span><br><span class="line">        <span class="string">"location"</span>: <span class="string">"/mount/backups/my_backup"</span>,</span><br><span class="line">        <span class="string">"max_snapshot_bytes_per_sec"</span> : <span class="string">"50mb"</span>, </span><br><span class="line">        <span class="string">"max_restore_bytes_per_sec"</span> : <span class="string">"50mb"</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>创建一个仓库之后，就可以查看这个仓库的信息了：GET /_snapshot/my_backup，或者是查看所有的仓库，GET /_snapshot/_all。可能返回如下的信息：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="string">"my_backup"</span>: &#123;</span><br><span class="line">    <span class="string">"type"</span>: <span class="string">"fs"</span>,</span><br><span class="line">    <span class="string">"settings"</span>: &#123;</span><br><span class="line">      <span class="string">"compress"</span>: <span class="literal">true</span>,</span><br><span class="line">      <span class="string">"location"</span>: <span class="string">"/mount/backups/my_backup"</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="基于hdfs创建仓库"><a href="#基于hdfs创建仓库" class="headerlink" title="基于hdfs创建仓库"></a>基于hdfs创建仓库</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">但是其实如果在国内使用es的话，还是建议跟hadoop生态整合使用，不要用那种shared filesystem。可以用hadoop生态的hdfs分布式文件存储系统。首先先要安装repository-hdfs的插件：bin/elasticsearch-plugin install repository-hdfs，必须在每个节点上都安装，然后重启整个集群。</span><br></pre></td></tr></table></figure>
+<h3 id="安装repository-hdfs插件"><a href="#安装repository-hdfs插件" class="headerlink" title="安装repository-hdfs插件"></a>安装repository-hdfs插件</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /usr/<span class="built_in">local</span>/elasticsearch/</span><br><span class="line">./bin/elasticsearch-plugin install repository-hdfs</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>在三台机器上启动ES</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">su elasticsearch</span><br><span class="line">elasticsearch -d -Epath.conf=/etc/elasticsearch</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -XGET elasticsearch01:9200/_cat/nodes?v</span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fkm38wdmkgj21vu078wkn.jpg" alt="All text"></p>
+<p>在3个hdfs node上，都加入hdfs-site.xml，禁止权限检查，如果要修改这个配置文件，要先在/usr/local/hadoop/sbin，运行./stop-dfs.sh，停止整个hdfs集群，然后在3个node上，都修改hdfs-site.xml，加入下面的配置，禁止权限的检查</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;property&gt;</span><br><span class="line">  &lt;name&gt;dfs.permissions&lt;/name&gt;</span><br><span class="line">  &lt;value&gt;<span class="literal">false</span>&lt;/value&gt;</span><br><span class="line">&lt;/property&gt;</span><br></pre></td></tr></table></figure>
+<p>hdfs snapshot/restore plugin是跟最新的hadoop 2.x整合起来使用的，目前是hadoop 2.7.1。所以如果我们使用的hadoop版本跟这个es hdfs plugin的版本不兼容，那么考虑在hdfs plugin的文件夹里，将hadoop相关jar包都替换成我们自己的hadoop版本对应的jar包。即使hadoop已经在es所在机器上也安装了，但是为了安全考虑，还是应该将hadoop jar包放在hdfs plugin的目录中。</p>
+<p>安装好了hdfs plugin之后，就可以创建hdfs仓库了，用如下的命令即可：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -XGET <span class="string">'http://elasticsearch01:9200/_count?pretty'</span> -d <span class="string">'</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fkmui766ezj21t40l6tez.jpg" alt="All text"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">curl -XPUT <span class="string">'http://elasticsearch01:9200/_snapshot/my_hdfs_repository'</span> -d <span class="string">'</span></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line"><span class="string">  "type": "hdfs",</span></span><br><span class="line"><span class="string">  "settings": &#123;</span></span><br><span class="line"><span class="string">    "uri": "hdfs://elasticsearch01:9000/",</span></span><br><span class="line"><span class="string">    "path": "elasticsearch/respositories/my_hdfs_repository",</span></span><br><span class="line"><span class="string">	  "max_snapshot_bytes_per_sec" : "50mb", </span></span><br><span class="line"><span class="string">    "max_restore_bytes_per_sec" : "50mb"</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">&#125;'</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fkmuyxtgogj21pw0fgn54.jpg" alt="All text"></p>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fkmv0qabhqj229s0rkafh.jpg" alt="All text"></p>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fkmv0s9b9bj227e0qwafw.jpg" alt="All text"></p>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fkmv0rrtiij229c0qwjxu.jpg" alt="All text"></p>
+<h3 id="验证仓库"><a href="#验证仓库" class="headerlink" title="验证仓库"></a>验证仓库</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">verify参数用来验证仓库是否可以在所有节点上正常使用,这个命令会返回一个node列表，证明那些node都验证过了这个仓库是可以使用的</span><br></pre></td></tr></table></figure>
+<p>先停止整个es集群，然后在3个节点上，都加入下面的配置，然后用elasticsearch账号重启整个es集群</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi /usr/<span class="built_in">local</span>/elasticsearch/plugins/repository-hdfs/plugin-security.policy</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">  permission java.lang.RuntimePermission <span class="string">"accessDeclaredMembers"</span>;</span><br><span class="line">  permission java.lang.RuntimePermission <span class="string">"getClassLoader"</span>;</span><br><span class="line">  permission java.lang.RuntimePermission <span class="string">"shutdownHooks"</span>;</span><br><span class="line">  permission java.lang.reflect.ReflectPermission <span class="string">"suppressAccessChecks"</span>;</span><br><span class="line">  permission javax.security.auth.AuthPermission <span class="string">"doAs"</span>;</span><br><span class="line">  permission javax.security.auth.AuthPermission <span class="string">"getSubject"</span>;</span><br><span class="line">  permission javax.security.auth.AuthPermission <span class="string">"modifyPrivateCredentials"</span>;</span><br><span class="line">  permission java.security.AllPermission;</span><br><span class="line">  permission java.util.PropertyPermission <span class="string">"*"</span>, <span class="string">"read,write"</span>;</span><br><span class="line">  permission javax.security.auth.PrivateCredentialPermission <span class="string">"org.apache.hadoop.security.Credentials * \"*\""</span>, <span class="string">"read"</span>;</span><br><span class="line">```  </span><br><span class="line"></span><br><span class="line">![All text](http://ww1.sinaimg.cn/large/dc05ba18gy1fkmvd4vhtdj220q0jstos.jpg)</span><br><span class="line"></span><br><span class="line">```bash</span><br><span class="line">vi /usr/<span class="built_in">local</span>/elasticsearch/config/jvm.options</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-Djava.security.policy=file:////usr/<span class="built_in">local</span>/elasticsearch/plugins/repository-hdfs/plugin-security.policy</span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fkn7ecbfprj21re0us4az.jpg" alt="All text"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -XPOST <span class="string">'http://elasticsearch01:9200/_snapshot/my_hdfs_repository/_verify'</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fkn7hj9hqmj223i044wk9.jpg" alt="All text"></p>
+<h2 id="对索引进行snapshotting备份"><a href="#对索引进行snapshotting备份" class="headerlink" title="对索引进行snapshotting备份"></a>对索引进行snapshotting备份</h2><h3 id="插入数据"><a href="#插入数据" class="headerlink" title="插入数据"></a>插入数据</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -XPUT <span class="string">'http://elasticsearch01:9200/my_index/my_type/1'</span> -d <span class="string">'&#123;"id":1,"name":"matrix"&#125;'</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fkn7uryfvhj223c0b4jxn.jpg" alt="All text"></p>
+<h3 id="对所有open的索引进行snapshotting备份"><a href="#对所有open的索引进行snapshotting备份" class="headerlink" title="对所有open的索引进行snapshotting备份"></a>对所有open的索引进行snapshotting备份</h3><p>一个仓库可以包含多分snapshot，每个snapshot是一部分索引的备份数据，创建一份snapshot备份时，我们要指定要备份的索引。比如下面这行命令：PUT _snapshot/my_hdfs_repository/snapshot_1，这行命令就会将所有open的索引都放入一个叫做snapshot_1的备份，并且放入my_backup仓库中。这个命令会立即返回，然后备份操作会被后台继续进行。如果我们不希望备份操作以后台方式运行，而是希望在前台发送请求时等待备份操作执行完成，那么可以加一个参数即可，比如下面这样：PUT _snapshot/my_backup/snapshot_1?wait_for_completion=true。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -XPUT <span class="string">'http://elasticsearch02:9200/_snapshot/my_hdfs_repository/snapshot_1'</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>可以看到es数据已经成功备份到hdfs</p>
+</blockquote>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fkn8fx0febj22ak0zigvs.jpg" alt="All text"></p>
+<h3 id="对指定的索引进行snapshotting备份"><a href="#对指定的索引进行snapshotting备份" class="headerlink" title="对指定的索引进行snapshotting备份"></a>对指定的索引进行snapshotting备份</h3><p>默认的备份是会备份所有的索引，但是有的时候，可能我们不希望备份所有的索引，有些可能是不重要的数据，而且量很大，没有必要占用我们的hdfs磁盘资源，那么可以指定备份少数重要的数据即可。此时可以使用下面的命令去备份指定的索引：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">PUT _snapshot/my_backup/snapshot_2</span><br><span class="line">&#123;</span><br><span class="line">    <span class="string">"indices"</span>: <span class="string">"index_1,index_2"</span>,</span><br><span class="line">    <span class="string">"ignore_unavailable"</span>: <span class="literal">true</span>,</span><br><span class="line">    <span class="string">"include_global_state"</span>: <span class="literal">false</span>,</span><br><span class="line">    <span class="string">"partial"</span>: <span class="literal">true</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>ignore_unavailable如果设置为true的话，那么那些不存在的index就会被忽略掉，不会进行备份过程中。默认情况下，这个参数是不设置的，那么此时如果某个index丢失了，会导致备份过程失败。设置include_global_state为false，可以阻止cluster的全局state也作为snapshot的一部分被备份。默认情况下，如果某个索引的部分primary shard不可用，那么会导致备份过程失败，那么此时可以将partial设置为true。</p>
+<p>而且snapshotting的过程是增量进行的，每次执行snapshotting的时候，es会分析已经存在于仓库中的snapshot对应的index file，然后仅仅备份那些自从上次snapshot之后新创建的或者有过修改的index files。这就允许多个snapshot在仓库中可以用一种紧凑的模式来存储。而且snapshotting过程是不会阻塞所有的es读写操作的，然而，在snapshotting开始之后，写入index中的数据，是不会反应到这次snapshot中的。每次snapshot除了创建一份index的副本之外，还可以保存全局的cluster元数据，里面包含了全局的cluster设置和template。</p>
+<p>每次只能执行一次snapshot操作，如果某个shard正在被snapshot备份，那么这个shard此时就不能被移动到其他node上去，这会影响shard rebalance的操作。只有在snapshot结束之后，这个shard才能够被移动到其他的node上去。</p>
+<h2 id="查看snapshot备份列表"><a href="#查看snapshot备份列表" class="headerlink" title="查看snapshot备份列表"></a>查看snapshot备份列表</h2><p>一旦我们在仓库中备份了一些snapshot之后，就可以查看这些snapshot相关的详细信息了，使用这行命令就可以查看指定的snapshot的详细信息：GET _snapshot/my_backup/snapshot_2，结果大致如下所示。当然也可以查看所有的snapshot列表，GET _snapshot/my_backup/_all</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -XGET <span class="string">'http://elasticsearch01:9200/_snapshot/my_hdfs_repository/snapshot_1?pretty'</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fkn99c8ro9j222o10kaoy.jpg" alt="All text"></p>
+<h2 id="删除snapshot备份"><a href="#删除snapshot备份" class="headerlink" title="删除snapshot备份"></a>删除snapshot备份</h2><p>如果要删除过于陈旧的snapshot备份快照，那么使用下面这行命令即可：DELETE _snapshot/my_backup/snapshot_2。记住，一定要用api去删除snapshot，不要自己手动跑到hdfs里删除这个数据。因为snapshot是增量的，有可能很多snapshot依赖于底层的某一个公共的旧的snapshot segment。但是delete api是理解数据如何增量 存储和互相依赖的，所以可以正确的删除那些不用的数据。如果我们自己手工进行hdfs文件删除，可能导致我们的backup数据破损掉，就无法使用了。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -XDELETE <span class="string">'http://elasticsearch01:9200/_snapshot/my_hdfs_repository/snapshot_1'</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fkn9gj6cgwj22am0x811q.jpg" alt="All text"></p>
+<h2 id="监控snapshotting的进度"><a href="#监控snapshotting的进度" class="headerlink" title="监控snapshotting的进度"></a>监控snapshotting的进度</h2><p>使用wait_for_completion可以在前台等待备份完成，但是实际上也没什么必要，因为可能要备份的数据量特别大，难道还等待1个小时？？看着是不太现实的，所以一般还是在后台运行备份过程，然后使用另外一个监控api来查看备份的进度，首先可以获取一个snapshot ID：GET _snapshot/my_backup/snapshot_3。如果这个snapshot还在备份过程中，此时我们就可以看到一些信息，比如什么时候开始备份的，已经运行了多长时间，等等。然而，这个api用了跟snapshot一样的线程池去执行，如果我们在备份非常大的shard，进度的更新可能会非常之慢。一个更好的选择是用_status API，GET _snapshot/my_backup/snapshot_3/_status，这个api立即返回最详细的数据。这里我们可以看到总共有几个shard在备份，已经完成了几个，还剩下几个，包括每个索引的shard的备份进度：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -XGET <span class="string">'http://elasticsearch01:9200/_snapshot/my_hdfs_repository/snapshot_1?pretty'</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fkn99c8ro9j222o10kaoy.jpg" alt="All text"></p>
+<h2 id="取消snapshotting备份过程"><a href="#取消snapshotting备份过程" class="headerlink" title="取消snapshotting备份过程"></a>取消snapshotting备份过程</h2><p>要取消一个正在执行的snapshotting备份过程，比如我们发现备份时间过于长，希望先取消然后在晚上再运行，或者是因为不小心误操作发起了一次备份操作，这个时候就可以运行下面这条命令：DELETE _snapshot/my_backup/snapshot_3。也就是立即删除这个snapshot，这个命令会去取消snapshot的过程，同时将备份了一半的仓库中的数据给删除掉。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -XDELETE <span class="string">'http://elasticsearch01:9200/_snapshot/my_hdfs_repository/snapshot_1'</span></span><br></pre></td></tr></table></figure>
+
+    </div>
+  </div>
+  
+    <div class="copy-right">
+      <div class="markdown-body">
+        <blockquote>
+        
+        
+          本文作者 : Matrix <br>
+        
+        原文链接 : <a href="">http://yoursite.com/2017/10/12/ES集群备份恢复之基于snapshot+hdfs进行数据备份/</a><br>
+        版权声明 : 本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+        </blockquote>
+      </div>
+    </div>
+  
+  
+  
+    <div class="social-share" style="margin-top: -2rem" data-wechat-qrcode-title="<p>微信扫一扫</p>" data-wechat-qrcode-helper="<p>微信右上角, 扫一扫分享</p>" data-sites="qzone, qq, weibo, wechat, douban, google, facebook, twitter">
+  <span style="color: #6b7487; font-size: 1.4rem;">分享到: </span>
+</div>
+<script src="https://cdn.bootcss.com/social-share.js/1.0.16/js/social-share.min.js" async></script>
+  
+
+  
+    <div id="reward">
+  
+    <p id="reward-meta">知识 & 情怀 | 二者兼得</p>
+  
+  <button id="reward-btn">
+    
+    <span>投食</span>
+  </button>
+  <div id="reward-qrcode">
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/wechatpay.jpg" alt="微信扫一扫, 向我投食">
+        <p class="qrcode-meta">微信扫一扫, 向我投食</p>
+      </div>
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/alipaypay.jpg" alt="支付宝扫一扫, 向我投食">
+        <p class="qrcode-meta">支付宝扫一扫, 向我投食</p>
+      </div>
+    
+  </div>
+
+</div>
+
+<script>
+  (() => {
+    let button = document.querySelector('#reward-btn'),
+      qrcode = document.querySelector('#reward-qrcode'),
+      display = false;
+    
+    button.addEventListener('click', () => {
+      qrcode.style.display = display ? 'none' : 'block'
+      display = !display
+    }, false)
+  })()
+</script>
+  
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+      <span>
+        
+          <i class="iconfont icon-06tags"></i>标签: 
+          
+          <span class="span--tag">
+            <a href="/tags/elasticsearch/">
+              #elasticsearch
+            </a>
+          </span>
+          
+        
+      </span>
+    </div>
+    <div class="article-meta pull-right">
+    </div>
+  </div>
+</div>
+
+
+  <aside id="sidebar">
+    <p id="sidebar-header"></p>
+    <ol id="sidebar-toc"></ol>
+  </aside>
+  <script async>setTimeout(generateToc, 10);</script>
+
+
+  <nav class="post-navigation">
+    
+      <div class="nav-pre">
+        <i class="iconfont icon-prev"></i>
+        上一篇:
+        <a href="/2017/09/26/《人人都是产品经理》摘要/" target="_self">《人人都是产品经理》摘要</a>
+      </div>
+    
+    
+      <div class="nav-next">
+        下一篇:
+        <a href="/2017/10/13/ES生产集群备份恢复之基于snapshot+hdfs+restore进行数据恢复/" target="_self">ES生产集群备份恢复之基于snapshot+hdfs+restore进行数据恢复</a>
+        <i class="iconfont icon-next"></i>
+      </div>
+    
+  </nav>
+
+  
+    <a href="#comment" class="comment-anchor"></a>
+<div class="comment-title"><i class="iconfont icon-footprint"></i> 留下足迹 <i class="iconfont icon-footprint"></i></div>
+<div id="vcomments"></div>
+
+<script defer>
+  if( true ) {
+    let path = getRealPath()
+    new Valine({
+      el: "#vcomments",
+      appId: "Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz",
+      appKey: "WaR7nrzhliHj9aVwdQzkdlGd",
+      notify: false,
+      verify: false,
+      avatar: "robohash",
+      placeholder: "正确填写邮箱, 才能及时收到回复哦♪(^∇^*)",
+      path
+    });
+  }
+</script>
+   
+
+  
+    <script defer>
+const valineAPI = (() => {
+  try {
+    AV.init("Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz", "WaR7nrzhliHj9aVwdQzkdlGd");
+  } catch(error) {}
+  const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+      query.equalTo("identity", identity);
+      query.find().then(results => {
+        resolve(results.length > 0);
+      }, error => reject(error));
+    })
+  }
+
+  const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+      let querys = [];
+      for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+      }
+      query = AV.Query.or.apply(null ,querys);
+    } else {
+      identity = identity || getRealPath();
+      query = new AV.Query("Timer");
+      query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+      query.find()
+      .then(results => resolve(results))
+      .catch(error => reject(error))
+    })
+  }
+
+  const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let Todo = AV.Object.extend('Timer');
+      let todo = new Todo();
+      todo.set("times", 1);
+      todo.set("identity", identity);
+      todo.save().then(res => resolve(true), error => reject(error));
+    })
+  }
+
+  const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let query = new AV.Query('Timer');
+      query.equalTo("identity", identity);
+      query.find().then(todos => {
+        todos.forEach(todo => {
+          todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+      }).then(todos => resolve(true), error => reject(error));
+    })
+  }
+
+  return {
+    isExist,
+    _get,
+    update,
+    create
+  }
+})()
+
+const calcAndWriteTimes = () => {
+  let isPost = true;
+
+  let timerAllDOM = document.querySelectorAll(".article-timer");
+
+  if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+      if(exist) {
+        return valineAPI.update(identity);
+      }
+      return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+  }
+
+  let timerDOMCache = {};
+
+  for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+      timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+      timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+      };
+    }
+  }
+
+  let identities = Object.keys(timerDOMCache);
+  valineAPI._get(identities).then(results => {
+    for(let result of results) {
+      let {identity, times} = result.attributes;
+      timerDOMCache[identity].times = times;
+      timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+      if(timerDOMCache[identity].times){
+        continue;
+      }
+      timerDOMCache[identity].dom.map(item => item.innerText = 1);
+      valineAPI.create(identity);
+    }
+  }).catch(error => console.log(error.message))
+}
+
+if(true){
+  calcAndWriteTimes();
+}
+</script>
+   
+
+</div>
+
+
+      <footer>
+  <p class="site-info">
+    博客已萌萌哒运行<span id="time-to-now"></span><span class="my-face">(●'◡'●)ﾉ♥</span>
+    <br>
+    Theme - <a href="https://github.com/dongyuanxin/theme-bmw">BMW</a> | Powered by <a href="https://godbmw.com/">GodBMW</a>
+    <br>
+    
+      Copyright © 2019 Matrix
+    
+  </p>
+</footer>
+
+
+
+<script>
+const timeToNowDOM = document.querySelector("#time-to-now");
+const startTimestamp = new Date(2016, 4, 10).getTime();
+
+const updateTimeStr = () => {
+  let offset = parseInt(
+      (new Date().getTime() - startTimestamp) / 1000,
+      10
+    ),
+    day = Math.floor(offset / 86400),
+    hour = Math.floor((offset % 86400) / 3600),
+    minute = Math.floor(((offset % 86400) % 3600) / 60),
+    second = Math.floor(((offset % 86400) % 3600) % 60);
+  timeToNowDOM.innerHTML =
+    day + "天" + hour + "小时" + minute + "分钟" + second + "秒";
+  setTimeout(updateTimeStr, 500);
+}
+
+setTimeout(updateTimeStr, 500);
+</script>
+
+
+      <div class="back-to-top hidden">
+  <span>
+    <i class="iconfont icon-60"></i><span></span>%
+  </span>
+</div>
+
+<script>
+const updateIconToTop = percent => {
+  let dom = document.querySelector(".back-to-top span span");
+  dom.innerText = percent;
+  if(percent < 1) {
+    document.querySelector(".back-to-top").className = "back-to-top hidden";
+  } else {
+    document.querySelector(".back-to-top").className = "back-to-top";
+  }
+}
+
+const handleScoll = () => {
+  let isRunning = false;
+  return () => {
+    if (isRunning) return;
+    isRunning = true;
+    window.requestAnimationFrame(timestamp => {
+      let scrollTop =
+          document.documentElement.scrollTop || document.body.scrollTop,
+        scrollHeight =
+          document.documentElement.scrollHeight ||
+          document.body.scrollHeight,
+        clientHeight =
+          document.documentElement.clientHeight ||
+          document.body.clientHeight;
+      isRunning = false;
+      if (scrollTop <= 1) {
+        updateIconToTop(0);
+        return;
+      }
+      if (scrollTop + clientHeight >= scrollHeight) {
+        updateIconToTop(100);
+      } else {
+        updateIconToTop(parseInt(
+          100 * scrollTop / (scrollHeight - clientHeight),
+          10
+        ));
+      }
+    });
+  };
+}
+
+const backToTop = () => {
+  let scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop,
+    delay = 10,
+    time = 200;
+  if (scrollTop <= 20) {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    return;
+  }
+  let step = Math.ceil(scrollTop * delay / time);
+  let timer = setInterval(() => {
+    scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop;
+    if (scrollTop - step <= 0) {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      clearInterval(timer);
+    } else {
+      document.documentElement.scrollTop = scrollTop - step;
+      document.body.scrollTop = scrollTop - step;
+    }
+  }, delay);
+}
+
+document.addEventListener("scroll", handleScoll(), false);
+
+document.querySelector(".back-to-top").addEventListener("click", backToTop, false);
+
+</script>
+
+    </div>
+
+    
+      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  (() => {
+    const mathjaxConfig = {
+      showProcessingMessages: false, //关闭js加载过程信息
+      messageStyle: "none", //不显示信息
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]], //行内公式选择符
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]], //段内公式选择符
+        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"] //避开某些标签
+      },
+      "HTML-CSS": {
+        availableFonts: ["STIX", "TeX"], //可选字体
+        showMathMenu: false //关闭右击菜单显示
+      }
+    }
+
+    let mathjaxInterval = setInterval(() => {
+      if(!window.MathJax){
+        return;
+      }
+      window.MathJax.Hub.Config(mathjaxConfig)
+      window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')])
+
+      clearInterval(mathjaxInterval)
+    }, 10)    
+  })()
+</script>
+    
+
+    <script src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script>
+<script async>
+  let fancyTimer = setInterval(function(){
+    if(!window.$){
+      return;
+    }
+    $(document).ready(function() {
+      $(".post img").each(function () {
+        if($(this).parent().get(0).tagName.toLowerCase() === "a") {
+          return;
+        }
+        // $(this).attr("data-fancybox", "gallery"); // if you add 'data-fancybox', img will display after showed
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "gallery");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      });
+      
+      clearInterval(fancyTimer);
+    });
+  }, 10);
+</script>
+
+    
+  </body>
+
+</html>

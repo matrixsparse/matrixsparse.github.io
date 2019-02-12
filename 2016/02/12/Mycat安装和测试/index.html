@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta name="author" content="董沅鑫, yuanxin.me@gmail.com">
+  
+  
+  
+  <title>Mycat安装和测试 | 每天遇到更好的你</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="大数据,大数据,Hive,">
+  
+
+  <script>
+    console.log('\n%c Hexo-theme-bmw v4.0 ' + '%c 🎉 https://github.com/dongyuanxin/theme-bmw 🎉\n' + '\n%c View demo online ' + '%c 🔍 https://godbmw.com/ 🔍  \n' , 'color: #fadfa3; background: #030307; padding:3px 0;', '', 'color: #fadfa3; background: #030307; padding:3px 0;', '');
+  </script>
+
+  
+
+  
+
+  
+    <link rel="icon" href="/images/favicon.png">
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+  
+
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/icon/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+  <script src="/js/util.js"></script>
+<script src="/js/valine.min.js"></script>
+
+  
+
+  
+    <link href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js" async></script>
+  
+
+  
+    <link href="https://cdn.bootcss.com/social-share.js/1.0.16/css/share.min.css" rel="stylesheet">
+  
+  
+  <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js" async></script>
+  
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.0/dist/av-min.js"></script>
+  
+
+</head>
+
+  <body>
+
+    
+
+    <div id="app">
+
+      <div class="header-wrap">
+  <header>
+    <div class="site-brand">
+      <div class="site-title">
+        <!-- <a href="/">MatrixSparse</a> -->
+        <img alt="logo" class="antd-pro-layouts-user-layout-logo" src="/images/favicon.png" style="width: 40px;height: 40px;margin-top: 10px;margin-left: 5px;">
+      </div>
+    </div>
+    <nav class="site-navigation">
+      <ul class="nav-menu">
+      
+        <li class="nav-item" data-path="/">
+          
+            <a href="/" target="_self">
+              主页
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          
+            <a href="/archives/" target="_self">
+              归档
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          
+            <a href="/categories/" target="_self">
+              分类
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          
+            <a href="/tags/" target="_self">
+              标签
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="">
+          
+            <a href="javascript:void(0);" v-else="">博客地址</a>
+            <ul class="nav-menu--dropdown">
+              
+                <li>
+                  <a href="https://blog.csdn.net/qq_25371579" target="_blank">
+                    CSDN
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://github.com/matrixsparse" target="_blank">
+                    Github
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://matrixsparse.github.io/" target="_blank">
+                    Github Page
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+      </ul>
+    </nav>
+    <i class="iconfont icon-menu"></i>
+  </header>
+</div>
+
+<script>
+  let links = document.querySelectorAll('.nav-item');
+  for(let link of links){
+    let childrenLink = link.querySelector('ul');
+    link.addEventListener('mouseenter', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown active";
+      }
+    })
+    link.addEventListener('mouseleave', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown";
+      }
+    })
+  }
+  let rootRealPath = getRealPath(window.location.pathname, true);
+  for(let link of links) {
+    let linkPath = link.getAttribute("data-path");
+    if(linkPath && getRealPath(linkPath, true) === rootRealPath) {
+      link.className = "nav-item hover";
+    }
+  }
+
+  let iconMenu = document.querySelector("i.iconfont.icon-menu"),
+    iconMenuClicked = false;
+  let navDOM = document.querySelector("nav.site-navigation");
+  iconMenu.addEventListener("click", () => {
+    iconMenuClicked
+      ? navDOM.className = "site-navigation active"
+      : navDOM.className = "site-navigation";
+    iconMenuClicked = !iconMenuClicked;
+  })
+</script>
+
+
+      
+
+
+
+
+
+
+
+
+<div class="container post-index">
+
+  
+
+<div class="post">
+  <h1 class="article-title">
+    <span>Mycat安装和测试</span>
+  </h1>
+  <div class="article-top-meta">
+    <span>
+      发布 : 
+      2016-02-12
+    </span>
+    
+      <span>
+        分类 : 
+          <a href="/categories/大数据/">
+            大数据
+          </a>
+      </span>
+    
+    
+      <span>
+        浏览 : <span class="article-timer" data-identity="Mycat安装和测试"></span>
+      </span>
+    
+  </div>
+
+  
+
+  <div class="article-content">
+    <div class="markdown-body">
+      <h2 id="准备工作："><a href="#准备工作：" class="headerlink" title="准备工作："></a>准备工作：</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">IP主机名数据库名安装软件</span><br><span class="line">192.168.230.129master db1mycat,mysql</span><br><span class="line">192.168.230.130slave1 db2mysql</span><br><span class="line">192.168.230.131slave2 db3mysql</span><br></pre></td></tr></table></figure>
+<h2 id="1-安装mysql客户端"><a href="#1-安装mysql客户端" class="headerlink" title="1.安装mysql客户端"></a>1.安装mysql客户端</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@master ~]<span class="comment"># yum -y install mysql</span></span><br><span class="line">[root@slave1 ~]<span class="comment"># yum -y install mysql</span></span><br><span class="line">[root@slave2 ~]<span class="comment"># yum -y install mysql</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-5/77306806.jpg" alt=""></p>
+<h2 id="2-安装mysql服务端"><a href="#2-安装mysql服务端" class="headerlink" title="2.安装mysql服务端"></a>2.安装mysql服务端</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[root@master ~]<span class="comment"># yum -y install mysql-server</span></span><br><span class="line">[root@slave1 ~]<span class="comment"># yum -y install mysql-server</span></span><br><span class="line">[root@slave2 ~]<span class="comment"># yum -y install mysql-server</span></span><br><span class="line"></span><br><span class="line">[root@master ~]<span class="comment"># yum -y install mysql-devel</span></span><br><span class="line">[root@slave1 ~]<span class="comment"># yum -y install mysql-devel</span></span><br><span class="line">[root@slave1 ~]<span class="comment"># yum -y install mysql-devel</span></span><br></pre></td></tr></table></figure>
+<h2 id="3-添加mysql用户及权限并配置数据库"><a href="#3-添加mysql用户及权限并配置数据库" class="headerlink" title="3.添加mysql用户及权限并配置数据库"></a>3.添加mysql用户及权限并配置数据库</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">三台服务器都安装mysql以后 ，三台机器同样配置数据库</span><br></pre></td></tr></table></figure>
+<h3 id="3-1-配置编码格式，vi-etc-my-cnf-添加default-character-set-utf8"><a href="#3-1-配置编码格式，vi-etc-my-cnf-添加default-character-set-utf8" class="headerlink" title="3.1.配置编码格式，vi /etc/my.cnf ,添加default-character-set=utf8"></a>3.1.配置编码格式，vi /etc/my.cnf ,添加default-character-set=utf8</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@master ~]<span class="comment"># vi /etc/my.cnf</span></span><br><span class="line">[root@slave1 ~]<span class="comment"># vi /etc/my.cnf</span></span><br><span class="line">[root@slave2 ~]<span class="comment"># vi /etc/my.cnf</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-5/13112312.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">default-character-set=utf8</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-5/80104038.jpg" alt=""></p>
+<h3 id="3-2-添加开机启动项"><a href="#3-2-添加开机启动项" class="headerlink" title="3.2.添加开机启动项"></a>3.2.添加开机启动项</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@master ~]<span class="comment"># chkconfig --add mysqld</span></span><br><span class="line">[root@master ~]<span class="comment"># chkconfig mysqld on</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-5/60720564.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[root@slave1 ~]<span class="comment"># chkconfig --add mysqld</span></span><br><span class="line">[root@slave1 ~]<span class="comment"># chkconfig mysqld on</span></span><br><span class="line"></span><br><span class="line">[root@slave2 ~]<span class="comment"># chkconfig --add mysqld</span></span><br><span class="line">[root@slave2 ~]<span class="comment"># chkconfig mysqld on</span></span><br></pre></td></tr></table></figure>
+<h3 id="3-3-启动mysql"><a href="#3-3-启动mysql" class="headerlink" title="3.3.启动mysql"></a>3.3.启动mysql</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@master ~]<span class="comment"># service mysqld start</span></span><br><span class="line">[root@slave1 ~]<span class="comment"># service mysqld start</span></span><br><span class="line">[root@slave2 ~]<span class="comment"># service mysqld start</span></span><br></pre></td></tr></table></figure>
+<h3 id="3-4-配置root用户并设置密码"><a href="#3-4-配置root用户并设置密码" class="headerlink" title="3.4.配置root用户并设置密码"></a>3.4.配置root用户并设置密码</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">master主机.slave1主机.salve2主机，三台主机的mysql均进行如下配置</span><br></pre></td></tr></table></figure>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[root@master ~]<span class="comment"># mysql -uroot -p</span></span><br><span class="line">mysql&gt; use mysql;</span><br><span class="line">mysql&gt; select user,host from user;</span><br><span class="line">mysql&gt; delete  from user where user = "";</span><br><span class="line">mysql&gt; select user,host from user;</span><br><span class="line">mysql&gt; update user set host='%' where host='127.0.0.1';</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-5/37704159.jpg" alt=""></p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; update user set password = PASSWORD('123456') where user = 'root';</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-5/11377957.jpg" alt=""><br><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-5/51556972.jpg" alt=""></p>
+<h3 id="3-5-添加新用户"><a href="#3-5-添加新用户" class="headerlink" title="3.5.添加新用户"></a>3.5.添加新用户</h3><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; insert into mysql.user(Host,User,Password) values("%","mycat",password("123456"));</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-5/67657705.jpg" alt=""></p>
+<h3 id="3-6-赋予权限"><a href="#3-6-赋予权限" class="headerlink" title="3.6.赋予权限"></a>3.6.赋予权限</h3><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; grant all privileges on *.* to 'mycat'@'%' identified by '123456';</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-5/78903796.jpg" alt=""></p>
+<h3 id="3-7-刷新权限"><a href="#3-7-刷新权限" class="headerlink" title="3.7.刷新权限"></a>3.7.刷新权限</h3><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; flush privileges;</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-5/71261490.jpg" alt=""></p>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-5/10120853.jpg" alt=""></p>
+<h3 id="3-8-登录新建的用户并创建响应的数据库"><a href="#3-8-登录新建的用户并创建响应的数据库" class="headerlink" title="3.8.登录新建的用户并创建响应的数据库"></a>3.8.登录新建的用户并创建响应的数据库</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">不同机器数据库名不同</span><br></pre></td></tr></table></figure>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@master ~]<span class="comment"># mysql -umycat -p</span></span><br><span class="line">mysql&gt; create database db1;</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-5/12271621.jpg" alt=""></p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@slave1 ~]<span class="comment"># mysql -umycat -p</span></span><br><span class="line">mysql&gt; create database db2;</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-5/11705534.jpg" alt=""></p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@slave2 ~]<span class="comment"># mysql -umycat -p</span></span><br><span class="line">mysql&gt; create database db3;</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-5/31025354.jpg" alt=""></p>
+<h2 id="4-安装Mycat"><a href="#4-安装Mycat" class="headerlink" title="4.安装Mycat"></a>4.安装Mycat</h2><h3 id="4-1-解压mycat压缩文件到指定目录下"><a href="#4-1-解压mycat压缩文件到指定目录下" class="headerlink" title="4.1.解压mycat压缩文件到指定目录下"></a>4.1.解压mycat压缩文件到指定目录下</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@master software]<span class="comment"># tar -zxf Mycat-server-1.4-release-20151019230038-linux.tar.gz -C /opt/modules</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-5/79743832.jpg" alt=""></p>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-5/99610341.jpg" alt=""></p>
+<h3 id="4-2-配置环境变量"><a href="#4-2-配置环境变量" class="headerlink" title="4.2.配置环境变量"></a>4.2.配置环境变量</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[root@master modules]<span class="comment"># vi ~/.bash_profile</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">export</span> MYCAT_HOME=/opt/modules/mycat</span><br><span class="line"><span class="built_in">export</span> PATH=<span class="variable">$PATH</span>:<span class="variable">$MYCAT_HOME</span>/bin</span><br><span class="line"></span><br><span class="line">[root@master modules]<span class="comment"># source ~/.bash_profile</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-5/9470090.jpg" alt=""></p>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-5/78338062.jpg" alt=""></p>
+<h3 id="4-3-通过配置sh-opt-modules-mycat-bin-mycat-start执行开机启动"><a href="#4-3-通过配置sh-opt-modules-mycat-bin-mycat-start执行开机启动" class="headerlink" title="4.3.通过配置sh /opt/modules/mycat/bin/mycat start执行开机启动"></a>4.3.通过配置sh /opt/modules/mycat/bin/mycat start执行开机启动</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">也可以自己写脚本加入init服务</span><br><span class="line">[root@master ~]<span class="comment"># sh /opt/modules/mycat/bin/mycat start</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-5/67307135.jpg" alt=""></p>
+<h3 id="4-4-创建新的用户组和用户"><a href="#4-4-创建新的用户组和用户" class="headerlink" title="4.4.创建新的用户组和用户"></a>4.4.创建新的用户组和用户</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">创建一个新的group</span><br><span class="line">[root@master ~]<span class="comment"># groupadd mycat</span></span><br><span class="line"></span><br><span class="line">创建一个新的用户，并加入group</span><br><span class="line">[root@master ~]<span class="comment"># useradd mycat -g mycat</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-5/55912548.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">给新用户设置密码</span><br><span class="line">[root@master ~]<span class="comment"># passwd mycat</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-5/22806775.jpg" alt=""></p>
+<h3 id="4-5-配置mycat配置文件"><a href="#4-5-配置mycat配置文件" class="headerlink" title="4.5.配置mycat配置文件"></a>4.5.配置mycat配置文件</h3><h3 id="4-5-1-在三台mysql的配置文件vi-etc-my-cnf中"><a href="#4-5-1-在三台mysql的配置文件vi-etc-my-cnf中" class="headerlink" title="4.5.1.在三台mysql的配置文件vi /etc/my.cnf中"></a>4.5.1.在三台mysql的配置文件vi /etc/my.cnf中</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">加入lower_case_table_names = 1来忽略大小写</span><br><span class="line">lower_case_table_names = 1</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-5/80376841.jpg" alt=""></p>
+<h3 id="4-5-2-编辑schema-xml文件"><a href="#4-5-2-编辑schema-xml文件" class="headerlink" title="4.5.2.编辑schema.xml文件"></a>4.5.2.编辑schema.xml文件</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">先备份一下</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@master conf]<span class="comment"># cp schema.xml schema.xml.tmp</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-5/91048122.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@master conf]<span class="comment"># vi schema.xml</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0"?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE mycat:schema SYSTEM "schema.dtd"&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">mycat:schema</span> <span class="attr">xmlns:mycat</span>=<span class="string">"http://org.opencloudb/"</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="name">schema</span> <span class="attr">name</span>=<span class="string">"mycat"</span> <span class="attr">checkSQLschema</span>=<span class="string">"false"</span> <span class="attr">sqlMaxLimit</span>=<span class="string">"100"</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">table</span> <span class="attr">name</span>=<span class="string">"employee"</span> <span class="attr">primaryKey</span>=<span class="string">"ID"</span> <span class="attr">dataNode</span>=<span class="string">"dn1,dn2,dn3"</span> <span class="attr">rule</span>=<span class="string">"sharding-by-intfile"</span> /&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">schema</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!--数据节点dn1，对应的主机c1,对应是数据库db1 --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dataNode</span> <span class="attr">name</span>=<span class="string">"dn1"</span> <span class="attr">dataHost</span>=<span class="string">"master"</span> <span class="attr">database</span>=<span class="string">"db1"</span> /&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dataNode</span> <span class="attr">name</span>=<span class="string">"dn2"</span> <span class="attr">dataHost</span>=<span class="string">"slave1"</span> <span class="attr">database</span>=<span class="string">"db2"</span> /&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dataNode</span> <span class="attr">name</span>=<span class="string">"dn3"</span> <span class="attr">dataHost</span>=<span class="string">"slave2"</span> <span class="attr">database</span>=<span class="string">"db3"</span> /&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- 主机C1--&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dataHost</span> <span class="attr">name</span>=<span class="string">"master"</span> <span class="attr">maxCon</span>=<span class="string">"1000"</span> <span class="attr">minCon</span>=<span class="string">"10"</span> <span class="attr">balance</span>=<span class="string">"0"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">writeType</span>=<span class="string">"0"</span> <span class="attr">dbType</span>=<span class="string">"mysql"</span> <span class="attr">dbDriver</span>=<span class="string">"native"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">heartbeat</span>&gt;</span>select user()<span class="tag">&lt;/<span class="name">heartbeat</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!--mysql数据库的连接串 --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">writeHost</span> <span class="attr">host</span>=<span class="string">"hostM1"</span> <span class="attr">url</span>=<span class="string">"master:3306"</span> <span class="attr">user</span>=<span class="string">"mycat"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">password</span>=<span class="string">"123456"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">writeHost</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dataHost</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- 主机C2--&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dataHost</span> <span class="attr">name</span>=<span class="string">"slave1"</span> <span class="attr">maxCon</span>=<span class="string">"1000"</span> <span class="attr">minCon</span>=<span class="string">"10"</span> <span class="attr">balance</span>=<span class="string">"0"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">writeType</span>=<span class="string">"0"</span> <span class="attr">dbType</span>=<span class="string">"mysql"</span> <span class="attr">dbDriver</span>=<span class="string">"native"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">heartbeat</span>&gt;</span>select user()<span class="tag">&lt;/<span class="name">heartbeat</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">writeHost</span> <span class="attr">host</span>=<span class="string">"hostM2"</span> <span class="attr">url</span>=<span class="string">"slave1:3306"</span> <span class="attr">user</span>=<span class="string">"mycat"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">password</span>=<span class="string">"123456"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">writeHost</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dataHost</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- 主机C3--&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dataHost</span> <span class="attr">name</span>=<span class="string">"slave2"</span> <span class="attr">maxCon</span>=<span class="string">"1000"</span> <span class="attr">minCon</span>=<span class="string">"10"</span> <span class="attr">balance</span>=<span class="string">"0"</span></span></span><br><span class="line"><span class="tag">          <span class="attr">writeType</span>=<span class="string">"0"</span> <span class="attr">dbType</span>=<span class="string">"mysql"</span> <span class="attr">dbDriver</span>=<span class="string">"native"</span>&gt;</span></span><br><span class="line">         <span class="tag">&lt;<span class="name">heartbeat</span>&gt;</span>select user()<span class="tag">&lt;/<span class="name">heartbeat</span>&gt;</span></span><br><span class="line">         <span class="comment">&lt;!--mysql数据库的连接串 --&gt;</span></span><br><span class="line">         <span class="tag">&lt;<span class="name">writeHost</span> <span class="attr">host</span>=<span class="string">"hostM3"</span> <span class="attr">url</span>=<span class="string">"slave2:3306"</span> <span class="attr">user</span>=<span class="string">"mycat"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">password</span>=<span class="string">"123456"</span>&gt;</span></span><br><span class="line">         <span class="tag">&lt;/<span class="name">writeHost</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dataHost</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">mycat:schema</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-5/1815642.jpg" alt=""><br><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-5/80548991.jpg" alt=""></p>
+<h3 id="4-5-3-编辑server-xml文件"><a href="#4-5-3-编辑server-xml文件" class="headerlink" title="4.5.3.编辑server.xml文件"></a>4.5.3.编辑server.xml文件</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@master conf]<span class="comment"># vi server.xml</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE mycat:server SYSTEM "server.dtd"&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">mycat:server</span> <span class="attr">xmlns:mycat</span>=<span class="string">"http://org.opencloudb/"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">system</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"defaultSqlParser"</span>&gt;</span>druidparser<span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">      <span class="comment">&lt;!--  &lt;property name="useCompression"&gt;1&lt;/property&gt;--&gt;</span> <span class="comment">&lt;!--1为开启mysql压缩协议--&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- &lt;property name="processorBufferChunk"&gt;40960&lt;/property&gt; --&gt;</span></span><br><span class="line"><span class="comment">&lt;!--</span></span><br><span class="line"><span class="comment">&lt;property name="processors"&gt;1&lt;/property&gt;</span></span><br><span class="line"><span class="comment">&lt;property name="processorExecutor"&gt;32&lt;/property&gt;</span></span><br><span class="line"><span class="comment"> --&gt;</span></span><br><span class="line"><span class="comment">&lt;!--默认是65535 64K 用于sql解析时最大文本长度 --&gt;</span></span><br><span class="line"><span class="comment">&lt;!--&lt;property name="maxStringLiteralLength"&gt;65535&lt;/property&gt;--&gt;</span></span><br><span class="line"><span class="comment">&lt;!--&lt;property name="sequnceHandlerType"&gt;0&lt;/property&gt;--&gt;</span></span><br><span class="line"><span class="comment">&lt;!--&lt;property name="backSocketNoDelay"&gt;1&lt;/property&gt;--&gt;</span></span><br><span class="line"><span class="comment">&lt;!--&lt;property name="frontSocketNoDelay"&gt;1&lt;/property&gt;--&gt;</span></span><br><span class="line"><span class="comment">&lt;!--&lt;property name="processorExecutor"&gt;16&lt;/property&gt;--&gt;</span></span><br><span class="line"><span class="comment">&lt;!--</span></span><br><span class="line"><span class="comment">&lt;property name="mutiNodeLimitType"&gt;1&lt;/property&gt; 0：开启小数量级（默认） ；1：开启亿级数据排序</span></span><br><span class="line"><span class="comment">    &lt;property name="mutiNodePatchSize"&gt;100&lt;/property&gt; 亿级数量排序批量</span></span><br><span class="line"><span class="comment">&lt;property name="processors"&gt;32&lt;/property&gt; &lt;property name="processorExecutor"&gt;32&lt;/property&gt;</span></span><br><span class="line"><span class="comment">&lt;property name="serverPort"&gt;8066&lt;/property&gt; &lt;property name="managerPort"&gt;9066&lt;/property&gt;</span></span><br><span class="line"><span class="comment">&lt;property name="idleTimeout"&gt;300000&lt;/property&gt; &lt;property name="bindIp"&gt;0.0.0.0&lt;/property&gt;</span></span><br><span class="line"><span class="comment">&lt;property name="frontWriteQueueSize"&gt;4096&lt;/property&gt; &lt;property name="processors"&gt;32&lt;/property&gt; --&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">system</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">user</span> <span class="attr">name</span>=<span class="string">"root"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"password"</span>&gt;</span>123456<span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"schemas"</span>&gt;</span>mycat<span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">user</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!-- &lt;user name="user"&gt;</span></span><br><span class="line"><span class="comment">&lt;property name="password"&gt;user&lt;/property&gt;</span></span><br><span class="line"><span class="comment">&lt;property name="schemas"&gt;TESTDB&lt;/property&gt;</span></span><br><span class="line"><span class="comment">&lt;property name="readOnly"&gt;true&lt;/property&gt;</span></span><br><span class="line"><span class="comment">&lt;/user&gt; --&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!-- &lt;cluster&gt; &lt;node name="cobar1"&gt; &lt;property name="host"&gt;127.0.0.1&lt;/property&gt;</span></span><br><span class="line"><span class="comment">&lt;property name="weight"&gt;1&lt;/property&gt; &lt;/node&gt; &lt;/cluster&gt; --&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!-- &lt;quarantine&gt; &lt;host name="1.2.3.4"&gt; &lt;property name="user"&gt;test&lt;/property&gt;</span></span><br><span class="line"><span class="comment">&lt;/host&gt; &lt;/quarantine&gt; --&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">mycat:server</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-5/1328108.jpg" alt=""></p>
+<h3 id="4-5-4-修改conf下的partition-hash-int-txt文件"><a href="#4-5-4-修改conf下的partition-hash-int-txt文件" class="headerlink" title="4.5.4.修改conf下的partition-hash-int.txt文件"></a>4.5.4.修改conf下的partition-hash-int.txt文件</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">在下面添加10020=2，</span><br><span class="line">原本默认的是分两个就是10000和10010，</span><br><span class="line">现在我们有三个就要三个分类id了，添加一个即可</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[root@master conf]<span class="comment"># vi partition-hash-int.txt</span></span><br><span class="line"></span><br><span class="line">10000=0</span><br><span class="line">10010=1</span><br><span class="line">10020=2</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-5/44242834.jpg" alt=""></p>
+<h2 id="5-测试mycat"><a href="#5-测试mycat" class="headerlink" title="5.测试mycat"></a>5.测试mycat</h2><h3 id="5-1-启动mycat，执行mycat-start"><a href="#5-1-启动mycat，执行mycat-start" class="headerlink" title="5.1.启动mycat，执行mycat start"></a>5.1.启动mycat，执行mycat start</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@master mycat]<span class="comment"># ./bin/mycat start</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-5/84688217.jpg" alt=""></p>
+<h3 id="5-2-查看mycat是否启动成功"><a href="#5-2-查看mycat是否启动成功" class="headerlink" title="5.2.查看mycat是否启动成功"></a>5.2.查看mycat是否启动成功</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">tail -100  /opt/modules/mycat/logs/wrapper.log查看结果如下就表明启动成功了</span><br><span class="line">[root@master mycat]<span class="comment"># tail -100  /opt/modules/mycat/logs/wrapper.log</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-5/15781824.jpg" alt=""></p>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-5/85530123.jpg" alt=""></p>
+<h4 id="5-2-1-测试下8066端口"><a href="#5-2-1-测试下8066端口" class="headerlink" title="5.2.1.测试下8066端口"></a>5.2.1.测试下8066端口</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@master conf]<span class="comment"># telnet master 8066</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-5/38821162.jpg" alt=""></p>
+<h3 id="5-3-测试mysql表横向分割"><a href="#5-3-测试mysql表横向分割" class="headerlink" title="5.3.测试mysql表横向分割"></a>5.3.测试mysql表横向分割</h3><h4 id="5-3-1-在虚拟机外的windows安装Navicat-for-MySQL，分别连接到三个mysql数据库，执行建表语句"><a href="#5-3-1-在虚拟机外的windows安装Navicat-for-MySQL，分别连接到三个mysql数据库，执行建表语句" class="headerlink" title="5.3.1.在虚拟机外的windows安装Navicat for MySQL，分别连接到三个mysql数据库，执行建表语句"></a>5.3.1.在虚拟机外的windows安装Navicat for MySQL，分别连接到三个mysql数据库，执行建表语句</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">create table employee (id int not null primary key,name varchar(100),sharding_id int not null);</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-5/95075293.jpg" alt=""></p>
+<h4 id="5-3-2-用Navicat-for-MySQL连接mycat，mycat默认端口是8066，配置如图："><a href="#5-3-2-用Navicat-for-MySQL连接mycat，mycat默认端口是8066，配置如图：" class="headerlink" title="5.3.2.用Navicat for MySQL连接mycat，mycat默认端口是8066，配置如图："></a>5.3.2.用Navicat for MySQL连接mycat，mycat默认端口是8066，配置如图：</h4><p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-5/11289414.jpg" alt=""></p>
+<h4 id="5-3-3-插入数据"><a href="#5-3-3-插入数据" class="headerlink" title="5.3.3.插入数据"></a>5.3.3.插入数据</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">因为刚才执行了建表语句，这时候连接上了mycat里面也有一个空的employee表</span><br><span class="line">执行如下语句</span><br><span class="line"></span><br><span class="line">insert into employee(id,name,sharding_id) values(1, <span class="string">'I am db1'</span>,10000);</span><br><span class="line">insert into employee(id,name,sharding_id) values(2, <span class="string">'I am db2'</span>,10010);</span><br><span class="line">insert into employee(id,name,sharding_id) values(3, <span class="string">'I am db3'</span>,10020);</span><br><span class="line">insert into employee(id,name,sharding_id) values(4, <span class="string">'I am db1'</span>,10000);</span><br><span class="line">insert into employee(id,name,sharding_id) values(5, <span class="string">'I am db2'</span>,10010);</span><br><span class="line">insert into employee(id,name,sharding_id) values(6, <span class="string">'I am db3'</span>,10020);</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-5/71641310.jpg" alt=""></p>
+<h4 id="5-3-4-查看mycat中的employee表"><a href="#5-3-4-查看mycat中的employee表" class="headerlink" title="5.3.4.查看mycat中的employee表"></a>5.3.4.查看mycat中的employee表</h4><p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-5/91835372.jpg" alt=""></p>
+<h4 id="5-3-5-查看master连接中db1数据库的employee表"><a href="#5-3-5-查看master连接中db1数据库的employee表" class="headerlink" title="5.3.5.查看master连接中db1数据库的employee表"></a>5.3.5.查看master连接中db1数据库的employee表</h4><p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-5/29679525.jpg" alt=""></p>
+<h4 id="5-3-6-查看slave1连接中db2数据库的employee表"><a href="#5-3-6-查看slave1连接中db2数据库的employee表" class="headerlink" title="5.3.6.查看slave1连接中db2数据库的employee表"></a>5.3.6.查看slave1连接中db2数据库的employee表</h4><p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-5/15618338.jpg" alt=""></p>
+<h4 id="5-3-7-查看slave2连接中db3数据库的employee表"><a href="#5-3-7-查看slave2连接中db3数据库的employee表" class="headerlink" title="5.3.7.查看slave2连接中db3数据库的employee表"></a>5.3.7.查看slave2连接中db3数据库的employee表</h4><p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-5/27004104.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">发现每个库存了两条数据</span><br></pre></td></tr></table></figure>
+
+    </div>
+  </div>
+  
+    <div class="copy-right">
+      <div class="markdown-body">
+        <blockquote>
+        
+        
+          本文作者 : Matrix <br>
+        
+        原文链接 : <a href="">http://yoursite.com/2016/02/12/Mycat安装和测试/</a><br>
+        版权声明 : 本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+        </blockquote>
+      </div>
+    </div>
+  
+  
+  
+    <div class="social-share" style="margin-top: -2rem" data-wechat-qrcode-title="<p>微信扫一扫</p>" data-wechat-qrcode-helper="<p>微信右上角, 扫一扫分享</p>" data-sites="qzone, qq, weibo, wechat, douban, google, facebook, twitter">
+  <span style="color: #6b7487; font-size: 1.4rem;">分享到: </span>
+</div>
+<script src="https://cdn.bootcss.com/social-share.js/1.0.16/js/social-share.min.js" async></script>
+  
+
+  
+    <div id="reward">
+  
+    <p id="reward-meta">知识 & 情怀 | 二者兼得</p>
+  
+  <button id="reward-btn">
+    
+    <span>投食</span>
+  </button>
+  <div id="reward-qrcode">
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/wechatpay.jpg" alt="微信扫一扫, 向我投食">
+        <p class="qrcode-meta">微信扫一扫, 向我投食</p>
+      </div>
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/alipaypay.jpg" alt="支付宝扫一扫, 向我投食">
+        <p class="qrcode-meta">支付宝扫一扫, 向我投食</p>
+      </div>
+    
+  </div>
+
+</div>
+
+<script>
+  (() => {
+    let button = document.querySelector('#reward-btn'),
+      qrcode = document.querySelector('#reward-qrcode'),
+      display = false;
+    
+    button.addEventListener('click', () => {
+      qrcode.style.display = display ? 'none' : 'block'
+      display = !display
+    }, false)
+  })()
+</script>
+  
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+      <span>
+        
+          <i class="iconfont icon-06tags"></i>标签: 
+          
+          <span class="span--tag">
+            <a href="/tags/大数据/">
+              #大数据
+            </a>
+          </span>
+          
+          <span class="span--tag">
+            <a href="/tags/Hive/">
+              #Hive
+            </a>
+          </span>
+          
+        
+      </span>
+    </div>
+    <div class="article-meta pull-right">
+    </div>
+  </div>
+</div>
+
+
+  <aside id="sidebar">
+    <p id="sidebar-header"></p>
+    <ol id="sidebar-toc"></ol>
+  </aside>
+  <script async>setTimeout(generateToc, 10);</script>
+
+
+  <nav class="post-navigation">
+    
+      <div class="nav-pre">
+        <i class="iconfont icon-prev"></i>
+        上一篇:
+        <a href="/2016/02/12/hive日志分析/" target="_self">Hive日志分析</a>
+      </div>
+    
+    
+      <div class="nav-next">
+        下一篇:
+        <a href="/2016/02/12/hive压缩/" target="_self">Hive压缩</a>
+        <i class="iconfont icon-next"></i>
+      </div>
+    
+  </nav>
+
+  
+    <a href="#comment" class="comment-anchor"></a>
+<div class="comment-title"><i class="iconfont icon-footprint"></i> 留下足迹 <i class="iconfont icon-footprint"></i></div>
+<div id="vcomments"></div>
+
+<script defer>
+  if( true ) {
+    let path = getRealPath()
+    new Valine({
+      el: "#vcomments",
+      appId: "Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz",
+      appKey: "WaR7nrzhliHj9aVwdQzkdlGd",
+      notify: false,
+      verify: false,
+      avatar: "robohash",
+      placeholder: "正确填写邮箱, 才能及时收到回复哦♪(^∇^*)",
+      path
+    });
+  }
+</script>
+   
+
+  
+    <script defer>
+const valineAPI = (() => {
+  try {
+    AV.init("Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz", "WaR7nrzhliHj9aVwdQzkdlGd");
+  } catch(error) {}
+  const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+      query.equalTo("identity", identity);
+      query.find().then(results => {
+        resolve(results.length > 0);
+      }, error => reject(error));
+    })
+  }
+
+  const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+      let querys = [];
+      for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+      }
+      query = AV.Query.or.apply(null ,querys);
+    } else {
+      identity = identity || getRealPath();
+      query = new AV.Query("Timer");
+      query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+      query.find()
+      .then(results => resolve(results))
+      .catch(error => reject(error))
+    })
+  }
+
+  const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let Todo = AV.Object.extend('Timer');
+      let todo = new Todo();
+      todo.set("times", 1);
+      todo.set("identity", identity);
+      todo.save().then(res => resolve(true), error => reject(error));
+    })
+  }
+
+  const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let query = new AV.Query('Timer');
+      query.equalTo("identity", identity);
+      query.find().then(todos => {
+        todos.forEach(todo => {
+          todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+      }).then(todos => resolve(true), error => reject(error));
+    })
+  }
+
+  return {
+    isExist,
+    _get,
+    update,
+    create
+  }
+})()
+
+const calcAndWriteTimes = () => {
+  let isPost = true;
+
+  let timerAllDOM = document.querySelectorAll(".article-timer");
+
+  if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+      if(exist) {
+        return valineAPI.update(identity);
+      }
+      return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+  }
+
+  let timerDOMCache = {};
+
+  for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+      timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+      timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+      };
+    }
+  }
+
+  let identities = Object.keys(timerDOMCache);
+  valineAPI._get(identities).then(results => {
+    for(let result of results) {
+      let {identity, times} = result.attributes;
+      timerDOMCache[identity].times = times;
+      timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+      if(timerDOMCache[identity].times){
+        continue;
+      }
+      timerDOMCache[identity].dom.map(item => item.innerText = 1);
+      valineAPI.create(identity);
+    }
+  }).catch(error => console.log(error.message))
+}
+
+if(true){
+  calcAndWriteTimes();
+}
+</script>
+   
+
+</div>
+
+
+      <footer>
+  <p class="site-info">
+    博客已萌萌哒运行<span id="time-to-now"></span><span class="my-face">(●'◡'●)ﾉ♥</span>
+    <br>
+    Theme - <a href="https://github.com/dongyuanxin/theme-bmw">BMW</a> | Powered by <a href="https://godbmw.com/">GodBMW</a>
+    <br>
+    
+      Copyright © 2019 Matrix
+    
+  </p>
+</footer>
+
+
+
+<script>
+const timeToNowDOM = document.querySelector("#time-to-now");
+const startTimestamp = new Date(2016, 4, 10).getTime();
+
+const updateTimeStr = () => {
+  let offset = parseInt(
+      (new Date().getTime() - startTimestamp) / 1000,
+      10
+    ),
+    day = Math.floor(offset / 86400),
+    hour = Math.floor((offset % 86400) / 3600),
+    minute = Math.floor(((offset % 86400) % 3600) / 60),
+    second = Math.floor(((offset % 86400) % 3600) % 60);
+  timeToNowDOM.innerHTML =
+    day + "天" + hour + "小时" + minute + "分钟" + second + "秒";
+  setTimeout(updateTimeStr, 500);
+}
+
+setTimeout(updateTimeStr, 500);
+</script>
+
+
+      <div class="back-to-top hidden">
+  <span>
+    <i class="iconfont icon-60"></i><span></span>%
+  </span>
+</div>
+
+<script>
+const updateIconToTop = percent => {
+  let dom = document.querySelector(".back-to-top span span");
+  dom.innerText = percent;
+  if(percent < 1) {
+    document.querySelector(".back-to-top").className = "back-to-top hidden";
+  } else {
+    document.querySelector(".back-to-top").className = "back-to-top";
+  }
+}
+
+const handleScoll = () => {
+  let isRunning = false;
+  return () => {
+    if (isRunning) return;
+    isRunning = true;
+    window.requestAnimationFrame(timestamp => {
+      let scrollTop =
+          document.documentElement.scrollTop || document.body.scrollTop,
+        scrollHeight =
+          document.documentElement.scrollHeight ||
+          document.body.scrollHeight,
+        clientHeight =
+          document.documentElement.clientHeight ||
+          document.body.clientHeight;
+      isRunning = false;
+      if (scrollTop <= 1) {
+        updateIconToTop(0);
+        return;
+      }
+      if (scrollTop + clientHeight >= scrollHeight) {
+        updateIconToTop(100);
+      } else {
+        updateIconToTop(parseInt(
+          100 * scrollTop / (scrollHeight - clientHeight),
+          10
+        ));
+      }
+    });
+  };
+}
+
+const backToTop = () => {
+  let scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop,
+    delay = 10,
+    time = 200;
+  if (scrollTop <= 20) {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    return;
+  }
+  let step = Math.ceil(scrollTop * delay / time);
+  let timer = setInterval(() => {
+    scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop;
+    if (scrollTop - step <= 0) {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      clearInterval(timer);
+    } else {
+      document.documentElement.scrollTop = scrollTop - step;
+      document.body.scrollTop = scrollTop - step;
+    }
+  }, delay);
+}
+
+document.addEventListener("scroll", handleScoll(), false);
+
+document.querySelector(".back-to-top").addEventListener("click", backToTop, false);
+
+</script>
+
+    </div>
+
+    
+      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  (() => {
+    const mathjaxConfig = {
+      showProcessingMessages: false, //关闭js加载过程信息
+      messageStyle: "none", //不显示信息
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]], //行内公式选择符
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]], //段内公式选择符
+        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"] //避开某些标签
+      },
+      "HTML-CSS": {
+        availableFonts: ["STIX", "TeX"], //可选字体
+        showMathMenu: false //关闭右击菜单显示
+      }
+    }
+
+    let mathjaxInterval = setInterval(() => {
+      if(!window.MathJax){
+        return;
+      }
+      window.MathJax.Hub.Config(mathjaxConfig)
+      window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')])
+
+      clearInterval(mathjaxInterval)
+    }, 10)    
+  })()
+</script>
+    
+
+    <script src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script>
+<script async>
+  let fancyTimer = setInterval(function(){
+    if(!window.$){
+      return;
+    }
+    $(document).ready(function() {
+      $(".post img").each(function () {
+        if($(this).parent().get(0).tagName.toLowerCase() === "a") {
+          return;
+        }
+        // $(this).attr("data-fancybox", "gallery"); // if you add 'data-fancybox', img will display after showed
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "gallery");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      });
+      
+      clearInterval(fancyTimer);
+    });
+  }, 10);
+</script>
+
+    
+  </body>
+
+</html>

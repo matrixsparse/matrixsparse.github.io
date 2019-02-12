@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta name="author" content="董沅鑫, yuanxin.me@gmail.com">
+  
+  
+  
+  <title>HBase | 每天遇到更好的你</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="大数据,大数据,Hbase,">
+  
+
+  <script>
+    console.log('\n%c Hexo-theme-bmw v4.0 ' + '%c 🎉 https://github.com/dongyuanxin/theme-bmw 🎉\n' + '\n%c View demo online ' + '%c 🔍 https://godbmw.com/ 🔍  \n' , 'color: #fadfa3; background: #030307; padding:3px 0;', '', 'color: #fadfa3; background: #030307; padding:3px 0;', '');
+  </script>
+
+  
+
+  
+
+  
+    <link rel="icon" href="/images/favicon.png">
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+  
+
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/icon/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+  <script src="/js/util.js"></script>
+<script src="/js/valine.min.js"></script>
+
+  
+
+  
+    <link href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js" async></script>
+  
+
+  
+    <link href="https://cdn.bootcss.com/social-share.js/1.0.16/css/share.min.css" rel="stylesheet">
+  
+  
+  <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js" async></script>
+  
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.0/dist/av-min.js"></script>
+  
+
+</head>
+
+  <body>
+
+    
+
+    <div id="app">
+
+      <div class="header-wrap">
+  <header>
+    <div class="site-brand">
+      <div class="site-title">
+        <!-- <a href="/">MatrixSparse</a> -->
+        <img alt="logo" class="antd-pro-layouts-user-layout-logo" src="/images/favicon.png" style="width: 40px;height: 40px;margin-top: 10px;margin-left: 5px;">
+      </div>
+    </div>
+    <nav class="site-navigation">
+      <ul class="nav-menu">
+      
+        <li class="nav-item" data-path="/">
+          
+            <a href="/" target="_self">
+              主页
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          
+            <a href="/archives/" target="_self">
+              归档
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          
+            <a href="/categories/" target="_self">
+              分类
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          
+            <a href="/tags/" target="_self">
+              标签
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="">
+          
+            <a href="javascript:void(0);" v-else="">博客地址</a>
+            <ul class="nav-menu--dropdown">
+              
+                <li>
+                  <a href="https://blog.csdn.net/qq_25371579" target="_blank">
+                    CSDN
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://github.com/matrixsparse" target="_blank">
+                    Github
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://matrixsparse.github.io/" target="_blank">
+                    Github Page
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+      </ul>
+    </nav>
+    <i class="iconfont icon-menu"></i>
+  </header>
+</div>
+
+<script>
+  let links = document.querySelectorAll('.nav-item');
+  for(let link of links){
+    let childrenLink = link.querySelector('ul');
+    link.addEventListener('mouseenter', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown active";
+      }
+    })
+    link.addEventListener('mouseleave', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown";
+      }
+    })
+  }
+  let rootRealPath = getRealPath(window.location.pathname, true);
+  for(let link of links) {
+    let linkPath = link.getAttribute("data-path");
+    if(linkPath && getRealPath(linkPath, true) === rootRealPath) {
+      link.className = "nav-item hover";
+    }
+  }
+
+  let iconMenu = document.querySelector("i.iconfont.icon-menu"),
+    iconMenuClicked = false;
+  let navDOM = document.querySelector("nav.site-navigation");
+  iconMenu.addEventListener("click", () => {
+    iconMenuClicked
+      ? navDOM.className = "site-navigation active"
+      : navDOM.className = "site-navigation";
+    iconMenuClicked = !iconMenuClicked;
+  })
+</script>
+
+
+      
+
+
+
+
+
+
+
+
+<div class="container post-index">
+
+  
+
+<div class="post">
+  <h1 class="article-title">
+    <span>HBase</span>
+  </h1>
+  <div class="article-top-meta">
+    <span>
+      发布 : 
+      2016-02-12
+    </span>
+    
+      <span>
+        分类 : 
+          <a href="/categories/大数据/">
+            大数据
+          </a>
+      </span>
+    
+    
+      <span>
+        浏览 : <span class="article-timer" data-identity="HBase应用场景、原理与基本架构"></span>
+      </span>
+    
+  </div>
+
+  
+
+  <div class="article-content">
+    <div class="markdown-body">
+      <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Hbase概述</span><br><span class="line">Hbase物理模型</span><br><span class="line">Hbase数据模型</span><br><span class="line">Hbase基本架构</span><br><span class="line">Hbase应用举例</span><br></pre></td></tr></table></figure>
+<h2 id="1-HBase概述"><a href="#1-HBase概述" class="headerlink" title="1.HBase概述"></a>1.HBase概述</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">HBase是一个构建在HDFS上的分布式列存储系统；</span><br><span class="line"></span><br><span class="line">HBase是Apache Hadoop生态系统中的重要一员，主要用于海量结构化数据存储</span><br><span class="line"></span><br><span class="line">从逻辑上讲， HBase将数据按照表.行和列进行存储。</span><br><span class="line"></span><br><span class="line">Hbase是Hadoop生态系统的一个组成部分</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-14/69227354.jpg" alt=""></p>
+<h3 id="1-1-HBase与HDFS的对比"><a href="#1-1-HBase与HDFS的对比" class="headerlink" title="1.1.HBase与HDFS的对比"></a>1.1.HBase与HDFS的对比</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">两者都具有良好的容错性和扩展性，都可以扩展到成百上千个节点；</span><br><span class="line"></span><br><span class="line">HDFS适合批处理场景</span><br><span class="line"></span><br><span class="line">不支持数据随机查找</span><br><span class="line">不适合增量数据处理</span><br><span class="line">不支持数据更新</span><br></pre></td></tr></table></figure>
+<h3 id="1-2-HBase的特点"><a href="#1-2-HBase的特点" class="headerlink" title="1.2.HBase的特点"></a>1.2.HBase的特点</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">大：一个表可以有数十亿行，上百万列；</span><br><span class="line"></span><br><span class="line">无模式：每行都有一个可排序的主键和任意多的列，列可以根据需要动态的增加，同一张表中不同的行可以有截然不同的列；</span><br><span class="line"></span><br><span class="line">面向列：面向列（族）的存储和权限控制，列（族）独立检索；</span><br><span class="line"></span><br><span class="line">稀疏：对于空（ null）的列，并不占用存储空间，表可以设计的非常稀疏；</span><br><span class="line"></span><br><span class="line">数据多版本：每个单元中的数据可以有多个版本，默认情况下版本号自动分配，是单元格插入时的时间戳；</span><br><span class="line"></span><br><span class="line">数据类型单一： Hbase中的数据都是字符串，没有类型</span><br></pre></td></tr></table></figure>
+<h3 id="1-3-行存储与列存储"><a href="#1-3-行存储与列存储" class="headerlink" title="1.3.行存储与列存储"></a>1.3.行存储与列存储</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">传统行式数据库</span><br><span class="line"></span><br><span class="line">数据是按行存储的</span><br><span class="line">没有索引的查询使用大量I/O</span><br><span class="line">建立索引需要花费大量时间和资源</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-14/49517032.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">列式数据库</span><br><span class="line"></span><br><span class="line">数据是按列存储-每一列单独存放</span><br><span class="line">   数据即是索引</span><br><span class="line">   指访问查询涉及的列-大量降低系统I/O</span><br><span class="line">每一列由一个线索来处理-查询的并发处理</span><br><span class="line">   数据类型一致，数据特征相似-高效压缩</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-14/51618724.jpg" alt=""></p>
+<h3 id="1-4-HBase的数据模型"><a href="#1-4-HBase的数据模型" class="headerlink" title="1.4.HBase的数据模型"></a>1.4.HBase的数据模型</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">HBase是基于Google BigTable模型开发的，典型的key/value系统；</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-14/58486765.jpg" alt=""></p>
+<h3 id="1-5-逻辑视图"><a href="#1-5-逻辑视图" class="headerlink" title="1.5.逻辑视图"></a>1.5.逻辑视图</h3><p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-14/20969952.jpg" alt=""></p>
+<h3 id="1-6-Rowkey与Column-Family"><a href="#1-6-Rowkey与Column-Family" class="headerlink" title="1.6.Rowkey与Column Family"></a>1.6.Rowkey与Column Family</h3><p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-14/41923073.jpg" alt=""></p>
+<h3 id="1-7-Hbase基本概念"><a href="#1-7-Hbase基本概念" class="headerlink" title="1.7.Hbase基本概念"></a>1.7.Hbase基本概念</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">Row Key</span><br><span class="line">  Byte array</span><br><span class="line">  表中每条记录的“主键”</span><br><span class="line">  方便快速查找</span><br><span class="line">Column Family</span><br><span class="line">  拥有一个名称(string)</span><br><span class="line">  包含一个或者多个相关列</span><br><span class="line">Column</span><br><span class="line">  属于某一个column family</span><br><span class="line">  包含在某一列中</span><br><span class="line">familyName:columnName</span><br><span class="line"></span><br><span class="line">Version Number</span><br><span class="line">默认值系统时间戳</span><br><span class="line"></span><br><span class="line">Value（cell）</span><br><span class="line">  Byte array</span><br></pre></td></tr></table></figure>
+<h2 id="2-Hbase数据类型"><a href="#2-Hbase数据类型" class="headerlink" title="2.Hbase数据类型"></a>2.Hbase数据类型</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">HBase schema可以有多个类似Table</span><br><span class="line">每个表可由多个Column Family组成</span><br><span class="line">Hbase可以有Dynamic Column</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-14/14643940.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">version number 可由用户提供</span><br><span class="line">无需以递增的顺序插入</span><br><span class="line">Table可能非常稀疏</span><br><span class="line">不同的cell可以拥有不同的列</span><br><span class="line">Row Key是主键</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-14/57779510.jpg" alt=""></p>
+<h3 id="2-1-HBase与支持的操作"><a href="#2-1-HBase与支持的操作" class="headerlink" title="2.1.HBase与支持的操作"></a>2.1.HBase与支持的操作</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">所有操作均是基于rowkey的；</span><br><span class="line">支持CRUD（Create.Read.Update和Delete）和Scan；</span><br><span class="line"></span><br><span class="line">单行操作</span><br><span class="line">put</span><br><span class="line">get</span><br><span class="line">scan</span><br><span class="line"></span><br><span class="line">多行操作</span><br><span class="line">Scan</span><br><span class="line">Multiput</span><br><span class="line"></span><br><span class="line">没有内置join操作，可使用MapReduce解决</span><br></pre></td></tr></table></figure>
+<h2 id="3-Hbase物理模型"><a href="#3-Hbase物理模型" class="headerlink" title="3.Hbase物理模型"></a>3.Hbase物理模型</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">每个column family存储在HDFS上的一个单独文件中；</span><br><span class="line">Key 和 Version number在每个 column family中均由一份；</span><br><span class="line">空值不会被保存。</span><br><span class="line">Hbase为每个值维护了多级索引</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-14/29538607.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">1.Table中的所有行都按照row key的字典序排列；</span><br><span class="line">2.Table 在行的方向上分割为多个Region；</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-14/8087664.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">3.Region按大小分割的，每个表开始只有一个region，随着数据增多， region不断增大，当增大到一个阀值的时候，region就会等分会两个新的region，之后会有越来越多的region；</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-14/8856880.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">4.Region是HBase中分布式存储和负载均衡的最小单元。不同Region分布到不同RegionServer上；</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-14/9160220.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">5.Region虽然是分布式存储的最小单元，但并不是存储的最小单元</span><br><span class="line">   Region由一个或者多个Store组成，每个store保存一个columns family</span><br><span class="line">   每个Store又由一个memStore和0至多个StoreFile组成；</span><br><span class="line">   memStore存储在内存中， StoreFile存储在HDFS上。</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-14/17076266.jpg" alt=""></p>
+<h2 id="HBase架构"><a href="#HBase架构" class="headerlink" title="HBase架构"></a>HBase架构</h2><p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-14/222256.jpg" alt=""></p>
+<h2 id="HBase基本组件"><a href="#HBase基本组件" class="headerlink" title="HBase基本组件"></a>HBase基本组件</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">Client</span><br><span class="line">   包含访问Hbase的接口，并维护cache来加快对Hbase的访问</span><br><span class="line"></span><br><span class="line">ZooKeeper</span><br><span class="line">   保证任何时候，集群中只有一个master</span><br><span class="line">   存贮所有Region的寻址入口</span><br><span class="line">   实时监控Region server的上线和下线信息。并实时通知给Master</span><br><span class="line">   存储HBase的schema和table元数据</span><br><span class="line"></span><br><span class="line">Master</span><br><span class="line">   为Region server分配region</span><br><span class="line">   负责Region server的负载均衡</span><br><span class="line">   发现失效的Region server并重新分配其上的region</span><br><span class="line">   管理用户对table的增删改查操作</span><br><span class="line"></span><br><span class="line">Region Server</span><br><span class="line">   Region server维护region，处理对这些region的IO请求</span><br><span class="line">   Region server负责切分在运行过程中变得过大的region</span><br></pre></td></tr></table></figure>
+<h2 id="Zookeeper作用"><a href="#Zookeeper作用" class="headerlink" title="Zookeeper作用"></a>Zookeeper作用</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">HBase 依赖ZooKeeper</span><br><span class="line"></span><br><span class="line">默认情况下， HBase 管理ZooKeeper 实例</span><br><span class="line">比如， 启动或者停止ZooKeeper</span><br><span class="line">Master与RegionServers启动时会向ZooKeeper注册</span><br><span class="line">Zookeeper的引入使得Master不再是单点故障</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-14/74268011.jpg" alt=""></p>
+<h2 id="Write-Ahead-Log-WAL"><a href="#Write-Ahead-Log-WAL" class="headerlink" title="Write-Ahead-Log(WAL)"></a>Write-Ahead-Log(WAL)</h2><p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-14/35812020.jpg" alt=""></p>
+<h2 id="HBase容错性"><a href="#HBase容错性" class="headerlink" title="HBase容错性"></a>HBase容错性</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">Master容错： Zookeeper重新选择一个新的Master</span><br><span class="line">   无Master过程中，数据读取仍照常进行；</span><br><span class="line">   无master过程中， region切分.负载均衡等无法进行；</span><br><span class="line"></span><br><span class="line">RegionServer容错：定时向Zookeeper汇报心跳，如果一旦时间内未出现心跳</span><br><span class="line">   Master将该RegionServer上的Region重新分配到其他RegionServer上；</span><br><span class="line">   失效服务器上“预写”日志由主服务器进行分割并派送给新的RegionServer</span><br><span class="line"></span><br><span class="line">Zookeeper容错： Zookeeper是一个可靠地服务</span><br><span class="line">   一般配置3或5个Zookeeper实例。</span><br></pre></td></tr></table></figure>
+<h2 id="Regin定位"><a href="#Regin定位" class="headerlink" title="Regin定位"></a>Regin定位</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">寻找RegionServer</span><br><span class="line">   ZooKeeper</span><br><span class="line">   -ROOT-(单Region)</span><br><span class="line">   .META.</span><br><span class="line">   用户表</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-14/51913375.jpg" alt=""></p>
+<h2 id="ROOT-表与-META-表"><a href="#ROOT-表与-META-表" class="headerlink" title="-ROOT-表与.META.表"></a>-ROOT-表与.META.表</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">-ROOT-</span><br><span class="line">   表包含.META.表所在的region列表，该表只会有一个Region；</span><br><span class="line">   Zookeeper中记录了-ROOT-表的location。</span><br><span class="line"></span><br><span class="line">.META.</span><br><span class="line">   表包含所有的用户空间region列表，以及RegionServer的服务器地址。</span><br></pre></td></tr></table></figure>
+<h2 id="HDFS与HBase的比较"><a href="#HDFS与HBase的比较" class="headerlink" title="HDFS与HBase的比较"></a>HDFS与HBase的比较</h2><p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-14/54819739.jpg" alt=""></p>
+<h2 id="关系型数据与HBase的比较"><a href="#关系型数据与HBase的比较" class="headerlink" title="关系型数据与HBase的比较"></a>关系型数据与HBase的比较</h2><p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-14/51913375.jpg" alt=""></p>
+<h2 id="何时使用HBase"><a href="#何时使用HBase" class="headerlink" title="何时使用HBase"></a>何时使用HBase</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">需对数据进行随机读操作或者随机写操作；</span><br><span class="line"></span><br><span class="line">大数据上高并发操作，比如每秒对PB级数据进行上千次操作；</span><br><span class="line"></span><br><span class="line">读写访问均是非常简单的操作。</span><br></pre></td></tr></table></figure>
+<h2 id="HBase在淘宝的应用"><a href="#HBase在淘宝的应用" class="headerlink" title="HBase在淘宝的应用"></a>HBase在淘宝的应用</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">交易历史记录查询系统</span><br><span class="line">百亿行数据表，千亿级二级索引表</span><br><span class="line">每天千万行更新</span><br><span class="line">查询场景简单，检索条件较少</span><br><span class="line">关系型数据库所带来的问题</span><br><span class="line">基于userId+time+id rowkey设计</span><br><span class="line">成本考虑</span><br></pre></td></tr></table></figure>
+<h2 id="HBase-Rowkey"><a href="#HBase-Rowkey" class="headerlink" title="HBase - Rowkey"></a>HBase - Rowkey</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">表中行的键是字节数组(最大长度是64KB)</span><br><span class="line"></span><br><span class="line">任何字符串都可以作为键</span><br><span class="line"></span><br><span class="line">表中的行根据行的键值进行排序，数据按照Row Key的字节序(byte order)排序存储</span><br><span class="line"></span><br><span class="line">字典序对int排序的结果是</span><br><span class="line">1,10,100,11,12,13,14,15,16,17,18,19,2,20,21，...,9,91,92,93,94,95,96,97,98</span><br><span class="line">要保持整形的自然序，行键必须用0作左填充</span><br><span class="line"></span><br><span class="line">所有对表的访问都要通过键</span><br><span class="line"></span><br><span class="line">通过单个row key访问</span><br><span class="line"></span><br><span class="line">通过row key的range</span><br><span class="line"></span><br><span class="line">全表扫描</span><br></pre></td></tr></table></figure>
+
+    </div>
+  </div>
+  
+    <div class="copy-right">
+      <div class="markdown-body">
+        <blockquote>
+        
+        
+          本文作者 : Matrix <br>
+        
+        原文链接 : <a href="">http://yoursite.com/2016/02/12/HBase应用场景、原理与基本架构/</a><br>
+        版权声明 : 本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+        </blockquote>
+      </div>
+    </div>
+  
+  
+  
+    <div class="social-share" style="margin-top: -2rem" data-wechat-qrcode-title="<p>微信扫一扫</p>" data-wechat-qrcode-helper="<p>微信右上角, 扫一扫分享</p>" data-sites="qzone, qq, weibo, wechat, douban, google, facebook, twitter">
+  <span style="color: #6b7487; font-size: 1.4rem;">分享到: </span>
+</div>
+<script src="https://cdn.bootcss.com/social-share.js/1.0.16/js/social-share.min.js" async></script>
+  
+
+  
+    <div id="reward">
+  
+    <p id="reward-meta">知识 & 情怀 | 二者兼得</p>
+  
+  <button id="reward-btn">
+    
+    <span>投食</span>
+  </button>
+  <div id="reward-qrcode">
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/wechatpay.jpg" alt="微信扫一扫, 向我投食">
+        <p class="qrcode-meta">微信扫一扫, 向我投食</p>
+      </div>
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/alipaypay.jpg" alt="支付宝扫一扫, 向我投食">
+        <p class="qrcode-meta">支付宝扫一扫, 向我投食</p>
+      </div>
+    
+  </div>
+
+</div>
+
+<script>
+  (() => {
+    let button = document.querySelector('#reward-btn'),
+      qrcode = document.querySelector('#reward-qrcode'),
+      display = false;
+    
+    button.addEventListener('click', () => {
+      qrcode.style.display = display ? 'none' : 'block'
+      display = !display
+    }, false)
+  })()
+</script>
+  
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+      <span>
+        
+          <i class="iconfont icon-06tags"></i>标签: 
+          
+          <span class="span--tag">
+            <a href="/tags/大数据/">
+              #大数据
+            </a>
+          </span>
+          
+          <span class="span--tag">
+            <a href="/tags/Hbase/">
+              #Hbase
+            </a>
+          </span>
+          
+        
+      </span>
+    </div>
+    <div class="article-meta pull-right">
+    </div>
+  </div>
+</div>
+
+
+  <aside id="sidebar">
+    <p id="sidebar-header"></p>
+    <ol id="sidebar-toc"></ol>
+  </aside>
+  <script async>setTimeout(generateToc, 10);</script>
+
+
+  <nav class="post-navigation">
+    
+      <div class="nav-pre">
+        <i class="iconfont icon-prev"></i>
+        上一篇:
+        <a href="/2016/02/12/Mac item2安装pokemon-terminal主题/" target="_self">Mac item2安装pokemon-terminal主题</a>
+      </div>
+    
+    
+      <div class="nav-next">
+        下一篇:
+        <a href="/2016/02/12/ElasticSearch使用/" target="_self">ElasticSearch使用</a>
+        <i class="iconfont icon-next"></i>
+      </div>
+    
+  </nav>
+
+  
+    <a href="#comment" class="comment-anchor"></a>
+<div class="comment-title"><i class="iconfont icon-footprint"></i> 留下足迹 <i class="iconfont icon-footprint"></i></div>
+<div id="vcomments"></div>
+
+<script defer>
+  if( true ) {
+    let path = getRealPath()
+    new Valine({
+      el: "#vcomments",
+      appId: "Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz",
+      appKey: "WaR7nrzhliHj9aVwdQzkdlGd",
+      notify: false,
+      verify: false,
+      avatar: "robohash",
+      placeholder: "正确填写邮箱, 才能及时收到回复哦♪(^∇^*)",
+      path
+    });
+  }
+</script>
+   
+
+  
+    <script defer>
+const valineAPI = (() => {
+  try {
+    AV.init("Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz", "WaR7nrzhliHj9aVwdQzkdlGd");
+  } catch(error) {}
+  const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+      query.equalTo("identity", identity);
+      query.find().then(results => {
+        resolve(results.length > 0);
+      }, error => reject(error));
+    })
+  }
+
+  const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+      let querys = [];
+      for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+      }
+      query = AV.Query.or.apply(null ,querys);
+    } else {
+      identity = identity || getRealPath();
+      query = new AV.Query("Timer");
+      query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+      query.find()
+      .then(results => resolve(results))
+      .catch(error => reject(error))
+    })
+  }
+
+  const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let Todo = AV.Object.extend('Timer');
+      let todo = new Todo();
+      todo.set("times", 1);
+      todo.set("identity", identity);
+      todo.save().then(res => resolve(true), error => reject(error));
+    })
+  }
+
+  const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let query = new AV.Query('Timer');
+      query.equalTo("identity", identity);
+      query.find().then(todos => {
+        todos.forEach(todo => {
+          todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+      }).then(todos => resolve(true), error => reject(error));
+    })
+  }
+
+  return {
+    isExist,
+    _get,
+    update,
+    create
+  }
+})()
+
+const calcAndWriteTimes = () => {
+  let isPost = true;
+
+  let timerAllDOM = document.querySelectorAll(".article-timer");
+
+  if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+      if(exist) {
+        return valineAPI.update(identity);
+      }
+      return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+  }
+
+  let timerDOMCache = {};
+
+  for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+      timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+      timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+      };
+    }
+  }
+
+  let identities = Object.keys(timerDOMCache);
+  valineAPI._get(identities).then(results => {
+    for(let result of results) {
+      let {identity, times} = result.attributes;
+      timerDOMCache[identity].times = times;
+      timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+      if(timerDOMCache[identity].times){
+        continue;
+      }
+      timerDOMCache[identity].dom.map(item => item.innerText = 1);
+      valineAPI.create(identity);
+    }
+  }).catch(error => console.log(error.message))
+}
+
+if(true){
+  calcAndWriteTimes();
+}
+</script>
+   
+
+</div>
+
+
+      <footer>
+  <p class="site-info">
+    博客已萌萌哒运行<span id="time-to-now"></span><span class="my-face">(●'◡'●)ﾉ♥</span>
+    <br>
+    Theme - <a href="https://github.com/dongyuanxin/theme-bmw">BMW</a> | Powered by <a href="https://godbmw.com/">GodBMW</a>
+    <br>
+    
+      Copyright © 2019 Matrix
+    
+  </p>
+</footer>
+
+
+
+<script>
+const timeToNowDOM = document.querySelector("#time-to-now");
+const startTimestamp = new Date(2016, 4, 10).getTime();
+
+const updateTimeStr = () => {
+  let offset = parseInt(
+      (new Date().getTime() - startTimestamp) / 1000,
+      10
+    ),
+    day = Math.floor(offset / 86400),
+    hour = Math.floor((offset % 86400) / 3600),
+    minute = Math.floor(((offset % 86400) % 3600) / 60),
+    second = Math.floor(((offset % 86400) % 3600) % 60);
+  timeToNowDOM.innerHTML =
+    day + "天" + hour + "小时" + minute + "分钟" + second + "秒";
+  setTimeout(updateTimeStr, 500);
+}
+
+setTimeout(updateTimeStr, 500);
+</script>
+
+
+      <div class="back-to-top hidden">
+  <span>
+    <i class="iconfont icon-60"></i><span></span>%
+  </span>
+</div>
+
+<script>
+const updateIconToTop = percent => {
+  let dom = document.querySelector(".back-to-top span span");
+  dom.innerText = percent;
+  if(percent < 1) {
+    document.querySelector(".back-to-top").className = "back-to-top hidden";
+  } else {
+    document.querySelector(".back-to-top").className = "back-to-top";
+  }
+}
+
+const handleScoll = () => {
+  let isRunning = false;
+  return () => {
+    if (isRunning) return;
+    isRunning = true;
+    window.requestAnimationFrame(timestamp => {
+      let scrollTop =
+          document.documentElement.scrollTop || document.body.scrollTop,
+        scrollHeight =
+          document.documentElement.scrollHeight ||
+          document.body.scrollHeight,
+        clientHeight =
+          document.documentElement.clientHeight ||
+          document.body.clientHeight;
+      isRunning = false;
+      if (scrollTop <= 1) {
+        updateIconToTop(0);
+        return;
+      }
+      if (scrollTop + clientHeight >= scrollHeight) {
+        updateIconToTop(100);
+      } else {
+        updateIconToTop(parseInt(
+          100 * scrollTop / (scrollHeight - clientHeight),
+          10
+        ));
+      }
+    });
+  };
+}
+
+const backToTop = () => {
+  let scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop,
+    delay = 10,
+    time = 200;
+  if (scrollTop <= 20) {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    return;
+  }
+  let step = Math.ceil(scrollTop * delay / time);
+  let timer = setInterval(() => {
+    scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop;
+    if (scrollTop - step <= 0) {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      clearInterval(timer);
+    } else {
+      document.documentElement.scrollTop = scrollTop - step;
+      document.body.scrollTop = scrollTop - step;
+    }
+  }, delay);
+}
+
+document.addEventListener("scroll", handleScoll(), false);
+
+document.querySelector(".back-to-top").addEventListener("click", backToTop, false);
+
+</script>
+
+    </div>
+
+    
+      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  (() => {
+    const mathjaxConfig = {
+      showProcessingMessages: false, //关闭js加载过程信息
+      messageStyle: "none", //不显示信息
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]], //行内公式选择符
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]], //段内公式选择符
+        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"] //避开某些标签
+      },
+      "HTML-CSS": {
+        availableFonts: ["STIX", "TeX"], //可选字体
+        showMathMenu: false //关闭右击菜单显示
+      }
+    }
+
+    let mathjaxInterval = setInterval(() => {
+      if(!window.MathJax){
+        return;
+      }
+      window.MathJax.Hub.Config(mathjaxConfig)
+      window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')])
+
+      clearInterval(mathjaxInterval)
+    }, 10)    
+  })()
+</script>
+    
+
+    <script src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script>
+<script async>
+  let fancyTimer = setInterval(function(){
+    if(!window.$){
+      return;
+    }
+    $(document).ready(function() {
+      $(".post img").each(function () {
+        if($(this).parent().get(0).tagName.toLowerCase() === "a") {
+          return;
+        }
+        // $(this).attr("data-fancybox", "gallery"); // if you add 'data-fancybox', img will display after showed
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "gallery");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      });
+      
+      clearInterval(fancyTimer);
+    });
+  }, 10);
+</script>
+
+    
+  </body>
+
+</html>

@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta name="author" content="董沅鑫, yuanxin.me@gmail.com">
+  
+  
+  
+  <title>ELK流量分析 | 每天遇到更好的你</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="ELK,ELK,">
+  
+
+  <script>
+    console.log('\n%c Hexo-theme-bmw v4.0 ' + '%c 🎉 https://github.com/dongyuanxin/theme-bmw 🎉\n' + '\n%c View demo online ' + '%c 🔍 https://godbmw.com/ 🔍  \n' , 'color: #fadfa3; background: #030307; padding:3px 0;', '', 'color: #fadfa3; background: #030307; padding:3px 0;', '');
+  </script>
+
+  
+
+  
+
+  
+    <link rel="icon" href="/images/favicon.png">
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+  
+
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/icon/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+  <script src="/js/util.js"></script>
+<script src="/js/valine.min.js"></script>
+
+  
+
+  
+    <link href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js" async></script>
+  
+
+  
+    <link href="https://cdn.bootcss.com/social-share.js/1.0.16/css/share.min.css" rel="stylesheet">
+  
+  
+  <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js" async></script>
+  
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.0/dist/av-min.js"></script>
+  
+
+</head>
+
+  <body>
+
+    
+
+    <div id="app">
+
+      <div class="header-wrap">
+  <header>
+    <div class="site-brand">
+      <div class="site-title">
+        <!-- <a href="/">MatrixSparse</a> -->
+        <img alt="logo" class="antd-pro-layouts-user-layout-logo" src="/images/favicon.png" style="width: 40px;height: 40px;margin-top: 10px;margin-left: 5px;">
+      </div>
+    </div>
+    <nav class="site-navigation">
+      <ul class="nav-menu">
+      
+        <li class="nav-item" data-path="/">
+          
+            <a href="/" target="_self">
+              主页
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          
+            <a href="/archives/" target="_self">
+              归档
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          
+            <a href="/categories/" target="_self">
+              分类
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          
+            <a href="/tags/" target="_self">
+              标签
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="">
+          
+            <a href="javascript:void(0);" v-else="">博客地址</a>
+            <ul class="nav-menu--dropdown">
+              
+                <li>
+                  <a href="https://blog.csdn.net/qq_25371579" target="_blank">
+                    CSDN
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://github.com/matrixsparse" target="_blank">
+                    Github
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://matrixsparse.github.io/" target="_blank">
+                    Github Page
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+      </ul>
+    </nav>
+    <i class="iconfont icon-menu"></i>
+  </header>
+</div>
+
+<script>
+  let links = document.querySelectorAll('.nav-item');
+  for(let link of links){
+    let childrenLink = link.querySelector('ul');
+    link.addEventListener('mouseenter', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown active";
+      }
+    })
+    link.addEventListener('mouseleave', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown";
+      }
+    })
+  }
+  let rootRealPath = getRealPath(window.location.pathname, true);
+  for(let link of links) {
+    let linkPath = link.getAttribute("data-path");
+    if(linkPath && getRealPath(linkPath, true) === rootRealPath) {
+      link.className = "nav-item hover";
+    }
+  }
+
+  let iconMenu = document.querySelector("i.iconfont.icon-menu"),
+    iconMenuClicked = false;
+  let navDOM = document.querySelector("nav.site-navigation");
+  iconMenu.addEventListener("click", () => {
+    iconMenuClicked
+      ? navDOM.className = "site-navigation active"
+      : navDOM.className = "site-navigation";
+    iconMenuClicked = !iconMenuClicked;
+  })
+</script>
+
+
+      
+
+
+
+
+
+
+
+
+<div class="container post-index">
+
+  
+
+<div class="post">
+  <h1 class="article-title">
+    <span>ELK流量分析</span>
+  </h1>
+  <div class="article-top-meta">
+    <span>
+      发布 : 
+      2017-12-21
+    </span>
+    
+      <span>
+        分类 : 
+          <a href="/categories/ELK/">
+            ELK
+          </a>
+      </span>
+    
+    
+      <span>
+        浏览 : <span class="article-timer" data-identity="ELK流量分析"></span>
+      </span>
+    
+  </div>
+
+  
+
+  <div class="article-content">
+    <div class="markdown-body">
+      <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">服务器环境：Centos7</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>ELK流量分析流程</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">1.通过hive对昨日的流量日志数据，进行离线批处理，按维度将一些指标预先聚合出来，将结果写入mysql，默认有一些预先处理好的数据已经存在mysql</span><br><span class="line"></span><br><span class="line">2.手动准备一些样例数据，然后写入mysql中，装一个mysql，模拟成是hive导入mysql的一份数据</span><br><span class="line"></span><br><span class="line">3.通过logstash，将mysql中的数据导入es中</span><br><span class="line"></span><br><span class="line">4.通过kibana+各种es聚合语法，生成各种各样的报表出来</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-6/80133650.jpg" alt="All text"></p>
+<h2 id="安装Logstash"><a href="#安装Logstash" class="headerlink" title="安装Logstash"></a>安装Logstash</h2><h3 id="创建目录"><a href="#创建目录" class="headerlink" title="创建目录"></a>创建目录</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@elasticsearch01 ~]<span class="comment"># mkdir -p /data/server</span></span><br><span class="line">[root@elasticsearch01 ~]<span class="comment"># chown -R elasticsearch:elasticsearch /data/server/</span></span><br></pre></td></tr></table></figure>
+<h3 id="解压压缩文件"><a href="#解压压缩文件" class="headerlink" title="解压压缩文件"></a>解压压缩文件</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">tar -zxvf logstash-5.6.3.tar.gz -C /data/server/</span><br><span class="line">mv logstash-5.6.3/ logstash</span><br><span class="line"><span class="built_in">cd</span> logstash</span><br></pre></td></tr></table></figure>
+<h3 id="logstash-pipeline"><a href="#logstash-pipeline" class="headerlink" title="logstash pipeline"></a>logstash pipeline</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">两个组成部分：input和output，也可以包含一个可选的filter</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">input plugin负责从数据源中获取数据</span><br><span class="line"></span><br><span class="line">filter plugin负责对数据进行定制化的处理和修改</span><br><span class="line"></span><br><span class="line">output plugin负责将数据写入目的地中</span><br></pre></td></tr></table></figure>
+<h3 id="运行最基础的logstash-pipeline"><a href="#运行最基础的logstash-pipeline" class="headerlink" title="运行最基础的logstash pipeline"></a>运行最基础的logstash pipeline</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./bin/logstash -e <span class="string">'input &#123; stdin &#123; &#125; &#125; output &#123; stdout &#123;&#125; &#125;'</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fmp8ul17g5j21qi0gmtp7.jpg" alt="All text"></p>
+<p>-e：直接在命令行对logstash进行配置，从命令行接受输入，将输出写入命令行</p>
+<p>输入：hello world，可以看到输出，logstash会补充timestamp和ip地址</p>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fmou64tk6qj21ne09c7a0.jpg" alt="All text"></p>
+<p>用ctrl-d可以结束这个piepline</p>
+<h2 id="安装Mysql"><a href="#安装Mysql" class="headerlink" title="安装Mysql"></a>安装Mysql</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">wget http://dev.mysql.com/get/mysql-community-release-el7-5.noarch.rpm</span><br><span class="line">rpm -ivh mysql-community-release-el7-5.noarch.rpm</span><br><span class="line">yum install -y mysql-community-server</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>重启mysql服务</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">service mysqld restart</span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fmouu1cmbdj21c602uq4q.jpg" alt="All text"></p>
+<blockquote>
+<p>设置mysql密码</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mysql -u root </span><br><span class="line">mysql&gt; <span class="built_in">set</span> password <span class="keyword">for</span> <span class="string">'root'</span>@<span class="string">'localhost'</span> =password(<span class="string">'123456'</span>);</span><br><span class="line">mysql&gt; quit</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>登录mysql</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql -u root -p123456</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>创建数据库</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; create database patpat_demo;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>使用数据库</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">use patpat_demo;</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">datekey cookie section userid province city pv is_return_visit is_bounce_visit visit_time visit_page_cnt</span><br><span class="line">日期 cookie 版块 用户id 省份 城市 pv 是否老用户回访 是否跳出 访问时间 访问页面数量</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>创建表</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">create table user_access_log_aggr (</span><br><span class="line">  datekey varchar(255),</span><br><span class="line">  cookie varchar(255),</span><br><span class="line">  section varchar(255),</span><br><span class="line">  userid int,</span><br><span class="line">  province varchar(255),</span><br><span class="line">  city varchar(255),</span><br><span class="line">  pv int,</span><br><span class="line">  is_return_visit int,</span><br><span class="line">  is_bounce_visit int,</span><br><span class="line">  visit_time int,</span><br><span class="line">  visit_page_cnt int</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>插入数据</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">insert into user_access_log_aggr values(<span class="string">'20171001'</span>, <span class="string">'dasjfkaksdfj33'</span>, <span class="string">'game'</span>, 1, <span class="string">'beijing'</span>, <span class="string">'beijing'</span>, 10, 0, 1, 600000, 3);</span><br><span class="line">insert into user_access_log_aggr values(<span class="string">'20171001'</span>, <span class="string">'dasjadfssdfj33'</span>, <span class="string">'game'</span>, 2, <span class="string">'jiangsu'</span>, <span class="string">'nanjing'</span>, 5, 0, 0, 700000, 5);</span><br><span class="line">insert into user_access_log_aggr values(<span class="string">'20171001'</span>, <span class="string">'dasjffffksfj33'</span>, <span class="string">'sport'</span>, 1, <span class="string">'beijing'</span>, <span class="string">'beijing'</span>, 8, 1, 0, 800000, 6);</span><br><span class="line">insert into user_access_log_aggr values(<span class="string">'20171001'</span>, <span class="string">'dasjdddksdfj33'</span>, <span class="string">'sport'</span>, 2, <span class="string">'jiangsu'</span>, <span class="string">'nanjing'</span>, 20, 0, 1, 900000, 7);</span><br><span class="line">insert into user_access_log_aggr values(<span class="string">'20171001'</span>, <span class="string">'dasjeeeksdfj33'</span>, <span class="string">'sport'</span>, 3, <span class="string">'jiangsu'</span>, <span class="string">'nanjing'</span>, 30, 1, 0, 600000, 10);</span><br><span class="line">insert into user_access_log_aggr values(<span class="string">'20171001'</span>, <span class="string">'dasrrrrksdfj33'</span>, <span class="string">'news'</span>, 3, <span class="string">'jiangsu'</span>, <span class="string">'nanjing'</span>, 40, 0, 0, 600000, 12);</span><br><span class="line">insert into user_access_log_aggr values(<span class="string">'20171001'</span>, <span class="string">'dasjtttttdfj33'</span>, <span class="string">'news'</span>, 4, <span class="string">'shenzhen'</span>, <span class="string">'shenzhen'</span>, 50, 0, 1, 500000, 4);</span><br><span class="line">insert into user_access_log_aggr values(<span class="string">'20171001'</span>, <span class="string">'dasjfkakkkfj33'</span>, <span class="string">'game'</span>, 4, <span class="string">'shenzhen'</span>, <span class="string">'shenzhen'</span>, 20, 1, 0, 400000, 3);</span><br><span class="line">insert into user_access_log_aggr values(<span class="string">'20171001'</span>, <span class="string">'dasjyyyysdfj33'</span>, <span class="string">'sport'</span>, 5, <span class="string">'guangdong'</span>, <span class="string">'guangzhou'</span>, 10, 0, 0, 300000, 1);</span><br><span class="line">insert into user_access_log_aggr values(<span class="string">'20171001'</span>, <span class="string">'dasjqqqksdfj33'</span>, <span class="string">'news'</span>, 5, <span class="string">'guangdong'</span>, <span class="string">'guangzhou'</span>, 9, 0, 1, 200000, 2);</span><br></pre></td></tr></table></figure>
+<h2 id="安装ElasticSearch"><a href="#安装ElasticSearch" class="headerlink" title="安装ElasticSearch"></a>安装ElasticSearch</h2><h3 id="解压压缩文件-1"><a href="#解压压缩文件-1" class="headerlink" title="解压压缩文件"></a>解压压缩文件</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tar -zxvf elasticsearch-5.6.3.tar.gz -C /data/server/</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@elasticsearch01 server]<span class="comment"># mv elasticsearch-5.6.3/ elasticsearch</span></span><br><span class="line">[root@elasticsearch01 server]<span class="comment"># chown -R elasticsearch:elasticsearch /data/server/elasticsearch</span></span><br></pre></td></tr></table></figure>
+<h3 id="修改es配置文件"><a href="#修改es配置文件" class="headerlink" title="修改es配置文件"></a>修改es配置文件</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /data/server/elasticsearch</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>编辑&lt;elasticsearch根目录&gt;/config/jvm.options配置文件</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[elasticsearch@elasticsearch01 elasticsearch]$ vi config/jvm.options</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">-Xms512m</span><br><span class="line">-Xmx512m</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>编辑&lt;elasticsearch根目录&gt;/config/elasticsearch.yml配置文件</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[elasticsearch@elasticsearch01 elasticsearch]$ vi config/elasticsearch.yml</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">path.data: /data/server/elasticsearch/data</span><br><span class="line">path.logs: /data/server/elasticsearch/logs</span><br><span class="line"><span class="comment"># 设置回环地址</span></span><br><span class="line">network.host: 0.0.0.0</span><br></pre></td></tr></table></figure>
+<h3 id="启动es"><a href="#启动es" class="headerlink" title="启动es"></a>启动es</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /data/server/elasticsearch</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./bin/elasticsearch -d</span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fmp8gj7zogj21ni0yo4qp.jpg" alt="All text"></p>
+<h3 id="在浏览器地址栏查看：http-192-168-31-180-9200"><a href="#在浏览器地址栏查看：http-192-168-31-180-9200" class="headerlink" title="在浏览器地址栏查看：http://192.168.31.180:9200/"></a>在浏览器地址栏查看：<a href="http://192.168.31.180:9200/" target="_blank" rel="noopener">http://192.168.31.180:9200/</a></h3><p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fms5drdqkwj21b60eo0vl.jpg" alt="All text"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[elasticsearch@elasticsearch01 ~]$ curl -XGET localhost:9200</span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fms5gnvnocj21b60jmwmm.jpg" alt="All text"></p>
+<h3 id="查看日志"><a href="#查看日志" class="headerlink" title="查看日志"></a>查看日志</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /data/server/elasticsearch</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tail -f elasticsearch.log</span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fmp8pp71qyj21no0nie1q.jpg" alt="All text"></p>
+<h3 id="安装logstash-input-jdbc插件"><a href="#安装logstash-input-jdbc插件" class="headerlink" title="安装logstash-input-jdbc插件"></a>安装logstash-input-jdbc插件</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install -y gem</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">gem sources --add https://ruby.taobao.org/ --remove https://rubygems.org/</span><br><span class="line">gem sources -l</span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fmova8hm5xj21ng0csq95.jpg" alt="All text"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gem install bundler</span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fmp8w8xucqj21jw08i78v.jpg" alt="All text"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bundle config mirror.https://rubygems.org https://ruby.taobao.org</span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fmp8w5spmpj21k601qta5.jpg" alt="All text"></p>
+<h3 id="在logstash目录下，编辑Gemfile文件"><a href="#在logstash目录下，编辑Gemfile文件" class="headerlink" title="在logstash目录下，编辑Gemfile文件"></a>在logstash目录下，编辑Gemfile文件</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">在logstash目录下，vi Gemfile，修改<span class="built_in">source</span>的值为： <span class="string">"https://ruby.taobao.org"</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fmp914pvgsj21r418w4oq.jpg" alt="All text"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[elasticsearch@elasticsearch01 logstash]$ vi Gemfile</span><br></pre></td></tr></table></figure>
+<h3 id="安装Logstash插件"><a href="#安装Logstash插件" class="headerlink" title="安装Logstash插件"></a>安装Logstash插件</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[elasticsearch@elasticsearch01 logstash]$ ./bin/logstash-plugin install logstash-input-jdbc</span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fmp9aoawahj21k205o41s.jpg" alt="All text"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget https://github.com/logstash-plugins/logstash-input-jdbc/archive/v4.2.4.zip</span><br><span class="line">unzip v4.2.4.zip</span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fmp9bvc6mmj21f00fgtgt.jpg" alt="All text"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> logstash-input-jdbc-4.2.4</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>修改source的值</p>
+</blockquote>
+<p>修改source的值为： “<a href="https://ruby.taobao.org&quot;" target="_blank" rel="noopener">https://ruby.taobao.org&quot;</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi Gemfile</span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fmpz219xr4j21hc0fktgs.jpg" alt="All text"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi logstash-input-jdbc.gemspec</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">找到 </span><br><span class="line">    s.files = `git ls-files`.split($\)</span><br><span class="line">改为：</span><br><span class="line">    s.files = [<span class="string">".gitignore"</span>, <span class="string">"CHANGELOG.md"</span>, <span class="string">"Gemfile"</span>, <span class="string">"LICENSE"</span>, <span class="string">"NOTICE.TXT"</span>, <span class="string">"README.md"</span>, <span class="string">"Rakefile"</span>, <span class="string">"lib/logstash/inputs/jdbc.rb"</span>, <span class="string">"lib/logstash/plugin_mixins/jdbc.rb"</span>, <span class="string">"logstash-input-jdbc.gemspec"</span>, <span class="string">"spec/inputs/jdbc_spec.rb"</span>]</span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fmpzazxe1tj21ra14wx2p.jpg" alt="All text"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gem build logstash-input-jdbc.gemspec</span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fmpzck21duj21nq06wn15.jpg" alt="All text"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mv logstash-input-jdbc-4.2.4.gem /data/server/logstash/</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[elasticsearch@elasticsearch01 logstash-input-jdbc-4.2.4]$ <span class="built_in">cd</span> /data/server/logstash</span><br><span class="line">[elasticsearch@elasticsearch01 logstash]$ ./bin/logstash-plugin install logstash-input-jdbc-4.2.4.gem</span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fmq01o6xlzj21r405mdjg.jpg" alt="All text"></p>
+<h3 id="启动logstash"><a href="#启动logstash" class="headerlink" title="启动logstash"></a>启动logstash</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">在logstash目录中创建一份配置pipeline配置文件</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi conf/user-access-log-pipeline.conf</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">input &#123;</span><br><span class="line">  jdbc &#123;</span><br><span class="line">    jdbc_driver_library =&gt; <span class="string">"/data/server/mysql-connector-java-5.1.36-bin.jar"</span></span><br><span class="line">    jdbc_driver_class =&gt; <span class="string">"com.mysql.jdbc.Driver"</span></span><br><span class="line">    jdbc_connection_string =&gt; <span class="string">"jdbc:mysql://localhost:3306/patpat_demo"</span></span><br><span class="line">    jdbc_user =&gt; <span class="string">"root"</span></span><br><span class="line">	jdbc_password =&gt; <span class="string">"123456"</span></span><br><span class="line">    schedule =&gt; <span class="string">"* * * * *"</span></span><br><span class="line">    statement =&gt; <span class="string">"SELECT * from user_access_log_aggr"</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">output &#123;</span><br><span class="line">  elasticsearch &#123;</span><br><span class="line">    hosts =&gt; [ <span class="string">"localhost:9200"</span> ]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fmq0acu32dj21e20ngqbn.jpg" alt="All text"></p>
+<blockquote>
+<p>检查配置文件语法是否正确</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[elasticsearch@elasticsearch01 logstash]$ ./bin/logstash -f conf/user-access-log-pipeline.conf --config.test_and_exit</span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fmq0m2d4uhj21r40dwwr3.jpg" alt="All text"></p>
+<h3 id="启动logstash-1"><a href="#启动logstash-1" class="headerlink" title="启动logstash"></a>启动logstash</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">--config.reload.automatic，会自动重新加载配置文件的内容</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./bin/logstash -f conf/user-access-log-pipeline.conf --config.reload.automatic</span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fmq0s9c0uzj21r60cqamt.jpg" alt="All text"></p>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fmq0ubcr5ej21r218gkjl.jpg" alt="All text"></p>
+<h3 id="查看ES索引"><a href="#查看ES索引" class="headerlink" title="查看ES索引"></a>查看ES索引</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[elasticsearch@elasticsearch01 ~]$ curl -XGET localhost:9200/_cat/indices</span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fmq0xlyyk8j21fk02qq5i.jpg" alt="All text"></p>
+<h3 id="查看es健康状态"><a href="#查看es健康状态" class="headerlink" title="查看es健康状态"></a>查看es健康状态</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[elasticsearch@elasticsearch01 ~]$ curl -XGET localhost:9200/_cat/health</span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fmq0yywyjjj21ei02qwgw.jpg" alt="All text"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[elasticsearch@elasticsearch01 ~]$ curl -XGET localhost:9200/logstash-2017.12.21</span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fmqcmaadd7j21r80um7wh.jpg" alt="All text"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[elasticsearch@elasticsearch01 ~]$ curl -XGET localhost:9200/logstash-2017.12.21/_search?pretty</span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fmqdf3jgiqj21ow18i4er.jpg" alt="All text"></p>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fmqdumaemej21hk1cktpq.jpg" alt="All text"></p>
+<h2 id="安装和部署kibana"><a href="#安装和部署kibana" class="headerlink" title="安装和部署kibana"></a>安装和部署kibana</h2><h3 id="kibana解压缩"><a href="#kibana解压缩" class="headerlink" title="kibana解压缩"></a>kibana解压缩</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tar -zxvf kibana-5.6.3-linux-x86_64.tar.gz -C /data/server/</span><br></pre></td></tr></table></figure>
+<h3 id="目录重命名"><a href="#目录重命名" class="headerlink" title="目录重命名"></a>目录重命名</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@elasticsearch01 server]<span class="comment"># mv kibana-5.6.3-linux-x86_64/ kibana</span></span><br></pre></td></tr></table></figure>
+<h3 id="配置kibana"><a href="#配置kibana" class="headerlink" title="配置kibana"></a>配置kibana</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@elasticsearch01 kibana]<span class="comment"># vi config/kibana.yml</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">server.port: 5601</span><br><span class="line">server.host: <span class="string">"0.0.0.0"</span></span><br><span class="line">elasticsearch.url: <span class="string">"http://localhost:9200"</span></span><br></pre></td></tr></table></figure>
+<h3 id="运行kibana"><a href="#运行kibana" class="headerlink" title="运行kibana"></a>运行kibana</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@elasticsearch01 kibana]<span class="comment"># ./bin/kibana</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fmqeetjbv9j21r20nyh5d.jpg" alt="All text"></p>
+<h3 id="访问kibana-web管理工作台"><a href="#访问kibana-web管理工作台" class="headerlink" title="访问kibana web管理工作台"></a>访问kibana web管理工作台</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">访问浏览器地址栏：http://192.168.31.180:5601/</span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fmqegyaq8fj22ks0s0qdg.jpg" alt="All text"></p>
+<h3 id="设置index-pattern"><a href="#设置index-pattern" class="headerlink" title="设置index pattern"></a>设置index pattern</h3><p>在kibana配置一个index pattern来匹配es中的索引名称，默认是logstash-*，匹配logstash写入es中的数据</p>
+<p>同时还要配置一个time-field name，那个field是timestamp类型的，这是给kibana用来按照时间进行过滤的，kibana会自动加载出来给我们选择</p>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fmqero8h6lj22kq1dstlg.jpg" alt="All text"></p>
+<h3 id="基于kibana制作流量分析报表"><a href="#基于kibana制作流量分析报表" class="headerlink" title="基于kibana制作流量分析报表"></a>基于kibana制作流量分析报表</h3><p>对指定的版块进行查询，然后统计出如下指标的汇总</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">pv: 所有人的pv相加</span><br><span class="line">uv: 对userid进行去重</span><br><span class="line">return_visit_uv: 回访uv</span><br><span class="line">total_visit_time: 总访问时长</span><br><span class="line">bounce_visit_uv: 跳出次数</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">curl -XGET <span class="string">'http://localhost:9200/logstash-2017.12.21/logs/_search?q=section:news&amp;pretty'</span> -d <span class="string">'</span></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line"><span class="string">    "size": 0,</span></span><br><span class="line"><span class="string">    "aggs": &#123;</span></span><br><span class="line"><span class="string">      "pv": &#123;"sum": &#123;"field": "pv"&#125;&#125;,</span></span><br><span class="line"><span class="string">      "uv": &#123;"cardinality": &#123;"field": "userid", "precision_threshold": 40000&#125;&#125;,</span></span><br><span class="line"><span class="string">      "total_visit_time": &#123;"sum": &#123;"field": "visit_time"&#125;&#125;,</span></span><br><span class="line"><span class="string">      "return_visit_uv": &#123;</span></span><br><span class="line"><span class="string">        "filter": &#123;"term": &#123;"is_return_visit": 1&#125;&#125;,</span></span><br><span class="line"><span class="string">        "aggs": &#123;</span></span><br><span class="line"><span class="string">          "total_return_visit_uv": &#123;"cardinality": &#123;"field": "userid", "precision_threshold": 40000&#125;&#125;</span></span><br><span class="line"><span class="string">        &#125;</span></span><br><span class="line"><span class="string">      &#125;,</span></span><br><span class="line"><span class="string">      "bounce_visit_uv": &#123;</span></span><br><span class="line"><span class="string">        "filter": &#123;"term": &#123;"is_bounce_visit": 1&#125;&#125;,</span></span><br><span class="line"><span class="string">        "aggs": &#123;</span></span><br><span class="line"><span class="string">          "total_bounce_visit_uv": &#123;"cardinality": &#123;"field": "userid", "precision_threshold": 40000&#125;&#125;</span></span><br><span class="line"><span class="string">        &#125;</span></span><br><span class="line"><span class="string">      &#125;</span></span><br><span class="line"><span class="string">    &#125;</span></span><br><span class="line"><span class="string">&#125;'</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fmqf08e649j21re0ukao8.jpg" alt="All text"></p>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fmqf4x4hovj217e1e2drz.jpg" alt="All text"></p>
+<h2 id="Logstash处理数据"><a href="#Logstash处理数据" class="headerlink" title="Logstash处理数据"></a>Logstash处理数据</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">input段：</span><br><span class="line">　file：使用file 作为输入源</span><br><span class="line">　　path： 日志的路径，支持/var/<span class="built_in">log</span>*.<span class="built_in">log</span>，及[ <span class="string">"/var/log/messages"</span>, <span class="string">"/var/log/*.log"</span> ] 格式</span><br><span class="line">　　start_position: 从文件的开始读取事件。另外还有end参数</span><br><span class="line">　　ignore_older: 忽略早于24小时（默认值86400）的日志，设为0，即关闭该功能，以防止文件中的事件由于是早期的被logstash所忽略。</span><br><span class="line"></span><br><span class="line">filter段：</span><br><span class="line">　grok：数据结构化转换工具</span><br><span class="line">　　match：匹配条件格式，将nginx日志作为message变量，并应用grok条件NGINXACCESS进行转换</span><br><span class="line">　geoip：该过滤器从geoip中匹配ip字段，显示该ip的地理位置</span><br><span class="line">　　<span class="built_in">source</span>：ip来源字段，这里我们选择的是日志文件中的最后一个字段，如果你的是默认的nginx日志，选择第一个字段即可(注：这里写的字段是/opt/logstash/patterns/nginx 里面定义转换后的)</span><br><span class="line">　　target：指定插入的logstash字断目标存储为geoip</span><br><span class="line">　　database：geoip数据库的存放路径</span><br><span class="line">　　add_field: 增加的字段，坐标经度</span><br><span class="line">　　add_field: 增加的字段，坐标纬度</span><br><span class="line">　mutate： 数据的修改、删除、类型转换</span><br><span class="line">　　convert： 将坐标转为<span class="built_in">float</span>类型</span><br><span class="line">　　convert： http的响应代码字段转换成 int</span><br><span class="line">　　convert： http的传输字节转换成int</span><br><span class="line">　　replace： 替换一个字段</span><br><span class="line">　　remove_field： 移除message 的内容，因为数据已经过滤了一份，这里不必在用到该字段了。不然会相当于存两份</span><br><span class="line">　date: 时间处理，该插件很实用，主要是用你日志文件中事件的事件来对timestamp进行转换，导入老的数据必备！在这里曾让我困惑了很久哦。别再掉坑了</span><br><span class="line">　　match：匹配到timestamp字段后，修改格式为dd/MMM/yyyy:HH:mm:ss Z</span><br><span class="line">　mutate：数据修改</span><br><span class="line">　　remove_field： 移除timestamp字段。</span><br><span class="line"></span><br><span class="line">output段：</span><br><span class="line">　elasticsearch：输出到es中</span><br><span class="line">　　host： es的主机ip＋端口或者es 的FQDN＋端口</span><br><span class="line">　　index： 为日志创建索引logstash-nginx-access-＊，这里也就是kibana那里添加索引时的名称</span><br></pre></td></tr></table></figure>
+<h3 id="查看Logstash插件"><a href="#查看Logstash插件" class="headerlink" title="查看Logstash插件"></a>查看Logstash插件</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[elasticsearch@elasticsearch01 logstash]$ bin/logstash-plugin list</span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fms6ny2b9wj21fq1cqqo9.jpg" alt="All text"></p>
+<h3 id="安装Logstash插件-1"><a href="#安装Logstash插件-1" class="headerlink" title="安装Logstash插件"></a>安装Logstash插件</h3><blockquote>
+<p>grok：数据结构化转换工具</p>
+</blockquote>
+<p>match：匹配条件格式，将nginx日志作为message变量，并应用grok条件NGINXACCESS进行转换</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[elasticsearch@elasticsearch01 logstash]$ ./bin/logstash-plugin install logstash-filter-grok</span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fms6uo27m9j21lk05k77q.jpg" alt="All text"></p>
+<blockquote>
+<p>geoip：该过滤器从geoip中匹配ip字段，显示该ip的地理位置</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[elasticsearch@elasticsearch01 logstash]$ ./bin/logstash-plugin install logstash-filter-geoip</span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fms6wl15e1j21ko05kjuu.jpg" alt="All text"></p>
+<h3 id="Filebeat采集数据传送给Logstash"><a href="#Filebeat采集数据传送给Logstash" class="headerlink" title="Filebeat采集数据传送给Logstash"></a>Filebeat采集数据传送给Logstash</h3><p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fms93g44xgj216w0xi10z.jpg" alt="All text"></p>
+<p>FileBeat的四种输出方式可以输出到</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Elasticsearch，logstash，file和console</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>解压压缩文件</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tar -zxvf filebeat-5.6.3-linux-x86_64.tar.gz -C /data/server/</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>目录重命名</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[elasticsearch@elasticsearch01 server]$ mv filebeat-5.6.3-linux-x86_64/ filebeat</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>进入目录</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[elasticsearch@elasticsearch01 server]$ <span class="built_in">cd</span> filebeat/</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[elasticsearch@elasticsearch01 filebeat]$ mkdir conf</span><br><span class="line">[elasticsearch@elasticsearch01 filebeat]$ mkdir data</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>编辑配置文件</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[elasticsearch@elasticsearch01 filebeat]$ vim conf/filebeat-to-logstash.yml</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">filebeat.prospectors:</span><br><span class="line">- input_type: <span class="built_in">log</span></span><br><span class="line">  paths: /data/server/logs/access.log</span><br><span class="line">  document_type: <span class="string">"nginx_access"</span></span><br><span class="line">  registry_file: /data/server/filebeat/data/registry</span><br><span class="line"></span><br><span class="line">output.logstash:</span><br><span class="line">   hosts: [<span class="string">"192.168.31.180:5044"</span>]</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>授权</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chmod go-w /data/server/filebeat/conf/filebeat-to-logstash.yml</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>启动</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[elasticsearch@elasticsearch01 filebeat]$ ./filebeat -e -c conf/filebeat-to-logstash.yml</span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fms9500r03j21t811ie81.jpg" alt="All text"></p>
+<h3 id="Logstash获取filebeat传送来的数据并输出到控制台"><a href="#Logstash获取filebeat传送来的数据并输出到控制台" class="headerlink" title="Logstash获取filebeat传送来的数据并输出到控制台"></a>Logstash获取filebeat传送来的数据并输出到控制台</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim conf/filebeat-logstash.conf</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">input &#123;</span><br><span class="line">    beats &#123;</span><br><span class="line">        port =&gt; 5044</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">output &#123; </span><br><span class="line">    stdout &#123;</span><br><span class="line">        codec =&gt; rubydebug <span class="comment"># 直接将数据输出到控制台 </span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>启动Logstash</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./bin/logstash -f conf/filebeat-logstash.conf</span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fms92fb7ewj21t419u4qp.jpg" alt="All text"></p>
+<h3 id="Logstash获取filebeat传送来的数据并转发到kafka"><a href="#Logstash获取filebeat传送来的数据并转发到kafka" class="headerlink" title="Logstash获取filebeat传送来的数据并转发到kafka"></a>Logstash获取filebeat传送来的数据并转发到kafka</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim conf/logstash-kafka.conf</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">input &#123;</span><br><span class="line">    beats &#123;</span><br><span class="line">        port =&gt; 5044</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">output &#123; </span><br><span class="line">  kafka &#123;</span><br><span class="line">    bootstrap_servers =&gt; <span class="string">"node01:9092,node02:9092,node03:9092"</span></span><br><span class="line">    topic_id =&gt; <span class="string">"nginx-acess-log-%&#123;+YYYY.MM.dd&#125;"</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>启动Logstash</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./bin/logstash -f conf/logstash-kafka.conf</span><br></pre></td></tr></table></figure>
+<h3 id="Logstash采集文件数据并将结果输出到控制台"><a href="#Logstash采集文件数据并将结果输出到控制台" class="headerlink" title="Logstash采集文件数据并将结果输出到控制台"></a>Logstash采集文件数据并将结果输出到控制台</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[elasticsearch@elasticsearch01 logstash]$ vim conf/first-pipeline.conf</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">input &#123;</span><br><span class="line">    file &#123;</span><br><span class="line">        path =&gt; <span class="string">"/data/server/logs/access.log"</span></span><br><span class="line">        start_position =&gt; beginning</span><br><span class="line">        ignore_older =&gt; 0</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">filter &#123;</span><br><span class="line">    grok &#123;</span><br><span class="line">        match =&gt; &#123; <span class="string">"message"</span> =&gt; <span class="string">"%&#123;COMBINEDAPACHELOG&#125;"</span>&#125;</span><br><span class="line">    &#125;</span><br><span class="line">    geoip &#123;</span><br><span class="line">        <span class="built_in">source</span> =&gt; <span class="string">"clientip"</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">output &#123;</span><br><span class="line">    stdout &#123;</span><br><span class="line">        codec =&gt; rubydebug <span class="comment"># 直接将数据输出到控制台 </span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>启动logstash</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[elasticsearch@elasticsearch01 logstash]$ ./bin/logstash -f conf/first-pipeline.conf</span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fms6hcv2bgj21t419y4qp.jpg" alt="All text"></p>
+<h3 id="Logstash采集文件数据并将结果输出到ES"><a href="#Logstash采集文件数据并将结果输出到ES" class="headerlink" title="Logstash采集文件数据并将结果输出到ES"></a>Logstash采集文件数据并将结果输出到ES</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[elasticsearch@elasticsearch01 logstash]$ vim conf/first-pipeline-to-es.conf</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">input &#123;</span><br><span class="line">    file &#123;</span><br><span class="line">        path =&gt; <span class="string">"/data/server/logs/access.log"</span></span><br><span class="line">        start_position =&gt; beginning </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">filter &#123;</span><br><span class="line">    grok &#123;</span><br><span class="line">        match =&gt; &#123; <span class="string">"message"</span> =&gt; <span class="string">"%&#123;COMBINEDAPACHELOG&#125;"</span>&#125;</span><br><span class="line">    &#125;</span><br><span class="line">    geoip &#123;</span><br><span class="line">        <span class="built_in">source</span> =&gt; <span class="string">"clientip"</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">output &#123;</span><br><span class="line">  elasticsearch &#123;</span><br><span class="line">    hosts =&gt; [ <span class="string">"192.168.31.180:9200"</span> ]</span><br><span class="line">    index =&gt; <span class="string">"logstash-nginx-access-%&#123;+YYYY.MM.dd&#125;"</span></span><br><span class="line">  &#125;</span><br><span class="line">  stdout &#123;codec =&gt; rubydebug&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>启动logstash</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[elasticsearch@elasticsearch01 logstash]$ ./bin/logstash -f conf/first-pipeline-to-es.conf</span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fms7fmd7syj21t4170qv5.jpg" alt="All text"></p>
+<blockquote>
+<p>查看ES索引</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[elasticsearch@elasticsearch01 logs]$ curl -XGET localhost:9200/_cat/indices?v</span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fms7dh6co7j21m005en2s.jpg" alt="All text"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[elasticsearch@elasticsearch01 logs]$ curl -XGET localhost:9200/logstash-nginx-access-2017.12.24/_search?pretty</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>启动Kibana</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[elasticsearch@elasticsearch01 kibana]$ ./bin/kibana</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>在浏览器地址栏访问：<a href="http://192.168.31.180:5601/" target="_blank" rel="noopener">http://192.168.31.180:5601/</a></p>
+</blockquote>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fms7sinb9vj22k81eitxs.jpg" alt="All text"></p>
+
+    </div>
+  </div>
+  
+    <div class="copy-right">
+      <div class="markdown-body">
+        <blockquote>
+        
+        
+          本文作者 : Matrix <br>
+        
+        原文链接 : <a href="">http://yoursite.com/2017/12/21/ELK流量分析/</a><br>
+        版权声明 : 本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+        </blockquote>
+      </div>
+    </div>
+  
+  
+  
+    <div class="social-share" style="margin-top: -2rem" data-wechat-qrcode-title="<p>微信扫一扫</p>" data-wechat-qrcode-helper="<p>微信右上角, 扫一扫分享</p>" data-sites="qzone, qq, weibo, wechat, douban, google, facebook, twitter">
+  <span style="color: #6b7487; font-size: 1.4rem;">分享到: </span>
+</div>
+<script src="https://cdn.bootcss.com/social-share.js/1.0.16/js/social-share.min.js" async></script>
+  
+
+  
+    <div id="reward">
+  
+    <p id="reward-meta">知识 & 情怀 | 二者兼得</p>
+  
+  <button id="reward-btn">
+    
+    <span>投食</span>
+  </button>
+  <div id="reward-qrcode">
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/wechatpay.jpg" alt="微信扫一扫, 向我投食">
+        <p class="qrcode-meta">微信扫一扫, 向我投食</p>
+      </div>
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/alipaypay.jpg" alt="支付宝扫一扫, 向我投食">
+        <p class="qrcode-meta">支付宝扫一扫, 向我投食</p>
+      </div>
+    
+  </div>
+
+</div>
+
+<script>
+  (() => {
+    let button = document.querySelector('#reward-btn'),
+      qrcode = document.querySelector('#reward-qrcode'),
+      display = false;
+    
+    button.addEventListener('click', () => {
+      qrcode.style.display = display ? 'none' : 'block'
+      display = !display
+    }, false)
+  })()
+</script>
+  
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+      <span>
+        
+          <i class="iconfont icon-06tags"></i>标签: 
+          
+          <span class="span--tag">
+            <a href="/tags/ELK/">
+              #ELK
+            </a>
+          </span>
+          
+        
+      </span>
+    </div>
+    <div class="article-meta pull-right">
+    </div>
+  </div>
+</div>
+
+
+  <aside id="sidebar">
+    <p id="sidebar-header"></p>
+    <ol id="sidebar-toc"></ol>
+  </aside>
+  <script async>setTimeout(generateToc, 10);</script>
+
+
+  <nav class="post-navigation">
+    
+      <div class="nav-pre">
+        <i class="iconfont icon-prev"></i>
+        上一篇:
+        <a href="/2017/12/10/Centos7下安装node/" target="_self">Centos7下安装node</a>
+      </div>
+    
+    
+      <div class="nav-next">
+        下一篇:
+        <a href="/2018/01/10/Nginx反向代理与负载均衡/" target="_self">Nginx反向代理与负载均衡</a>
+        <i class="iconfont icon-next"></i>
+      </div>
+    
+  </nav>
+
+  
+    <a href="#comment" class="comment-anchor"></a>
+<div class="comment-title"><i class="iconfont icon-footprint"></i> 留下足迹 <i class="iconfont icon-footprint"></i></div>
+<div id="vcomments"></div>
+
+<script defer>
+  if( true ) {
+    let path = getRealPath()
+    new Valine({
+      el: "#vcomments",
+      appId: "Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz",
+      appKey: "WaR7nrzhliHj9aVwdQzkdlGd",
+      notify: false,
+      verify: false,
+      avatar: "robohash",
+      placeholder: "正确填写邮箱, 才能及时收到回复哦♪(^∇^*)",
+      path
+    });
+  }
+</script>
+   
+
+  
+    <script defer>
+const valineAPI = (() => {
+  try {
+    AV.init("Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz", "WaR7nrzhliHj9aVwdQzkdlGd");
+  } catch(error) {}
+  const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+      query.equalTo("identity", identity);
+      query.find().then(results => {
+        resolve(results.length > 0);
+      }, error => reject(error));
+    })
+  }
+
+  const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+      let querys = [];
+      for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+      }
+      query = AV.Query.or.apply(null ,querys);
+    } else {
+      identity = identity || getRealPath();
+      query = new AV.Query("Timer");
+      query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+      query.find()
+      .then(results => resolve(results))
+      .catch(error => reject(error))
+    })
+  }
+
+  const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let Todo = AV.Object.extend('Timer');
+      let todo = new Todo();
+      todo.set("times", 1);
+      todo.set("identity", identity);
+      todo.save().then(res => resolve(true), error => reject(error));
+    })
+  }
+
+  const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let query = new AV.Query('Timer');
+      query.equalTo("identity", identity);
+      query.find().then(todos => {
+        todos.forEach(todo => {
+          todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+      }).then(todos => resolve(true), error => reject(error));
+    })
+  }
+
+  return {
+    isExist,
+    _get,
+    update,
+    create
+  }
+})()
+
+const calcAndWriteTimes = () => {
+  let isPost = true;
+
+  let timerAllDOM = document.querySelectorAll(".article-timer");
+
+  if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+      if(exist) {
+        return valineAPI.update(identity);
+      }
+      return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+  }
+
+  let timerDOMCache = {};
+
+  for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+      timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+      timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+      };
+    }
+  }
+
+  let identities = Object.keys(timerDOMCache);
+  valineAPI._get(identities).then(results => {
+    for(let result of results) {
+      let {identity, times} = result.attributes;
+      timerDOMCache[identity].times = times;
+      timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+      if(timerDOMCache[identity].times){
+        continue;
+      }
+      timerDOMCache[identity].dom.map(item => item.innerText = 1);
+      valineAPI.create(identity);
+    }
+  }).catch(error => console.log(error.message))
+}
+
+if(true){
+  calcAndWriteTimes();
+}
+</script>
+   
+
+</div>
+
+
+      <footer>
+  <p class="site-info">
+    博客已萌萌哒运行<span id="time-to-now"></span><span class="my-face">(●'◡'●)ﾉ♥</span>
+    <br>
+    Theme - <a href="https://github.com/dongyuanxin/theme-bmw">BMW</a> | Powered by <a href="https://godbmw.com/">GodBMW</a>
+    <br>
+    
+      Copyright © 2019 Matrix
+    
+  </p>
+</footer>
+
+
+
+<script>
+const timeToNowDOM = document.querySelector("#time-to-now");
+const startTimestamp = new Date(2016, 4, 10).getTime();
+
+const updateTimeStr = () => {
+  let offset = parseInt(
+      (new Date().getTime() - startTimestamp) / 1000,
+      10
+    ),
+    day = Math.floor(offset / 86400),
+    hour = Math.floor((offset % 86400) / 3600),
+    minute = Math.floor(((offset % 86400) % 3600) / 60),
+    second = Math.floor(((offset % 86400) % 3600) % 60);
+  timeToNowDOM.innerHTML =
+    day + "天" + hour + "小时" + minute + "分钟" + second + "秒";
+  setTimeout(updateTimeStr, 500);
+}
+
+setTimeout(updateTimeStr, 500);
+</script>
+
+
+      <div class="back-to-top hidden">
+  <span>
+    <i class="iconfont icon-60"></i><span></span>%
+  </span>
+</div>
+
+<script>
+const updateIconToTop = percent => {
+  let dom = document.querySelector(".back-to-top span span");
+  dom.innerText = percent;
+  if(percent < 1) {
+    document.querySelector(".back-to-top").className = "back-to-top hidden";
+  } else {
+    document.querySelector(".back-to-top").className = "back-to-top";
+  }
+}
+
+const handleScoll = () => {
+  let isRunning = false;
+  return () => {
+    if (isRunning) return;
+    isRunning = true;
+    window.requestAnimationFrame(timestamp => {
+      let scrollTop =
+          document.documentElement.scrollTop || document.body.scrollTop,
+        scrollHeight =
+          document.documentElement.scrollHeight ||
+          document.body.scrollHeight,
+        clientHeight =
+          document.documentElement.clientHeight ||
+          document.body.clientHeight;
+      isRunning = false;
+      if (scrollTop <= 1) {
+        updateIconToTop(0);
+        return;
+      }
+      if (scrollTop + clientHeight >= scrollHeight) {
+        updateIconToTop(100);
+      } else {
+        updateIconToTop(parseInt(
+          100 * scrollTop / (scrollHeight - clientHeight),
+          10
+        ));
+      }
+    });
+  };
+}
+
+const backToTop = () => {
+  let scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop,
+    delay = 10,
+    time = 200;
+  if (scrollTop <= 20) {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    return;
+  }
+  let step = Math.ceil(scrollTop * delay / time);
+  let timer = setInterval(() => {
+    scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop;
+    if (scrollTop - step <= 0) {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      clearInterval(timer);
+    } else {
+      document.documentElement.scrollTop = scrollTop - step;
+      document.body.scrollTop = scrollTop - step;
+    }
+  }, delay);
+}
+
+document.addEventListener("scroll", handleScoll(), false);
+
+document.querySelector(".back-to-top").addEventListener("click", backToTop, false);
+
+</script>
+
+    </div>
+
+    
+      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  (() => {
+    const mathjaxConfig = {
+      showProcessingMessages: false, //关闭js加载过程信息
+      messageStyle: "none", //不显示信息
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]], //行内公式选择符
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]], //段内公式选择符
+        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"] //避开某些标签
+      },
+      "HTML-CSS": {
+        availableFonts: ["STIX", "TeX"], //可选字体
+        showMathMenu: false //关闭右击菜单显示
+      }
+    }
+
+    let mathjaxInterval = setInterval(() => {
+      if(!window.MathJax){
+        return;
+      }
+      window.MathJax.Hub.Config(mathjaxConfig)
+      window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')])
+
+      clearInterval(mathjaxInterval)
+    }, 10)    
+  })()
+</script>
+    
+
+    <script src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script>
+<script async>
+  let fancyTimer = setInterval(function(){
+    if(!window.$){
+      return;
+    }
+    $(document).ready(function() {
+      $(".post img").each(function () {
+        if($(this).parent().get(0).tagName.toLowerCase() === "a") {
+          return;
+        }
+        // $(this).attr("data-fancybox", "gallery"); // if you add 'data-fancybox', img will display after showed
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "gallery");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      });
+      
+      clearInterval(fancyTimer);
+    });
+  }, 10);
+</script>
+
+    
+  </body>
+
+</html>

@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta name="author" content="董沅鑫, yuanxin.me@gmail.com">
+  
+  
+  
+  <title>虚拟化KVM | 每天遇到更好的你</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="云计算,云计算,">
+  
+
+  <script>
+    console.log('\n%c Hexo-theme-bmw v4.0 ' + '%c 🎉 https://github.com/dongyuanxin/theme-bmw 🎉\n' + '\n%c View demo online ' + '%c 🔍 https://godbmw.com/ 🔍  \n' , 'color: #fadfa3; background: #030307; padding:3px 0;', '', 'color: #fadfa3; background: #030307; padding:3px 0;', '');
+  </script>
+
+  
+
+  
+
+  
+    <link rel="icon" href="/images/favicon.png">
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+  
+
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/icon/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+  <script src="/js/util.js"></script>
+<script src="/js/valine.min.js"></script>
+
+  
+
+  
+    <link href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js" async></script>
+  
+
+  
+    <link href="https://cdn.bootcss.com/social-share.js/1.0.16/css/share.min.css" rel="stylesheet">
+  
+  
+  <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js" async></script>
+  
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.0/dist/av-min.js"></script>
+  
+
+</head>
+
+  <body>
+
+    
+
+    <div id="app">
+
+      <div class="header-wrap">
+  <header>
+    <div class="site-brand">
+      <div class="site-title">
+        <!-- <a href="/">MatrixSparse</a> -->
+        <img alt="logo" class="antd-pro-layouts-user-layout-logo" src="/images/favicon.png" style="width: 40px;height: 40px;margin-top: 10px;margin-left: 5px;">
+      </div>
+    </div>
+    <nav class="site-navigation">
+      <ul class="nav-menu">
+      
+        <li class="nav-item" data-path="/">
+          
+            <a href="/" target="_self">
+              主页
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          
+            <a href="/archives/" target="_self">
+              归档
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          
+            <a href="/categories/" target="_self">
+              分类
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          
+            <a href="/tags/" target="_self">
+              标签
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="">
+          
+            <a href="javascript:void(0);" v-else="">博客地址</a>
+            <ul class="nav-menu--dropdown">
+              
+                <li>
+                  <a href="https://blog.csdn.net/qq_25371579" target="_blank">
+                    CSDN
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://github.com/matrixsparse" target="_blank">
+                    Github
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://matrixsparse.github.io/" target="_blank">
+                    Github Page
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+      </ul>
+    </nav>
+    <i class="iconfont icon-menu"></i>
+  </header>
+</div>
+
+<script>
+  let links = document.querySelectorAll('.nav-item');
+  for(let link of links){
+    let childrenLink = link.querySelector('ul');
+    link.addEventListener('mouseenter', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown active";
+      }
+    })
+    link.addEventListener('mouseleave', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown";
+      }
+    })
+  }
+  let rootRealPath = getRealPath(window.location.pathname, true);
+  for(let link of links) {
+    let linkPath = link.getAttribute("data-path");
+    if(linkPath && getRealPath(linkPath, true) === rootRealPath) {
+      link.className = "nav-item hover";
+    }
+  }
+
+  let iconMenu = document.querySelector("i.iconfont.icon-menu"),
+    iconMenuClicked = false;
+  let navDOM = document.querySelector("nav.site-navigation");
+  iconMenu.addEventListener("click", () => {
+    iconMenuClicked
+      ? navDOM.className = "site-navigation active"
+      : navDOM.className = "site-navigation";
+    iconMenuClicked = !iconMenuClicked;
+  })
+</script>
+
+
+      
+
+
+
+
+
+
+
+
+<div class="container post-index">
+
+  
+
+<div class="post">
+  <h1 class="article-title">
+    <span>虚拟化KVM</span>
+  </h1>
+  <div class="article-top-meta">
+    <span>
+      发布 : 
+      2016-03-27
+    </span>
+    
+      <span>
+        分类 : 
+          <a href="/categories/云计算/">
+            云计算
+          </a>
+      </span>
+    
+    
+      <span>
+        浏览 : <span class="article-timer" data-identity="虚拟化KVM"></span>
+      </span>
+    
+  </div>
+
+  
+
+  <div class="article-content">
+    <div class="markdown-body">
+      <h2 id="1-什么是系统虚拟化"><a href="#1-什么是系统虚拟化" class="headerlink" title="1.什么是系统虚拟化"></a>1.什么是系统虚拟化</h2><pre><code>系统虚拟化是将底层物理设备与上层操作系统、软件分离的一种去耦合技术，
+在一台物理机器上逻辑的划分出多台机器
+
+虚拟化的目标是实现IT资源 利用效率和灵活性 的最大化
+</code></pre><h2 id="1-1-系统虚拟化的好处"><a href="#1-1-系统虚拟化的好处" class="headerlink" title="1.1.系统虚拟化的好处"></a>1.1.系统虚拟化的好处</h2><pre><code>1、资源利用率高(多个系统融合在一台服务器上)
+2、系统维护灵活(应用系统不在依赖特定的硬件)
+</code></pre><p><img src="http://i1.piimg.com/581590/c78d3fa5e0eaea73.png" alt="Markdown"></p>
+<h2 id="2-为什么需要系统虚拟化"><a href="#2-为什么需要系统虚拟化" class="headerlink" title="2.为什么需要系统虚拟化"></a>2.为什么需要系统虚拟化</h2><pre><code>1、服务器资源利用率低
+    - 公司服务器越来越多，如何充分管理？
+    - 如何统一运维管理？
+2、系统维护不灵活
+3、浪费时间
+4、操作繁琐
+5、机器闲置时间较多
+</code></pre><h2 id="3-虚拟化基础架构"><a href="#3-虚拟化基础架构" class="headerlink" title="3.虚拟化基础架构"></a>3.虚拟化基础架构</h2><p><img src="http://i1.piimg.com/581590/953f420bc89a3649.png" alt="Markdown"></p>
+<pre><code>在一台物理主机上虚拟出多个虚拟计算机（虚拟机，VirtualMachine，VM），
+其上能同时运行多个独立的操作系统，这些客户操作系统（Guest OS），
+通过虚拟机管理器（Virtual Machine Monitor，VMM，也称作Hypervisor），
+访问实际的物理资源
+</code></pre><p><img src="http://i1.piimg.com/581590/6fc2ca654e5c1870.png" alt="Markdown"></p>
+<h2 id="4-系统虚拟化的产生"><a href="#4-系统虚拟化的产生" class="headerlink" title="4.系统虚拟化的产生"></a>4.系统虚拟化的产生</h2><pre><code>1、计算系统利用率不高！
+2、&quot;多数用户承认，计算系统平均利用率只有25%~30%&quot;
+3、性能测试报告，来自权威性能测试机构Metron&apos;s Athene
+4、对一个计算系统进行两天监测的数据
+</code></pre><p><img src="http://i1.piimg.com/581590/721deb7451da4b97.png" alt="Markdown"></p>
+<h2 id="5-大多数公司选择服务器虚拟化的原因"><a href="#5-大多数公司选择服务器虚拟化的原因" class="headerlink" title="5.大多数公司选择服务器虚拟化的原因"></a>5.大多数公司选择服务器虚拟化的原因</h2><pre><code>1、提高硬件资源利用率
+    - 打破&quot;一台服务器对应一套应用&quot;的模式，将物理服务器进行整合，
+    提升利用率
+
+2、减少数据中心的建设成本
+    - 服务器和相关IT硬件更少，节省了机房空间，也减少了散热和电力需求
+
+3、提升业务连续性
+    - 具备灵活数据备份和应用迁移机制，保障服务永不中断
+
+4、实现数据中心灵活运营
+    - 资源动态调配和模板化部署，应用系统快速上线，及时响应业务变化
+</code></pre><h2 id="6-虚拟化发展历史"><a href="#6-虚拟化发展历史" class="headerlink" title="6.虚拟化发展历史"></a>6.虚拟化发展历史</h2><p><img src="http://i1.piimg.com/581590/2c7831f9b9bbf11c.png" alt="Markdown"></p>
+<h2 id="7-什么是桌面虚拟化？"><a href="#7-什么是桌面虚拟化？" class="headerlink" title="7.什么是桌面虚拟化？"></a>7.什么是桌面虚拟化？</h2><pre><code>桌面虚拟化（MS：Remote Desktop、Citrix：XenDesktop、Vmware：View）
+− 将原本在本地电脑安装的桌面系统统一在后端数据中心进行部署和管理；
+− 用户可以通过任何设备，在任何地点，任何时间访问属于自己的桌面系统环境。
+</code></pre><p><img src="http://i1.piimg.com/581590/9e88d745509cc810.png" alt="Markdown"></p>
+<h2 id="8-服务器虚拟化"><a href="#8-服务器虚拟化" class="headerlink" title="8.服务器虚拟化"></a>8.服务器虚拟化</h2><p><img src="http://i1.piimg.com/581590/9317de3a90a03a14.png" alt="Markdown"></p>
+<h2 id="9-KVM介绍"><a href="#9-KVM介绍" class="headerlink" title="9.KVM介绍"></a>9.KVM介绍</h2><pre><code>其中，KVM全称是基于内核的虚拟机（Kernel-based Virtual Machine），
+它是一个 Linux的一个内核模块，该内核模块使得Linux变成了一个 Hypervisor：
+• 它由 Quramnet 开发，该公司于 2008年被 Red Hat 收购。
+• 它支持 x86 (32 and 64 位), s390, Powerpc 等 CPU。
+• 它从 Linux 2.6.20 起就作为一模块被包含在 Linux 内核中。
+• 它需要支持虚拟化扩展的 CPU。
+• 它是完全开源的
+</code></pre><h2 id="10-KVM特性"><a href="#10-KVM特性" class="headerlink" title="10.KVM特性"></a>10.KVM特性</h2><pre><code>嵌入到Linux正式Kernel（提高兼容性）
+• 代码级资源调用（提高性能）
+• 虚拟机就是一个进程（内存易于管理）
+• ---------- RedHat收购KVM -----------
+• 保持开源发展模式
+• 更好的商业支持及服务保障
+</code></pre><h2 id="11-CPU"><a href="#11-CPU" class="headerlink" title="11.CPU"></a>11.CPU</h2><pre><code>无虚拟化
+– CPU一般设为四个Ring
+– Kernel Mode一般跑在Ring 0上
+– User Mode一般跑在Ring 3上
+– 对于一个普通的传统的Linux系统没有问题
+虚拟化
+– 在Guest机器和Host机器中间加一层Hypervisor
+– Host机器看它像跑在自己上面的程序
+– Guest机器看它像自己所运行的硬件
+– 如果Host机器和Guest机器都跑相同的Linux，它们的Kernel都想运行在Ring 0，可怎么办？
+</code></pre><h2 id="12-虚拟机分类"><a href="#12-虚拟机分类" class="headerlink" title="12.虚拟机分类"></a>12.虚拟机分类</h2><pre><code>Linux有7个工作级别，Linux一般的工作级别在init 3，操作系统控制则是在init 5
+
+1.基于二进制翻译的全虚拟化（Full Virtualization with Binary Translation）
+2.超虚拟化（或者半虚拟化/操作系统辅助虚拟化Paravirtualization）
+3.硬件辅助的全虚拟化
+
+那么，虚拟化在这里就遇到了一个难题，因为宿主操作系统是工作在 ring0 的，
+客户操作系统就不能也在 ring0 了，但是它不知道这一点，以前执行什么指令，现在还是执行什么指令，
+但是没有执行权限是会出错的。所以这时候虚拟机管理程序（VMM）需要避免这件事情发生。
+虚机怎么通过 VMM 实现 Guest CPU 对硬件的访问，根据其原理不同有三种实现技术：
+• 1. 全虚拟化
+• 2. 半虚拟化
+• 3. 硬件辅助的虚拟化
+</code></pre><h2 id="13-为什么需要CPU虚拟化"><a href="#13-为什么需要CPU虚拟化" class="headerlink" title="13.为什么需要CPU虚拟化"></a>13.为什么需要CPU虚拟化</h2><p><img src="http://i1.piimg.com/581590/339a1b7b2ffa8e59.png" alt="Markdown"></p>
+<h2 id="14-传统CPU工作模式"><a href="#14-传统CPU工作模式" class="headerlink" title="14.传统CPU工作模式"></a>14.传统CPU工作模式</h2><pre><code>X86 操作系统是设计在直接运行在裸硬件设备上的，因此它们自动认为它们完全占
+有计算机硬件。x86 架构提供四个特权级别给操作系统和应用程序来访问硬件
+。 Ring 是指 CPU 的运行级别，Ring 0是最高级别，Ring1次之，Ring2更次之
+…… 就 Linux+x86 来说，
+• 操作系统（内核）需要直接访问硬件和内存，因此它的代码需要运行在最高运行级
+别 Ring0上，这样它可以使用特权指令，控制中断、修改页表、访问设备等等。
+• 应用程序的代码运行在最低运行级别上ring3上，不能做受控操作。如果要做，比
+如要访问磁盘，写文件，那就要通过执行系统调用（函数），执行系统调用的时候
+，CPU的运行级别会发生从ring3到ring0的切换，并跳转到系统调用对应的内核代
+码位置执行，这样内核就为你完成了设备访问，完成之后再从ring0返回ring3。这
+个过程也称作用户态和内核态的切换
+</code></pre><h2 id="15-CPU检测"><a href="#15-CPU检测" class="headerlink" title="15.CPU检测"></a>15.CPU检测</h2><pre><code>支持vt技术
+egrep -c &apos;(vmx|svm)&apos; /proc/cpuinfo
+命令结果大于0表示cpu支持虚拟化
+</code></pre><h2 id="16-基于二进制翻译的全虚拟化（Full-Virtualization-with-Binary-Translation）"><a href="#16-基于二进制翻译的全虚拟化（Full-Virtualization-with-Binary-Translation）" class="headerlink" title="16.基于二进制翻译的全虚拟化（Full Virtualization with Binary Translation）"></a>16.基于二进制翻译的全虚拟化（Full Virtualization with Binary Translation）</h2><pre><code>客户操作系统运行在 Ring 1，它在执行特权指令时，会触发
+异常（CPU的机制，没权限的指令会触发异常），然后 VMM
+捕获这个异常，在异常里面做翻译，模拟，最后返回到客户操
+作系统内，客户操作系统认为自己的特权指令工作正常，继续
+运行。但是这个性能损耗，就非常的大， 简单的一条指令，
+执行完，了事，现在却要通过复杂的异常处理过程
+</code></pre><p><img src="http://p1.bpimg.com/581590/f505d24c7365f714.png" alt="Markdown"></p>
+<h2 id="17-异常”捕获-trap-翻译-handle-模拟-emulate-”"><a href="#17-异常”捕获-trap-翻译-handle-模拟-emulate-”" class="headerlink" title="17.异常”捕获(trap)-翻译(handle)-模拟(emulate)”"></a>17.异常”捕获(trap)-翻译(handle)-模拟(emulate)”</h2><p><img src="http://p1.bpimg.com/581590/28435d6ef1e57159.png" alt="Markdown"></p>
+<h2 id="18-半虚拟化"><a href="#18-半虚拟化" class="headerlink" title="18.半虚拟化"></a>18.半虚拟化</h2><pre><code>半虚拟化的思想就是，修改操作系统内核，替换掉不能虚拟化
+的指令，通过超级调用（hypercall）直接和底层的虚拟化层
+hypervisor来通讯，hypervisor 同时也提供了超级调用接口
+来满足其他关键内核操作，比如内存管理、中断和时间保持。
+• 这种做法省去了全虚拟化中的捕获和模拟，大大提高了效率
+。所以像XEN这种半虚拟化技术，客户机操作系统都是有一个
+专门的定制内核版本，和x86、mips、arm这些内核版本等价
+。这样以来，就不会有捕获异常、翻译、模拟的过程了，性能
+损耗非常低。这就是XEN这种半虚拟化架构的优势。这也是为
+什么XEN只支持虚拟化Linux，无法虚拟化windows原因，微
+软不改代码啊
+</code></pre><p><img src="http://p1.bpimg.com/581590/636922605af1ff00.png" alt="Markdown"></p>
+<h2 id="19-硬件辅助的全虚拟化"><a href="#19-硬件辅助的全虚拟化" class="headerlink" title="19.硬件辅助的全虚拟化"></a>19.硬件辅助的全虚拟化</h2><pre><code>2005年后，CPU厂商Intel 和 AMD 开始支持虚拟化了。
+Intel 引入了 Intel-VT （Virtualization Technology）技术。
+这种 CPU，有 VMX root operation 和 VMX non-rootoperation两种模式，两种模式都支持Ring 0 ~ Ring 3 共 4个运行级别。
+这样，VMM 可以运行在 VMX root operation模式下，客户 OS 运行在VMX non-root operation模式下
+</code></pre><p><img src="http://p1.bpimg.com/581590/389dba6ef24fb110.png" alt="Markdown"></p>
+<pre><code>也就说，硬件这层就做了些区分，这样全虚拟化下，那些靠“
+捕获异常-翻译-模拟”的实现就不需要了。
+而且CPU厂商，支持虚拟化的力度越来越大，靠硬件辅助的全虚拟化技术的性能逐渐逼近半虚拟化，
+再加上全虚拟化不需要修改客户操作系统
+这一优势，全虚拟化技术应该是未来的发展趋势
+</code></pre><p><img src="http://p1.bpimg.com/581590/2ae69571e00581f1.png" alt="Markdown"></p>
+<h2 id="20-全虚拟化-VS-半虚拟化"><a href="#20-全虚拟化-VS-半虚拟化" class="headerlink" title="20.全虚拟化.VS.半虚拟化"></a>20.全虚拟化.VS.半虚拟化</h2><p><img src="http://p1.bpimg.com/581590/5f016b7d85e0c4ec.png" alt="Markdown"></p>
+<h2 id="21-KVM虚拟化图"><a href="#21-KVM虚拟化图" class="headerlink" title="21.KVM虚拟化图"></a>21.KVM虚拟化图</h2><p><img src="http://p1.bpimg.com/581590/c55ce341c35c31df.png" alt="Markdown"></p>
+<h2 id="22-Xen架构图"><a href="#22-Xen架构图" class="headerlink" title="22.Xen架构图"></a>22.Xen架构图</h2><p><img src="http://i1.piimg.com/581590/46bf4ae13499bd23.png" alt="Markdown"></p>
+<h2 id="23-Xen包含三大部分"><a href="#23-Xen包含三大部分" class="headerlink" title="23.Xen包含三大部分"></a>23.Xen包含三大部分</h2><pre><code>Xen Hypervisor：直接运行于硬件之上是Xen客户操作系统
+与硬件资源之间的访问接口(如：)。
+通过将客户操作系统与硬件进行分类，Xen管理系统可以允许客户操作系统安全，
+独立的运行在相同硬件环境之上。
+• Domain 0：运行在Xen管理程序之上，具有直接访问硬件和
+管理其他客户操作系统的特权的客户操作系统。
+• DomainU：运行在Xen管理程序之上的普通客户操作系统或
+业务操作系统，不能直接访问硬件资源（如：内存，硬盘等）
+，但可以独立并行的存在多个。
+• Xen 半虚拟化
+– 可以运行特权指令直接在硬件上运行
+– Vm系统内核xen对齐进行了修改
+</code></pre><h2 id="24-服务器虚拟化方法"><a href="#24-服务器虚拟化方法" class="headerlink" title="24.服务器虚拟化方法"></a>24.服务器虚拟化方法</h2><pre><code>全虚拟化(Full-Virtulization)：
+无需修改操作系统，VM ESXi、Linux KVM
+</code></pre><p><img src="http://p1.bpimg.com/581590/b67aba509311ef52.png" alt="Markdown"></p>
+<pre><code>• 半虚拟化(Para-Virtulization)：
+集成半虚拟化代码，直接运行特权指令，性能接近物理机，需要修改操作
+系统，
+MS Hyper-V、 Ctrix Xen、IBM PowerVM
+</code></pre><p><img src="http://p1.bpimg.com/581590/25bf040b9b4fd5c8.png" alt="Markdown"></p>
+<pre><code>• 操作系统层虚拟化
+开发、测试环境，VM Workstation、VM Server
+</code></pre><p><img src="http://p1.bpimg.com/581590/bd22c364498d31ba.png" alt="Markdown"></p>
+
+    </div>
+  </div>
+  
+    <div class="copy-right">
+      <div class="markdown-body">
+        <blockquote>
+        
+        
+          本文作者 : Matrix <br>
+        
+        原文链接 : <a href="">http://yoursite.com/2016/03/27/虚拟化KVM/</a><br>
+        版权声明 : 本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+        </blockquote>
+      </div>
+    </div>
+  
+  
+  
+    <div class="social-share" style="margin-top: -2rem" data-wechat-qrcode-title="<p>微信扫一扫</p>" data-wechat-qrcode-helper="<p>微信右上角, 扫一扫分享</p>" data-sites="qzone, qq, weibo, wechat, douban, google, facebook, twitter">
+  <span style="color: #6b7487; font-size: 1.4rem;">分享到: </span>
+</div>
+<script src="https://cdn.bootcss.com/social-share.js/1.0.16/js/social-share.min.js" async></script>
+  
+
+  
+    <div id="reward">
+  
+    <p id="reward-meta">知识 & 情怀 | 二者兼得</p>
+  
+  <button id="reward-btn">
+    
+    <span>投食</span>
+  </button>
+  <div id="reward-qrcode">
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/wechatpay.jpg" alt="微信扫一扫, 向我投食">
+        <p class="qrcode-meta">微信扫一扫, 向我投食</p>
+      </div>
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/alipaypay.jpg" alt="支付宝扫一扫, 向我投食">
+        <p class="qrcode-meta">支付宝扫一扫, 向我投食</p>
+      </div>
+    
+  </div>
+
+</div>
+
+<script>
+  (() => {
+    let button = document.querySelector('#reward-btn'),
+      qrcode = document.querySelector('#reward-qrcode'),
+      display = false;
+    
+    button.addEventListener('click', () => {
+      qrcode.style.display = display ? 'none' : 'block'
+      display = !display
+    }, false)
+  })()
+</script>
+  
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+      <span>
+        
+          <i class="iconfont icon-06tags"></i>标签: 
+          
+          <span class="span--tag">
+            <a href="/tags/云计算/">
+              #云计算
+            </a>
+          </span>
+          
+        
+      </span>
+    </div>
+    <div class="article-meta pull-right">
+    </div>
+  </div>
+</div>
+
+
+  <aside id="sidebar">
+    <p id="sidebar-header"></p>
+    <ol id="sidebar-toc"></ol>
+  </aside>
+  <script async>setTimeout(generateToc, 10);</script>
+
+
+  <nav class="post-navigation">
+    
+      <div class="nav-pre">
+        <i class="iconfont icon-prev"></i>
+        上一篇:
+        <a href="/2016/03/20/MR案例之倒排索引TF-IDF/" target="_self">MR案例之倒排索引</a>
+      </div>
+    
+    
+      <div class="nav-next">
+        下一篇:
+        <a href="/2016/03/27/社交粉丝数据分析/" target="_self">社交粉丝数据分析</a>
+        <i class="iconfont icon-next"></i>
+      </div>
+    
+  </nav>
+
+  
+    <a href="#comment" class="comment-anchor"></a>
+<div class="comment-title"><i class="iconfont icon-footprint"></i> 留下足迹 <i class="iconfont icon-footprint"></i></div>
+<div id="vcomments"></div>
+
+<script defer>
+  if( true ) {
+    let path = getRealPath()
+    new Valine({
+      el: "#vcomments",
+      appId: "Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz",
+      appKey: "WaR7nrzhliHj9aVwdQzkdlGd",
+      notify: false,
+      verify: false,
+      avatar: "robohash",
+      placeholder: "正确填写邮箱, 才能及时收到回复哦♪(^∇^*)",
+      path
+    });
+  }
+</script>
+   
+
+  
+    <script defer>
+const valineAPI = (() => {
+  try {
+    AV.init("Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz", "WaR7nrzhliHj9aVwdQzkdlGd");
+  } catch(error) {}
+  const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+      query.equalTo("identity", identity);
+      query.find().then(results => {
+        resolve(results.length > 0);
+      }, error => reject(error));
+    })
+  }
+
+  const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+      let querys = [];
+      for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+      }
+      query = AV.Query.or.apply(null ,querys);
+    } else {
+      identity = identity || getRealPath();
+      query = new AV.Query("Timer");
+      query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+      query.find()
+      .then(results => resolve(results))
+      .catch(error => reject(error))
+    })
+  }
+
+  const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let Todo = AV.Object.extend('Timer');
+      let todo = new Todo();
+      todo.set("times", 1);
+      todo.set("identity", identity);
+      todo.save().then(res => resolve(true), error => reject(error));
+    })
+  }
+
+  const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let query = new AV.Query('Timer');
+      query.equalTo("identity", identity);
+      query.find().then(todos => {
+        todos.forEach(todo => {
+          todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+      }).then(todos => resolve(true), error => reject(error));
+    })
+  }
+
+  return {
+    isExist,
+    _get,
+    update,
+    create
+  }
+})()
+
+const calcAndWriteTimes = () => {
+  let isPost = true;
+
+  let timerAllDOM = document.querySelectorAll(".article-timer");
+
+  if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+      if(exist) {
+        return valineAPI.update(identity);
+      }
+      return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+  }
+
+  let timerDOMCache = {};
+
+  for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+      timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+      timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+      };
+    }
+  }
+
+  let identities = Object.keys(timerDOMCache);
+  valineAPI._get(identities).then(results => {
+    for(let result of results) {
+      let {identity, times} = result.attributes;
+      timerDOMCache[identity].times = times;
+      timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+      if(timerDOMCache[identity].times){
+        continue;
+      }
+      timerDOMCache[identity].dom.map(item => item.innerText = 1);
+      valineAPI.create(identity);
+    }
+  }).catch(error => console.log(error.message))
+}
+
+if(true){
+  calcAndWriteTimes();
+}
+</script>
+   
+
+</div>
+
+
+      <footer>
+  <p class="site-info">
+    博客已萌萌哒运行<span id="time-to-now"></span><span class="my-face">(●'◡'●)ﾉ♥</span>
+    <br>
+    Theme - <a href="https://github.com/dongyuanxin/theme-bmw">BMW</a> | Powered by <a href="https://godbmw.com/">GodBMW</a>
+    <br>
+    
+      Copyright © 2019 Matrix
+    
+  </p>
+</footer>
+
+
+
+<script>
+const timeToNowDOM = document.querySelector("#time-to-now");
+const startTimestamp = new Date(2016, 4, 10).getTime();
+
+const updateTimeStr = () => {
+  let offset = parseInt(
+      (new Date().getTime() - startTimestamp) / 1000,
+      10
+    ),
+    day = Math.floor(offset / 86400),
+    hour = Math.floor((offset % 86400) / 3600),
+    minute = Math.floor(((offset % 86400) % 3600) / 60),
+    second = Math.floor(((offset % 86400) % 3600) % 60);
+  timeToNowDOM.innerHTML =
+    day + "天" + hour + "小时" + minute + "分钟" + second + "秒";
+  setTimeout(updateTimeStr, 500);
+}
+
+setTimeout(updateTimeStr, 500);
+</script>
+
+
+      <div class="back-to-top hidden">
+  <span>
+    <i class="iconfont icon-60"></i><span></span>%
+  </span>
+</div>
+
+<script>
+const updateIconToTop = percent => {
+  let dom = document.querySelector(".back-to-top span span");
+  dom.innerText = percent;
+  if(percent < 1) {
+    document.querySelector(".back-to-top").className = "back-to-top hidden";
+  } else {
+    document.querySelector(".back-to-top").className = "back-to-top";
+  }
+}
+
+const handleScoll = () => {
+  let isRunning = false;
+  return () => {
+    if (isRunning) return;
+    isRunning = true;
+    window.requestAnimationFrame(timestamp => {
+      let scrollTop =
+          document.documentElement.scrollTop || document.body.scrollTop,
+        scrollHeight =
+          document.documentElement.scrollHeight ||
+          document.body.scrollHeight,
+        clientHeight =
+          document.documentElement.clientHeight ||
+          document.body.clientHeight;
+      isRunning = false;
+      if (scrollTop <= 1) {
+        updateIconToTop(0);
+        return;
+      }
+      if (scrollTop + clientHeight >= scrollHeight) {
+        updateIconToTop(100);
+      } else {
+        updateIconToTop(parseInt(
+          100 * scrollTop / (scrollHeight - clientHeight),
+          10
+        ));
+      }
+    });
+  };
+}
+
+const backToTop = () => {
+  let scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop,
+    delay = 10,
+    time = 200;
+  if (scrollTop <= 20) {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    return;
+  }
+  let step = Math.ceil(scrollTop * delay / time);
+  let timer = setInterval(() => {
+    scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop;
+    if (scrollTop - step <= 0) {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      clearInterval(timer);
+    } else {
+      document.documentElement.scrollTop = scrollTop - step;
+      document.body.scrollTop = scrollTop - step;
+    }
+  }, delay);
+}
+
+document.addEventListener("scroll", handleScoll(), false);
+
+document.querySelector(".back-to-top").addEventListener("click", backToTop, false);
+
+</script>
+
+    </div>
+
+    
+      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  (() => {
+    const mathjaxConfig = {
+      showProcessingMessages: false, //关闭js加载过程信息
+      messageStyle: "none", //不显示信息
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]], //行内公式选择符
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]], //段内公式选择符
+        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"] //避开某些标签
+      },
+      "HTML-CSS": {
+        availableFonts: ["STIX", "TeX"], //可选字体
+        showMathMenu: false //关闭右击菜单显示
+      }
+    }
+
+    let mathjaxInterval = setInterval(() => {
+      if(!window.MathJax){
+        return;
+      }
+      window.MathJax.Hub.Config(mathjaxConfig)
+      window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')])
+
+      clearInterval(mathjaxInterval)
+    }, 10)    
+  })()
+</script>
+    
+
+    <script src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script>
+<script async>
+  let fancyTimer = setInterval(function(){
+    if(!window.$){
+      return;
+    }
+    $(document).ready(function() {
+      $(".post img").each(function () {
+        if($(this).parent().get(0).tagName.toLowerCase() === "a") {
+          return;
+        }
+        // $(this).attr("data-fancybox", "gallery"); // if you add 'data-fancybox', img will display after showed
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "gallery");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      });
+      
+      clearInterval(fancyTimer);
+    });
+  }, 10);
+</script>
+
+    
+  </body>
+
+</html>

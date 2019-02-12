@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta name="author" content="董沅鑫, yuanxin.me@gmail.com">
+  
+  
+  
+  <title>Python Flask 构建微电影网站 | 每天遇到更好的你</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="Python,flask,">
+  
+
+  <script>
+    console.log('\n%c Hexo-theme-bmw v4.0 ' + '%c 🎉 https://github.com/dongyuanxin/theme-bmw 🎉\n' + '\n%c View demo online ' + '%c 🔍 https://godbmw.com/ 🔍  \n' , 'color: #fadfa3; background: #030307; padding:3px 0;', '', 'color: #fadfa3; background: #030307; padding:3px 0;', '');
+  </script>
+
+  
+
+  
+
+  
+    <link rel="icon" href="/images/favicon.png">
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+  
+
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/icon/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+  <script src="/js/util.js"></script>
+<script src="/js/valine.min.js"></script>
+
+  
+
+  
+    <link href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js" async></script>
+  
+
+  
+    <link href="https://cdn.bootcss.com/social-share.js/1.0.16/css/share.min.css" rel="stylesheet">
+  
+  
+  <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js" async></script>
+  
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.0/dist/av-min.js"></script>
+  
+
+</head>
+
+  <body>
+
+    
+
+    <div id="app">
+
+      <div class="header-wrap">
+  <header>
+    <div class="site-brand">
+      <div class="site-title">
+        <!-- <a href="/">MatrixSparse</a> -->
+        <img alt="logo" class="antd-pro-layouts-user-layout-logo" src="/images/favicon.png" style="width: 40px;height: 40px;margin-top: 10px;margin-left: 5px;">
+      </div>
+    </div>
+    <nav class="site-navigation">
+      <ul class="nav-menu">
+      
+        <li class="nav-item" data-path="/">
+          
+            <a href="/" target="_self">
+              主页
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          
+            <a href="/archives/" target="_self">
+              归档
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          
+            <a href="/categories/" target="_self">
+              分类
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          
+            <a href="/tags/" target="_self">
+              标签
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="">
+          
+            <a href="javascript:void(0);" v-else="">博客地址</a>
+            <ul class="nav-menu--dropdown">
+              
+                <li>
+                  <a href="https://blog.csdn.net/qq_25371579" target="_blank">
+                    CSDN
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://github.com/matrixsparse" target="_blank">
+                    Github
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://matrixsparse.github.io/" target="_blank">
+                    Github Page
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+      </ul>
+    </nav>
+    <i class="iconfont icon-menu"></i>
+  </header>
+</div>
+
+<script>
+  let links = document.querySelectorAll('.nav-item');
+  for(let link of links){
+    let childrenLink = link.querySelector('ul');
+    link.addEventListener('mouseenter', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown active";
+      }
+    })
+    link.addEventListener('mouseleave', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown";
+      }
+    })
+  }
+  let rootRealPath = getRealPath(window.location.pathname, true);
+  for(let link of links) {
+    let linkPath = link.getAttribute("data-path");
+    if(linkPath && getRealPath(linkPath, true) === rootRealPath) {
+      link.className = "nav-item hover";
+    }
+  }
+
+  let iconMenu = document.querySelector("i.iconfont.icon-menu"),
+    iconMenuClicked = false;
+  let navDOM = document.querySelector("nav.site-navigation");
+  iconMenu.addEventListener("click", () => {
+    iconMenuClicked
+      ? navDOM.className = "site-navigation active"
+      : navDOM.className = "site-navigation";
+    iconMenuClicked = !iconMenuClicked;
+  })
+</script>
+
+
+      
+
+
+
+
+
+
+
+
+<div class="container post-index">
+
+  
+
+<div class="post">
+  <h1 class="article-title">
+    <span>Python Flask 构建微电影网站</span>
+  </h1>
+  <div class="article-top-meta">
+    <span>
+      发布 : 
+      2017-08-06
+    </span>
+    
+      <span>
+        分类 : 
+          <a href="/categories/Python/">
+            Python
+          </a>
+      </span>
+    
+    
+      <span>
+        浏览 : <span class="article-timer" data-identity="Python Flask 构建微电影网站"></span>
+      </span>
+    
+  </div>
+
+  
+
+  <div class="article-content">
+    <div class="markdown-body">
+      <h2 id="项目结构图"><a href="#项目结构图" class="headerlink" title="项目结构图"></a>项目结构图</h2><p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fi6x569m1bj21h014gafq.jpg" alt=""></p>
+<h3 id="前台"><a href="#前台" class="headerlink" title="前台"></a>前台</h3><ul>
+<li>数据模型：model.py</li>
+<li>表单处理：home/forms.py</li>
+<li>模板目录：templates/home</li>
+<li>静态目录：static</li>
+</ul>
+<h3 id="后台"><a href="#后台" class="headerlink" title="后台"></a>后台</h3><ul>
+<li>数据模型：model.py</li>
+<li>表单处理：admin/forms.py</li>
+<li>模板目录：templates/admin</li>
+<li>静态目录：static</li>
+</ul>
+<h3 id="前后台项目目录"><a href="#前后台项目目录" class="headerlink" title="前后台项目目录"></a>前后台项目目录</h3><ul>
+<li>manage.py # 入口启动脚本</li>
+<li>app # 项目app<ul>
+<li><strong>init</strong>.py # 初始化文件</li>
+<li>models.py # 数据模型文件</li>
+<li>static # 静态目录</li>
+<li>home # 前台模块<ul>
+<li><strong>init</strong>.py # 初始化脚本</li>
+<li>views.py # 视图处理文件</li>
+<li>forms.py # 表单处理文件</li>
+</ul>
+</li>
+<li>admin # 后台模块<ul>
+<li><strong>init</strong>.py # 初始化脚本</li>
+<li>views.py # 视图处理文件</li>
+<li>forms.py # 表单处理文件</li>
+</ul>
+</li>
+<li>templates # 模板目录<ul>
+<li>home/admin # 前台/后台模板</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="开发及生产环境"><a href="#开发及生产环境" class="headerlink" title="开发及生产环境"></a>开发及生产环境</h2><ul>
+<li>centos7</li>
+<li>python3</li>
+<li>mysql</li>
+<li>html5</li>
+<li>flask</li>
+<li>nginx</li>
+</ul>
+<h2 id="Python-Flask"><a href="#Python-Flask" class="headerlink" title="Python Flask"></a>Python Flask</h2><h3 id="国内使用Python开发Web的公司"><a href="#国内使用Python开发Web的公司" class="headerlink" title="国内使用Python开发Web的公司"></a>国内使用Python开发Web的公司</h3><ul>
+<li>果壳：Flask</li>
+<li>知乎：Tornado</li>
+<li>豆瓣：Quixote</li>
+</ul>
+<h3 id="Python-web框架对比"><a href="#Python-web框架对比" class="headerlink" title="Python web框架对比"></a>Python web框架对比</h3><table>
+<thead>
+<tr>
+<th style="text-align:center">Flask</th>
+<th style="text-align:center">Django</th>
+<th style="text-align:center">Tornado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">Flask拓展丰富，亢余度小，可自由选择组合各种插件，性能优越，相比其他web框架十分轻量级，其优雅的设计哲学易于学习掌握，小型项目快速开发，大型项目毫无压力。Flask灵活开发，Python高手基本都会喜欢Flask。</td>
+<td style="text-align:center">Django是重量级全栈型web框架，虽然功能其强大，但亢余度高，自带ORM和模板引擎，灵活和自动度不够高，开发小型项目时显得过于臃肿与庞大</td>
+<td style="text-align:center">Tornado是一个强大的、支持协程、高效并发且可拓展的Web服务器，发布于2009年9月，应用于FriendFeed、Facebook等社交网站，Tornado的强项在于可以利用它的异步协程机制开发高并发的服务器系统</td>
+</tr>
+</tbody>
+</table>
+<h3 id="Flask简介"><a href="#Flask简介" class="headerlink" title="Flask简介"></a>Flask简介</h3><ul>
+<li>轻量级Web应用框架</li>
+<li>WSGI工具箱采用Werkzeug</li>
+<li>模板引擎则使用Jinja2</li>
+<li>Flask使用BSD授权</li>
+</ul>
+<h3 id="安装虚拟环境"><a href="#安装虚拟环境" class="headerlink" title="安装虚拟环境"></a>安装虚拟环境</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sparsematrix:~ matrix$ sudo pip3 install virtualenv</span><br></pre></td></tr></table></figure>
+<h2 id="Virtualenv的使用及flask的安装"><a href="#Virtualenv的使用及flask的安装" class="headerlink" title="Virtualenv的使用及flask的安装"></a>Virtualenv的使用及flask的安装</h2><h3 id="virtualenv的使用"><a href="#virtualenv的使用" class="headerlink" title="virtualenv的使用"></a>virtualenv的使用</h3><blockquote>
+<p>创建虚拟环境</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sparsematrix:Desktop matrix$ virtualenv venv</span><br><span class="line">New python executable <span class="keyword">in</span> /Users/matrix/Desktop/venv/bin/python</span><br><span class="line">Installing setuptools, pip, wheel...done.</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>激活虚拟环境</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sparsematrix:Desktop matrix$ <span class="built_in">source</span> venv/bin/activate</span><br><span class="line">(venv) sparsematrix:Desktop matrix$ pip3 freeze</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>退出虚拟环境</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">deactivate</span><br></pre></td></tr></table></figure>
+<h3 id="Flask的安装"><a href="#Flask的安装" class="headerlink" title="Flask的安装"></a>Flask的安装</h3><blockquote>
+<p>安装前检测</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip3 freeze</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>安装flask</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(venv) sparsematrix:Desktop matrix$ pip3 install -i http://pypi.douban.com/simple/ flask</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>安装后检测</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip3 freeze</span><br></pre></td></tr></table></figure>
+<h3 id="Flask-Hello-World！"><a href="#Flask-Hello-World！" class="headerlink" title="Flask Hello World！"></a>Flask Hello World！</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"></span><br><span class="line">from flask import Flask</span><br><span class="line"></span><br><span class="line">app = Flask(__name__)</span><br><span class="line"></span><br><span class="line">@app.route(<span class="string">"/"</span>)</span><br><span class="line">def index():</span><br><span class="line">    <span class="built_in">return</span> <span class="string">"hello world!"</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</span><br><span class="line">    app.run()</span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fi7dk3wopgj21mo09gwgb.jpg" alt=""></p>
+<h2 id="蓝图构建项目目录"><a href="#蓝图构建项目目录" class="headerlink" title="蓝图构建项目目录"></a>蓝图构建项目目录</h2><h3 id="什么是蓝图"><a href="#什么是蓝图" class="headerlink" title="什么是蓝图"></a>什么是蓝图</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">一个应用中或跨应用制作应用软件和支持通用的模式</span><br></pre></td></tr></table></figure>
+<h3 id="蓝图的作用"><a href="#蓝图的作用" class="headerlink" title="蓝图的作用"></a>蓝图的作用</h3><ul>
+<li>将不同的功能模块化</li>
+<li>构建大型应用</li>
+<li>优化项目结构</li>
+<li>增强可读性，易于维护</li>
+</ul>
+<h3 id="蓝图构建项目目录-1"><a href="#蓝图构建项目目录-1" class="headerlink" title="蓝图构建项目目录"></a>蓝图构建项目目录</h3><blockquote>
+<p>定义蓝图(app/admin/<strong>init</strong>.py)</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="comment"># 初始化文件</span></span><br><span class="line"></span><br><span class="line">from flask import Blueprint</span><br><span class="line"></span><br><span class="line">admin = Blueprint(<span class="string">"admin"</span>,__name__)</span><br><span class="line"></span><br><span class="line">import app.admin.views</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>定义蓝图(app/home/<strong>init</strong>.py)</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="comment"># 初始化文件</span></span><br><span class="line"></span><br><span class="line">from flask import Blueprint</span><br><span class="line"></span><br><span class="line">home = Blueprint(<span class="string">"home"</span>,__name__)</span><br><span class="line"></span><br><span class="line">import app.home.views</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>注册蓝图(app/<strong>init</strong>.py)</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"></span><br><span class="line">from flask import Flask</span><br><span class="line"></span><br><span class="line">app = Flask(__name__)</span><br><span class="line"></span><br><span class="line">app.debug = True</span><br><span class="line"></span><br><span class="line"><span class="comment"># 导入蓝图对象</span></span><br><span class="line">from app.home import home as home_blueprint</span><br><span class="line">from app.admin import admin as admin_blueprint</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 注册蓝图</span></span><br><span class="line">app.register_blueprint(home_blueprint)</span><br><span class="line">app.register_blueprint(admin_blueprint,url_prefix = <span class="string">"/admin"</span>)</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>视图文件(app/home/views.py)</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="comment"># 视图文件</span></span><br><span class="line"></span><br><span class="line">from . import home</span><br><span class="line"></span><br><span class="line">@home.route(<span class="string">"/"</span>)</span><br><span class="line">def index():</span><br><span class="line">    <span class="built_in">return</span> <span class="string">"&lt;h1 style='color:#369'&gt;this is home&lt;/h1&gt;"</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>视图文件(app/admin/views.py)</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="comment"># 视图文件</span></span><br><span class="line"></span><br><span class="line">from . import admin</span><br><span class="line"></span><br><span class="line">@admin.route(<span class="string">"/"</span>)</span><br><span class="line">def index():</span><br><span class="line">    <span class="built_in">return</span> <span class="string">"&lt;h1 style='color:#666'&gt;this is home&lt;/h1&gt;"</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>入口文件(manage.py)</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="comment"># 入口文件</span></span><br><span class="line"></span><br><span class="line">from app import app</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</span><br><span class="line">    app.run()</span><br></pre></td></tr></table></figure>
+<h2 id="会员及会员登录日志数据模型设计"><a href="#会员及会员登录日志数据模型设计" class="headerlink" title="会员及会员登录日志数据模型设计"></a>会员及会员登录日志数据模型设计</h2><h3 id="安装数据库连接依赖包"><a href="#安装数据库连接依赖包" class="headerlink" title="安装数据库连接依赖包"></a>安装数据库连接依赖包</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sparsematrix:~ matrix$ sudo pip3 install flask-sqlalchemy</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>连接mysql数据库</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sparsematrix:~ matrix$ mysql -uroot -p123456</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>查看数据库信息</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; \s</span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fi8nbkl89qj21d80xi7i7.jpg" alt=""></p>
+<blockquote>
+<p>创建数据库</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; create database Movie;</span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fi8nbkagrnj21da04g0ug.jpg" alt=""></p>
+<h3 id="定义mysql数据库连接"><a href="#定义mysql数据库连接" class="headerlink" title="定义mysql数据库连接"></a>定义mysql数据库连接</h3><h3 id="定义会员数据模型"><a href="#定义会员数据模型" class="headerlink" title="定义会员数据模型"></a>定义会员数据模型</h3><blockquote>
+<p>models.py</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"></span><br><span class="line">from flask import Flask</span><br><span class="line">from flask_sqlalchemy import SQLAlchemy</span><br><span class="line">from datetime import datetime</span><br><span class="line">import pymysql</span><br><span class="line"></span><br><span class="line">app = Flask(__name__)</span><br><span class="line">app.config[<span class="string">"SQLALCHEMY_DATABASE_URI"</span>] = <span class="string">"mysql+pymysql://root:123456@127.0.0.1:8889/movie"</span></span><br><span class="line">app.config[<span class="string">"SQLALCHEMY_TRACK_MODIFICATIONS"</span>] = True</span><br><span class="line"></span><br><span class="line">db = SQLAlchemy(app)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 会员</span></span><br><span class="line">class User(db.Model):</span><br><span class="line">    __tablename__ = <span class="string">"user"</span></span><br><span class="line">    id = db.Column(db.Integer, primary_key=True)  <span class="comment"># 编号</span></span><br><span class="line">    name = db.Column(db.String(100), unique=True)  <span class="comment"># 昵称</span></span><br><span class="line">    <span class="built_in">pwd</span> = db.Column(db.String(100))  <span class="comment"># 密码</span></span><br><span class="line">    email = db.Column(db.String(100), unique=True)  <span class="comment"># 邮箱</span></span><br><span class="line">    phone = db.Column(db.String(11), unique=True)  <span class="comment"># 手机号码</span></span><br><span class="line">    info = db.Column(db.Text)  <span class="comment"># 个性简介</span></span><br><span class="line">    face = db.Column(db.String(255), unique=True)  <span class="comment"># 头像</span></span><br><span class="line">    addtime = db.Column(db.DateTime, index=True, default=datetime.utcnow)  <span class="comment"># 注册时间</span></span><br><span class="line">    uuid = db.Column(db.String(255))  <span class="comment"># 唯一标志符</span></span><br><span class="line">    userlogs = db.relationship(<span class="string">'Userlog'</span>, backref=<span class="string">'user'</span>)  <span class="comment"># 会员日志外键关系关联</span></span><br><span class="line">    comments = db.relationship(<span class="string">'Comment'</span>, backref=<span class="string">'user'</span>)  <span class="comment"># 评论外键关联</span></span><br><span class="line">    moviecols = db.relationship(<span class="string">'Moviecol'</span>, backref=<span class="string">'user'</span>)  <span class="comment"># 电影收藏外键关系关联</span></span><br><span class="line"></span><br><span class="line">    def __repr__(self):</span><br><span class="line">        <span class="built_in">return</span> <span class="string">"&lt;User %r&gt;"</span> % self.name</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 会员登录日志</span></span><br><span class="line">class Userlog(db.Model):</span><br><span class="line">    __tablename__ = <span class="string">"userlog"</span></span><br><span class="line">    id = db.Column(db.Integer, primary_key=True)  <span class="comment"># 编号</span></span><br><span class="line">    user_id = db.Column(db.Integer, db.ForeignKey(<span class="string">'user.id'</span>))  <span class="comment"># 所属会员</span></span><br><span class="line">    ip = db.Column(db.String(100))  <span class="comment"># 登录</span></span><br><span class="line">    addtime = db.Column(db.DateTime, index=True, default=datetime.utcnow)  <span class="comment"># 最近登录时间</span></span><br><span class="line"></span><br><span class="line">    def __repr__(self):</span><br><span class="line">        <span class="built_in">return</span> <span class="string">"&lt;Userlog %r&gt;"</span> % self.id</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 标签</span></span><br><span class="line">class Tag(db.Model):</span><br><span class="line">    __tablename = <span class="string">"tag"</span></span><br><span class="line">    id = db.Column(db.Integer, primary_key=True)  <span class="comment"># 编号</span></span><br><span class="line">    name = db.Column(db.String(100), unique=True)  <span class="comment"># 标题</span></span><br><span class="line">    addtime = db.Column(db.DateTime, index=True, default=datetime.utcnow)  <span class="comment"># 添加时间</span></span><br><span class="line">    movie = db.relationship(<span class="string">"Movie"</span>, backref=<span class="string">"tag"</span>)  <span class="comment"># 电影外键关系关联</span></span><br><span class="line"></span><br><span class="line">    def __repr__(self):</span><br><span class="line">        <span class="built_in">return</span> <span class="string">"&lt;Tag %r&gt;"</span> % self.name</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 电影</span></span><br><span class="line">class Movie(db.Model):</span><br><span class="line">    __tablename__ = <span class="string">"movie"</span></span><br><span class="line">    id = db.Column(db.Integer, primary_key=True)  <span class="comment"># 编号</span></span><br><span class="line">    title = db.Column(db.String(255), unique=True)  <span class="comment"># 标题</span></span><br><span class="line">    url = db.Column(db.String(255), unique=True)  <span class="comment"># 地址</span></span><br><span class="line">    info = db.Column(db.Text)  <span class="comment"># 简介</span></span><br><span class="line">    logo = db.Column(db.String(255), unique=True)  <span class="comment"># 封面</span></span><br><span class="line">    star = db.Column(db.SmallInteger)  <span class="comment"># 星级</span></span><br><span class="line">    playnum = db.Column(db.BigInteger)  <span class="comment"># 播放量</span></span><br><span class="line">    commentnum = db.Column(db.BigInteger)  <span class="comment"># 评论量</span></span><br><span class="line">    tag_id = db.Column(db.Integer, db.ForeignKey(<span class="string">'tag.id'</span>))  <span class="comment"># 所属标签</span></span><br><span class="line">    area = db.Column(db.String(255))  <span class="comment"># 上映地区</span></span><br><span class="line">    release_time = db.Column(db.String(255))  <span class="comment"># 上映时间</span></span><br><span class="line">    length = db.Column(db.String(100))  <span class="comment"># 播放时间</span></span><br><span class="line">    addtime = db.Column(db.DateTime, index=True, default=datetime.utcnow)  <span class="comment"># 添加时间</span></span><br><span class="line">    comments = db.relationship(<span class="string">"Comment"</span>, backref=<span class="string">"movie"</span>)  <span class="comment"># 评论外键关系关联</span></span><br><span class="line">    moviecols = db.relationship(<span class="string">'Moviecol'</span>, backref=<span class="string">"movie"</span>)  <span class="comment"># 电影收藏外键关系关联</span></span><br><span class="line"></span><br><span class="line">    def __repr__(self):</span><br><span class="line">        <span class="built_in">return</span> <span class="string">"&lt;Movie %r&gt;"</span> % self.title</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 上映预告</span></span><br><span class="line">class Preview(db.Model):</span><br><span class="line">    __tablename__ = <span class="string">"preview"</span></span><br><span class="line">    id = db.Column(db.Integer, primary_key=True)  <span class="comment"># 编号</span></span><br><span class="line">    title = db.Column(db.String(255), unique=True)  <span class="comment"># 标题</span></span><br><span class="line">    logo = db.Column(db.String(255), unique=True)  <span class="comment"># 封面</span></span><br><span class="line">    addtime = db.Column(db.DateTime, index=True, default=datetime.utcnow)  <span class="comment"># 添加时间</span></span><br><span class="line"></span><br><span class="line">    def __repr__(self):</span><br><span class="line">        <span class="built_in">return</span> <span class="string">"&lt;Preview %r&gt;"</span> % self.title</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 评论</span></span><br><span class="line">class Comment(db.Model):</span><br><span class="line">    id = db.Column(db.Integer, primary_key=True)  <span class="comment"># 编号</span></span><br><span class="line">    content = db.Column(db.Text)  <span class="comment"># 内容</span></span><br><span class="line">    movie_id = db.Column(db.Integer, db.ForeignKey(<span class="string">'movie.id'</span>))  <span class="comment"># 所属电影</span></span><br><span class="line">    user_id = db.Column(db.Integer, db.ForeignKey(<span class="string">'user.id'</span>))  <span class="comment"># 所属用户</span></span><br><span class="line">    addtime = db.Column(db.DateTime, index=True, default=datetime.utcnow)  <span class="comment"># 添加评论</span></span><br><span class="line"></span><br><span class="line">    def __repr__(self):</span><br><span class="line">        <span class="built_in">return</span> <span class="string">"&lt;Comment %r&gt;"</span> % self.id</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 电影收藏</span></span><br><span class="line">class Moviecol(db.Model):</span><br><span class="line">    __tablename__ = <span class="string">"moviecol"</span></span><br><span class="line">    id = db.Column(db.Integer, primary_key=True)  <span class="comment"># 编号</span></span><br><span class="line">    content = db.Column(db.Text)  <span class="comment"># 内容</span></span><br><span class="line">    movie_id = db.Column(db.Integer, db.ForeignKey(<span class="string">'movie.id'</span>))  <span class="comment"># 所属电影</span></span><br><span class="line">    user_id = db.Column(db.Integer, db.ForeignKey(<span class="string">"user.id"</span>))  <span class="comment"># 所属用户</span></span><br><span class="line">    addtime = db.Column(db.DateTime, index=True, default=datetime.utcnow)  <span class="comment"># 添加时间</span></span><br><span class="line"></span><br><span class="line">    def __repr__(self):</span><br><span class="line">        <span class="built_in">return</span> <span class="string">"&lt;Moviecol %r&gt;"</span> % self.id</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 权限</span></span><br><span class="line">class Auth(db.Model):</span><br><span class="line">    __tablename__ = <span class="string">"auth"</span></span><br><span class="line">    id = db.Column(db.Integer, primary_key=True)  <span class="comment"># 编号</span></span><br><span class="line">    name = db.Column(db.String(100), unique=True)  <span class="comment"># 名称</span></span><br><span class="line">    url = db.Column(db.String(255), unique=True)  <span class="comment"># 唯一地址</span></span><br><span class="line">    addtime = db.Column(db.DateTime, index=True, default=datetime.utcnow)  <span class="comment"># 添加时间</span></span><br><span class="line"></span><br><span class="line">    def __repr__(self):</span><br><span class="line">        <span class="built_in">return</span> <span class="string">"&lt;Auth %r&gt;"</span> % self.name</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 角色</span></span><br><span class="line">class Role(db.Model):</span><br><span class="line">    __tablename__ = <span class="string">"role"</span></span><br><span class="line">    id = db.Column(db.Integer, primary_key=True)  <span class="comment"># 编号</span></span><br><span class="line">    name = db.Column(db.String(100), unique=True)  <span class="comment"># 名称</span></span><br><span class="line">    auths = db.Column(db.String(200))  <span class="comment"># 权限</span></span><br><span class="line">    addtime = db.Column(db.DateTime, index=True, default=datetime.utcnow)  <span class="comment"># 添加时间</span></span><br><span class="line">    admin = db.relationship(<span class="string">"Admin"</span>, backref=<span class="string">"role"</span>)  <span class="comment"># 管理员外键关系关联</span></span><br><span class="line"></span><br><span class="line">    def __repr__(self):</span><br><span class="line">        <span class="built_in">return</span> <span class="string">"&lt;Role %r&gt;"</span> % self.name</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 管理员</span></span><br><span class="line">class Admin(db.Model):</span><br><span class="line">    __tablename__ = <span class="string">"admin"</span></span><br><span class="line">    id = db.Column(db.Integer, primary_key=True)  <span class="comment"># 编号</span></span><br><span class="line">    name = db.Column(db.String(100), unique=True)  <span class="comment"># 名称</span></span><br><span class="line">    <span class="built_in">pwd</span> = db.Column(db.String(100))  <span class="comment"># 密码</span></span><br><span class="line">    is_super = db.Column(db.SmallInteger)  <span class="comment"># 是否是超级管理员，0为超级管理员</span></span><br><span class="line">    role_id = db.Column(db.Integer, db.ForeignKey(<span class="string">'role.id'</span>))  <span class="comment"># 所属角色</span></span><br><span class="line">    addtime = db.Column(db.DateTime, index=True, default=datetime.utcnow)  <span class="comment"># 添加时间</span></span><br><span class="line">    adminlogs = db.relationship(<span class="string">"Adminlog"</span>, backref=<span class="string">"admin"</span>)  <span class="comment"># 管理员登录日志外键关联</span></span><br><span class="line">    oplogs = db.relationship(<span class="string">"Oplog"</span>, backref=<span class="string">"admin"</span>)  <span class="comment"># 管理员操作日志外键关联</span></span><br><span class="line"></span><br><span class="line">    def __repr__(self):</span><br><span class="line">        <span class="built_in">return</span> <span class="string">"&lt;Admin %r&gt;"</span> % self.name</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 管理员登录日志</span></span><br><span class="line">class Adminlog(db.Model):</span><br><span class="line">    __tablename__ = <span class="string">"adminlog"</span></span><br><span class="line">    id = db.Column(db.Integer, primary_key=True)  <span class="comment"># 编号</span></span><br><span class="line">    admin_id = db.Column(db.Integer, db.ForeignKey(<span class="string">'admin.id'</span>))  <span class="comment"># 所属管理员</span></span><br><span class="line">    ip = db.Column(db.String(100))  <span class="comment"># 登录IP</span></span><br><span class="line">    addtime = db.Column(db.DateTime, index=True, default=datetime.utcnow)  <span class="comment"># 登录时间</span></span><br><span class="line"></span><br><span class="line">    def __repr__(self):</span><br><span class="line">        <span class="built_in">return</span> <span class="string">"&lt;Adminlog %r&gt;"</span> % self.id</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 操作日志</span></span><br><span class="line">class Oplog(db.Model):</span><br><span class="line">    __tablename__ = <span class="string">"oplog"</span></span><br><span class="line">    id = db.Column(db.Integer, primary_key=True)  <span class="comment"># 编号</span></span><br><span class="line">    admin_id = db.Column(db.Integer, db.ForeignKey(<span class="string">'admin.id'</span>))  <span class="comment"># 所属管理员</span></span><br><span class="line">    ip = db.Column(db.String(100))  <span class="comment"># 登录IP</span></span><br><span class="line">    reason = db.Column(db.String(100))  <span class="comment"># 原因</span></span><br><span class="line">    addtime = db.Column(db.DateTime, index=True, default=datetime.utcnow)  <span class="comment"># 添加时间</span></span><br><span class="line"></span><br><span class="line">    def __repr__(self):</span><br><span class="line">        <span class="built_in">return</span> <span class="string">"&lt;Oplog %r&gt;"</span> % self.id</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</span><br><span class="line">    <span class="comment"># 将模型导入数据表</span></span><br><span class="line">    <span class="comment"># db.create_all()</span></span><br><span class="line">    <span class="comment"># 插入数据</span></span><br><span class="line">    role = Role(</span><br><span class="line">        name=<span class="string">"超级管理员"</span>,</span><br><span class="line">        auths=<span class="string">""</span></span><br><span class="line">    )</span><br><span class="line">    db.session.add(role)</span><br><span class="line">    db.session.commit()</span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fi9u7m63i7j21d60c8wmc.jpg" alt=""></p>
+<blockquote>
+<p>进入数据库查看表是否创建成功</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; use Movie;</span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fi9udhnljhj21d802odgp.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show tables;</span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fi9udhsvzjj21dg0pe7b2.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; desc admin</span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fi9ulfahrdj21d60h6tge.jpg" alt=""></p>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fif752833xj21d20a2q6c.jpg" alt=""></p>
+<p>SET character_set_server=utf8,character_set_connection=utf8, character_set_results=utf8, character_set_client=utf8;</p>
+<p>mysql&gt; flush privileges;</p>
+<h2 id="前台布局搭建"><a href="#前台布局搭建" class="headerlink" title="前台布局搭建"></a>前台布局搭建</h2><h3 id="静态文件引入"><a href="#静态文件引入" class="headerlink" title="静态文件引入"></a>静态文件引入</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123;url_for(<span class="string">'static'</span>,filename=<span class="string">'文件路径'</span>)]&#125;&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="定义路由"><a href="#定义路由" class="headerlink" title="定义路由"></a>定义路由</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123;url_for(<span class="string">'模块名.视图名'</span>,变量=参数)&#125;&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="定义数据块"><a href="#定义数据块" class="headerlink" title="定义数据块"></a>定义数据块</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;% block 数据块名称 %&#125;...&#123;% endblock %&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sparsematrix:~ matrix$ sudo pip3 install flask_wtf</span><br></pre></td></tr></table></figure>
+<h3 id="生成唯一标识"><a href="#生成唯一标识" class="headerlink" title="生成唯一标识"></a>生成唯一标识</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">sparsematrix:~ matrix$ python3</span><br><span class="line">Python 3.6.1 (default, Apr  4 2017, 09:40:21)</span><br><span class="line">[GCC 4.2.1 Compatible Apple LLVM 8.1.0 (clang-802.0.38)] on darwin</span><br><span class="line">Type &quot;help&quot;, &quot;copyright&quot;, &quot;credits&quot; or &quot;license&quot; for more information.</span><br><span class="line">&gt;&gt;&gt; import uuid</span><br><span class="line">&gt;&gt;&gt; uuid.uuid4().hex</span><br><span class="line">&apos;6b1193db99e042508923b35a0358460f&apos;</span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fiql27wgjkj21m409s0yr.jpg" alt=""></p>
+
+    </div>
+  </div>
+  
+    <div class="copy-right">
+      <div class="markdown-body">
+        <blockquote>
+        
+        
+          本文作者 : Matrix <br>
+        
+        原文链接 : <a href="">http://yoursite.com/2017/08/06/Python Flask 构建微电影网站/</a><br>
+        版权声明 : 本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+        </blockquote>
+      </div>
+    </div>
+  
+  
+  
+    <div class="social-share" style="margin-top: -2rem" data-wechat-qrcode-title="<p>微信扫一扫</p>" data-wechat-qrcode-helper="<p>微信右上角, 扫一扫分享</p>" data-sites="qzone, qq, weibo, wechat, douban, google, facebook, twitter">
+  <span style="color: #6b7487; font-size: 1.4rem;">分享到: </span>
+</div>
+<script src="https://cdn.bootcss.com/social-share.js/1.0.16/js/social-share.min.js" async></script>
+  
+
+  
+    <div id="reward">
+  
+    <p id="reward-meta">知识 & 情怀 | 二者兼得</p>
+  
+  <button id="reward-btn">
+    
+    <span>投食</span>
+  </button>
+  <div id="reward-qrcode">
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/wechatpay.jpg" alt="微信扫一扫, 向我投食">
+        <p class="qrcode-meta">微信扫一扫, 向我投食</p>
+      </div>
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/alipaypay.jpg" alt="支付宝扫一扫, 向我投食">
+        <p class="qrcode-meta">支付宝扫一扫, 向我投食</p>
+      </div>
+    
+  </div>
+
+</div>
+
+<script>
+  (() => {
+    let button = document.querySelector('#reward-btn'),
+      qrcode = document.querySelector('#reward-qrcode'),
+      display = false;
+    
+    button.addEventListener('click', () => {
+      qrcode.style.display = display ? 'none' : 'block'
+      display = !display
+    }, false)
+  })()
+</script>
+  
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+      <span>
+        
+          <i class="iconfont icon-06tags"></i>标签: 
+          
+          <span class="span--tag">
+            <a href="/tags/flask/">
+              #flask
+            </a>
+          </span>
+          
+        
+      </span>
+    </div>
+    <div class="article-meta pull-right">
+    </div>
+  </div>
+</div>
+
+
+  <aside id="sidebar">
+    <p id="sidebar-header"></p>
+    <ol id="sidebar-toc"></ol>
+  </aside>
+  <script async>setTimeout(generateToc, 10);</script>
+
+
+  <nav class="post-navigation">
+    
+      <div class="nav-pre">
+        <i class="iconfont icon-prev"></i>
+        上一篇:
+        <a href="/2017/08/02/Python自动化运维/" target="_self">Python自动化运维</a>
+      </div>
+    
+    
+      <div class="nav-next">
+        下一篇:
+        <a href="/2017/08/10/Python Tornado基本概念/" target="_self">Python Tornado基本概念</a>
+        <i class="iconfont icon-next"></i>
+      </div>
+    
+  </nav>
+
+  
+    <a href="#comment" class="comment-anchor"></a>
+<div class="comment-title"><i class="iconfont icon-footprint"></i> 留下足迹 <i class="iconfont icon-footprint"></i></div>
+<div id="vcomments"></div>
+
+<script defer>
+  if( true ) {
+    let path = getRealPath()
+    new Valine({
+      el: "#vcomments",
+      appId: "Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz",
+      appKey: "WaR7nrzhliHj9aVwdQzkdlGd",
+      notify: false,
+      verify: false,
+      avatar: "robohash",
+      placeholder: "正确填写邮箱, 才能及时收到回复哦♪(^∇^*)",
+      path
+    });
+  }
+</script>
+   
+
+  
+    <script defer>
+const valineAPI = (() => {
+  try {
+    AV.init("Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz", "WaR7nrzhliHj9aVwdQzkdlGd");
+  } catch(error) {}
+  const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+      query.equalTo("identity", identity);
+      query.find().then(results => {
+        resolve(results.length > 0);
+      }, error => reject(error));
+    })
+  }
+
+  const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+      let querys = [];
+      for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+      }
+      query = AV.Query.or.apply(null ,querys);
+    } else {
+      identity = identity || getRealPath();
+      query = new AV.Query("Timer");
+      query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+      query.find()
+      .then(results => resolve(results))
+      .catch(error => reject(error))
+    })
+  }
+
+  const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let Todo = AV.Object.extend('Timer');
+      let todo = new Todo();
+      todo.set("times", 1);
+      todo.set("identity", identity);
+      todo.save().then(res => resolve(true), error => reject(error));
+    })
+  }
+
+  const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let query = new AV.Query('Timer');
+      query.equalTo("identity", identity);
+      query.find().then(todos => {
+        todos.forEach(todo => {
+          todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+      }).then(todos => resolve(true), error => reject(error));
+    })
+  }
+
+  return {
+    isExist,
+    _get,
+    update,
+    create
+  }
+})()
+
+const calcAndWriteTimes = () => {
+  let isPost = true;
+
+  let timerAllDOM = document.querySelectorAll(".article-timer");
+
+  if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+      if(exist) {
+        return valineAPI.update(identity);
+      }
+      return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+  }
+
+  let timerDOMCache = {};
+
+  for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+      timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+      timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+      };
+    }
+  }
+
+  let identities = Object.keys(timerDOMCache);
+  valineAPI._get(identities).then(results => {
+    for(let result of results) {
+      let {identity, times} = result.attributes;
+      timerDOMCache[identity].times = times;
+      timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+      if(timerDOMCache[identity].times){
+        continue;
+      }
+      timerDOMCache[identity].dom.map(item => item.innerText = 1);
+      valineAPI.create(identity);
+    }
+  }).catch(error => console.log(error.message))
+}
+
+if(true){
+  calcAndWriteTimes();
+}
+</script>
+   
+
+</div>
+
+
+      <footer>
+  <p class="site-info">
+    博客已萌萌哒运行<span id="time-to-now"></span><span class="my-face">(●'◡'●)ﾉ♥</span>
+    <br>
+    Theme - <a href="https://github.com/dongyuanxin/theme-bmw">BMW</a> | Powered by <a href="https://godbmw.com/">GodBMW</a>
+    <br>
+    
+      Copyright © 2019 Matrix
+    
+  </p>
+</footer>
+
+
+
+<script>
+const timeToNowDOM = document.querySelector("#time-to-now");
+const startTimestamp = new Date(2016, 4, 10).getTime();
+
+const updateTimeStr = () => {
+  let offset = parseInt(
+      (new Date().getTime() - startTimestamp) / 1000,
+      10
+    ),
+    day = Math.floor(offset / 86400),
+    hour = Math.floor((offset % 86400) / 3600),
+    minute = Math.floor(((offset % 86400) % 3600) / 60),
+    second = Math.floor(((offset % 86400) % 3600) % 60);
+  timeToNowDOM.innerHTML =
+    day + "天" + hour + "小时" + minute + "分钟" + second + "秒";
+  setTimeout(updateTimeStr, 500);
+}
+
+setTimeout(updateTimeStr, 500);
+</script>
+
+
+      <div class="back-to-top hidden">
+  <span>
+    <i class="iconfont icon-60"></i><span></span>%
+  </span>
+</div>
+
+<script>
+const updateIconToTop = percent => {
+  let dom = document.querySelector(".back-to-top span span");
+  dom.innerText = percent;
+  if(percent < 1) {
+    document.querySelector(".back-to-top").className = "back-to-top hidden";
+  } else {
+    document.querySelector(".back-to-top").className = "back-to-top";
+  }
+}
+
+const handleScoll = () => {
+  let isRunning = false;
+  return () => {
+    if (isRunning) return;
+    isRunning = true;
+    window.requestAnimationFrame(timestamp => {
+      let scrollTop =
+          document.documentElement.scrollTop || document.body.scrollTop,
+        scrollHeight =
+          document.documentElement.scrollHeight ||
+          document.body.scrollHeight,
+        clientHeight =
+          document.documentElement.clientHeight ||
+          document.body.clientHeight;
+      isRunning = false;
+      if (scrollTop <= 1) {
+        updateIconToTop(0);
+        return;
+      }
+      if (scrollTop + clientHeight >= scrollHeight) {
+        updateIconToTop(100);
+      } else {
+        updateIconToTop(parseInt(
+          100 * scrollTop / (scrollHeight - clientHeight),
+          10
+        ));
+      }
+    });
+  };
+}
+
+const backToTop = () => {
+  let scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop,
+    delay = 10,
+    time = 200;
+  if (scrollTop <= 20) {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    return;
+  }
+  let step = Math.ceil(scrollTop * delay / time);
+  let timer = setInterval(() => {
+    scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop;
+    if (scrollTop - step <= 0) {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      clearInterval(timer);
+    } else {
+      document.documentElement.scrollTop = scrollTop - step;
+      document.body.scrollTop = scrollTop - step;
+    }
+  }, delay);
+}
+
+document.addEventListener("scroll", handleScoll(), false);
+
+document.querySelector(".back-to-top").addEventListener("click", backToTop, false);
+
+</script>
+
+    </div>
+
+    
+      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  (() => {
+    const mathjaxConfig = {
+      showProcessingMessages: false, //关闭js加载过程信息
+      messageStyle: "none", //不显示信息
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]], //行内公式选择符
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]], //段内公式选择符
+        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"] //避开某些标签
+      },
+      "HTML-CSS": {
+        availableFonts: ["STIX", "TeX"], //可选字体
+        showMathMenu: false //关闭右击菜单显示
+      }
+    }
+
+    let mathjaxInterval = setInterval(() => {
+      if(!window.MathJax){
+        return;
+      }
+      window.MathJax.Hub.Config(mathjaxConfig)
+      window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')])
+
+      clearInterval(mathjaxInterval)
+    }, 10)    
+  })()
+</script>
+    
+
+    <script src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script>
+<script async>
+  let fancyTimer = setInterval(function(){
+    if(!window.$){
+      return;
+    }
+    $(document).ready(function() {
+      $(".post img").each(function () {
+        if($(this).parent().get(0).tagName.toLowerCase() === "a") {
+          return;
+        }
+        // $(this).attr("data-fancybox", "gallery"); // if you add 'data-fancybox', img will display after showed
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "gallery");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      });
+      
+      clearInterval(fancyTimer);
+    });
+  }, 10);
+</script>
+
+    
+  </body>
+
+</html>

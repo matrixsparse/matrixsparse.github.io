@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta name="author" content="董沅鑫, yuanxin.me@gmail.com">
+  
+  
+  
+  <title>CDH安装与测试 | 每天遇到更好的你</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="大数据,大数据,">
+  
+
+  <script>
+    console.log('\n%c Hexo-theme-bmw v4.0 ' + '%c 🎉 https://github.com/dongyuanxin/theme-bmw 🎉\n' + '\n%c View demo online ' + '%c 🔍 https://godbmw.com/ 🔍  \n' , 'color: #fadfa3; background: #030307; padding:3px 0;', '', 'color: #fadfa3; background: #030307; padding:3px 0;', '');
+  </script>
+
+  
+
+  
+
+  
+    <link rel="icon" href="/images/favicon.png">
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+  
+
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/icon/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+  <script src="/js/util.js"></script>
+<script src="/js/valine.min.js"></script>
+
+  
+
+  
+    <link href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js" async></script>
+  
+
+  
+    <link href="https://cdn.bootcss.com/social-share.js/1.0.16/css/share.min.css" rel="stylesheet">
+  
+  
+  <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js" async></script>
+  
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.0/dist/av-min.js"></script>
+  
+
+</head>
+
+  <body>
+
+    
+
+    <div id="app">
+
+      <div class="header-wrap">
+  <header>
+    <div class="site-brand">
+      <div class="site-title">
+        <!-- <a href="/">MatrixSparse</a> -->
+        <img alt="logo" class="antd-pro-layouts-user-layout-logo" src="/images/favicon.png" style="width: 40px;height: 40px;margin-top: 10px;margin-left: 5px;">
+      </div>
+    </div>
+    <nav class="site-navigation">
+      <ul class="nav-menu">
+      
+        <li class="nav-item" data-path="/">
+          
+            <a href="/" target="_self">
+              主页
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          
+            <a href="/archives/" target="_self">
+              归档
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          
+            <a href="/categories/" target="_self">
+              分类
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          
+            <a href="/tags/" target="_self">
+              标签
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="">
+          
+            <a href="javascript:void(0);" v-else="">博客地址</a>
+            <ul class="nav-menu--dropdown">
+              
+                <li>
+                  <a href="https://blog.csdn.net/qq_25371579" target="_blank">
+                    CSDN
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://github.com/matrixsparse" target="_blank">
+                    Github
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://matrixsparse.github.io/" target="_blank">
+                    Github Page
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+      </ul>
+    </nav>
+    <i class="iconfont icon-menu"></i>
+  </header>
+</div>
+
+<script>
+  let links = document.querySelectorAll('.nav-item');
+  for(let link of links){
+    let childrenLink = link.querySelector('ul');
+    link.addEventListener('mouseenter', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown active";
+      }
+    })
+    link.addEventListener('mouseleave', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown";
+      }
+    })
+  }
+  let rootRealPath = getRealPath(window.location.pathname, true);
+  for(let link of links) {
+    let linkPath = link.getAttribute("data-path");
+    if(linkPath && getRealPath(linkPath, true) === rootRealPath) {
+      link.className = "nav-item hover";
+    }
+  }
+
+  let iconMenu = document.querySelector("i.iconfont.icon-menu"),
+    iconMenuClicked = false;
+  let navDOM = document.querySelector("nav.site-navigation");
+  iconMenu.addEventListener("click", () => {
+    iconMenuClicked
+      ? navDOM.className = "site-navigation active"
+      : navDOM.className = "site-navigation";
+    iconMenuClicked = !iconMenuClicked;
+  })
+</script>
+
+
+      
+
+
+
+
+
+
+
+
+<div class="container post-index">
+
+  
+
+<div class="post">
+  <h1 class="article-title">
+    <span>CDH安装与测试</span>
+  </h1>
+  <div class="article-top-meta">
+    <span>
+      发布 : 
+      2016-02-12
+    </span>
+    
+      <span>
+        分类 : 
+          <a href="/categories/大数据/">
+            大数据
+          </a>
+      </span>
+    
+    
+      <span>
+        浏览 : <span class="article-timer" data-identity="cdh安装与测试"></span>
+      </span>
+    
+  </div>
+
+  
+
+  <div class="article-content">
+    <div class="markdown-body">
+      <h2 id="CDH安装方式"><a href="#CDH安装方式" class="headerlink" title="CDH安装方式"></a>CDH安装方式</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Cloudera Manager</span><br><span class="line">Yum</span><br><span class="line">Rpm</span><br><span class="line">Tarball</span><br></pre></td></tr></table></figure>
+<h2 id="Cloudera-Manager"><a href="#Cloudera-Manager" class="headerlink" title="Cloudera Manager"></a>Cloudera Manager</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Cloudera Manager是一个管理CDH的端到端的应用</span><br><span class="line">作用：</span><br><span class="line">管理</span><br><span class="line">监控</span><br><span class="line">诊断</span><br><span class="line">集成</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-6/51755947.jpg" alt=""></p>
+<h2 id="架构"><a href="#架构" class="headerlink" title="架构"></a>架构</h2><p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-6/51755947.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">Server</span><br><span class="line">管理控制台服务器和应用程序逻辑</span><br><span class="line">负责软件安装. 配置</span><br><span class="line">启动和停止服务</span><br><span class="line">管理服务运行的群集</span><br><span class="line"></span><br><span class="line">Agent</span><br><span class="line">安装在每台主机上</span><br><span class="line">负责启动和停止进程，配置，监控主机</span><br><span class="line"></span><br><span class="line">Management Service</span><br><span class="line">由一组角色组成的服务，执行各种监视.报警和报告功能</span><br><span class="line"></span><br><span class="line">Database</span><br><span class="line">数据库支撑</span><br><span class="line"></span><br><span class="line">Cloudera Repository</span><br><span class="line">组件.软件下载的文档</span><br><span class="line"></span><br><span class="line">Clients</span><br><span class="line"></span><br><span class="line">Admin Console</span><br><span class="line"></span><br><span class="line">API</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-6/41334204.jpg" alt=""></p>
+<h2 id="Cloudera-Manager安装前系统环境准备"><a href="#Cloudera-Manager安装前系统环境准备" class="headerlink" title="Cloudera Manager安装前系统环境准备"></a>Cloudera Manager安装前系统环境准备</h2><h3 id="1-网络配置"><a href="#1-网络配置" class="headerlink" title="1.网络配置"></a>1.网络配置</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/sysconfig/network</span><br><span class="line">vi /etc/hosts</span><br><span class="line">192.168.230.100 cdh1</span><br><span class="line">192.168.230.101 cdh2</span><br><span class="line">192.168.230.102 cdh3</span><br><span class="line"></span><br><span class="line">vi /etc/sysconfig/network-scripts/ifcfg-eth0</span><br><span class="line">vi /etc/resolv.conf</span><br></pre></td></tr></table></figure>
+<h3 id="2-SSH免密钥登录"><a href="#2-SSH免密钥登录" class="headerlink" title="2.SSH免密钥登录"></a>2.SSH免密钥登录</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">ssh-keygen -t dsa -P <span class="string">''</span> -f ~/.ssh/id_dsa</span><br><span class="line">cat ~/.ssh/id_dsa.pub &gt;&gt; ~/.ssh/authorized_keys</span><br><span class="line">   </span><br><span class="line">cdh1发送公钥给cdh2.cdh3</span><br><span class="line">[root@cdh1 ~]<span class="comment"># scp ~/.ssh/id_dsa.pub root@cdh2:/opt/</span></span><br><span class="line">[root@cdh1 ~]<span class="comment"># scp ~/.ssh/id_dsa.pub root@cdh3:/opt/</span></span><br><span class="line"></span><br><span class="line">cdh2.cdh3将cdh1发过来的公钥加入到认证文件中去</span><br><span class="line">[root@cdh2 ~]$ cat /opt/id_dsa.pub &gt;&gt; ~/.ssh/authorized_keys</span><br><span class="line">[root@cdh3 ~]$ cat /opt/id_dsa.pub &gt;&gt; ~/.ssh/authorized_keys</span><br></pre></td></tr></table></figure>
+<h3 id="3-防火墙关闭"><a href="#3-防火墙关闭" class="headerlink" title="3.防火墙关闭"></a>3.防火墙关闭</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">查看防火墙状态</span><br><span class="line">    service iptables status</span><br><span class="line"></span><br><span class="line">关闭防火墙</span><br><span class="line">service iptables stop</span><br><span class="line">chkconfig iptables off</span><br><span class="line"></span><br><span class="line">查看防火墙状态</span><br><span class="line">chkconfig iptables --list</span><br></pre></td></tr></table></figure>
+<h3 id="4-SELINUX关闭"><a href="#4-SELINUX关闭" class="headerlink" title="4.SELINUX关闭"></a>4.SELINUX关闭</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">setenforce 0</span><br><span class="line">vi /etc/selinux/config (SELINUX=disabled)</span><br></pre></td></tr></table></figure>
+<h3 id="5-安装JDK并配置环境变量"><a href="#5-安装JDK并配置环境变量" class="headerlink" title="5.安装JDK并配置环境变量"></a>5.安装JDK并配置环境变量</h3><h4 id="5-1-使用rpm命令安装jdk"><a href="#5-1-使用rpm命令安装jdk" class="headerlink" title="5.1.使用rpm命令安装jdk"></a>5.1.使用rpm命令安装jdk</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@cdh1 software]<span class="comment"># rpm -ivh jdk-7u67-linux-x64.rpm</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-6/80859686.jpg" alt=""><br><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-6/12426176.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@cdh1 ~]<span class="comment"># rpm -qa | grep jdk</span></span><br><span class="line">[root@cdh1 ~]<span class="comment"># rpm -ql jdk</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-6/44129788.jpg" alt=""><br><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-6/251501.jpg" alt=""></p>
+<h4 id="5-2-配置jdk环境变量"><a href="#5-2-配置jdk环境变量" class="headerlink" title="5.2.配置jdk环境变量"></a>5.2.配置jdk环境变量</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[root@cdh1 ~]<span class="comment"># vi .bash_profile</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">export</span> JAVA_HOME=/usr/java/jdk1.7.0_67</span><br><span class="line"><span class="built_in">export</span> PATH=<span class="variable">$PATH</span>:<span class="variable">$JAVA_HOME</span>/bin</span><br><span class="line"></span><br><span class="line">[root@cdh1 ~]<span class="comment"># source .bash_profile</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-6/74941889.jpg" alt=""></p>
+<h3 id="6-安装NTP"><a href="#6-安装NTP" class="headerlink" title="6.安装NTP"></a>6.安装NTP</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">设置开机启动</span><br><span class="line"></span><br><span class="line">[root@cdh1 ~]<span class="comment"># chkconfig ntpd on</span></span><br><span class="line"></span><br><span class="line">设置时间同步</span><br><span class="line"></span><br><span class="line">[root@cdh1 ~]<span class="comment"># ntpdate -u ntp.sjtu.edu.cn</span></span><br></pre></td></tr></table></figure>
+<h3 id="7-安装并配置mysql"><a href="#7-安装并配置mysql" class="headerlink" title="7.安装并配置mysql"></a>7.安装并配置mysql</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">三台机器都进行mysql安装配置</span><br></pre></td></tr></table></figure>
+<h4 id="7-1-安装mysql客户端"><a href="#7-1-安装mysql客户端" class="headerlink" title="7.1.安装mysql客户端"></a>7.1.安装mysql客户端</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@cdh1 ~]<span class="comment"># yum -y install mysql</span></span><br><span class="line">[root@cdh2 ~]<span class="comment"># yum -y install mysql</span></span><br><span class="line">[root@cdh3 ~]<span class="comment"># yum -y install mysql</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-6/73211195.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">查看mysql是否安装成功</span><br><span class="line">[root@cdh1 ~]<span class="comment"># rpm -ql mysql</span></span><br></pre></td></tr></table></figure>
+<h4 id="7-2-安装mysql服务端"><a href="#7-2-安装mysql服务端" class="headerlink" title="7.2.安装mysql服务端"></a>7.2.安装mysql服务端</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[root@cdh1 ~]<span class="comment"># yum -y install mysql-server</span></span><br><span class="line">[root@cdh2 ~]<span class="comment"># yum -y install mysql-server</span></span><br><span class="line">[root@cdh3 ~]<span class="comment"># yum -y install mysql-server</span></span><br><span class="line"> </span><br><span class="line">[root@cdh1 ~]<span class="comment"># yum -y install mysql-devel</span></span><br><span class="line">[root@cdh2 ~]<span class="comment"># yum -y install mysql-devel</span></span><br><span class="line">[root@cdh3 ~]<span class="comment"># yum -y install mysql-devel</span></span><br></pre></td></tr></table></figure>
+<h4 id="7-3-配置mysql编码格式"><a href="#7-3-配置mysql编码格式" class="headerlink" title="7.3.配置mysql编码格式"></a>7.3.配置mysql编码格式</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@cdh1 ~]<span class="comment"># vi /etc/my.cnf</span></span><br><span class="line">[root@cdh2 ~]<span class="comment"># vi /etc/my.cnf</span></span><br><span class="line">[root@cdh3 ~]<span class="comment"># vi /etc/my.cnf</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-5/13112312.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">添加</span><br><span class="line">default-character-set=utf8</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-5/80104038.jpg" alt=""></p>
+<h4 id="7-4-添加开机启动项"><a href="#7-4-添加开机启动项" class="headerlink" title="7.4.添加开机启动项"></a>7.4.添加开机启动项</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@cdh1 ~]<span class="comment"># chkconfig --add mysqld</span></span><br><span class="line">[root@cdh1 ~]<span class="comment"># chkconfig mysqld on</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-5/60720564.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[root@cdh2 ~]<span class="comment"># chkconfig --add mysqld</span></span><br><span class="line">[root@cdh2 ~]<span class="comment"># chkconfig mysqld on</span></span><br><span class="line"></span><br><span class="line">[root@cdh3 ~]<span class="comment"># chkconfig --add mysqld</span></span><br><span class="line">[root@cdh3 ~]<span class="comment"># chkconfig mysqld on</span></span><br></pre></td></tr></table></figure>
+<h4 id="7-5-启动mysql"><a href="#7-5-启动mysql" class="headerlink" title="7.5.启动mysql"></a>7.5.启动mysql</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@cdh1 ~]<span class="comment"># service mysqld start</span></span><br><span class="line">[root@cdh2 ~]<span class="comment"># service mysqld start</span></span><br><span class="line">[root@cdh3 ~]<span class="comment"># service mysqld start</span></span><br></pre></td></tr></table></figure>
+<h4 id="7-6-配置root用户并设置密码"><a href="#7-6-配置root用户并设置密码" class="headerlink" title="7.6.配置root用户并设置密码"></a>7.6.配置root用户并设置密码</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cdh1主机.cdh2主机.cdh3主机，三台主机的mysql均进行如下配置</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[root@master ~]<span class="comment"># mysql -uroot -p</span></span><br><span class="line">mysql&gt; use mysql;</span><br><span class="line">mysql&gt; select user,host from user;</span><br><span class="line">mysql&gt; delete  from user <span class="built_in">where</span> user = <span class="string">""</span>;</span><br><span class="line">mysql&gt; select user,host from user;</span><br><span class="line">mysql&gt; update user <span class="built_in">set</span> password = PASSWORD(<span class="string">'123456'</span>) <span class="built_in">where</span> user = <span class="string">'root'</span>;</span><br><span class="line">mysql&gt; update user <span class="built_in">set</span> host=<span class="string">'localhost'</span> <span class="built_in">where</span> host=<span class="string">'%'</span>;</span><br><span class="line">mysql&gt; select user,host,password from user;</span><br></pre></td></tr></table></figure>
+<h4 id="7-7-赋予权限"><a href="#7-7-赋予权限" class="headerlink" title="7.7.赋予权限"></a>7.7.赋予权限</h4><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY '123456' WITH GRANT OPTION;</span><br><span class="line">mysql&gt; flush privileges;</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-6/88352986.jpg" alt=""><br><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-6/77455443.jpg" alt=""></p>
+<h3 id="8-配置本地yum源"><a href="#8-配置本地yum源" class="headerlink" title="8.配置本地yum源"></a>8.配置本地yum源</h3><h3 id="9-下载第三方依赖包"><a href="#9-下载第三方依赖包" class="headerlink" title="9.下载第三方依赖包"></a>9.下载第三方依赖包</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@cdh1 ~]<span class="comment"># yum -y install chkconfig  python  bind-utils  psmisc  libxslt  zlib  sqlite</span></span><br><span class="line">[root@cdh1 ~]<span class="comment"># yum -y install cyrus-sasl-gssapi  fuse  fuse-libs  redhat-lsb</span></span><br></pre></td></tr></table></figure>
+<h2 id="Cloudera-Manager安装"><a href="#Cloudera-Manager安装" class="headerlink" title="Cloudera Manager安装"></a>Cloudera Manager安装</h2><h3 id="1-安装Cloudera-Manager-Server-Agent"><a href="#1-安装Cloudera-Manager-Server-Agent" class="headerlink" title="1.安装Cloudera Manager Server. Agent"></a>1.安装Cloudera Manager Server. Agent</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@cdh1 ~]<span class="comment"># mkdir /opt/cloudera-manager</span></span><br><span class="line">[root@cdh1 ~]<span class="comment"># tar -zvxf cloudera-manager*.tar.gz -C /opt/cloudera-manager</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-6/3963991.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@cdh2 ~]<span class="comment"># mkdir /opt/cloudera-manager</span></span><br><span class="line">[root@cdh2 ~]<span class="comment"># tar -zvxf cloudera-manager*.tar.gz -C /opt/cloudera-manager</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-6/68753981.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@cdh3 ~]<span class="comment"># mkdir /opt/cloudera-manager</span></span><br><span class="line">[root@cdh3 ~]<span class="comment"># tar -zvxf cloudera-manager*.tar.gz -C /opt/cloudera-manager</span></span><br></pre></td></tr></table></figure>
+<h3 id="2-创建用户cloudera-scm"><a href="#2-创建用户cloudera-scm" class="headerlink" title="2.创建用户cloudera-scm"></a>2.创建用户cloudera-scm</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@cdh1 ~]<span class="comment"># useradd --system --home=/opt/cloudera-manager/cm-5.0/run/cloudera-scm-server --no-create-home --shell=/bin/false --comment "Cloudera SCM User" cloudera-scm</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-6/92721324.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@cdh2 ~]<span class="comment"># useradd --system --home=/opt/cloudera-manager/cm-5.0/run/cloudera-scm-server --no-create-home --shell=/bin/false --comment "Cloudera SCM User" cloudera-scm</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-6/51720245.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@cdh3 ~]<span class="comment"># useradd --system --home=/opt/cloudera-manager/cm-5.0/run/cloudera-scm-server --no-create-home --shell=/bin/false --comment "Cloudera SCM User" cloudera-scm</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-6/6034693.jpg" alt=""></p>
+<h3 id="3-配置CM-Agent"><a href="#3-配置CM-Agent" class="headerlink" title="3.配置CM Agent"></a>3.配置CM Agent</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">修改文件/opt/cloudera-manager/cm-5.4.3/etc/cloudera-scm-agent/config.ini中</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@cdh1 ~]<span class="comment"># vi /opt/cloudera-manager/cm-5.4.3/etc/cloudera-scm-agent/config.ini</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-6/38047382.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">server_host=cdh1</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-6/86611709.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@cdh2 cloudera-manager]<span class="comment"># vi /opt/cloudera-manager/cm-5.4.3/etc/cloudera-scm-agent/config.ini</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-6/43914099.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">server_host=cdh1</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-6/86611709.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@cdh3 cloudera-manager]<span class="comment"># vi /opt/cloudera-manager/cm-5.4.3/etc/cloudera-scm-agent/config.ini</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-6/65725831.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">server_host=cdh1</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-6/86611709.jpg" alt=""></p>
+<h3 id="4-配置CM-Server数据库"><a href="#4-配置CM-Server数据库" class="headerlink" title="4.配置CM Server数据库"></a>4.配置CM Server数据库</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"> 拷贝mysql jar文件到目录 /usr/share/java/</span><br><span class="line"></span><br><span class="line"> 注意jar包名称要修改为mysql-connector-java.jar</span><br><span class="line"></span><br><span class="line">[root@cdh1 software]<span class="comment"># mkdir -p /usr/share/java/</span></span><br><span class="line">[root@cdh1 ~]<span class="comment"># mv mysql-connector-java-5.1.26-bin.jar mysql-connector-java.jar</span></span><br><span class="line">[root@cdh1 software]<span class="comment"># mv mysql-connector-java.jar /usr/share/java/</span></span><br><span class="line">[root@cdh1 software]<span class="comment"># cd /usr/share/java/</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-6/25731483.jpg" alt=""><br><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-6/12807154.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@cdh1 java]<span class="comment"># mysql -uroot -p</span></span><br><span class="line">mysql&gt; grant all on *.* to <span class="string">'temp'</span>@<span class="string">'%'</span> identified by <span class="string">'temp'</span> with grant option;</span><br><span class="line">mysql&gt; flush privileges;</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-6/84383631.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@cdh1 java]<span class="comment"># cd /opt/cloudera-manager/cm-5.4.3/share/cmf/schema/</span></span><br><span class="line">[root@cdh1 schema]<span class="comment"># ./scm_prepare_database.sh mysql temp -h cdh1 -utemp -ptemp --scm-host cdh1 scm scm scm</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-6/71671371.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">格式：数据库类型.数据库.数据库服务器.用户名.密码. cm server服务器</span><br></pre></td></tr></table></figure>
+<h3 id="5-创建Parcel目录"><a href="#5-创建Parcel目录" class="headerlink" title="5.创建Parcel目录"></a>5.创建Parcel目录</h3><h4 id="Server节点"><a href="#Server节点" class="headerlink" title="Server节点"></a>Server节点</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@cdh1 schema]<span class="comment"># mkdir -p /opt/cloudera/parcel-repo</span></span><br><span class="line">[root@cdh1 schema]<span class="comment"># chown cloudera-scm:cloudera-scm /opt/cloudera/parcel-repo</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-6/94698493.jpg" alt=""></p>
+<h4 id="Agent节点"><a href="#Agent节点" class="headerlink" title="Agent节点"></a>Agent节点</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@cdh1 init.d]<span class="comment"># mkdir -p /opt/cloudera/parcels</span></span><br><span class="line">[root@cdh1 init.d]<span class="comment"># chown cloudera-scm:cloudera-scm /opt/cloudera/parcels</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-6/48957656.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@cdh2 cloudera-manager]<span class="comment"># mkdir -p /opt/cloudera/parcels</span></span><br><span class="line">[root@cdh2 cloudera-manager]<span class="comment"># chown cloudera-scm:cloudera-scm /opt/cloudera/parcels</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-6/18072257.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@cdh3 cloudera-manager]<span class="comment"># mkdir -p /opt/cloudera/parcels</span></span><br><span class="line">[root@cdh3 cloudera-manager]<span class="comment"># chown cloudera-scm:cloudera-scm /opt/cloudera/parcels</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-6/34093166.jpg" alt=""></p>
+<h3 id="6-制作CDH本地源"><a href="#6-制作CDH本地源" class="headerlink" title="6.制作CDH本地源"></a>6.制作CDH本地源</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">下载好文件CDH-5.4.0-1.cdh5.4.0.p0.27-el6.parcel以及manifest.json，</span><br><span class="line"></span><br><span class="line">将这两个文件放到server节点的/opt/cloudera/parcel-repo下。</span><br><span class="line"></span><br><span class="line">[root@cdh1 schema]<span class="comment"># cd /opt/cloudera/parcel-repo</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-6/76822370.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">打开manifest.json文件，里面是json格式的配置，找到与下载版本相对应的<span class="built_in">hash</span>码，</span><br><span class="line">新建文件，文件名与你的parel包名一致，并加上.sha后缀，将<span class="built_in">hash</span>码复制到文件中保存。</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-6/91890328.jpg" alt=""></p>
+<h3 id="7-启动CM-Server-Agent"><a href="#7-启动CM-Server-Agent" class="headerlink" title="7.启动CM Server. Agent"></a>7.启动CM Server. Agent</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">启动CM Server</span><br><span class="line">做这个操作的时候，建立个快照</span><br><span class="line">[root@cdh1 parcel-repo]<span class="comment"># cd /opt/cloudera-manager/cm-5.4.3/etc/init.d/</span></span><br><span class="line">[root@cdh1 init.d]<span class="comment"># ./cloudera-scm-server start</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-6/98522601.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /opt/cloudera-manager/cm-5.4.3/<span class="built_in">log</span>/cloudera-scm-server</span><br><span class="line">[root@cdh1 cloudera-scm-server]<span class="comment"># tail -f cloudera-scm-server.log</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-6/65428271.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Sever首次启动会自动创建表以及数据，不要立即关闭或重启，否则需要删除所有表及数据重新安装</span><br><span class="line">启动CM Agent</span><br><span class="line">[root@cdh1 ~]<span class="comment"># cd /opt/cloudera-manager/cm-5.4.3/etc/init.d/</span></span><br><span class="line">[root@cdh1 init.d]<span class="comment"># ./cloudera-scm-agent start</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-6/32881567.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@cdh2 cloudera-manager]<span class="comment"># cd /opt/cloudera-manager/cm-5.4.3/etc/init.d/</span></span><br><span class="line">[root@cdh2 init.d]<span class="comment"># ./cloudera-scm-agent start</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-6/79973913.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@cdh3 cloudera-manager]<span class="comment"># cd /opt/cloudera-manager/cm-5.4.3/etc/init.d/</span></span><br><span class="line">[root@cdh3 init.d]<span class="comment"># ./cloudera-scm-agent start</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-6/6382289.jpg" alt=""></p>
+<h3 id="8-访问：http-ManagerHost-主节点Ip-7180"><a href="#8-访问：http-ManagerHost-主节点Ip-7180" class="headerlink" title="8.访问：http://ManagerHost(主节点Ip):7180"></a>8.访问：<a href="http://ManagerHost(主节点Ip):7180" target="_blank" rel="noopener">http://ManagerHost(主节点Ip):7180</a></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">在浏览器上输入：http://192.168.230.100:7180/cmf/login</span><br><span class="line">若可以访问，则CM安装成功</span><br><span class="line">用户.密码：admin</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-6/65746585.jpg" alt=""></p>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-6/33379158.jpg" alt=""></p>
+<p><img src="http://7xrn7f.com1.z0.glb.clouddn.com/16-4-10/90996189.jpg" alt=""></p>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-6/43401596.jpg" alt=""></p>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-6/20396681.jpg" alt=""></p>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-6/80244651.jpg" alt=""></p>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-6/30672068.jpg" alt=""></p>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-6/97165875.jpg" alt=""></p>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-6/74332789.jpg" alt=""></p>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-6/11946263.jpg" alt=""></p>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-4-6/70105424.jpg" alt=""></p>
+<p><img src="http://7xrn7f.com1.z0.glb.clouddn.com/16-4-10/10469720.jpg" alt=""></p>
+<p><img src="http://7xrn7f.com1.z0.glb.clouddn.com/16-4-10/79835729.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cat /proc/sys/vm/swappiness</span><br><span class="line"><span class="built_in">echo</span> 0 &gt; /proc/sys/vm/swappiness</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">日志文件存放的位置</span><br><span class="line">server和angent启动的日志</span><br><span class="line"><span class="built_in">cd</span> /opt/cloudera-manager/cm-5.4.3/<span class="built_in">log</span></span><br><span class="line">安装服务的存放目录</span><br><span class="line"><span class="built_in">cd</span> /var/<span class="built_in">log</span></span><br><span class="line">安装服务的配置文件存放目录</span><br><span class="line"><span class="built_in">cd</span> /etc/</span><br></pre></td></tr></table></figure>
+
+    </div>
+  </div>
+  
+    <div class="copy-right">
+      <div class="markdown-body">
+        <blockquote>
+        
+        
+          本文作者 : Matrix <br>
+        
+        原文链接 : <a href="">http://yoursite.com/2016/02/12/cdh安装与测试/</a><br>
+        版权声明 : 本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+        </blockquote>
+      </div>
+    </div>
+  
+  
+  
+    <div class="social-share" style="margin-top: -2rem" data-wechat-qrcode-title="<p>微信扫一扫</p>" data-wechat-qrcode-helper="<p>微信右上角, 扫一扫分享</p>" data-sites="qzone, qq, weibo, wechat, douban, google, facebook, twitter">
+  <span style="color: #6b7487; font-size: 1.4rem;">分享到: </span>
+</div>
+<script src="https://cdn.bootcss.com/social-share.js/1.0.16/js/social-share.min.js" async></script>
+  
+
+  
+    <div id="reward">
+  
+    <p id="reward-meta">知识 & 情怀 | 二者兼得</p>
+  
+  <button id="reward-btn">
+    
+    <span>投食</span>
+  </button>
+  <div id="reward-qrcode">
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/wechatpay.jpg" alt="微信扫一扫, 向我投食">
+        <p class="qrcode-meta">微信扫一扫, 向我投食</p>
+      </div>
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/alipaypay.jpg" alt="支付宝扫一扫, 向我投食">
+        <p class="qrcode-meta">支付宝扫一扫, 向我投食</p>
+      </div>
+    
+  </div>
+
+</div>
+
+<script>
+  (() => {
+    let button = document.querySelector('#reward-btn'),
+      qrcode = document.querySelector('#reward-qrcode'),
+      display = false;
+    
+    button.addEventListener('click', () => {
+      qrcode.style.display = display ? 'none' : 'block'
+      display = !display
+    }, false)
+  })()
+</script>
+  
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+      <span>
+        
+          <i class="iconfont icon-06tags"></i>标签: 
+          
+          <span class="span--tag">
+            <a href="/tags/大数据/">
+              #大数据
+            </a>
+          </span>
+          
+        
+      </span>
+    </div>
+    <div class="article-meta pull-right">
+    </div>
+  </div>
+</div>
+
+
+  <aside id="sidebar">
+    <p id="sidebar-header"></p>
+    <ol id="sidebar-toc"></ol>
+  </aside>
+  <script async>setTimeout(generateToc, 10);</script>
+
+
+  <nav class="post-navigation">
+    
+      <div class="nav-pre">
+        <i class="iconfont icon-prev"></i>
+        上一篇:
+        <a href="/2016/02/12/HDFS基本概念/" target="_self">HDFS基本概念</a>
+      </div>
+    
+    
+      <div class="nav-next">
+        下一篇:
+        <a href="/2016/02/12/日志采集框架Flume的安装及使用/" target="_self">日志采集框架Flume的安装及使用</a>
+        <i class="iconfont icon-next"></i>
+      </div>
+    
+  </nav>
+
+  
+    <a href="#comment" class="comment-anchor"></a>
+<div class="comment-title"><i class="iconfont icon-footprint"></i> 留下足迹 <i class="iconfont icon-footprint"></i></div>
+<div id="vcomments"></div>
+
+<script defer>
+  if( true ) {
+    let path = getRealPath()
+    new Valine({
+      el: "#vcomments",
+      appId: "Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz",
+      appKey: "WaR7nrzhliHj9aVwdQzkdlGd",
+      notify: false,
+      verify: false,
+      avatar: "robohash",
+      placeholder: "正确填写邮箱, 才能及时收到回复哦♪(^∇^*)",
+      path
+    });
+  }
+</script>
+   
+
+  
+    <script defer>
+const valineAPI = (() => {
+  try {
+    AV.init("Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz", "WaR7nrzhliHj9aVwdQzkdlGd");
+  } catch(error) {}
+  const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+      query.equalTo("identity", identity);
+      query.find().then(results => {
+        resolve(results.length > 0);
+      }, error => reject(error));
+    })
+  }
+
+  const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+      let querys = [];
+      for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+      }
+      query = AV.Query.or.apply(null ,querys);
+    } else {
+      identity = identity || getRealPath();
+      query = new AV.Query("Timer");
+      query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+      query.find()
+      .then(results => resolve(results))
+      .catch(error => reject(error))
+    })
+  }
+
+  const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let Todo = AV.Object.extend('Timer');
+      let todo = new Todo();
+      todo.set("times", 1);
+      todo.set("identity", identity);
+      todo.save().then(res => resolve(true), error => reject(error));
+    })
+  }
+
+  const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let query = new AV.Query('Timer');
+      query.equalTo("identity", identity);
+      query.find().then(todos => {
+        todos.forEach(todo => {
+          todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+      }).then(todos => resolve(true), error => reject(error));
+    })
+  }
+
+  return {
+    isExist,
+    _get,
+    update,
+    create
+  }
+})()
+
+const calcAndWriteTimes = () => {
+  let isPost = true;
+
+  let timerAllDOM = document.querySelectorAll(".article-timer");
+
+  if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+      if(exist) {
+        return valineAPI.update(identity);
+      }
+      return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+  }
+
+  let timerDOMCache = {};
+
+  for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+      timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+      timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+      };
+    }
+  }
+
+  let identities = Object.keys(timerDOMCache);
+  valineAPI._get(identities).then(results => {
+    for(let result of results) {
+      let {identity, times} = result.attributes;
+      timerDOMCache[identity].times = times;
+      timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+      if(timerDOMCache[identity].times){
+        continue;
+      }
+      timerDOMCache[identity].dom.map(item => item.innerText = 1);
+      valineAPI.create(identity);
+    }
+  }).catch(error => console.log(error.message))
+}
+
+if(true){
+  calcAndWriteTimes();
+}
+</script>
+   
+
+</div>
+
+
+      <footer>
+  <p class="site-info">
+    博客已萌萌哒运行<span id="time-to-now"></span><span class="my-face">(●'◡'●)ﾉ♥</span>
+    <br>
+    Theme - <a href="https://github.com/dongyuanxin/theme-bmw">BMW</a> | Powered by <a href="https://godbmw.com/">GodBMW</a>
+    <br>
+    
+      Copyright © 2019 Matrix
+    
+  </p>
+</footer>
+
+
+
+<script>
+const timeToNowDOM = document.querySelector("#time-to-now");
+const startTimestamp = new Date(2016, 4, 10).getTime();
+
+const updateTimeStr = () => {
+  let offset = parseInt(
+      (new Date().getTime() - startTimestamp) / 1000,
+      10
+    ),
+    day = Math.floor(offset / 86400),
+    hour = Math.floor((offset % 86400) / 3600),
+    minute = Math.floor(((offset % 86400) % 3600) / 60),
+    second = Math.floor(((offset % 86400) % 3600) % 60);
+  timeToNowDOM.innerHTML =
+    day + "天" + hour + "小时" + minute + "分钟" + second + "秒";
+  setTimeout(updateTimeStr, 500);
+}
+
+setTimeout(updateTimeStr, 500);
+</script>
+
+
+      <div class="back-to-top hidden">
+  <span>
+    <i class="iconfont icon-60"></i><span></span>%
+  </span>
+</div>
+
+<script>
+const updateIconToTop = percent => {
+  let dom = document.querySelector(".back-to-top span span");
+  dom.innerText = percent;
+  if(percent < 1) {
+    document.querySelector(".back-to-top").className = "back-to-top hidden";
+  } else {
+    document.querySelector(".back-to-top").className = "back-to-top";
+  }
+}
+
+const handleScoll = () => {
+  let isRunning = false;
+  return () => {
+    if (isRunning) return;
+    isRunning = true;
+    window.requestAnimationFrame(timestamp => {
+      let scrollTop =
+          document.documentElement.scrollTop || document.body.scrollTop,
+        scrollHeight =
+          document.documentElement.scrollHeight ||
+          document.body.scrollHeight,
+        clientHeight =
+          document.documentElement.clientHeight ||
+          document.body.clientHeight;
+      isRunning = false;
+      if (scrollTop <= 1) {
+        updateIconToTop(0);
+        return;
+      }
+      if (scrollTop + clientHeight >= scrollHeight) {
+        updateIconToTop(100);
+      } else {
+        updateIconToTop(parseInt(
+          100 * scrollTop / (scrollHeight - clientHeight),
+          10
+        ));
+      }
+    });
+  };
+}
+
+const backToTop = () => {
+  let scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop,
+    delay = 10,
+    time = 200;
+  if (scrollTop <= 20) {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    return;
+  }
+  let step = Math.ceil(scrollTop * delay / time);
+  let timer = setInterval(() => {
+    scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop;
+    if (scrollTop - step <= 0) {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      clearInterval(timer);
+    } else {
+      document.documentElement.scrollTop = scrollTop - step;
+      document.body.scrollTop = scrollTop - step;
+    }
+  }, delay);
+}
+
+document.addEventListener("scroll", handleScoll(), false);
+
+document.querySelector(".back-to-top").addEventListener("click", backToTop, false);
+
+</script>
+
+    </div>
+
+    
+      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  (() => {
+    const mathjaxConfig = {
+      showProcessingMessages: false, //关闭js加载过程信息
+      messageStyle: "none", //不显示信息
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]], //行内公式选择符
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]], //段内公式选择符
+        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"] //避开某些标签
+      },
+      "HTML-CSS": {
+        availableFonts: ["STIX", "TeX"], //可选字体
+        showMathMenu: false //关闭右击菜单显示
+      }
+    }
+
+    let mathjaxInterval = setInterval(() => {
+      if(!window.MathJax){
+        return;
+      }
+      window.MathJax.Hub.Config(mathjaxConfig)
+      window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')])
+
+      clearInterval(mathjaxInterval)
+    }, 10)    
+  })()
+</script>
+    
+
+    <script src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script>
+<script async>
+  let fancyTimer = setInterval(function(){
+    if(!window.$){
+      return;
+    }
+    $(document).ready(function() {
+      $(".post img").each(function () {
+        if($(this).parent().get(0).tagName.toLowerCase() === "a") {
+          return;
+        }
+        // $(this).attr("data-fancybox", "gallery"); // if you add 'data-fancybox', img will display after showed
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "gallery");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      });
+      
+      clearInterval(fancyTimer);
+    });
+  }, 10);
+</script>
+
+    
+  </body>
+
+</html>

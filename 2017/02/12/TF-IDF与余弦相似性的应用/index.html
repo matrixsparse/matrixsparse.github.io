@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta name="author" content="董沅鑫, yuanxin.me@gmail.com">
+  
+  
+  
+  <title>TF-IDF与余弦相似性的应用 | 每天遇到更好的你</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="大数据,大数据,python数据分析,">
+  
+
+  <script>
+    console.log('\n%c Hexo-theme-bmw v4.0 ' + '%c 🎉 https://github.com/dongyuanxin/theme-bmw 🎉\n' + '\n%c View demo online ' + '%c 🔍 https://godbmw.com/ 🔍  \n' , 'color: #fadfa3; background: #030307; padding:3px 0;', '', 'color: #fadfa3; background: #030307; padding:3px 0;', '');
+  </script>
+
+  
+
+  
+
+  
+    <link rel="icon" href="/images/favicon.png">
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+  
+
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/icon/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+  <script src="/js/util.js"></script>
+<script src="/js/valine.min.js"></script>
+
+  
+
+  
+    <link href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js" async></script>
+  
+
+  
+    <link href="https://cdn.bootcss.com/social-share.js/1.0.16/css/share.min.css" rel="stylesheet">
+  
+  
+  <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js" async></script>
+  
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.0/dist/av-min.js"></script>
+  
+
+</head>
+
+  <body>
+
+    
+
+    <div id="app">
+
+      <div class="header-wrap">
+  <header>
+    <div class="site-brand">
+      <div class="site-title">
+        <!-- <a href="/">MatrixSparse</a> -->
+        <img alt="logo" class="antd-pro-layouts-user-layout-logo" src="/images/favicon.png" style="width: 40px;height: 40px;margin-top: 10px;margin-left: 5px;">
+      </div>
+    </div>
+    <nav class="site-navigation">
+      <ul class="nav-menu">
+      
+        <li class="nav-item" data-path="/">
+          
+            <a href="/" target="_self">
+              主页
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          
+            <a href="/archives/" target="_self">
+              归档
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          
+            <a href="/categories/" target="_self">
+              分类
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          
+            <a href="/tags/" target="_self">
+              标签
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="">
+          
+            <a href="javascript:void(0);" v-else="">博客地址</a>
+            <ul class="nav-menu--dropdown">
+              
+                <li>
+                  <a href="https://blog.csdn.net/qq_25371579" target="_blank">
+                    CSDN
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://github.com/matrixsparse" target="_blank">
+                    Github
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://matrixsparse.github.io/" target="_blank">
+                    Github Page
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+      </ul>
+    </nav>
+    <i class="iconfont icon-menu"></i>
+  </header>
+</div>
+
+<script>
+  let links = document.querySelectorAll('.nav-item');
+  for(let link of links){
+    let childrenLink = link.querySelector('ul');
+    link.addEventListener('mouseenter', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown active";
+      }
+    })
+    link.addEventListener('mouseleave', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown";
+      }
+    })
+  }
+  let rootRealPath = getRealPath(window.location.pathname, true);
+  for(let link of links) {
+    let linkPath = link.getAttribute("data-path");
+    if(linkPath && getRealPath(linkPath, true) === rootRealPath) {
+      link.className = "nav-item hover";
+    }
+  }
+
+  let iconMenu = document.querySelector("i.iconfont.icon-menu"),
+    iconMenuClicked = false;
+  let navDOM = document.querySelector("nav.site-navigation");
+  iconMenu.addEventListener("click", () => {
+    iconMenuClicked
+      ? navDOM.className = "site-navigation active"
+      : navDOM.className = "site-navigation";
+    iconMenuClicked = !iconMenuClicked;
+  })
+</script>
+
+
+      
+
+
+
+
+
+
+
+
+<div class="container post-index">
+
+  
+
+<div class="post">
+  <h1 class="article-title">
+    <span>TF-IDF与余弦相似性的应用</span>
+  </h1>
+  <div class="article-top-meta">
+    <span>
+      发布 : 
+      2017-02-12
+    </span>
+    
+      <span>
+        分类 : 
+          <a href="/categories/大数据/">
+            大数据
+          </a>
+      </span>
+    
+    
+      <span>
+        浏览 : <span class="article-timer" data-identity="TF-IDF与余弦相似性的应用"></span>
+      </span>
+    
+  </div>
+
+  
+
+  <div class="article-content">
+    <div class="markdown-body">
+      <h1 id="自动提取关键词"><a href="#自动提取关键词" class="headerlink" title="自动提取关键词"></a>自动提取关键词</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">有一篇很长的文章，要用计算机提取它的关键词，完全不加以人工干预，如何才能正确的做到？</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">一个容易想到的思路，就是找到出现次数最多的词。如果某个词很重要，它应该在这篇文章中多次出现，我们进行<span class="string">"词频"</span>(Term Frequency,缩写TF)统计</span><br><span class="line"></span><br><span class="line">但是，统计出现次数最多的词却是---<span class="string">"的"</span>、<span class="string">"是"</span>、<span class="string">"在"</span>---这一类最常用的词，它们叫做<span class="string">"停用词"</span>(stop words)，表示对找到结果毫无帮助，必须过滤掉的词</span><br><span class="line"></span><br><span class="line">假设我们把它们都过滤掉了，只考虑剩下的有实际意义的词，这样又会遇到另一个问题，可能会发现<span class="string">"中国"</span>、<span class="string">"蜜蜂"</span>、<span class="string">"养殖"</span>这三个词的出现次数一样多。</span><br><span class="line"></span><br><span class="line">这是不是意味着，作为关键词，它们的重要性是一样的？</span><br><span class="line"></span><br><span class="line">显然不是这样！因为<span class="string">"中国"</span>是很常见的词，相对而言，<span class="string">"蜜蜂"</span>和<span class="string">"养殖"</span>不那么常见。</span><br><span class="line"></span><br><span class="line">如果这三个词在一篇文章的出现次数一样多</span><br><span class="line"></span><br><span class="line">有理由认为，<span class="string">"蜜蜂"</span>和<span class="string">"养殖"</span>的重要程度要大于<span class="string">"中国"</span></span><br><span class="line"></span><br><span class="line">也就是说，在关键词排序上面，<span class="string">"蜜蜂"</span>和<span class="string">"养殖"</span>应该排在<span class="string">"中国"</span>的前面</span><br><span class="line"></span><br><span class="line">我们需要一个重要性调整系数，衡量一个词是不是常见词</span><br><span class="line"></span><br><span class="line">如果某个词比较少见，但是它在这篇文章中多次出现，那么它很可能就反映了这篇文章的特性，正是我们所需要的关键词。</span><br><span class="line"></span><br><span class="line">用统计学语言表达，就是在词频的基础上，要对每个词分配一个<span class="string">"重要性"</span>权重</span><br><span class="line"></span><br><span class="line">最常见的词（<span class="string">"的"</span>、<span class="string">"是"</span>、<span class="string">"在"</span>）给予最小的权重</span><br><span class="line"></span><br><span class="line">较常见的词（<span class="string">"中国"</span>）给予较小的权重</span><br><span class="line"></span><br><span class="line">较少见的词（<span class="string">"蜜蜂"</span>、<span class="string">"养殖"</span>）给予较大的权重</span><br><span class="line"></span><br><span class="line">这个权重叫做<span class="string">"逆文档频率"</span>（Inverse Document Frequency，缩写为IDF）</span><br><span class="line"></span><br><span class="line">它的大小与一个词的常见程度成反比</span><br><span class="line"></span><br><span class="line">将<span class="string">"词频"</span>（TF）和<span class="string">"逆文档频率"</span>（IDF）这两个值相乘，就得到了一个词的TF-IDF值</span><br><span class="line"></span><br><span class="line">某个词对文章的重要性越高，它的TF-IDF值就越大</span><br><span class="line"></span><br><span class="line">所以，排在最前面的几个词，就是这篇文章的关键词。</span><br></pre></td></tr></table></figure>
+<h2 id="1-计算词频"><a href="#1-计算词频" class="headerlink" title="1.计算词频"></a>1.计算词频</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">词频(TF) = 某个词在文章中的出现次数</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">考虑到文章有长短之分，为了便于不同文章的比较，进行<span class="string">"词频"</span>标准化。</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">词频(TF) = 某个词在文章中的出现次数/文章总词数</span><br><span class="line"></span><br><span class="line">or</span><br><span class="line"></span><br><span class="line">词频(TF) = 某个词在文章中的出现次数/该文出现次数最多的词的出现次数</span><br></pre></td></tr></table></figure>
+<h2 id="2-计算逆文档频率"><a href="#2-计算逆文档频率" class="headerlink" title="2.计算逆文档频率"></a>2.计算逆文档频率</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">需要一个语料库（corpus），用来模拟语言的使用环境。</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">逆文档频率(IDF) = <span class="built_in">log</span>(语料库的文档总数/包含该词的文档数+1)</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">如果一个词越常见，那么分母就越大，逆文档频率就越小越接近0</span><br><span class="line">分母之所以要加1，是为了避免分母为0（即所有文档都不包含该词）</span><br><span class="line"><span class="built_in">log</span>表示对得到的值取对数</span><br></pre></td></tr></table></figure>
+<h2 id="3-计算IF-IDF"><a href="#3-计算IF-IDF" class="headerlink" title="3.计算IF-IDF"></a>3.计算IF-IDF</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">IF-IDF = 词频(TF) * 逆文档频率(IDF)</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">TF-IDF与一个词在文档中的出现次数成正比，与该词在整个语言中的出现次数成反比</span><br><span class="line"></span><br><span class="line">所以，自动提取关键词的算法就很清楚了，就是计算出文档的每个词的TF-IDF值，然后按降序排列，取排在最前面的几个词</span><br><span class="line"></span><br><span class="line">还是以《中国的蜜蜂养殖》为例，假定该文长度为1000个词，<span class="string">"中国"</span>、<span class="string">"蜜蜂"</span>、<span class="string">"养殖"</span>各出现20次</span><br><span class="line"></span><br><span class="line">则这三个词的<span class="string">"词频"</span>（TF）都为0.02。</span><br><span class="line"></span><br><span class="line">搜索Google发现，包含<span class="string">"的"</span>字的网页共有250亿张，假定这就是中文网页总数。</span><br><span class="line"></span><br><span class="line">包含<span class="string">"中国"</span>的网页共有62.3亿张，包含<span class="string">"蜜蜂"</span>的网页为0.484亿张，包含<span class="string">"养殖"</span>的网页为0.973亿张。</span><br><span class="line"></span><br><span class="line">则它们的逆文档频率（IDF）和TF-IDF如下：</span><br></pre></td></tr></table></figure>
+<p><img src="http://i4.buimg.com/581590/6e6dd5df531262fd.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">从上表可见，<span class="string">"蜜蜂"</span>的TF-IDF值最高，<span class="string">"养殖"</span>其次，<span class="string">"中国"</span>最低</span><br><span class="line"></span><br><span class="line">（如果还计算<span class="string">"的"</span>字的TF-IDF，那将是一个极其接近0的值）</span><br><span class="line"></span><br><span class="line">所以，如果只选择一个词，<span class="string">"蜜蜂"</span>就是这篇文章的关键词。</span><br><span class="line"></span><br><span class="line">除了自动提取关键词，TF-IDF算法还可以用于许多别的地方。</span><br><span class="line"></span><br><span class="line">比如，信息检索时，对于每个文档，都可以分别计算一组搜索词（<span class="string">"中国"</span>、<span class="string">"蜜蜂"</span>、<span class="string">"养殖"</span>）的TF-IDF，将它们相加，就可以得到整个文档的TF-IDF。这个值最高的文档就是与搜索词最相关的文档。</span><br><span class="line"></span><br><span class="line">TF-IDF算法的</span><br><span class="line"></span><br><span class="line">优点是简单快速，结果比较符合实际情况。</span><br><span class="line"></span><br><span class="line">缺点是单纯以<span class="string">"词频"</span>衡量一个词的重要性，不够全面，有时重要的词可能出现次数并不多</span><br><span class="line"></span><br><span class="line">而且，这种算法无法体现词的位置信息，出现位置靠前的词与出现位置靠后的词，都被视为重要性相同，这是不正确的。（一种解决方法是，对全文的第一段和每一段的第一句话，给予较大的权重。）</span><br></pre></td></tr></table></figure>
+<h1 id="找出相似文章"><a href="#找出相似文章" class="headerlink" title="找出相似文章"></a>找出相似文章</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">什么是<span class="string">"余弦相似性"</span></span><br><span class="line"></span><br><span class="line">为了简单起见，我们先从句子着手。</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">句子A：我喜欢看电视，不喜欢看电影</span><br><span class="line">　</span><br><span class="line">句子B：我不喜欢看电视，也不喜欢看电影</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">怎样才能计算上面两句话的相似程度？</span><br><span class="line"></span><br><span class="line">基本思路是：如果这两句话的用词越相似，它们的内容就应该越相似</span><br><span class="line"></span><br><span class="line">因此，可以从词频入手，计算它们的相似程度</span><br></pre></td></tr></table></figure>
+<h2 id="1-分词"><a href="#1-分词" class="headerlink" title="1.分词"></a>1.分词</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">句子A：我/喜欢/看/电视，不/喜欢/看/电影</span><br><span class="line"></span><br><span class="line">句子B：我/不/喜欢/看/电视，也/不/喜欢/看/电影</span><br></pre></td></tr></table></figure>
+<h2 id="2-列出所有的词"><a href="#2-列出所有的词" class="headerlink" title="2.列出所有的词"></a>2.列出所有的词</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">我，喜欢，看，电视，电影，不，也。</span><br></pre></td></tr></table></figure>
+<h2 id="3-计算词频"><a href="#3-计算词频" class="headerlink" title="3.计算词频"></a>3.计算词频</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">句子A：我 1，喜欢 2，看 2，电视 1，电影 1，不 1，也 0</span><br><span class="line"></span><br><span class="line">句子B：我 1，喜欢 2，看 2，电视 1，电影 1，不 2，也 1</span><br></pre></td></tr></table></figure>
+<h2 id="4-写出词频向量"><a href="#4-写出词频向量" class="headerlink" title="4.写出词频向量"></a>4.写出词频向量</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">句子A：[1, 2, 2, 1, 1, 1, 0]</span><br><span class="line"></span><br><span class="line">句子B：[1, 2, 2, 1, 1, 2, 1]</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">如何计算这两个向量的相似程度</span><br><span class="line"></span><br><span class="line">我们可以把它们想象成空间中的两条线段，都是从原点（[0, 0, ...]）出发，指向不同的方向</span><br><span class="line"></span><br><span class="line">两条线段之间形成一个夹角，如果夹角为0度，意味着方向相同、线段重合</span><br><span class="line"></span><br><span class="line">如果夹角为90度，意味着形成直角，方向完全不相似</span><br><span class="line"></span><br><span class="line">如果夹角为180度，意味着方向正好相反</span><br><span class="line"></span><br><span class="line">因此，我们可以通过夹角的大小，来判断向量的相似程度</span><br><span class="line"></span><br><span class="line">夹角越小，就代表越相似</span><br></pre></td></tr></table></figure>
+<p><img src="http://i1.piimg.com/581590/daeeeb34f8ed13fc.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">上图的a和b是两个向量，我们要计算它们的夹角θ。余弦定理告诉我们，可以用下面的公式求得：</span><br></pre></td></tr></table></figure>
+<p><img src="http://i1.piimg.com/581590/f7dc29bb3a4a7ecc.png" alt="Markdown"></p>
+<p><img src="http://i1.piimg.com/581590/81c19a6698e94d13.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">假定a向量是[x1, y1]，b向量是[x2, y2]，那么可以将余弦定理改写成下面的形式</span><br></pre></td></tr></table></figure>
+<p><img src="http://i1.piimg.com/581590/13416caca9f00376.png" alt="Markdown"></p>
+<p><img src="http://i1.piimg.com/581590/ae1d36ffb061a8bd.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">数学家已经证明，余弦的这种计算方法对n维向量也成立</span><br><span class="line"></span><br><span class="line">假定A和B是两个n维向量，A是 [A1, A2, ..., An] ，B是 [B1, B2, ..., Bn]</span><br><span class="line"></span><br><span class="line">则A与B的夹角θ的余弦等于</span><br></pre></td></tr></table></figure>
+<p><img src="http://i1.piimg.com/581590/60501505c4fc58cf.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">使用这个公式，我们就可以得到，句子A与句子B的夹角的余弦。</span><br></pre></td></tr></table></figure>
+<p><img src="http://i1.piimg.com/581590/7efbfd28638c915e.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">余弦值越接近1，就表明夹角越接近0度，也就是两个向量越相似，这就叫<span class="string">"余弦相似性"</span></span><br><span class="line"></span><br><span class="line">所以，上面的句子A和句子B是很相似的，事实上它们的夹角大约为20.3度。</span><br><span class="line"></span><br><span class="line">由此，我们就得到了<span class="string">"找出相似文章"</span>的一种算法：</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">（1）使用TF-IDF算法，找出两篇文章的关键词；</span><br><span class="line">（2）每篇文章各取出若干个关键词（比如20个），合并成一个集合，计算每篇文章对于这个集合中的词的词频（为了避免文章长度的差异，可以使用相对词频）；</span><br><span class="line">（3）生成两篇文章各自的词频向量；</span><br><span class="line">（4）计算两个向量的余弦相似度，值越大就表示越相似。</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">"余弦相似度"</span>是一种非常有用的算法，只要是计算两个向量的相似程度，都可以采用它。</span><br></pre></td></tr></table></figure>
+
+    </div>
+  </div>
+  
+    <div class="copy-right">
+      <div class="markdown-body">
+        <blockquote>
+        
+        
+          本文作者 : Matrix <br>
+        
+        原文链接 : <a href="">http://yoursite.com/2017/02/12/TF-IDF与余弦相似性的应用/</a><br>
+        版权声明 : 本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+        </blockquote>
+      </div>
+    </div>
+  
+  
+  
+    <div class="social-share" style="margin-top: -2rem" data-wechat-qrcode-title="<p>微信扫一扫</p>" data-wechat-qrcode-helper="<p>微信右上角, 扫一扫分享</p>" data-sites="qzone, qq, weibo, wechat, douban, google, facebook, twitter">
+  <span style="color: #6b7487; font-size: 1.4rem;">分享到: </span>
+</div>
+<script src="https://cdn.bootcss.com/social-share.js/1.0.16/js/social-share.min.js" async></script>
+  
+
+  
+    <div id="reward">
+  
+    <p id="reward-meta">知识 & 情怀 | 二者兼得</p>
+  
+  <button id="reward-btn">
+    
+    <span>投食</span>
+  </button>
+  <div id="reward-qrcode">
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/wechatpay.jpg" alt="微信扫一扫, 向我投食">
+        <p class="qrcode-meta">微信扫一扫, 向我投食</p>
+      </div>
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/alipaypay.jpg" alt="支付宝扫一扫, 向我投食">
+        <p class="qrcode-meta">支付宝扫一扫, 向我投食</p>
+      </div>
+    
+  </div>
+
+</div>
+
+<script>
+  (() => {
+    let button = document.querySelector('#reward-btn'),
+      qrcode = document.querySelector('#reward-qrcode'),
+      display = false;
+    
+    button.addEventListener('click', () => {
+      qrcode.style.display = display ? 'none' : 'block'
+      display = !display
+    }, false)
+  })()
+</script>
+  
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+      <span>
+        
+          <i class="iconfont icon-06tags"></i>标签: 
+          
+          <span class="span--tag">
+            <a href="/tags/大数据/">
+              #大数据
+            </a>
+          </span>
+          
+          <span class="span--tag">
+            <a href="/tags/python数据分析/">
+              #python数据分析
+            </a>
+          </span>
+          
+        
+      </span>
+    </div>
+    <div class="article-meta pull-right">
+    </div>
+  </div>
+</div>
+
+
+  <aside id="sidebar">
+    <p id="sidebar-header"></p>
+    <ol id="sidebar-toc"></ol>
+  </aside>
+  <script async>setTimeout(generateToc, 10);</script>
+
+
+  <nav class="post-navigation">
+    
+      <div class="nav-pre">
+        <i class="iconfont icon-prev"></i>
+        上一篇:
+        <a href="/2017/01/12/workman&amp;php环境搭建/" target="_self">workman&php环境搭建</a>
+      </div>
+    
+    
+      <div class="nav-next">
+        下一篇:
+        <a href="/2017/03/03/Redis数据操作/" target="_self">Redis数据操作</a>
+        <i class="iconfont icon-next"></i>
+      </div>
+    
+  </nav>
+
+  
+    <a href="#comment" class="comment-anchor"></a>
+<div class="comment-title"><i class="iconfont icon-footprint"></i> 留下足迹 <i class="iconfont icon-footprint"></i></div>
+<div id="vcomments"></div>
+
+<script defer>
+  if( true ) {
+    let path = getRealPath()
+    new Valine({
+      el: "#vcomments",
+      appId: "Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz",
+      appKey: "WaR7nrzhliHj9aVwdQzkdlGd",
+      notify: false,
+      verify: false,
+      avatar: "robohash",
+      placeholder: "正确填写邮箱, 才能及时收到回复哦♪(^∇^*)",
+      path
+    });
+  }
+</script>
+   
+
+  
+    <script defer>
+const valineAPI = (() => {
+  try {
+    AV.init("Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz", "WaR7nrzhliHj9aVwdQzkdlGd");
+  } catch(error) {}
+  const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+      query.equalTo("identity", identity);
+      query.find().then(results => {
+        resolve(results.length > 0);
+      }, error => reject(error));
+    })
+  }
+
+  const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+      let querys = [];
+      for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+      }
+      query = AV.Query.or.apply(null ,querys);
+    } else {
+      identity = identity || getRealPath();
+      query = new AV.Query("Timer");
+      query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+      query.find()
+      .then(results => resolve(results))
+      .catch(error => reject(error))
+    })
+  }
+
+  const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let Todo = AV.Object.extend('Timer');
+      let todo = new Todo();
+      todo.set("times", 1);
+      todo.set("identity", identity);
+      todo.save().then(res => resolve(true), error => reject(error));
+    })
+  }
+
+  const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let query = new AV.Query('Timer');
+      query.equalTo("identity", identity);
+      query.find().then(todos => {
+        todos.forEach(todo => {
+          todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+      }).then(todos => resolve(true), error => reject(error));
+    })
+  }
+
+  return {
+    isExist,
+    _get,
+    update,
+    create
+  }
+})()
+
+const calcAndWriteTimes = () => {
+  let isPost = true;
+
+  let timerAllDOM = document.querySelectorAll(".article-timer");
+
+  if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+      if(exist) {
+        return valineAPI.update(identity);
+      }
+      return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+  }
+
+  let timerDOMCache = {};
+
+  for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+      timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+      timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+      };
+    }
+  }
+
+  let identities = Object.keys(timerDOMCache);
+  valineAPI._get(identities).then(results => {
+    for(let result of results) {
+      let {identity, times} = result.attributes;
+      timerDOMCache[identity].times = times;
+      timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+      if(timerDOMCache[identity].times){
+        continue;
+      }
+      timerDOMCache[identity].dom.map(item => item.innerText = 1);
+      valineAPI.create(identity);
+    }
+  }).catch(error => console.log(error.message))
+}
+
+if(true){
+  calcAndWriteTimes();
+}
+</script>
+   
+
+</div>
+
+
+      <footer>
+  <p class="site-info">
+    博客已萌萌哒运行<span id="time-to-now"></span><span class="my-face">(●'◡'●)ﾉ♥</span>
+    <br>
+    Theme - <a href="https://github.com/dongyuanxin/theme-bmw">BMW</a> | Powered by <a href="https://godbmw.com/">GodBMW</a>
+    <br>
+    
+      Copyright © 2019 Matrix
+    
+  </p>
+</footer>
+
+
+
+<script>
+const timeToNowDOM = document.querySelector("#time-to-now");
+const startTimestamp = new Date(2016, 4, 10).getTime();
+
+const updateTimeStr = () => {
+  let offset = parseInt(
+      (new Date().getTime() - startTimestamp) / 1000,
+      10
+    ),
+    day = Math.floor(offset / 86400),
+    hour = Math.floor((offset % 86400) / 3600),
+    minute = Math.floor(((offset % 86400) % 3600) / 60),
+    second = Math.floor(((offset % 86400) % 3600) % 60);
+  timeToNowDOM.innerHTML =
+    day + "天" + hour + "小时" + minute + "分钟" + second + "秒";
+  setTimeout(updateTimeStr, 500);
+}
+
+setTimeout(updateTimeStr, 500);
+</script>
+
+
+      <div class="back-to-top hidden">
+  <span>
+    <i class="iconfont icon-60"></i><span></span>%
+  </span>
+</div>
+
+<script>
+const updateIconToTop = percent => {
+  let dom = document.querySelector(".back-to-top span span");
+  dom.innerText = percent;
+  if(percent < 1) {
+    document.querySelector(".back-to-top").className = "back-to-top hidden";
+  } else {
+    document.querySelector(".back-to-top").className = "back-to-top";
+  }
+}
+
+const handleScoll = () => {
+  let isRunning = false;
+  return () => {
+    if (isRunning) return;
+    isRunning = true;
+    window.requestAnimationFrame(timestamp => {
+      let scrollTop =
+          document.documentElement.scrollTop || document.body.scrollTop,
+        scrollHeight =
+          document.documentElement.scrollHeight ||
+          document.body.scrollHeight,
+        clientHeight =
+          document.documentElement.clientHeight ||
+          document.body.clientHeight;
+      isRunning = false;
+      if (scrollTop <= 1) {
+        updateIconToTop(0);
+        return;
+      }
+      if (scrollTop + clientHeight >= scrollHeight) {
+        updateIconToTop(100);
+      } else {
+        updateIconToTop(parseInt(
+          100 * scrollTop / (scrollHeight - clientHeight),
+          10
+        ));
+      }
+    });
+  };
+}
+
+const backToTop = () => {
+  let scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop,
+    delay = 10,
+    time = 200;
+  if (scrollTop <= 20) {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    return;
+  }
+  let step = Math.ceil(scrollTop * delay / time);
+  let timer = setInterval(() => {
+    scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop;
+    if (scrollTop - step <= 0) {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      clearInterval(timer);
+    } else {
+      document.documentElement.scrollTop = scrollTop - step;
+      document.body.scrollTop = scrollTop - step;
+    }
+  }, delay);
+}
+
+document.addEventListener("scroll", handleScoll(), false);
+
+document.querySelector(".back-to-top").addEventListener("click", backToTop, false);
+
+</script>
+
+    </div>
+
+    
+      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  (() => {
+    const mathjaxConfig = {
+      showProcessingMessages: false, //关闭js加载过程信息
+      messageStyle: "none", //不显示信息
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]], //行内公式选择符
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]], //段内公式选择符
+        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"] //避开某些标签
+      },
+      "HTML-CSS": {
+        availableFonts: ["STIX", "TeX"], //可选字体
+        showMathMenu: false //关闭右击菜单显示
+      }
+    }
+
+    let mathjaxInterval = setInterval(() => {
+      if(!window.MathJax){
+        return;
+      }
+      window.MathJax.Hub.Config(mathjaxConfig)
+      window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')])
+
+      clearInterval(mathjaxInterval)
+    }, 10)    
+  })()
+</script>
+    
+
+    <script src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script>
+<script async>
+  let fancyTimer = setInterval(function(){
+    if(!window.$){
+      return;
+    }
+    $(document).ready(function() {
+      $(".post img").each(function () {
+        if($(this).parent().get(0).tagName.toLowerCase() === "a") {
+          return;
+        }
+        // $(this).attr("data-fancybox", "gallery"); // if you add 'data-fancybox', img will display after showed
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "gallery");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      });
+      
+      clearInterval(fancyTimer);
+    });
+  }, 10);
+</script>
+
+    
+  </body>
+
+</html>

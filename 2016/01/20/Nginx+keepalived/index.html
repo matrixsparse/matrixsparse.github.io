@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta name="author" content="董沅鑫, yuanxin.me@gmail.com">
+  
+  
+  
+  <title>Nginx+keepalived | 每天遇到更好的你</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="大数据,大数据,Nginx,">
+  
+
+  <script>
+    console.log('\n%c Hexo-theme-bmw v4.0 ' + '%c 🎉 https://github.com/dongyuanxin/theme-bmw 🎉\n' + '\n%c View demo online ' + '%c 🔍 https://godbmw.com/ 🔍  \n' , 'color: #fadfa3; background: #030307; padding:3px 0;', '', 'color: #fadfa3; background: #030307; padding:3px 0;', '');
+  </script>
+
+  
+
+  
+
+  
+    <link rel="icon" href="/images/favicon.png">
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+  
+
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/icon/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+  <script src="/js/util.js"></script>
+<script src="/js/valine.min.js"></script>
+
+  
+
+  
+    <link href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js" async></script>
+  
+
+  
+    <link href="https://cdn.bootcss.com/social-share.js/1.0.16/css/share.min.css" rel="stylesheet">
+  
+  
+  <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js" async></script>
+  
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.0/dist/av-min.js"></script>
+  
+
+</head>
+
+  <body>
+
+    
+
+    <div id="app">
+
+      <div class="header-wrap">
+  <header>
+    <div class="site-brand">
+      <div class="site-title">
+        <!-- <a href="/">MatrixSparse</a> -->
+        <img alt="logo" class="antd-pro-layouts-user-layout-logo" src="/images/favicon.png" style="width: 40px;height: 40px;margin-top: 10px;margin-left: 5px;">
+      </div>
+    </div>
+    <nav class="site-navigation">
+      <ul class="nav-menu">
+      
+        <li class="nav-item" data-path="/">
+          
+            <a href="/" target="_self">
+              主页
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          
+            <a href="/archives/" target="_self">
+              归档
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          
+            <a href="/categories/" target="_self">
+              分类
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          
+            <a href="/tags/" target="_self">
+              标签
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="">
+          
+            <a href="javascript:void(0);" v-else="">博客地址</a>
+            <ul class="nav-menu--dropdown">
+              
+                <li>
+                  <a href="https://blog.csdn.net/qq_25371579" target="_blank">
+                    CSDN
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://github.com/matrixsparse" target="_blank">
+                    Github
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://matrixsparse.github.io/" target="_blank">
+                    Github Page
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+      </ul>
+    </nav>
+    <i class="iconfont icon-menu"></i>
+  </header>
+</div>
+
+<script>
+  let links = document.querySelectorAll('.nav-item');
+  for(let link of links){
+    let childrenLink = link.querySelector('ul');
+    link.addEventListener('mouseenter', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown active";
+      }
+    })
+    link.addEventListener('mouseleave', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown";
+      }
+    })
+  }
+  let rootRealPath = getRealPath(window.location.pathname, true);
+  for(let link of links) {
+    let linkPath = link.getAttribute("data-path");
+    if(linkPath && getRealPath(linkPath, true) === rootRealPath) {
+      link.className = "nav-item hover";
+    }
+  }
+
+  let iconMenu = document.querySelector("i.iconfont.icon-menu"),
+    iconMenuClicked = false;
+  let navDOM = document.querySelector("nav.site-navigation");
+  iconMenu.addEventListener("click", () => {
+    iconMenuClicked
+      ? navDOM.className = "site-navigation active"
+      : navDOM.className = "site-navigation";
+    iconMenuClicked = !iconMenuClicked;
+  })
+</script>
+
+
+      
+
+
+
+
+
+
+
+
+<div class="container post-index">
+
+  
+
+<div class="post">
+  <h1 class="article-title">
+    <span>Nginx+keepalived</span>
+  </h1>
+  <div class="article-top-meta">
+    <span>
+      发布 : 
+      2016-01-20
+    </span>
+    
+      <span>
+        分类 : 
+          <a href="/categories/大数据/">
+            大数据
+          </a>
+      </span>
+    
+    
+      <span>
+        浏览 : <span class="article-timer" data-identity="Nginx+keepalived"></span>
+      </span>
+    
+  </div>
+
+  
+
+  <div class="article-content">
+    <div class="markdown-body">
+      <h2 id="Nginx服务器宕机的主从切换配置"><a href="#Nginx服务器宕机的主从切换配置" class="headerlink" title="Nginx服务器宕机的主从切换配置"></a>Nginx服务器宕机的主从切换配置</h2><h3 id="准备192-168-230-10-192-168-230-13两台主机分别作为Lvs服务器"><a href="#准备192-168-230-10-192-168-230-13两台主机分别作为Lvs服务器" class="headerlink" title="准备192.168.230.10.192.168.230.13两台主机分别作为Lvs服务器"></a>准备192.168.230.10.192.168.230.13两台主机分别作为Lvs服务器</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">192.168.230.10 主Lvs服务器</span><br><span class="line"></span><br><span class="line">192.168.230.13 备Lvs服务器</span><br></pre></td></tr></table></figure>
+<h3 id="基本服务器宕机的主从切换配置"><a href="#基本服务器宕机的主从切换配置" class="headerlink" title="基本服务器宕机的主从切换配置"></a>基本服务器宕机的主从切换配置</h3><h4 id="准备192-168-230-10-192-168-230-12两台主机分别作为nginx服务器"><a href="#准备192-168-230-10-192-168-230-12两台主机分别作为nginx服务器" class="headerlink" title="准备192.168.230.10.192.168.230.12两台主机分别作为nginx服务器"></a>准备192.168.230.10.192.168.230.12两台主机分别作为nginx服务器</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">192.168.230.10 主nginx服务器</span><br><span class="line"></span><br><span class="line">192.168.230.13 备nginx服务器</span><br></pre></td></tr></table></figure>
+<h4 id="两台nginx服务器-分别安装tengine"><a href="#两台nginx服务器-分别安装tengine" class="headerlink" title="两台nginx服务器,分别安装tengine"></a>两台nginx服务器,分别安装tengine</h4><h5 id="将tengine安装包上传至指定目录"><a href="#将tengine安装包上传至指定目录" class="headerlink" title="将tengine安装包上传至指定目录"></a>将tengine安装包上传至指定目录</h5><blockquote>
+<p>进入目录</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node4 opt]<span class="comment"># cd software</span></span><br></pre></td></tr></table></figure>
+<h5 id="解压压缩文件"><a href="#解压压缩文件" class="headerlink" title="解压压缩文件"></a>解压压缩文件</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@node4 software]<span class="comment"># tar -zxvf tengine-2.1.0.tar.gz -C /opt/modules</span></span><br><span class="line">[root@node4 software]<span class="comment"># cd /opt/modules</span></span><br><span class="line">[root@node4 modules]<span class="comment"># cd tengine-2.1.0</span></span><br></pre></td></tr></table></figure>
+<h5 id="安装tengine依赖"><a href="#安装tengine依赖" class="headerlink" title="安装tengine依赖"></a>安装tengine依赖</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node4 tengine-2.1.0]<span class="comment"># yum install -y gcc openssl-devel pcre-devel zlib-devel</span></span><br></pre></td></tr></table></figure>
+<h5 id="预编译"><a href="#预编译" class="headerlink" title="预编译"></a>预编译</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">[root@node4 tengine-2.1.0]<span class="comment"># ./configure \</span></span><br><span class="line">		  --prefix=/opt/modules/tengine-2.1.0/ \</span><br><span class="line">		  --error-log-path=/var/<span class="built_in">log</span>/nginx/error.log \</span><br><span class="line">		  --http-log-path=/var/<span class="built_in">log</span>/nginx/access.log \</span><br><span class="line">		  --pid-path=/var/run/nginx/nginx.pid  \</span><br><span class="line">		  --lock-path=/var/lock/nginx.lock \</span><br><span class="line">		  --with-http_ssl_module \</span><br><span class="line">		  --with-http_flv_module \</span><br><span class="line">		  --with-http_stub_status_module \</span><br><span class="line">		  --with-http_gzip_static_module \</span><br><span class="line">		  --http-client-body-temp-path=/var/tmp/nginx/client/ \</span><br><span class="line">		  --http-proxy-temp-path=/var/tmp/nginx/proxy/ \</span><br><span class="line">		  --http-fastcgi-temp-path=/var/tmp/nginx/fcgi/ \</span><br><span class="line">		  --http-uwsgi-temp-path=/var/tmp/nginx/uwsgi \</span><br><span class="line">		  --http-scgi-temp-path=/var/tmp/nginx/scgi \</span><br><span class="line">		  --with-pcre</span><br></pre></td></tr></table></figure>
+<h5 id="编译-amp-安装"><a href="#编译-amp-安装" class="headerlink" title="编译&amp;安装"></a>编译&amp;安装</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node4 tengine-2.1.0]<span class="comment"># make &amp;&amp; make install</span></span><br></pre></td></tr></table></figure>
+<h5 id="进入-etc-init-d目录，添加nginx服务"><a href="#进入-etc-init-d目录，添加nginx服务" class="headerlink" title="进入/etc/init.d目录，添加nginx服务"></a>进入/etc/init.d目录，添加nginx服务</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">[root@node4 tengine-2.1.0]<span class="comment"># cd /etc/init.d</span></span><br><span class="line">[root@node4 init.d]<span class="comment"># vi nginx</span></span><br><span class="line"></span><br><span class="line">[root@node4 init.d]<span class="comment"># chmod 755 nginx</span></span><br><span class="line">[root@node4 init.d]<span class="comment"># cd /var/tmp/</span></span><br><span class="line">[root@node4 tmp]<span class="comment"># mkdir -p /var/tmp/nginx/</span></span><br><span class="line">[root@node4 tmp]<span class="comment"># service nginx start</span></span><br><span class="line">```	 </span><br><span class="line"></span><br><span class="line"><span class="comment">##### 配置负载均衡</span></span><br><span class="line"></span><br><span class="line">```bash</span><br><span class="line">[root@node4 ~]<span class="comment"># cd /opt/modules/tengine-2.1.0/conf</span></span><br></pre></td></tr></table></figure>
+<h5 id="两台nginx服务器-分别安装keepalived配置-etc-keepalived-keepalived-conf"><a href="#两台nginx服务器-分别安装keepalived配置-etc-keepalived-keepalived-conf" class="headerlink" title="两台nginx服务器,分别安装keepalived配置/etc/keepalived/keepalived.conf"></a>两台nginx服务器,分别安装keepalived配置/etc/keepalived/keepalived.conf</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@node2 ~]<span class="comment"># yum -y install keepalived</span></span><br><span class="line">[root@node3 ~]<span class="comment"># yum -y install keepalived</span></span><br></pre></td></tr></table></figure>
+<h5 id="在192-168-230-10主机上进行主Lvs配置操作："><a href="#在192-168-230-10主机上进行主Lvs配置操作：" class="headerlink" title="在192.168.230.10主机上进行主Lvs配置操作："></a>在192.168.230.10主机上进行主Lvs配置操作：</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line">主Lvs</span><br><span class="line"></span><br><span class="line">修改主Lvs 下/etc/keepalived/keepalived.conf 文件</span><br><span class="line"></span><br><span class="line">	! Configuration File <span class="keyword">for</span> keepalived</span><br><span class="line"></span><br><span class="line">	global_defs &#123;</span><br><span class="line">	   notification_email &#123;</span><br><span class="line">	root@localhost <span class="comment">#发送提醒邮件的目标地址可有多个</span></span><br><span class="line">	goldbin@126.com</span><br><span class="line">	  &#125;</span><br><span class="line">	   notification_email_from <span class="built_in">test</span>@localhost<span class="comment">#发送邮件的from地址，可以随意写，邮件地址不存在都无所谓</span></span><br><span class="line">	   smtp_server 127.0.0.1<span class="comment">#邮件服务的地址，一般写本地</span></span><br><span class="line">	   smtp_connect_timeout 30</span><br><span class="line">	   router_id LVS_DEVEL</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	vrrp_instance VI_1 &#123;</span><br><span class="line">	    state MASTER<span class="comment"># MASTER 主 和 从</span></span><br><span class="line">	    interface eth0<span class="comment">#VIP需要绑定的网卡名称</span></span><br><span class="line">	    virtual_router_id 51</span><br><span class="line">	    priority 101<span class="comment">#优先级 主的优先级要高</span></span><br><span class="line">	    advert_int 1</span><br><span class="line">	    authentication &#123;</span><br><span class="line">	   auth_type PASS</span><br><span class="line">	   auth_pass 1111</span><br><span class="line">	    &#125;</span><br><span class="line">	    virtual_ipaddress &#123;</span><br><span class="line">	   192.168.230.100/24 dev eth0 label eth0:0 <span class="comment">#设置VIP</span></span><br><span class="line">	    &#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	virtual_server 192.168.230.100 80 &#123;<span class="comment">#设置虚拟lvs服务，VIP PORT</span></span><br><span class="line">	    delay_loop 6</span><br><span class="line">	    lb_algo rr<span class="comment">#调度算法wrr</span></span><br><span class="line">	    lb_kind DR<span class="comment">#lvs的模式</span></span><br><span class="line">	    nat_mask 255.255.255.0</span><br><span class="line">	    persistence_timeout 50 <span class="comment">#同一个IP地址在50秒内lvs转发给同一个后端服务器</span></span><br><span class="line">	    protocol TCP</span><br><span class="line"></span><br><span class="line">	    real_server 192.168.230.11 80 &#123;<span class="comment">#设置真实服务器的心跳机制 RID PORT</span></span><br><span class="line">	   weight 1<span class="comment">#权重</span></span><br><span class="line">	   HTTP_GET &#123;<span class="comment">#心跳检测的方式</span></span><br><span class="line">	  url &#123;</span><br><span class="line">	    path /<span class="comment">#心跳检查的地址</span></span><br><span class="line">	    status_code 200<span class="comment">#心跳检查返回的状态</span></span><br><span class="line">	  &#125;</span><br><span class="line">	  connect_timeout 2 <span class="comment">#超时时间</span></span><br><span class="line">	  nb_get_retry 3<span class="comment">#重复检查3次</span></span><br><span class="line">	  delay_before_retry 1<span class="comment">#每隔1秒钟再次检查</span></span><br><span class="line">	   &#125;</span><br><span class="line">	    &#125;</span><br><span class="line">	    real_server 192.168.230.12 80 &#123;<span class="comment">#第二个真实服务器设置</span></span><br><span class="line">	   weight 1</span><br><span class="line">	   HTTP_GET &#123;</span><br><span class="line">	  url &#123;</span><br><span class="line">	    path /</span><br><span class="line">	    status_code 200</span><br><span class="line">	  &#125;</span><br><span class="line">	  connect_timeout 2</span><br><span class="line">	  nb_get_retry 3</span><br><span class="line">	  delay_before_retry 1</span><br><span class="line">	   &#125;</span><br><span class="line">	    &#125;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="在192-168-230-13主机上进行备Lvs配置操作："><a href="#在192-168-230-13主机上进行备Lvs配置操作：" class="headerlink" title="在192.168.230.13主机上进行备Lvs配置操作："></a>在192.168.230.13主机上进行备Lvs配置操作：</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><span class="line">备Lvs</span><br><span class="line"></span><br><span class="line">修改备Lvs下/etc/keepalived/keepalived.conf文件</span><br><span class="line"></span><br><span class="line">    配置备Lvs时</span><br><span class="line"></span><br><span class="line">	需要注意:需要修改state为BACKUP,priority比MASTER低,virtual_router_id和master</span><br><span class="line"></span><br><span class="line">	! Configuration File <span class="keyword">for</span> keepalived</span><br><span class="line"></span><br><span class="line">	global_defs &#123;</span><br><span class="line">	   notification_email &#123;</span><br><span class="line">	root@localhost <span class="comment">#发送提醒邮件的目标地址可有多个</span></span><br><span class="line">	goldbin@126.com</span><br><span class="line">	  &#125;</span><br><span class="line">	   notification_email_from <span class="built_in">test</span>@localhost<span class="comment">#发送邮件的from地址，可以随意写，邮件地址不存在都无所谓</span></span><br><span class="line">	   smtp_server 127.0.0.1<span class="comment">#邮件服务的地址，一般写本地</span></span><br><span class="line">	   smtp_connect_timeout 30</span><br><span class="line">	   router_id LVS_DEVEL</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	vrrp_instance VI_1 &#123;</span><br><span class="line">	    state BACKUP<span class="comment"># MASTER 主 和 从</span></span><br><span class="line">	    interface eth0<span class="comment">#VIP需要绑定的网卡名称</span></span><br><span class="line">	    virtual_router_id 51</span><br><span class="line">	    priority 100<span class="comment">#优先级 主的优先级要高</span></span><br><span class="line">	    advert_int 1</span><br><span class="line">	    authentication &#123;</span><br><span class="line">	   auth_type PASS</span><br><span class="line">	   auth_pass 1111</span><br><span class="line">	    &#125;</span><br><span class="line">	    virtual_ipaddress &#123;</span><br><span class="line">	   192.168.230.100/24 dev eth0 label eth0:0 <span class="comment">#设置VIP</span></span><br><span class="line">	    &#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	virtual_server 192.168.230.100 80 &#123;<span class="comment">#设置虚拟lvs服务，VIP PORT</span></span><br><span class="line">	    delay_loop 6</span><br><span class="line">	    lb_algo rr<span class="comment">#调度算法wrr</span></span><br><span class="line">	    lb_kind DR<span class="comment">#lvs的模式</span></span><br><span class="line">	    nat_mask 255.255.255.0</span><br><span class="line">	    persistence_timeout 50 <span class="comment">#同一个IP地址在50秒内lvs转发给同一个后端服务器</span></span><br><span class="line">	    protocol TCP</span><br><span class="line"></span><br><span class="line">	    real_server 192.168.230.11 80 &#123;<span class="comment">#设置真实服务器的心跳机制 RID PORT</span></span><br><span class="line">	   weight 1<span class="comment">#权重</span></span><br><span class="line">	   HTTP_GET &#123;<span class="comment">#心跳检测的方式</span></span><br><span class="line">	  url &#123;</span><br><span class="line">	    path /<span class="comment">#心跳检查的地址</span></span><br><span class="line">	    status_code 200<span class="comment">#心跳检查返回的状态</span></span><br><span class="line">	  &#125;</span><br><span class="line">	  connect_timeout 2 <span class="comment">#超时时间</span></span><br><span class="line">	  nb_get_retry 3<span class="comment">#重复检查3次</span></span><br><span class="line">	  delay_before_retry 1<span class="comment">#每隔1秒钟再次检查</span></span><br><span class="line">	   &#125;</span><br><span class="line">	    &#125;</span><br><span class="line">	    real_server 192.168.230.12 80 &#123;<span class="comment">#第二个真实服务器设置</span></span><br><span class="line">	   weight 1</span><br><span class="line">	   HTTP_GET &#123;</span><br><span class="line">	  url &#123;</span><br><span class="line">	    path /</span><br><span class="line">	    status_code 200</span><br><span class="line">	  &#125;</span><br><span class="line">	  connect_timeout 2</span><br><span class="line">	  nb_get_retry 3</span><br><span class="line">	  delay_before_retry 1</span><br><span class="line">	   &#125;</span><br><span class="line">	    &#125;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="两台nginx服务器-分别安装keepalived配置-etc-keepalived-keepalived-conf-1"><a href="#两台nginx服务器-分别安装keepalived配置-etc-keepalived-keepalived-conf-1" class="headerlink" title="两台nginx服务器,分别安装keepalived配置/etc/keepalived/keepalived.conf"></a>两台nginx服务器,分别安装keepalived配置/etc/keepalived/keepalived.conf</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[root@node1 keepalived]<span class="comment"># vi keepalived.conf</span></span><br><span class="line">[root@node1 keepalived]<span class="comment"># cp keepalived.conf keepalived.confbackup  </span></span><br><span class="line"></span><br><span class="line">[root@node4 ~]<span class="comment"># yum -y install keepalived</span></span><br><span class="line">[root@node4 keepalived]<span class="comment"># cp keepalived.conf keepalived.confbackup  </span></span><br><span class="line"></span><br><span class="line">删除虚拟地址</span><br><span class="line">[root@node1 ~]<span class="comment"># ip addr del 192.168.230.100/24 dev eth0</span></span><br></pre></td></tr></table></figure>
+<h4 id="在192-168-230-10主机上进行主Lvs配置操作：-1"><a href="#在192-168-230-10主机上进行主Lvs配置操作：-1" class="headerlink" title="在192.168.230.10主机上进行主Lvs配置操作："></a>在192.168.230.10主机上进行主Lvs配置操作：</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line">主Lvs</span><br><span class="line"></span><br><span class="line">修改主Lvs 下/etc/keepalived/keepalived.conf 文件</span><br><span class="line"></span><br><span class="line">	! Configuration File <span class="keyword">for</span> keepalived</span><br><span class="line"></span><br><span class="line">	global_defs &#123;</span><br><span class="line">	   notification_email &#123;</span><br><span class="line">	root@localhost <span class="comment">#发送提醒邮件的目标地址可有多个</span></span><br><span class="line">	goldbin@126.com</span><br><span class="line">	  &#125;</span><br><span class="line">	   notification_email_from <span class="built_in">test</span>@localhost<span class="comment">#发送邮件的from地址，可以随意写，邮件地址不存在都无所谓</span></span><br><span class="line">	   smtp_server 127.0.0.1<span class="comment">#邮件服务的地址，一般写本地</span></span><br><span class="line">	   smtp_connect_timeout 30</span><br><span class="line">	   router_id LVS_DEVEL</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	vrrp_instance VI_1 &#123;</span><br><span class="line">	    state MASTER<span class="comment"># MASTER 主 和 从</span></span><br><span class="line">	    interface eth0<span class="comment">#VIP需要绑定的网卡名称</span></span><br><span class="line">	    virtual_router_id 51</span><br><span class="line">	    priority 101<span class="comment">#优先级 主的优先级要高</span></span><br><span class="line">	    advert_int 1</span><br><span class="line">	    authentication &#123;</span><br><span class="line">	   auth_type PASS</span><br><span class="line">	   auth_pass 1111</span><br><span class="line">	    &#125;</span><br><span class="line">	    virtual_ipaddress &#123;</span><br><span class="line">	   192.168.230.100/24 dev eth0 label eth0:0 <span class="comment">#设置VIP</span></span><br><span class="line">	    &#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	virtual_server 192.168.230.100 80 &#123;<span class="comment">#设置虚拟lvs服务，VIP PORT</span></span><br><span class="line">	    delay_loop 6</span><br><span class="line">	    lb_algo rr<span class="comment">#调度算法wrr</span></span><br><span class="line">	    lb_kind DR<span class="comment">#lvs的模式</span></span><br><span class="line">	    nat_mask 255.255.255.0</span><br><span class="line">	    persistence_timeout 50 <span class="comment">#同一个IP地址在50秒内lvs转发给同一个后端服务器</span></span><br><span class="line">	    protocol TCP</span><br><span class="line"></span><br><span class="line">	    real_server 192.168.230.11 80 &#123;<span class="comment">#设置真实服务器的心跳机制 RID PORT</span></span><br><span class="line">	   weight 1<span class="comment">#权重</span></span><br><span class="line">	   HTTP_GET &#123;<span class="comment">#心跳检测的方式</span></span><br><span class="line">	  url &#123;</span><br><span class="line">	    path /<span class="comment">#心跳检查的地址</span></span><br><span class="line">	    status_code 200<span class="comment">#心跳检查返回的状态</span></span><br><span class="line">	  &#125;</span><br><span class="line">	  connect_timeout 2 <span class="comment">#超时时间</span></span><br><span class="line">	  nb_get_retry 3<span class="comment">#重复检查3次</span></span><br><span class="line">	  delay_before_retry 1<span class="comment">#每隔1秒钟再次检查</span></span><br><span class="line">	   &#125;</span><br><span class="line">	    &#125;</span><br><span class="line">	    real_server 192.168.230.12 80 &#123;<span class="comment">#第二个真实服务器设置</span></span><br><span class="line">	   weight 1</span><br><span class="line">	   HTTP_GET &#123;</span><br><span class="line">	  url &#123;</span><br><span class="line">	    path /</span><br><span class="line">	    status_code 200</span><br><span class="line">	  &#125;</span><br><span class="line">	  connect_timeout 2</span><br><span class="line">	  nb_get_retry 3</span><br><span class="line">	  delay_before_retry 1</span><br><span class="line">	   &#125;</span><br><span class="line">	    &#125;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="在192-168-230-13主机上进行备Lvs配置操作：-1"><a href="#在192-168-230-13主机上进行备Lvs配置操作：-1" class="headerlink" title="在192.168.230.13主机上进行备Lvs配置操作："></a>在192.168.230.13主机上进行备Lvs配置操作：</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><span class="line">备Lvs</span><br><span class="line"></span><br><span class="line">修改备Lvs下/etc/keepalived/keepalived.conf文件</span><br><span class="line"></span><br><span class="line">    配置备Lvs时</span><br><span class="line"></span><br><span class="line">	需要注意:需要修改state为BACKUP,priority比MASTER低,virtual_router_id和master</span><br><span class="line"></span><br><span class="line">	! Configuration File <span class="keyword">for</span> keepalived</span><br><span class="line"></span><br><span class="line">	global_defs &#123;</span><br><span class="line">	   notification_email &#123;</span><br><span class="line">	root@localhost <span class="comment">#发送提醒邮件的目标地址可有多个</span></span><br><span class="line">	goldbin@126.com</span><br><span class="line">	  &#125;</span><br><span class="line">	   notification_email_from <span class="built_in">test</span>@localhost<span class="comment">#发送邮件的from地址，可以随意写，邮件地址不存在都无所谓</span></span><br><span class="line">	   smtp_server 127.0.0.1<span class="comment">#邮件服务的地址，一般写本地</span></span><br><span class="line">	   smtp_connect_timeout 30</span><br><span class="line">	   router_id LVS_DEVEL</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	vrrp_instance VI_1 &#123;</span><br><span class="line">	    state BACKUP<span class="comment"># MASTER 主 和 从</span></span><br><span class="line">	    interface eth0<span class="comment">#VIP需要绑定的网卡名称</span></span><br><span class="line">	    virtual_router_id 51</span><br><span class="line">	    priority 100<span class="comment">#优先级 主的优先级要高</span></span><br><span class="line">	    advert_int 1</span><br><span class="line">	    authentication &#123;</span><br><span class="line">	   auth_type PASS</span><br><span class="line">	   auth_pass 1111</span><br><span class="line">	    &#125;</span><br><span class="line">	    virtual_ipaddress &#123;</span><br><span class="line">	   192.168.230.100/24 dev eth0 label eth0:0 <span class="comment">#设置VIP</span></span><br><span class="line">	    &#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	virtual_server 192.168.230.100 80 &#123;<span class="comment">#设置虚拟lvs服务，VIP PORT</span></span><br><span class="line">	    delay_loop 6</span><br><span class="line">	    lb_algo rr<span class="comment">#调度算法wrr</span></span><br><span class="line">	    lb_kind DR<span class="comment">#lvs的模式</span></span><br><span class="line">	    nat_mask 255.255.255.0</span><br><span class="line">	    persistence_timeout 50 <span class="comment">#同一个IP地址在50秒内lvs转发给同一个后端服务器</span></span><br><span class="line">	    protocol TCP</span><br><span class="line"></span><br><span class="line">	    real_server 192.168.230.11 80 &#123;<span class="comment">#设置真实服务器的心跳机制 RID PORT</span></span><br><span class="line">	   weight 1<span class="comment">#权重</span></span><br><span class="line">	   HTTP_GET &#123;<span class="comment">#心跳检测的方式</span></span><br><span class="line">	  url &#123;</span><br><span class="line">	    path /<span class="comment">#心跳检查的地址</span></span><br><span class="line">	    status_code 200<span class="comment">#心跳检查返回的状态</span></span><br><span class="line">	  &#125;</span><br><span class="line">	  connect_timeout 2 <span class="comment">#超时时间</span></span><br><span class="line">	  nb_get_retry 3<span class="comment">#重复检查3次</span></span><br><span class="line">	  delay_before_retry 1<span class="comment">#每隔1秒钟再次检查</span></span><br><span class="line">	   &#125;</span><br><span class="line">	    &#125;</span><br><span class="line">	    real_server 192.168.230.12 80 &#123;<span class="comment">#第二个真实服务器设置</span></span><br><span class="line">	   weight 1</span><br><span class="line">	   HTTP_GET &#123;</span><br><span class="line">	  url &#123;</span><br><span class="line">	    path /</span><br><span class="line">	    status_code 200</span><br><span class="line">	  &#125;</span><br><span class="line">	  connect_timeout 2</span><br><span class="line">	  nb_get_retry 3</span><br><span class="line">	  delay_before_retry 1</span><br><span class="line">	   &#125;</span><br><span class="line">	    &#125;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="在RS-检查web服务是否正常"><a href="#在RS-检查web服务是否正常" class="headerlink" title="在RS 检查web服务是否正常"></a>在RS 检查web服务是否正常</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">在192.168.230.11后台服务器操作：</span><br><span class="line"></span><br><span class="line">[root@node2 ~]<span class="comment"># yum -y install httpd</span></span><br><span class="line">[root@node2 bin]<span class="comment"># cd /var/www/html</span></span><br><span class="line">[root@node2 html]<span class="comment"># vi index.html</span></span><br><span class="line">&lt;html&gt;</span><br><span class="line">	&lt;h1&gt;matrix2!&lt;/h1&gt;</span><br><span class="line">&lt;/html&gt;</span><br><span class="line">[root@node2 ~]<span class="comment"># service httpd start</span></span><br><span class="line"></span><br><span class="line">在浏览器地址栏访问：http://192.168.230.11/，查看web服务是否正常</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-3/61494189.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">在192.168.230.12后台服务器操作：</span><br><span class="line"></span><br><span class="line">[root@node3 ~]<span class="comment"># yum -y install httpd</span></span><br><span class="line">[root@node3 bin]<span class="comment"># cd /var/www/html</span></span><br><span class="line">[root@node3 html]<span class="comment"># vi index.html</span></span><br><span class="line">&lt;html&gt;</span><br><span class="line">	&lt;h1&gt;matrix3!&lt;/h1&gt;</span><br><span class="line">&lt;/html&gt;</span><br><span class="line">[root@node3 ~]<span class="comment"># service httpd start</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">在浏览器地址栏访问：http://192.168.230.12/，查看web服务是否正常</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-3/58234679.jpg" alt=""></p>
+
+    </div>
+  </div>
+  
+    <div class="copy-right">
+      <div class="markdown-body">
+        <blockquote>
+        
+        
+          本文作者 : Matrix <br>
+        
+        原文链接 : <a href="">http://yoursite.com/2016/01/20/Nginx+keepalived/</a><br>
+        版权声明 : 本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+        </blockquote>
+      </div>
+    </div>
+  
+  
+  
+    <div class="social-share" style="margin-top: -2rem" data-wechat-qrcode-title="<p>微信扫一扫</p>" data-wechat-qrcode-helper="<p>微信右上角, 扫一扫分享</p>" data-sites="qzone, qq, weibo, wechat, douban, google, facebook, twitter">
+  <span style="color: #6b7487; font-size: 1.4rem;">分享到: </span>
+</div>
+<script src="https://cdn.bootcss.com/social-share.js/1.0.16/js/social-share.min.js" async></script>
+  
+
+  
+    <div id="reward">
+  
+    <p id="reward-meta">知识 & 情怀 | 二者兼得</p>
+  
+  <button id="reward-btn">
+    
+    <span>投食</span>
+  </button>
+  <div id="reward-qrcode">
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/wechatpay.jpg" alt="微信扫一扫, 向我投食">
+        <p class="qrcode-meta">微信扫一扫, 向我投食</p>
+      </div>
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/alipaypay.jpg" alt="支付宝扫一扫, 向我投食">
+        <p class="qrcode-meta">支付宝扫一扫, 向我投食</p>
+      </div>
+    
+  </div>
+
+</div>
+
+<script>
+  (() => {
+    let button = document.querySelector('#reward-btn'),
+      qrcode = document.querySelector('#reward-qrcode'),
+      display = false;
+    
+    button.addEventListener('click', () => {
+      qrcode.style.display = display ? 'none' : 'block'
+      display = !display
+    }, false)
+  })()
+</script>
+  
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+      <span>
+        
+          <i class="iconfont icon-06tags"></i>标签: 
+          
+          <span class="span--tag">
+            <a href="/tags/大数据/">
+              #大数据
+            </a>
+          </span>
+          
+          <span class="span--tag">
+            <a href="/tags/Nginx/">
+              #Nginx
+            </a>
+          </span>
+          
+        
+      </span>
+    </div>
+    <div class="article-meta pull-right">
+    </div>
+  </div>
+</div>
+
+
+  <aside id="sidebar">
+    <p id="sidebar-header"></p>
+    <ol id="sidebar-toc"></ol>
+  </aside>
+  <script async>setTimeout(generateToc, 10);</script>
+
+
+  <nav class="post-navigation">
+    
+      <div class="nav-pre">
+        <i class="iconfont icon-prev"></i>
+        上一篇:
+        <a href="/2016/01/20/lucene基础/" target="_self">Lucene基础</a>
+      </div>
+    
+    
+      <div class="nav-next">
+        下一篇:
+        <a href="/2016/01/20/Mahout聚类测试/" target="_self">Mahout聚类测试</a>
+        <i class="iconfont icon-next"></i>
+      </div>
+    
+  </nav>
+
+  
+    <a href="#comment" class="comment-anchor"></a>
+<div class="comment-title"><i class="iconfont icon-footprint"></i> 留下足迹 <i class="iconfont icon-footprint"></i></div>
+<div id="vcomments"></div>
+
+<script defer>
+  if( true ) {
+    let path = getRealPath()
+    new Valine({
+      el: "#vcomments",
+      appId: "Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz",
+      appKey: "WaR7nrzhliHj9aVwdQzkdlGd",
+      notify: false,
+      verify: false,
+      avatar: "robohash",
+      placeholder: "正确填写邮箱, 才能及时收到回复哦♪(^∇^*)",
+      path
+    });
+  }
+</script>
+   
+
+  
+    <script defer>
+const valineAPI = (() => {
+  try {
+    AV.init("Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz", "WaR7nrzhliHj9aVwdQzkdlGd");
+  } catch(error) {}
+  const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+      query.equalTo("identity", identity);
+      query.find().then(results => {
+        resolve(results.length > 0);
+      }, error => reject(error));
+    })
+  }
+
+  const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+      let querys = [];
+      for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+      }
+      query = AV.Query.or.apply(null ,querys);
+    } else {
+      identity = identity || getRealPath();
+      query = new AV.Query("Timer");
+      query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+      query.find()
+      .then(results => resolve(results))
+      .catch(error => reject(error))
+    })
+  }
+
+  const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let Todo = AV.Object.extend('Timer');
+      let todo = new Todo();
+      todo.set("times", 1);
+      todo.set("identity", identity);
+      todo.save().then(res => resolve(true), error => reject(error));
+    })
+  }
+
+  const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let query = new AV.Query('Timer');
+      query.equalTo("identity", identity);
+      query.find().then(todos => {
+        todos.forEach(todo => {
+          todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+      }).then(todos => resolve(true), error => reject(error));
+    })
+  }
+
+  return {
+    isExist,
+    _get,
+    update,
+    create
+  }
+})()
+
+const calcAndWriteTimes = () => {
+  let isPost = true;
+
+  let timerAllDOM = document.querySelectorAll(".article-timer");
+
+  if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+      if(exist) {
+        return valineAPI.update(identity);
+      }
+      return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+  }
+
+  let timerDOMCache = {};
+
+  for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+      timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+      timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+      };
+    }
+  }
+
+  let identities = Object.keys(timerDOMCache);
+  valineAPI._get(identities).then(results => {
+    for(let result of results) {
+      let {identity, times} = result.attributes;
+      timerDOMCache[identity].times = times;
+      timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+      if(timerDOMCache[identity].times){
+        continue;
+      }
+      timerDOMCache[identity].dom.map(item => item.innerText = 1);
+      valineAPI.create(identity);
+    }
+  }).catch(error => console.log(error.message))
+}
+
+if(true){
+  calcAndWriteTimes();
+}
+</script>
+   
+
+</div>
+
+
+      <footer>
+  <p class="site-info">
+    博客已萌萌哒运行<span id="time-to-now"></span><span class="my-face">(●'◡'●)ﾉ♥</span>
+    <br>
+    Theme - <a href="https://github.com/dongyuanxin/theme-bmw">BMW</a> | Powered by <a href="https://godbmw.com/">GodBMW</a>
+    <br>
+    
+      Copyright © 2019 Matrix
+    
+  </p>
+</footer>
+
+
+
+<script>
+const timeToNowDOM = document.querySelector("#time-to-now");
+const startTimestamp = new Date(2016, 4, 10).getTime();
+
+const updateTimeStr = () => {
+  let offset = parseInt(
+      (new Date().getTime() - startTimestamp) / 1000,
+      10
+    ),
+    day = Math.floor(offset / 86400),
+    hour = Math.floor((offset % 86400) / 3600),
+    minute = Math.floor(((offset % 86400) % 3600) / 60),
+    second = Math.floor(((offset % 86400) % 3600) % 60);
+  timeToNowDOM.innerHTML =
+    day + "天" + hour + "小时" + minute + "分钟" + second + "秒";
+  setTimeout(updateTimeStr, 500);
+}
+
+setTimeout(updateTimeStr, 500);
+</script>
+
+
+      <div class="back-to-top hidden">
+  <span>
+    <i class="iconfont icon-60"></i><span></span>%
+  </span>
+</div>
+
+<script>
+const updateIconToTop = percent => {
+  let dom = document.querySelector(".back-to-top span span");
+  dom.innerText = percent;
+  if(percent < 1) {
+    document.querySelector(".back-to-top").className = "back-to-top hidden";
+  } else {
+    document.querySelector(".back-to-top").className = "back-to-top";
+  }
+}
+
+const handleScoll = () => {
+  let isRunning = false;
+  return () => {
+    if (isRunning) return;
+    isRunning = true;
+    window.requestAnimationFrame(timestamp => {
+      let scrollTop =
+          document.documentElement.scrollTop || document.body.scrollTop,
+        scrollHeight =
+          document.documentElement.scrollHeight ||
+          document.body.scrollHeight,
+        clientHeight =
+          document.documentElement.clientHeight ||
+          document.body.clientHeight;
+      isRunning = false;
+      if (scrollTop <= 1) {
+        updateIconToTop(0);
+        return;
+      }
+      if (scrollTop + clientHeight >= scrollHeight) {
+        updateIconToTop(100);
+      } else {
+        updateIconToTop(parseInt(
+          100 * scrollTop / (scrollHeight - clientHeight),
+          10
+        ));
+      }
+    });
+  };
+}
+
+const backToTop = () => {
+  let scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop,
+    delay = 10,
+    time = 200;
+  if (scrollTop <= 20) {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    return;
+  }
+  let step = Math.ceil(scrollTop * delay / time);
+  let timer = setInterval(() => {
+    scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop;
+    if (scrollTop - step <= 0) {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      clearInterval(timer);
+    } else {
+      document.documentElement.scrollTop = scrollTop - step;
+      document.body.scrollTop = scrollTop - step;
+    }
+  }, delay);
+}
+
+document.addEventListener("scroll", handleScoll(), false);
+
+document.querySelector(".back-to-top").addEventListener("click", backToTop, false);
+
+</script>
+
+    </div>
+
+    
+      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  (() => {
+    const mathjaxConfig = {
+      showProcessingMessages: false, //关闭js加载过程信息
+      messageStyle: "none", //不显示信息
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]], //行内公式选择符
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]], //段内公式选择符
+        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"] //避开某些标签
+      },
+      "HTML-CSS": {
+        availableFonts: ["STIX", "TeX"], //可选字体
+        showMathMenu: false //关闭右击菜单显示
+      }
+    }
+
+    let mathjaxInterval = setInterval(() => {
+      if(!window.MathJax){
+        return;
+      }
+      window.MathJax.Hub.Config(mathjaxConfig)
+      window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')])
+
+      clearInterval(mathjaxInterval)
+    }, 10)    
+  })()
+</script>
+    
+
+    <script src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script>
+<script async>
+  let fancyTimer = setInterval(function(){
+    if(!window.$){
+      return;
+    }
+    $(document).ready(function() {
+      $(".post img").each(function () {
+        if($(this).parent().get(0).tagName.toLowerCase() === "a") {
+          return;
+        }
+        // $(this).attr("data-fancybox", "gallery"); // if you add 'data-fancybox', img will display after showed
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "gallery");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      });
+      
+      clearInterval(fancyTimer);
+    });
+  }, 10);
+</script>
+
+    
+  </body>
+
+</html>

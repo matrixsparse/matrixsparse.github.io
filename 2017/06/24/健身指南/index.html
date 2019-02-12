@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta name="author" content="董沅鑫, yuanxin.me@gmail.com">
+  
+  
+  
+  <title>健身指南 | 每天遇到更好的你</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="健身,健身,">
+  
+
+  <script>
+    console.log('\n%c Hexo-theme-bmw v4.0 ' + '%c 🎉 https://github.com/dongyuanxin/theme-bmw 🎉\n' + '\n%c View demo online ' + '%c 🔍 https://godbmw.com/ 🔍  \n' , 'color: #fadfa3; background: #030307; padding:3px 0;', '', 'color: #fadfa3; background: #030307; padding:3px 0;', '');
+  </script>
+
+  
+
+  
+
+  
+    <link rel="icon" href="/images/favicon.png">
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+  
+
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/icon/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+  <script src="/js/util.js"></script>
+<script src="/js/valine.min.js"></script>
+
+  
+
+  
+    <link href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js" async></script>
+  
+
+  
+    <link href="https://cdn.bootcss.com/social-share.js/1.0.16/css/share.min.css" rel="stylesheet">
+  
+  
+  <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js" async></script>
+  
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.0/dist/av-min.js"></script>
+  
+
+</head>
+
+  <body>
+
+    
+
+    <div id="app">
+
+      <div class="header-wrap">
+  <header>
+    <div class="site-brand">
+      <div class="site-title">
+        <!-- <a href="/">MatrixSparse</a> -->
+        <img alt="logo" class="antd-pro-layouts-user-layout-logo" src="/images/favicon.png" style="width: 40px;height: 40px;margin-top: 10px;margin-left: 5px;">
+      </div>
+    </div>
+    <nav class="site-navigation">
+      <ul class="nav-menu">
+      
+        <li class="nav-item" data-path="/">
+          
+            <a href="/" target="_self">
+              主页
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          
+            <a href="/archives/" target="_self">
+              归档
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          
+            <a href="/categories/" target="_self">
+              分类
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          
+            <a href="/tags/" target="_self">
+              标签
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="">
+          
+            <a href="javascript:void(0);" v-else="">博客地址</a>
+            <ul class="nav-menu--dropdown">
+              
+                <li>
+                  <a href="https://blog.csdn.net/qq_25371579" target="_blank">
+                    CSDN
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://github.com/matrixsparse" target="_blank">
+                    Github
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://matrixsparse.github.io/" target="_blank">
+                    Github Page
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+      </ul>
+    </nav>
+    <i class="iconfont icon-menu"></i>
+  </header>
+</div>
+
+<script>
+  let links = document.querySelectorAll('.nav-item');
+  for(let link of links){
+    let childrenLink = link.querySelector('ul');
+    link.addEventListener('mouseenter', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown active";
+      }
+    })
+    link.addEventListener('mouseleave', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown";
+      }
+    })
+  }
+  let rootRealPath = getRealPath(window.location.pathname, true);
+  for(let link of links) {
+    let linkPath = link.getAttribute("data-path");
+    if(linkPath && getRealPath(linkPath, true) === rootRealPath) {
+      link.className = "nav-item hover";
+    }
+  }
+
+  let iconMenu = document.querySelector("i.iconfont.icon-menu"),
+    iconMenuClicked = false;
+  let navDOM = document.querySelector("nav.site-navigation");
+  iconMenu.addEventListener("click", () => {
+    iconMenuClicked
+      ? navDOM.className = "site-navigation active"
+      : navDOM.className = "site-navigation";
+    iconMenuClicked = !iconMenuClicked;
+  })
+</script>
+
+
+      
+
+
+
+
+
+
+
+
+<div class="container post-index">
+
+  
+
+<div class="post">
+  <h1 class="article-title">
+    <span>健身指南</span>
+  </h1>
+  <div class="article-top-meta">
+    <span>
+      发布 : 
+      2017-06-24
+    </span>
+    
+      <span>
+        分类 : 
+          <a href="/categories/健身/">
+            健身
+          </a>
+      </span>
+    
+    
+      <span>
+        浏览 : <span class="article-timer" data-identity="健身指南"></span>
+      </span>
+    
+  </div>
+
+  
+
+  <div class="article-content">
+    <div class="markdown-body">
+      <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">健身：训练意志力</span><br><span class="line"></span><br><span class="line">餐点适当改为少盐、少油、少糖的方式进食，不添加人工调味料</span><br><span class="line">例如：</span><br><span class="line">改吃气炸锅烹调的无油炸鸡</span><br><span class="line">烧烤时多吃蔬菜、油花少的肉类</span><br><span class="line">火锅汤底以果蔬汤代替浓郁的加工高汤等</span><br><span class="line">如此一样能享受到口腹之感，对健康、保持身材都有很大帮助</span><br></pre></td></tr></table></figure>
+<h2 id="运动交友"><a href="#运动交友" class="headerlink" title="运动交友"></a>运动交友</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">从最早的电话联系，到球场上一起打球、到户外一起运动、去健身房一起训练的模式</span><br></pre></td></tr></table></figure>
+<h2 id="融入生活的运行方式"><a href="#融入生活的运行方式" class="headerlink" title="融入生活的运行方式"></a>融入生活的运行方式</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">好的成果不一定和运动的量或强度成正比，和养成运动习惯的生活模式息息相关</span><br><span class="line">充足的睡眠是减重的第一步，延后睡眠时间或熬夜，身体得不到修复，新陈代谢就会变慢，肌肉也无法养成！</span><br></pre></td></tr></table></figure>
+<h2 id="适当的休息"><a href="#适当的休息" class="headerlink" title="适当的休息"></a>适当的休息</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">1.提高新陈代谢</span><br><span class="line">2.助于脂肪燃烧及肌肉的养成</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">每个人需要睡多长时间才算足够，其实跟每个人的体质有关系</span><br><span class="line"></span><br><span class="line">黄金时间：晚上10点到隔天早上6点的黄金时间就寝入睡，则更加能加速新陈代谢、肌肉养成</span><br><span class="line"></span><br><span class="line">无法在黄金时间休息，就用睡眠的<span class="string">"质量"</span>来弥补前者提到的<span class="string">"量"</span></span><br><span class="line"></span><br><span class="line">减重健身公式：<span class="string">"健身运动+饮食习惯+恢复休息"</span>黄金铁三角</span><br><span class="line"></span><br><span class="line">熬夜会造成快速老化、体能状况不佳、造成肾和肝的负担</span><br><span class="line"></span><br><span class="line">运动解决习惯性失眠问题</span><br></pre></td></tr></table></figure>
+<h2 id="睡眠质量高"><a href="#睡眠质量高" class="headerlink" title="睡眠质量高"></a>睡眠质量高</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">1.产出瘦体激素、生长激素</span><br><span class="line">2.提升新陈代谢率</span><br><span class="line">3.助于燃烧脂肪</span><br><span class="line">4.骨骼、肌肉会得到充分的生长</span><br></pre></td></tr></table></figure>
+<h2 id="健身误区"><a href="#健身误区" class="headerlink" title="健身误区"></a>健身误区</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">通过节食而减轻体重，不但会瘦掉你想要的肌肉，而且还不见得能瘦掉讨人厌的肥肉脂肪，</span><br><span class="line">其原理是，饿肚子时身体为了维持血液中白蛋白、免疫球蛋白等重要物质的制造，肌肉组织会加速分解以供热量所需</span><br><span class="line">这时候，肌肉的耗损会超过脂肪，所以减轻的重量大都来自肌肉和水分，而不是真正应该减掉的脂肪！</span><br><span class="line"></span><br><span class="line">身体很聪明、若是一天只吃一餐、它就会很尽责的把所需要、可以吸收的热量、营养存储下来，就跟冬眠动物在醒着时吃的食物热量会转成可应付冬眠时需要的厚厚脂肪一样，这样才可以保证在冬眠时不吃不喝</span><br><span class="line"></span><br><span class="line">爬山、游泳、打球、骑单车</span><br><span class="line">善于利用这种肌肉的<span class="string">"记忆"</span>，培养多元化的运动种类，交替不同的运动方式，让减肥、健身的效果事半功倍</span><br><span class="line"></span><br><span class="line">人体的热量来源于三种基本的营养素糖类、脂肪、蛋白质，加上其他的虽然没有热量，但却是身体各种机能运作所必要的养分，包括水分、矿物质、维生素、纤维等，才会让一个人的身体机能健全</span><br><span class="line"></span><br><span class="line">蛋白质、糖类、脂肪、膳食纤维、维生素及矿物质6大营养不能偏废</span><br></pre></td></tr></table></figure>
+<h2 id="运动类型"><a href="#运动类型" class="headerlink" title="运动类型"></a>运动类型</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">1.有氧运动</span><br><span class="line">2.无氧运动</span><br><span class="line">3.肌肉训练运动</span><br><span class="line">4.柔软度训练运动</span><br></pre></td></tr></table></figure>
+<h2 id="有氧运动"><a href="#有氧运动" class="headerlink" title="有氧运动"></a>有氧运动</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">有氧运动可以帮助燃烧葡萄糖与储存在体内的脂肪，而且最好每次在30分钟以上，才能达到燃烧脂肪的目的</span><br><span class="line">需要长时间供给身体肌肉氧气，可训练耐力、达到一定节奏并涉及大肌群收缩，且长时间操作下，不会让你感到呼吸困难的运动。</span><br><span class="line">常见的有氧运动类型包括有氧舞蹈、快走、慢跑、爬山、骑单车、游泳、跳绳等。</span><br><span class="line">有氧运动可以促进体脂肪的燃烧，强化心肺功能与运动效率，降低心血管病、高血压、糖尿病、高血脂等文明病的发生概率</span><br></pre></td></tr></table></figure>
+<h2 id="无氧运动"><a href="#无氧运动" class="headerlink" title="无氧运动"></a>无氧运动</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">运动强度突然上升、心跳数陡升、节奏不规律以及身体无法及时摄取足够的氧气供身体各处，有时会让你有<span class="string">"缺氧"</span>感觉的运动。常见的有打篮球、百米跑、举重、踢足球、打回力球、打羽毛球，等等，这类运动会强化肌肉反应的瞬间爆发力，每一个动作也是在瞬间就完成的。最好的是在有氧运动让心肺功能强化到一个可以负荷的程度时，再从事无氧运动</span><br></pre></td></tr></table></figure>
+<h2 id="肌力训练运动"><a href="#肌力训练运动" class="headerlink" title="肌力训练运动"></a>肌力训练运动</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">可以利用哑铃等运动器材以及特定动作，帮助训练个别肌肉群，例如胸部、臂部、臀部、腿部等等，借以强化肌肉耐力、美化肌肉线条、改善身体的不良姿势</span><br></pre></td></tr></table></figure>
+<h2 id="柔软度训练运动"><a href="#柔软度训练运动" class="headerlink" title="柔软度训练运动"></a>柔软度训练运动</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">就是在主运动之前进行的一些伸展、暖身运动，例如各种伸展操、暖身操等，这种运动的重要性在于，帮助身体肌肉、关节活络起来、保持灵活跟弹性、避免贸然进入主运动而带来的酸痛甚至拉伤、挫伤、扭伤等不必要的运动伤害，平常久坐帮同事或教室，也可以利用空当做柔软度训练运动，避免肌肉僵硬以及酸痛</span><br></pre></td></tr></table></figure>
+<h2 id="零碎时间运动健身法"><a href="#零碎时间运动健身法" class="headerlink" title="零碎时间运动健身法"></a>零碎时间运动健身法</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1.肌肉伸展</span><br><span class="line">2.散步、快走</span><br><span class="line">3.骑自行车</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>少吃<strong>淀粉类</strong>和<strong>高脂肪</strong>的食物</p>
+</blockquote>
+<blockquote>
+<p>练肌肉，建议在饮食中多吃<strong>牛肉</strong>搭配<strong>鲑鱼</strong>、<strong>鱿鱼</strong>、<strong>虾</strong>这类高蛋白食物</p>
+</blockquote>
+<blockquote>
+<p><code>吸烟、饮酒过量，有碍健康</code></p>
+</blockquote>
+<blockquote>
+<p>每餐搭配<strong>等量蔬菜</strong>、<strong>水果种类不拘</strong></p>
+</blockquote>
+<blockquote>
+<p>容易发胖的食物 <strong>巧克力</strong> <strong>米饭</strong> <strong>面食</strong> <strong>炸鸡</strong></p>
+</blockquote>
+<blockquote>
+<p>可从表列食物吸收所需养分</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">水果</th>
+<th style="text-align:center">蛋白质</th>
+<th style="text-align:center">淀粉类</th>
+<th style="text-align:center">蔬菜</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">猕猴桃</td>
+<td style="text-align:center">鸡肉</td>
+<td style="text-align:center">马铃薯</td>
+<td style="text-align:center">西兰花</td>
+</tr>
+<tr>
+<td style="text-align:center">火龙果</td>
+<td style="text-align:center">鳕鱼</td>
+<td style="text-align:center">番薯</td>
+<td style="text-align:center">芦笋</td>
+</tr>
+<tr>
+<td style="text-align:center">香蕉</td>
+<td style="text-align:center">鲑鱼</td>
+<td style="text-align:center">馒头</td>
+<td style="text-align:center">胡萝卜</td>
+</tr>
+<tr>
+<td style="text-align:center">蓝/草莓</td>
+<td style="text-align:center">鲔鱼</td>
+<td style="text-align:center">面包</td>
+<td style="text-align:center">青椒</td>
+</tr>
+<tr>
+<td style="text-align:center">苹果</td>
+<td style="text-align:center">螃蟹</td>
+<td style="text-align:center">薯条</td>
+<td style="text-align:center">菠菜</td>
+</tr>
+<tr>
+<td style="text-align:center">柠檬</td>
+<td style="text-align:center">虾</td>
+<td style="text-align:center">糙米饭</td>
+<td style="text-align:center">小黄瓜</td>
+</tr>
+<tr>
+<td style="text-align:center">葡萄柚</td>
+<td style="text-align:center">牛肉</td>
+<td style="text-align:center">通心面</td>
+<td style="text-align:center">洋葱</td>
+</tr>
+<tr>
+<td style="text-align:center">番茄</td>
+<td style="text-align:center">蛋</td>
+<td style="text-align:center">玉米</td>
+<td style="text-align:center">包心菜</td>
+</tr>
+<tr>
+<td style="text-align:center">柳橙</td>
+<td style="text-align:center">低脂乳酪</td>
+<td style="text-align:center">全麦面包</td>
+<td style="text-align:center">大蒜</td>
+</tr>
+</tbody>
+</table>
+<h2 id="工具"><a href="#工具" class="headerlink" title="工具"></a>工具</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">弹力绳</span><br><span class="line">滚轮</span><br><span class="line">坐垫</span><br></pre></td></tr></table></figure>
+<h2 id="吃的时间和顺序"><a href="#吃的时间和顺序" class="headerlink" title="吃的时间和顺序"></a>吃的时间和顺序</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">睡前5个小时尽量不要进食</span><br><span class="line">饭前吃水果 -&gt; 带给身体水果酵素、帮助基础代谢、清肠胃道、增加饱腹感</span><br></pre></td></tr></table></figure>
+    </div>
+  </div>
+  
+    <div class="copy-right">
+      <div class="markdown-body">
+        <blockquote>
+        
+        
+          本文作者 : Matrix <br>
+        
+        原文链接 : <a href="">http://yoursite.com/2017/06/24/健身指南/</a><br>
+        版权声明 : 本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+        </blockquote>
+      </div>
+    </div>
+  
+  
+  
+    <div class="social-share" style="margin-top: -2rem" data-wechat-qrcode-title="<p>微信扫一扫</p>" data-wechat-qrcode-helper="<p>微信右上角, 扫一扫分享</p>" data-sites="qzone, qq, weibo, wechat, douban, google, facebook, twitter">
+  <span style="color: #6b7487; font-size: 1.4rem;">分享到: </span>
+</div>
+<script src="https://cdn.bootcss.com/social-share.js/1.0.16/js/social-share.min.js" async></script>
+  
+
+  
+    <div id="reward">
+  
+    <p id="reward-meta">知识 & 情怀 | 二者兼得</p>
+  
+  <button id="reward-btn">
+    
+    <span>投食</span>
+  </button>
+  <div id="reward-qrcode">
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/wechatpay.jpg" alt="微信扫一扫, 向我投食">
+        <p class="qrcode-meta">微信扫一扫, 向我投食</p>
+      </div>
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/alipaypay.jpg" alt="支付宝扫一扫, 向我投食">
+        <p class="qrcode-meta">支付宝扫一扫, 向我投食</p>
+      </div>
+    
+  </div>
+
+</div>
+
+<script>
+  (() => {
+    let button = document.querySelector('#reward-btn'),
+      qrcode = document.querySelector('#reward-qrcode'),
+      display = false;
+    
+    button.addEventListener('click', () => {
+      qrcode.style.display = display ? 'none' : 'block'
+      display = !display
+    }, false)
+  })()
+</script>
+  
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+      <span>
+        
+          <i class="iconfont icon-06tags"></i>标签: 
+          
+          <span class="span--tag">
+            <a href="/tags/健身/">
+              #健身
+            </a>
+          </span>
+          
+        
+      </span>
+    </div>
+    <div class="article-meta pull-right">
+    </div>
+  </div>
+</div>
+
+
+  <aside id="sidebar">
+    <p id="sidebar-header"></p>
+    <ol id="sidebar-toc"></ol>
+  </aside>
+  <script async>setTimeout(generateToc, 10);</script>
+
+
+  <nav class="post-navigation">
+    
+      <div class="nav-pre">
+        <i class="iconfont icon-prev"></i>
+        上一篇:
+        <a href="/2017/06/24/Redis搭建主从复制&amp;高可用&amp;多master的cluster集群/" target="_self">Redis搭建主从复制&高可用&多master的cluster集群</a>
+      </div>
+    
+    
+      <div class="nav-next">
+        下一篇:
+        <a href="/2017/06/26/Redis cluster实验多master写入、主从复制、高可用性/" target="_self">Redis cluster实验多master写入、主从复制、高可用性</a>
+        <i class="iconfont icon-next"></i>
+      </div>
+    
+  </nav>
+
+  
+    <a href="#comment" class="comment-anchor"></a>
+<div class="comment-title"><i class="iconfont icon-footprint"></i> 留下足迹 <i class="iconfont icon-footprint"></i></div>
+<div id="vcomments"></div>
+
+<script defer>
+  if( true ) {
+    let path = getRealPath()
+    new Valine({
+      el: "#vcomments",
+      appId: "Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz",
+      appKey: "WaR7nrzhliHj9aVwdQzkdlGd",
+      notify: false,
+      verify: false,
+      avatar: "robohash",
+      placeholder: "正确填写邮箱, 才能及时收到回复哦♪(^∇^*)",
+      path
+    });
+  }
+</script>
+   
+
+  
+    <script defer>
+const valineAPI = (() => {
+  try {
+    AV.init("Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz", "WaR7nrzhliHj9aVwdQzkdlGd");
+  } catch(error) {}
+  const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+      query.equalTo("identity", identity);
+      query.find().then(results => {
+        resolve(results.length > 0);
+      }, error => reject(error));
+    })
+  }
+
+  const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+      let querys = [];
+      for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+      }
+      query = AV.Query.or.apply(null ,querys);
+    } else {
+      identity = identity || getRealPath();
+      query = new AV.Query("Timer");
+      query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+      query.find()
+      .then(results => resolve(results))
+      .catch(error => reject(error))
+    })
+  }
+
+  const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let Todo = AV.Object.extend('Timer');
+      let todo = new Todo();
+      todo.set("times", 1);
+      todo.set("identity", identity);
+      todo.save().then(res => resolve(true), error => reject(error));
+    })
+  }
+
+  const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let query = new AV.Query('Timer');
+      query.equalTo("identity", identity);
+      query.find().then(todos => {
+        todos.forEach(todo => {
+          todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+      }).then(todos => resolve(true), error => reject(error));
+    })
+  }
+
+  return {
+    isExist,
+    _get,
+    update,
+    create
+  }
+})()
+
+const calcAndWriteTimes = () => {
+  let isPost = true;
+
+  let timerAllDOM = document.querySelectorAll(".article-timer");
+
+  if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+      if(exist) {
+        return valineAPI.update(identity);
+      }
+      return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+  }
+
+  let timerDOMCache = {};
+
+  for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+      timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+      timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+      };
+    }
+  }
+
+  let identities = Object.keys(timerDOMCache);
+  valineAPI._get(identities).then(results => {
+    for(let result of results) {
+      let {identity, times} = result.attributes;
+      timerDOMCache[identity].times = times;
+      timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+      if(timerDOMCache[identity].times){
+        continue;
+      }
+      timerDOMCache[identity].dom.map(item => item.innerText = 1);
+      valineAPI.create(identity);
+    }
+  }).catch(error => console.log(error.message))
+}
+
+if(true){
+  calcAndWriteTimes();
+}
+</script>
+   
+
+</div>
+
+
+      <footer>
+  <p class="site-info">
+    博客已萌萌哒运行<span id="time-to-now"></span><span class="my-face">(●'◡'●)ﾉ♥</span>
+    <br>
+    Theme - <a href="https://github.com/dongyuanxin/theme-bmw">BMW</a> | Powered by <a href="https://godbmw.com/">GodBMW</a>
+    <br>
+    
+      Copyright © 2019 Matrix
+    
+  </p>
+</footer>
+
+
+
+<script>
+const timeToNowDOM = document.querySelector("#time-to-now");
+const startTimestamp = new Date(2016, 4, 10).getTime();
+
+const updateTimeStr = () => {
+  let offset = parseInt(
+      (new Date().getTime() - startTimestamp) / 1000,
+      10
+    ),
+    day = Math.floor(offset / 86400),
+    hour = Math.floor((offset % 86400) / 3600),
+    minute = Math.floor(((offset % 86400) % 3600) / 60),
+    second = Math.floor(((offset % 86400) % 3600) % 60);
+  timeToNowDOM.innerHTML =
+    day + "天" + hour + "小时" + minute + "分钟" + second + "秒";
+  setTimeout(updateTimeStr, 500);
+}
+
+setTimeout(updateTimeStr, 500);
+</script>
+
+
+      <div class="back-to-top hidden">
+  <span>
+    <i class="iconfont icon-60"></i><span></span>%
+  </span>
+</div>
+
+<script>
+const updateIconToTop = percent => {
+  let dom = document.querySelector(".back-to-top span span");
+  dom.innerText = percent;
+  if(percent < 1) {
+    document.querySelector(".back-to-top").className = "back-to-top hidden";
+  } else {
+    document.querySelector(".back-to-top").className = "back-to-top";
+  }
+}
+
+const handleScoll = () => {
+  let isRunning = false;
+  return () => {
+    if (isRunning) return;
+    isRunning = true;
+    window.requestAnimationFrame(timestamp => {
+      let scrollTop =
+          document.documentElement.scrollTop || document.body.scrollTop,
+        scrollHeight =
+          document.documentElement.scrollHeight ||
+          document.body.scrollHeight,
+        clientHeight =
+          document.documentElement.clientHeight ||
+          document.body.clientHeight;
+      isRunning = false;
+      if (scrollTop <= 1) {
+        updateIconToTop(0);
+        return;
+      }
+      if (scrollTop + clientHeight >= scrollHeight) {
+        updateIconToTop(100);
+      } else {
+        updateIconToTop(parseInt(
+          100 * scrollTop / (scrollHeight - clientHeight),
+          10
+        ));
+      }
+    });
+  };
+}
+
+const backToTop = () => {
+  let scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop,
+    delay = 10,
+    time = 200;
+  if (scrollTop <= 20) {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    return;
+  }
+  let step = Math.ceil(scrollTop * delay / time);
+  let timer = setInterval(() => {
+    scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop;
+    if (scrollTop - step <= 0) {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      clearInterval(timer);
+    } else {
+      document.documentElement.scrollTop = scrollTop - step;
+      document.body.scrollTop = scrollTop - step;
+    }
+  }, delay);
+}
+
+document.addEventListener("scroll", handleScoll(), false);
+
+document.querySelector(".back-to-top").addEventListener("click", backToTop, false);
+
+</script>
+
+    </div>
+
+    
+      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  (() => {
+    const mathjaxConfig = {
+      showProcessingMessages: false, //关闭js加载过程信息
+      messageStyle: "none", //不显示信息
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]], //行内公式选择符
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]], //段内公式选择符
+        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"] //避开某些标签
+      },
+      "HTML-CSS": {
+        availableFonts: ["STIX", "TeX"], //可选字体
+        showMathMenu: false //关闭右击菜单显示
+      }
+    }
+
+    let mathjaxInterval = setInterval(() => {
+      if(!window.MathJax){
+        return;
+      }
+      window.MathJax.Hub.Config(mathjaxConfig)
+      window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')])
+
+      clearInterval(mathjaxInterval)
+    }, 10)    
+  })()
+</script>
+    
+
+    <script src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script>
+<script async>
+  let fancyTimer = setInterval(function(){
+    if(!window.$){
+      return;
+    }
+    $(document).ready(function() {
+      $(".post img").each(function () {
+        if($(this).parent().get(0).tagName.toLowerCase() === "a") {
+          return;
+        }
+        // $(this).attr("data-fancybox", "gallery"); // if you add 'data-fancybox', img will display after showed
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "gallery");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      });
+      
+      clearInterval(fancyTimer);
+    });
+  }, 10);
+</script>
+
+    
+  </body>
+
+</html>

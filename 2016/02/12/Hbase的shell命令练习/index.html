@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta name="author" content="董沅鑫, yuanxin.me@gmail.com">
+  
+  
+  
+  <title>Hbase shell命令练习 | 每天遇到更好的你</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="大数据,大数据,Hbase,">
+  
+
+  <script>
+    console.log('\n%c Hexo-theme-bmw v4.0 ' + '%c 🎉 https://github.com/dongyuanxin/theme-bmw 🎉\n' + '\n%c View demo online ' + '%c 🔍 https://godbmw.com/ 🔍  \n' , 'color: #fadfa3; background: #030307; padding:3px 0;', '', 'color: #fadfa3; background: #030307; padding:3px 0;', '');
+  </script>
+
+  
+
+  
+
+  
+    <link rel="icon" href="/images/favicon.png">
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+  
+
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/icon/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+  <script src="/js/util.js"></script>
+<script src="/js/valine.min.js"></script>
+
+  
+
+  
+    <link href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js" async></script>
+  
+
+  
+    <link href="https://cdn.bootcss.com/social-share.js/1.0.16/css/share.min.css" rel="stylesheet">
+  
+  
+  <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js" async></script>
+  
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.0/dist/av-min.js"></script>
+  
+
+</head>
+
+  <body>
+
+    
+
+    <div id="app">
+
+      <div class="header-wrap">
+  <header>
+    <div class="site-brand">
+      <div class="site-title">
+        <!-- <a href="/">MatrixSparse</a> -->
+        <img alt="logo" class="antd-pro-layouts-user-layout-logo" src="/images/favicon.png" style="width: 40px;height: 40px;margin-top: 10px;margin-left: 5px;">
+      </div>
+    </div>
+    <nav class="site-navigation">
+      <ul class="nav-menu">
+      
+        <li class="nav-item" data-path="/">
+          
+            <a href="/" target="_self">
+              主页
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          
+            <a href="/archives/" target="_self">
+              归档
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          
+            <a href="/categories/" target="_self">
+              分类
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          
+            <a href="/tags/" target="_self">
+              标签
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="">
+          
+            <a href="javascript:void(0);" v-else="">博客地址</a>
+            <ul class="nav-menu--dropdown">
+              
+                <li>
+                  <a href="https://blog.csdn.net/qq_25371579" target="_blank">
+                    CSDN
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://github.com/matrixsparse" target="_blank">
+                    Github
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://matrixsparse.github.io/" target="_blank">
+                    Github Page
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+      </ul>
+    </nav>
+    <i class="iconfont icon-menu"></i>
+  </header>
+</div>
+
+<script>
+  let links = document.querySelectorAll('.nav-item');
+  for(let link of links){
+    let childrenLink = link.querySelector('ul');
+    link.addEventListener('mouseenter', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown active";
+      }
+    })
+    link.addEventListener('mouseleave', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown";
+      }
+    })
+  }
+  let rootRealPath = getRealPath(window.location.pathname, true);
+  for(let link of links) {
+    let linkPath = link.getAttribute("data-path");
+    if(linkPath && getRealPath(linkPath, true) === rootRealPath) {
+      link.className = "nav-item hover";
+    }
+  }
+
+  let iconMenu = document.querySelector("i.iconfont.icon-menu"),
+    iconMenuClicked = false;
+  let navDOM = document.querySelector("nav.site-navigation");
+  iconMenu.addEventListener("click", () => {
+    iconMenuClicked
+      ? navDOM.className = "site-navigation active"
+      : navDOM.className = "site-navigation";
+    iconMenuClicked = !iconMenuClicked;
+  })
+</script>
+
+
+      
+
+
+
+
+
+
+
+
+<div class="container post-index">
+
+  
+
+<div class="post">
+  <h1 class="article-title">
+    <span>Hbase shell命令练习</span>
+  </h1>
+  <div class="article-top-meta">
+    <span>
+      发布 : 
+      2016-02-12
+    </span>
+    
+      <span>
+        分类 : 
+          <a href="/categories/大数据/">
+            大数据
+          </a>
+      </span>
+    
+    
+      <span>
+        浏览 : <span class="article-timer" data-identity="Hbase的shell命令练习"></span>
+      </span>
+    
+  </div>
+
+  
+
+  <div class="article-content">
+    <div class="markdown-body">
+      <h2 id="启动HBase，要确认已启动Hadoop集群，Zookeeper"><a href="#启动HBase，要确认已启动Hadoop集群，Zookeeper" class="headerlink" title="启动HBase，要确认已启动Hadoop集群，Zookeeper"></a>启动HBase，要确认已启动Hadoop集群，Zookeeper</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node5 hadoop-2.5.1]<span class="comment"># start-hbase.sh</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-20/44365937.jpg" alt=""></p>
+<h2 id="进入Hbase"><a href="#进入Hbase" class="headerlink" title="进入Hbase"></a>进入Hbase</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node5 ~]<span class="comment"># hbase shell</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-20/73448844.jpg" alt=""></p>
+<h2 id="显示Hbase中的表"><a href="#显示Hbase中的表" class="headerlink" title="显示Hbase中的表"></a>显示Hbase中的表</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hbase(main):001:0&gt; list</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-20/96305629.jpg" alt=""></p>
+<h3 id="1-创建user表，包含info-data两个列族"><a href="#1-创建user表，包含info-data两个列族" class="headerlink" title="1.创建user表，包含info.data两个列族"></a>1.创建user表，包含info.data两个列族</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">创建表方式一：</span><br><span class="line">hbase(main):002:0&gt; create <span class="string">'user'</span>,<span class="string">'info'</span>,<span class="string">'data'</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-20/72295020.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">创建表方式二：</span><br><span class="line">create <span class="string">'user'</span>,&#123;NAME =&gt; <span class="string">'info'</span>,VERSIONS =&gt; <span class="string">'3'</span>&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-20/8474268.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hbase(main):009:0&gt; list</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-20/59115764.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hbase(main):011:0&gt; create <span class="string">'m_user'</span>, &#123;NAME =&gt; <span class="string">'info'</span>, VERSIONS =&gt; <span class="string">'3'</span>&#125;,&#123;NAME =&gt; <span class="string">'data'</span>, VERSIONS =&gt; <span class="string">'3'</span>&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-20/65685600.jpg" alt=""></p>
+<h3 id="2-向user表中插入信息，row-key为rk0001，列族info中添加name列标识符，值为matrix"><a href="#2-向user表中插入信息，row-key为rk0001，列族info中添加name列标识符，值为matrix" class="headerlink" title="2.向user表中插入信息，row key为rk0001，列族info中添加name列标识符，值为matrix"></a>2.向user表中插入信息，row key为rk0001，列族info中添加name列标识符，值为matrix</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hbase(main):015:0&gt; put <span class="string">'user'</span>,<span class="string">'rk0001'</span>,<span class="string">'info:name'</span>,<span class="string">'matrix'</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-20/92329185.jpg" alt=""></p>
+<h3 id="3-向user表中插入信息，row-key为rk0001，列族info中添加gender列标示符，值为female"><a href="#3-向user表中插入信息，row-key为rk0001，列族info中添加gender列标示符，值为female" class="headerlink" title="3.向user表中插入信息，row key为rk0001，列族info中添加gender列标示符，值为female"></a>3.向user表中插入信息，row key为rk0001，列族info中添加gender列标示符，值为female</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hbase(main):016:0&gt; put <span class="string">'user'</span>,<span class="string">'rk0001'</span>,<span class="string">'info:gender'</span>,<span class="string">'female'</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-20/52991189.jpg" alt=""></p>
+<h3 id="4-向user表中插入信息，row-key为rk0001，列族info中添加age列标示符，值为20"><a href="#4-向user表中插入信息，row-key为rk0001，列族info中添加age列标示符，值为20" class="headerlink" title="4.向user表中插入信息，row key为rk0001，列族info中添加age列标示符，值为20"></a>4.向user表中插入信息，row key为rk0001，列族info中添加age列标示符，值为20</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hbase(main):017:0&gt; put <span class="string">'user'</span>,<span class="string">'rk0001'</span>,<span class="string">'info:age'</span>,20</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-20/67945617.jpg" alt=""></p>
+<h3 id="5-向user表中插入信息，row-key为rk0001，列族data中添加pic列标示符，值为picture"><a href="#5-向user表中插入信息，row-key为rk0001，列族data中添加pic列标示符，值为picture" class="headerlink" title="5.向user表中插入信息，row key为rk0001，列族data中添加pic列标示符，值为picture"></a>5.向user表中插入信息，row key为rk0001，列族data中添加pic列标示符，值为picture</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hbase(main):019:0&gt; put <span class="string">'user'</span>,<span class="string">'rk0001'</span>,<span class="string">'data:pic'</span>,<span class="string">'picture'</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-20/42625368.jpg" alt=""></p>
+<h3 id="6-获取user表中row-key为rk0001的所有信息"><a href="#6-获取user表中row-key为rk0001的所有信息" class="headerlink" title="6.获取user表中row key为rk0001的所有信息"></a>6.获取user表中row key为rk0001的所有信息</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hbase(main):022:0&gt; get <span class="string">'user'</span>,<span class="string">'rk0001'</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-20/7464036.jpg" alt=""></p>
+<h3 id="7-获取user表中row-key为rk0001，info列族的所有信息"><a href="#7-获取user表中row-key为rk0001，info列族的所有信息" class="headerlink" title="7.获取user表中row key为rk0001，info列族的所有信息"></a>7.获取user表中row key为rk0001，info列族的所有信息</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hbase(main):023:0&gt; get <span class="string">'user'</span>,<span class="string">'rk0001'</span>,<span class="string">'info'</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-20/15745058.jpg" alt=""></p>
+<h3 id="8-获取user表中row-key为rk0001，info列族的name-gender-age标示符的信息"><a href="#8-获取user表中row-key为rk0001，info列族的name-gender-age标示符的信息" class="headerlink" title="8.获取user表中row key为rk0001，info列族的name.gender.age标示符的信息"></a>8.获取user表中row key为rk0001，info列族的name.gender.age标示符的信息</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hbase(main):024:0&gt; get <span class="string">'user'</span>,<span class="string">'rk0001'</span>,<span class="string">'info:name'</span>,<span class="string">'info:gender'</span>,<span class="string">'info:age'</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-20/2856144.jpg" alt=""></p>
+<h3 id="9-获取user表中row-key为rk0001，info-data列族的信息"><a href="#9-获取user表中row-key为rk0001，info-data列族的信息" class="headerlink" title="9.获取user表中row key为rk0001，info.data列族的信息"></a>9.获取user表中row key为rk0001，info.data列族的信息</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hbase(main):025:0&gt; get <span class="string">'user'</span>,<span class="string">'rk0001'</span>,<span class="string">'info'</span>,<span class="string">'data'</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-20/62346975.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hbase(main):027:0&gt; get <span class="string">'user'</span>,<span class="string">'rk0001'</span>,&#123;COLUMN =&gt; [<span class="string">'info'</span>,<span class="string">'data'</span>]&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-20/96920610.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hbase(main):029:0&gt; get <span class="string">'user'</span>,<span class="string">'rk0001'</span>,&#123;COLUMN =&gt; [<span class="string">'info:name'</span>,<span class="string">'data:pic'</span>]&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-20/29503997.jpg" alt=""></p>
+<h3 id="10-获取user表中row-key为rk0001，列族为info-版本号最新5个的信息"><a href="#10-获取user表中row-key为rk0001，列族为info-版本号最新5个的信息" class="headerlink" title="10.获取user表中row key为rk0001，列族为info.版本号最新5个的信息"></a>10.获取user表中row key为rk0001，列族为info.版本号最新5个的信息</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hbase(main):030:0&gt; get <span class="string">'user'</span>,<span class="string">'rk0001'</span>,&#123;COLUMN =&gt; <span class="string">'info'</span> ,VERSION =&gt; 2&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-20/87010447.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hbase(main):031:0&gt; get <span class="string">'user'</span>,<span class="string">'rk0001'</span>,&#123;COLUMN =&gt; <span class="string">'info:name'</span>,VERSION =&gt; 5&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-20/9851368.jpg" alt=""></p>
+<h3 id="11-查询user表中所有信息"><a href="#11-查询user表中所有信息" class="headerlink" title="11.查询user表中所有信息"></a>11.查询user表中所有信息</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hbase(main):032:0&gt; scan <span class="string">'user'</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-20/74046797.jpg" alt=""></p>
+<h4 id="11-1-查询user表中列族为info的信息"><a href="#11-1-查询user表中列族为info的信息" class="headerlink" title="11.1.查询user表中列族为info的信息"></a>11.1.查询user表中列族为info的信息</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hbase(main):033:0&gt; scan <span class="string">'user'</span>, &#123;COLUMNS =&gt; <span class="string">'info'</span>&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-20/45563988.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hbase(main):033:0&gt; scan <span class="string">'user'</span>, &#123;COLUMNS =&gt; <span class="string">'info'</span>&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-20/45563988.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hbase(main):034:0&gt; scan <span class="string">'user'</span>, &#123;COLUMNS =&gt; <span class="string">'info'</span>, RAW =&gt; <span class="literal">true</span>, VERSIONS =&gt; 5&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-20/83338572.jpg" alt=""></p>
+<h4 id="11-2-查询user表中列族为info和data的信息"><a href="#11-2-查询user表中列族为info和data的信息" class="headerlink" title="11.2.查询user表中列族为info和data的信息"></a>11.2.查询user表中列族为info和data的信息</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hbase(main):035:0&gt; scan <span class="string">'user'</span>, &#123;COLUMNS =&gt; [<span class="string">'info'</span>, <span class="string">'data'</span>]&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-20/9570206.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hbase(main):036:0&gt; scan <span class="string">'user'</span>, &#123;COLUMNS =&gt; [<span class="string">'info:name'</span>, <span class="string">'data:pic'</span>]&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-20/51367882.jpg" alt=""></p>
+<h3 id="12-查询user表中列族为info-列标示符为name的信息"><a href="#12-查询user表中列族为info-列标示符为name的信息" class="headerlink" title="12.查询user表中列族为info.列标示符为name的信息"></a>12.查询user表中列族为info.列标示符为name的信息</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hbase(main):037:0&gt; scan <span class="string">'user'</span>, &#123;COLUMNS =&gt; <span class="string">'info:name'</span>&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-20/8294967.jpg" alt=""></p>
+<h3 id="13-查询user表中列族为info-列标示符为name的信息-并且版本最新的5个"><a href="#13-查询user表中列族为info-列标示符为name的信息-并且版本最新的5个" class="headerlink" title="13.查询user表中列族为info.列标示符为name的信息,并且版本最新的5个"></a>13.查询user表中列族为info.列标示符为name的信息,并且版本最新的5个</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hbase(main):038:0&gt; scan <span class="string">'user'</span>, &#123;COLUMNS =&gt; <span class="string">'info:name'</span>, VERSIONS =&gt; 5&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-20/12617721.jpg" alt=""></p>
+<h3 id="14-查询user表中列族为info和data且列标示符中含有a字符的信息"><a href="#14-查询user表中列族为info和data且列标示符中含有a字符的信息" class="headerlink" title="14.查询user表中列族为info和data且列标示符中含有a字符的信息"></a>14.查询user表中列族为info和data且列标示符中含有a字符的信息</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hbase(main):041:0&gt; scan <span class="string">'user'</span>, &#123;COLUMNS =&gt; [<span class="string">'info'</span>, <span class="string">'data'</span>], FILTER =&gt; <span class="string">"(QualifierFilter(=,'substring:a'))"</span>&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-20/15142058.jpg" alt=""></p>
+<h3 id="15-查询user表中列族为info，rk范围是-rk0001-rk0003-的数据"><a href="#15-查询user表中列族为info，rk范围是-rk0001-rk0003-的数据" class="headerlink" title="15.查询user表中列族为info，rk范围是[rk0001, rk0003)的数据"></a>15.查询user表中列族为info，rk范围是[rk0001, rk0003)的数据</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hbase(main):050:0&gt; scan <span class="string">'user'</span>, &#123;COLUMNS =&gt; <span class="string">'info'</span>, STARTROW =&gt; <span class="string">'rk0001'</span>, ENDROW =&gt; <span class="string">'rk0003'</span>&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-20/54213792.jpg" alt=""></p>
+<h3 id="16-查询user表中row-key以rk字符开头的"><a href="#16-查询user表中row-key以rk字符开头的" class="headerlink" title="16.查询user表中row key以rk字符开头的"></a>16.查询user表中row key以rk字符开头的</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hbase(main):051:0&gt; scan <span class="string">'user'</span>,&#123;FILTER=&gt;<span class="string">"PrefixFilter('rk')"</span>&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-20/72083691.jpg" alt=""></p>
+<h3 id="17-查询user表中指定范围的数据"><a href="#17-查询user表中指定范围的数据" class="headerlink" title="17.查询user表中指定范围的数据"></a>17.查询user表中指定范围的数据</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hbase(main):056:0* scan <span class="string">'user'</span>, &#123;TIMERANGE =&gt; [1458441570629, 1458441753608]&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-20/87368259.jpg" alt=""></p>
+<h3 id="18-删除数据"><a href="#18-删除数据" class="headerlink" title="18.删除数据"></a>18.删除数据</h3><h4 id="18-1-删除user表row-key为rk0001，列标示符为info-name的数据"><a href="#18-1-删除user表row-key为rk0001，列标示符为info-name的数据" class="headerlink" title="18.1.删除user表row key为rk0001，列标示符为info:name的数据"></a>18.1.删除user表row key为rk0001，列标示符为info:name的数据</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hbase(main):057:0&gt; delete <span class="string">'user'</span>, <span class="string">'rk0001'</span>, <span class="string">'info:name'</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-20/77498140.jpg" alt=""></p>
+<h4 id="18-2-删除user表row-key为rk0001，列标示符为info-name，timestamp为1392383705316的数据"><a href="#18-2-删除user表row-key为rk0001，列标示符为info-name，timestamp为1392383705316的数据" class="headerlink" title="18.2.删除user表row key为rk0001，列标示符为info:name，timestamp为1392383705316的数据"></a>18.2.删除user表row key为rk0001，列标示符为info:name，timestamp为1392383705316的数据</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hbase(main):059:0&gt; delete <span class="string">'user'</span>, <span class="string">'rk0001'</span>, <span class="string">'data:pic'</span>, 1458441753608</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-20/19984860.jpg" alt=""></p>
+<h3 id="19-清空user表中的数据"><a href="#19-清空user表中的数据" class="headerlink" title="19.清空user表中的数据"></a>19.清空user表中的数据</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hbase(main):060:0&gt; truncate <span class="string">'user'</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-20/86664541.jpg" alt=""></p>
+<h3 id="20-修改表结构"><a href="#20-修改表结构" class="headerlink" title="20.修改表结构"></a>20.修改表结构</h3><h4 id="20-1-首先停用user表（新版本不用）"><a href="#20-1-首先停用user表（新版本不用）" class="headerlink" title="20.1.首先停用user表（新版本不用）"></a>20.1.首先停用user表（新版本不用）</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hbase(main):061:0&gt; <span class="built_in">disable</span> <span class="string">'user'</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-20/72779146.jpg" alt=""></p>
+<h4 id="20-2-添加两个列族f1和f2"><a href="#20-2-添加两个列族f1和f2" class="headerlink" title="20.2.添加两个列族f1和f2"></a>20.2.添加两个列族f1和f2</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">hbase(main):062:0&gt; alter <span class="string">'user'</span>, NAME =&gt; <span class="string">'f1'</span></span><br><span class="line"></span><br><span class="line">hbase(main):063:0&gt; alter <span class="string">'user'</span>, NAME =&gt; <span class="string">'f2'</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-20/37949855.jpg" alt=""></p>
+<h4 id="20-3-启用表"><a href="#20-3-启用表" class="headerlink" title="20.3.启用表"></a>20.3.启用表</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hbase(main):064:0&gt; <span class="built_in">enable</span> <span class="string">'user'</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-20/99570514.jpg" alt=""></p>
+<h4 id="20-1-查看表结构"><a href="#20-1-查看表结构" class="headerlink" title="20.1.查看表结构"></a>20.1.查看表结构</h4><pre><code>hbase(main):066:0&gt; desc &apos;user&apos;
+</code></pre><p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-20/16832365.jpg" alt=""></p>
+<h3 id="disable-‘user’-新版本不用"><a href="#disable-‘user’-新版本不用" class="headerlink" title="disable ‘user’(新版本不用)"></a>disable ‘user’(新版本不用)</h3><h4 id="20-4-删除一个列族："><a href="#20-4-删除一个列族：" class="headerlink" title="20.4.删除一个列族："></a>20.4.删除一个列族：</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">alter <span class="string">'user'</span>, NAME =&gt; <span class="string">'f1'</span>, METHOD =&gt; <span class="string">'delete'</span> 或 alter <span class="string">'user'</span>, <span class="string">'delete'</span> =&gt; <span class="string">'f1'</span></span><br><span class="line"></span><br><span class="line">hbase(main):067:0&gt; alter <span class="string">'user'</span>, NAME =&gt; <span class="string">'f1'</span>, METHOD =&gt; <span class="string">'delete'</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-20/99436634.jpg" alt=""></p>
+<h4 id="20-1-添加列族f1同时删除列族f2"><a href="#20-1-添加列族f1同时删除列族f2" class="headerlink" title="20.1.添加列族f1同时删除列族f2"></a>20.1.添加列族f1同时删除列族f2</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hbase(main):070:0&gt; alter <span class="string">'user'</span>, &#123;NAME =&gt; <span class="string">'f1'</span>&#125;, &#123;NAME =&gt; <span class="string">'f2'</span>, METHOD =&gt; <span class="string">'delete'</span>&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-20/49709200.jpg" alt=""></p>
+<h4 id="20-5-删除列族f1"><a href="#20-5-删除列族f1" class="headerlink" title="20.5.删除列族f1"></a>20.5.删除列族f1</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hbase(main):071:0&gt; alter <span class="string">'user'</span>, <span class="string">'delete'</span> =&gt; <span class="string">'f1'</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-20/70488353.jpg" alt=""></p>
+<h4 id="20-6-将user表的f1列族版本号改为5"><a href="#20-6-将user表的f1列族版本号改为5" class="headerlink" title="20.6.将user表的f1列族版本号改为5"></a>20.6.将user表的f1列族版本号改为5</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hbase(main):073:0&gt; alter <span class="string">'user'</span>, NAME =&gt; <span class="string">'info'</span>, VERSIONS =&gt; 5</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-20/95394892.jpg" alt=""></p>
+<h4 id="20-7-删除表"><a href="#20-7-删除表" class="headerlink" title="20.7.删除表"></a>20.7.删除表</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">hbase(main):074:0&gt; <span class="built_in">disable</span> <span class="string">'user'</span></span><br><span class="line"></span><br><span class="line">hbase(main):075:0&gt; drop <span class="string">'user'</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-20/31898788.jpg" alt=""></p>
+<h2 id="在Hbase-Shell中运行出错："><a href="#在Hbase-Shell中运行出错：" class="headerlink" title="在Hbase Shell中运行出错："></a>在Hbase Shell中运行出错：</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">ERROR: java.util.concurrent.ExecutionException: org.apache.hadoop.ipc.RemoteException(java.io.IOException): File /hbase/.tmp/data/default/user/c5d0c0ae3199462216dbf4642987f4d5/.regioninfo could only be replicated to 0 nodes instead of minReplication (=1).  There are 3 datanode(s) running and no node(s) are excluded <span class="keyword">in</span> this operation.</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">ERROR: Can<span class="string">'t get master address from ZooKeeper; znode data == null</span></span><br><span class="line"><span class="string">    重新格式化namenode。。。。</span></span><br></pre></td></tr></table></figure>
+
+    </div>
+  </div>
+  
+    <div class="copy-right">
+      <div class="markdown-body">
+        <blockquote>
+        
+        
+          本文作者 : Matrix <br>
+        
+        原文链接 : <a href="">http://yoursite.com/2016/02/12/Hbase的shell命令练习/</a><br>
+        版权声明 : 本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+        </blockquote>
+      </div>
+    </div>
+  
+  
+  
+    <div class="social-share" style="margin-top: -2rem" data-wechat-qrcode-title="<p>微信扫一扫</p>" data-wechat-qrcode-helper="<p>微信右上角, 扫一扫分享</p>" data-sites="qzone, qq, weibo, wechat, douban, google, facebook, twitter">
+  <span style="color: #6b7487; font-size: 1.4rem;">分享到: </span>
+</div>
+<script src="https://cdn.bootcss.com/social-share.js/1.0.16/js/social-share.min.js" async></script>
+  
+
+  
+    <div id="reward">
+  
+    <p id="reward-meta">知识 & 情怀 | 二者兼得</p>
+  
+  <button id="reward-btn">
+    
+    <span>投食</span>
+  </button>
+  <div id="reward-qrcode">
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/wechatpay.jpg" alt="微信扫一扫, 向我投食">
+        <p class="qrcode-meta">微信扫一扫, 向我投食</p>
+      </div>
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/alipaypay.jpg" alt="支付宝扫一扫, 向我投食">
+        <p class="qrcode-meta">支付宝扫一扫, 向我投食</p>
+      </div>
+    
+  </div>
+
+</div>
+
+<script>
+  (() => {
+    let button = document.querySelector('#reward-btn'),
+      qrcode = document.querySelector('#reward-qrcode'),
+      display = false;
+    
+    button.addEventListener('click', () => {
+      qrcode.style.display = display ? 'none' : 'block'
+      display = !display
+    }, false)
+  })()
+</script>
+  
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+      <span>
+        
+          <i class="iconfont icon-06tags"></i>标签: 
+          
+          <span class="span--tag">
+            <a href="/tags/大数据/">
+              #大数据
+            </a>
+          </span>
+          
+          <span class="span--tag">
+            <a href="/tags/Hbase/">
+              #Hbase
+            </a>
+          </span>
+          
+        
+      </span>
+    </div>
+    <div class="article-meta pull-right">
+    </div>
+  </div>
+</div>
+
+
+  <aside id="sidebar">
+    <p id="sidebar-header"></p>
+    <ol id="sidebar-toc"></ol>
+  </aside>
+  <script async>setTimeout(generateToc, 10);</script>
+
+
+  <nav class="post-navigation">
+    
+      <div class="nav-pre">
+        <i class="iconfont icon-prev"></i>
+        上一篇:
+        <a href="/2016/02/12/Hive中metastore（元数据存储）三种方式区别和搭建/" target="_self">Hive中metastore（元数据存储）三种方式区别和搭建</a>
+      </div>
+    
+    
+      <div class="nav-next">
+        下一篇:
+        <a href="/2016/02/12/hbase原理/" target="_self">Hbase原理</a>
+        <i class="iconfont icon-next"></i>
+      </div>
+    
+  </nav>
+
+  
+    <a href="#comment" class="comment-anchor"></a>
+<div class="comment-title"><i class="iconfont icon-footprint"></i> 留下足迹 <i class="iconfont icon-footprint"></i></div>
+<div id="vcomments"></div>
+
+<script defer>
+  if( true ) {
+    let path = getRealPath()
+    new Valine({
+      el: "#vcomments",
+      appId: "Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz",
+      appKey: "WaR7nrzhliHj9aVwdQzkdlGd",
+      notify: false,
+      verify: false,
+      avatar: "robohash",
+      placeholder: "正确填写邮箱, 才能及时收到回复哦♪(^∇^*)",
+      path
+    });
+  }
+</script>
+   
+
+  
+    <script defer>
+const valineAPI = (() => {
+  try {
+    AV.init("Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz", "WaR7nrzhliHj9aVwdQzkdlGd");
+  } catch(error) {}
+  const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+      query.equalTo("identity", identity);
+      query.find().then(results => {
+        resolve(results.length > 0);
+      }, error => reject(error));
+    })
+  }
+
+  const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+      let querys = [];
+      for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+      }
+      query = AV.Query.or.apply(null ,querys);
+    } else {
+      identity = identity || getRealPath();
+      query = new AV.Query("Timer");
+      query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+      query.find()
+      .then(results => resolve(results))
+      .catch(error => reject(error))
+    })
+  }
+
+  const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let Todo = AV.Object.extend('Timer');
+      let todo = new Todo();
+      todo.set("times", 1);
+      todo.set("identity", identity);
+      todo.save().then(res => resolve(true), error => reject(error));
+    })
+  }
+
+  const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let query = new AV.Query('Timer');
+      query.equalTo("identity", identity);
+      query.find().then(todos => {
+        todos.forEach(todo => {
+          todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+      }).then(todos => resolve(true), error => reject(error));
+    })
+  }
+
+  return {
+    isExist,
+    _get,
+    update,
+    create
+  }
+})()
+
+const calcAndWriteTimes = () => {
+  let isPost = true;
+
+  let timerAllDOM = document.querySelectorAll(".article-timer");
+
+  if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+      if(exist) {
+        return valineAPI.update(identity);
+      }
+      return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+  }
+
+  let timerDOMCache = {};
+
+  for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+      timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+      timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+      };
+    }
+  }
+
+  let identities = Object.keys(timerDOMCache);
+  valineAPI._get(identities).then(results => {
+    for(let result of results) {
+      let {identity, times} = result.attributes;
+      timerDOMCache[identity].times = times;
+      timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+      if(timerDOMCache[identity].times){
+        continue;
+      }
+      timerDOMCache[identity].dom.map(item => item.innerText = 1);
+      valineAPI.create(identity);
+    }
+  }).catch(error => console.log(error.message))
+}
+
+if(true){
+  calcAndWriteTimes();
+}
+</script>
+   
+
+</div>
+
+
+      <footer>
+  <p class="site-info">
+    博客已萌萌哒运行<span id="time-to-now"></span><span class="my-face">(●'◡'●)ﾉ♥</span>
+    <br>
+    Theme - <a href="https://github.com/dongyuanxin/theme-bmw">BMW</a> | Powered by <a href="https://godbmw.com/">GodBMW</a>
+    <br>
+    
+      Copyright © 2019 Matrix
+    
+  </p>
+</footer>
+
+
+
+<script>
+const timeToNowDOM = document.querySelector("#time-to-now");
+const startTimestamp = new Date(2016, 4, 10).getTime();
+
+const updateTimeStr = () => {
+  let offset = parseInt(
+      (new Date().getTime() - startTimestamp) / 1000,
+      10
+    ),
+    day = Math.floor(offset / 86400),
+    hour = Math.floor((offset % 86400) / 3600),
+    minute = Math.floor(((offset % 86400) % 3600) / 60),
+    second = Math.floor(((offset % 86400) % 3600) % 60);
+  timeToNowDOM.innerHTML =
+    day + "天" + hour + "小时" + minute + "分钟" + second + "秒";
+  setTimeout(updateTimeStr, 500);
+}
+
+setTimeout(updateTimeStr, 500);
+</script>
+
+
+      <div class="back-to-top hidden">
+  <span>
+    <i class="iconfont icon-60"></i><span></span>%
+  </span>
+</div>
+
+<script>
+const updateIconToTop = percent => {
+  let dom = document.querySelector(".back-to-top span span");
+  dom.innerText = percent;
+  if(percent < 1) {
+    document.querySelector(".back-to-top").className = "back-to-top hidden";
+  } else {
+    document.querySelector(".back-to-top").className = "back-to-top";
+  }
+}
+
+const handleScoll = () => {
+  let isRunning = false;
+  return () => {
+    if (isRunning) return;
+    isRunning = true;
+    window.requestAnimationFrame(timestamp => {
+      let scrollTop =
+          document.documentElement.scrollTop || document.body.scrollTop,
+        scrollHeight =
+          document.documentElement.scrollHeight ||
+          document.body.scrollHeight,
+        clientHeight =
+          document.documentElement.clientHeight ||
+          document.body.clientHeight;
+      isRunning = false;
+      if (scrollTop <= 1) {
+        updateIconToTop(0);
+        return;
+      }
+      if (scrollTop + clientHeight >= scrollHeight) {
+        updateIconToTop(100);
+      } else {
+        updateIconToTop(parseInt(
+          100 * scrollTop / (scrollHeight - clientHeight),
+          10
+        ));
+      }
+    });
+  };
+}
+
+const backToTop = () => {
+  let scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop,
+    delay = 10,
+    time = 200;
+  if (scrollTop <= 20) {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    return;
+  }
+  let step = Math.ceil(scrollTop * delay / time);
+  let timer = setInterval(() => {
+    scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop;
+    if (scrollTop - step <= 0) {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      clearInterval(timer);
+    } else {
+      document.documentElement.scrollTop = scrollTop - step;
+      document.body.scrollTop = scrollTop - step;
+    }
+  }, delay);
+}
+
+document.addEventListener("scroll", handleScoll(), false);
+
+document.querySelector(".back-to-top").addEventListener("click", backToTop, false);
+
+</script>
+
+    </div>
+
+    
+      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  (() => {
+    const mathjaxConfig = {
+      showProcessingMessages: false, //关闭js加载过程信息
+      messageStyle: "none", //不显示信息
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]], //行内公式选择符
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]], //段内公式选择符
+        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"] //避开某些标签
+      },
+      "HTML-CSS": {
+        availableFonts: ["STIX", "TeX"], //可选字体
+        showMathMenu: false //关闭右击菜单显示
+      }
+    }
+
+    let mathjaxInterval = setInterval(() => {
+      if(!window.MathJax){
+        return;
+      }
+      window.MathJax.Hub.Config(mathjaxConfig)
+      window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')])
+
+      clearInterval(mathjaxInterval)
+    }, 10)    
+  })()
+</script>
+    
+
+    <script src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script>
+<script async>
+  let fancyTimer = setInterval(function(){
+    if(!window.$){
+      return;
+    }
+    $(document).ready(function() {
+      $(".post img").each(function () {
+        if($(this).parent().get(0).tagName.toLowerCase() === "a") {
+          return;
+        }
+        // $(this).attr("data-fancybox", "gallery"); // if you add 'data-fancybox', img will display after showed
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "gallery");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      });
+      
+      clearInterval(fancyTimer);
+    });
+  }, 10);
+</script>
+
+    
+  </body>
+
+</html>

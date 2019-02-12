@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta name="author" content="董沅鑫, yuanxin.me@gmail.com">
+  
+  
+  
+  <title>Hive的DDL | 每天遇到更好的你</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="大数据,大数据,Hive,">
+  
+
+  <script>
+    console.log('\n%c Hexo-theme-bmw v4.0 ' + '%c 🎉 https://github.com/dongyuanxin/theme-bmw 🎉\n' + '\n%c View demo online ' + '%c 🔍 https://godbmw.com/ 🔍  \n' , 'color: #fadfa3; background: #030307; padding:3px 0;', '', 'color: #fadfa3; background: #030307; padding:3px 0;', '');
+  </script>
+
+  
+
+  
+
+  
+    <link rel="icon" href="/images/favicon.png">
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+  
+
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/icon/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+  <script src="/js/util.js"></script>
+<script src="/js/valine.min.js"></script>
+
+  
+
+  
+    <link href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js" async></script>
+  
+
+  
+    <link href="https://cdn.bootcss.com/social-share.js/1.0.16/css/share.min.css" rel="stylesheet">
+  
+  
+  <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js" async></script>
+  
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.0/dist/av-min.js"></script>
+  
+
+</head>
+
+  <body>
+
+    
+
+    <div id="app">
+
+      <div class="header-wrap">
+  <header>
+    <div class="site-brand">
+      <div class="site-title">
+        <!-- <a href="/">MatrixSparse</a> -->
+        <img alt="logo" class="antd-pro-layouts-user-layout-logo" src="/images/favicon.png" style="width: 40px;height: 40px;margin-top: 10px;margin-left: 5px;">
+      </div>
+    </div>
+    <nav class="site-navigation">
+      <ul class="nav-menu">
+      
+        <li class="nav-item" data-path="/">
+          
+            <a href="/" target="_self">
+              主页
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          
+            <a href="/archives/" target="_self">
+              归档
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          
+            <a href="/categories/" target="_self">
+              分类
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          
+            <a href="/tags/" target="_self">
+              标签
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="">
+          
+            <a href="javascript:void(0);" v-else="">博客地址</a>
+            <ul class="nav-menu--dropdown">
+              
+                <li>
+                  <a href="https://blog.csdn.net/qq_25371579" target="_blank">
+                    CSDN
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://github.com/matrixsparse" target="_blank">
+                    Github
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://matrixsparse.github.io/" target="_blank">
+                    Github Page
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+      </ul>
+    </nav>
+    <i class="iconfont icon-menu"></i>
+  </header>
+</div>
+
+<script>
+  let links = document.querySelectorAll('.nav-item');
+  for(let link of links){
+    let childrenLink = link.querySelector('ul');
+    link.addEventListener('mouseenter', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown active";
+      }
+    })
+    link.addEventListener('mouseleave', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown";
+      }
+    })
+  }
+  let rootRealPath = getRealPath(window.location.pathname, true);
+  for(let link of links) {
+    let linkPath = link.getAttribute("data-path");
+    if(linkPath && getRealPath(linkPath, true) === rootRealPath) {
+      link.className = "nav-item hover";
+    }
+  }
+
+  let iconMenu = document.querySelector("i.iconfont.icon-menu"),
+    iconMenuClicked = false;
+  let navDOM = document.querySelector("nav.site-navigation");
+  iconMenu.addEventListener("click", () => {
+    iconMenuClicked
+      ? navDOM.className = "site-navigation active"
+      : navDOM.className = "site-navigation";
+    iconMenuClicked = !iconMenuClicked;
+  })
+</script>
+
+
+      
+
+
+
+
+
+
+
+
+<div class="container post-index">
+
+  
+
+<div class="post">
+  <h1 class="article-title">
+    <span>Hive的DDL</span>
+  </h1>
+  <div class="article-top-meta">
+    <span>
+      发布 : 
+      2016-02-12
+    </span>
+    
+      <span>
+        分类 : 
+          <a href="/categories/大数据/">
+            大数据
+          </a>
+      </span>
+    
+    
+      <span>
+        浏览 : <span class="article-timer" data-identity="hive的DDL"></span>
+      </span>
+    
+  </div>
+
+  
+
+  <div class="article-content">
+    <div class="markdown-body">
+      <h2 id="DDL："><a href="#DDL：" class="headerlink" title="DDL："></a>DDL：</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">1) 数据定义语言是Hive HQL的子集，是在hive在描述创建数据结构的</span><br><span class="line">2) 在Hive DDL语句中大多数以关键词CREATE、DROP、ALTER开头</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Hive的数据结构分层：</span><br><span class="line">4个层次：</span><br></pre></td></tr></table></figure>
+<h2 id="Database：如何创建？"><a href="#Database：如何创建？" class="headerlink" title="Database：如何创建？"></a>Database：如何创建？</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">表必须隶属于某个数据库</span><br><span class="line">每个数据库必须有对应的目录在HDFS文件系统上</span><br><span class="line">在hive上默认的数据库为<span class="string">'default'</span></span><br><span class="line">默认数据库在文件系统上的目录是<span class="string">'/user/hive/warehouse'</span>;</span><br></pre></td></tr></table></figure>
+<h2 id="创建数据库："><a href="#创建数据库：" class="headerlink" title="创建数据库："></a>创建数据库：</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">hive&gt; create database <span class="keyword">if</span> not exists hive;</span><br><span class="line">对于default数据库在H</span><br><span class="line">DFS文件系统上的存储路径为/user/hive/warehouse</span><br><span class="line">hive-site.xml中的默认配置</span><br><span class="line">hive.metastore.warehouse.dir该参数所配</span><br><span class="line">对于自己创建的数据库的存储路径是哪呢？</span><br><span class="line">/user/hive/warehouse/hive.db</span><br><span class="line">hive.db为我们自己创建数据库的名称,然后以.db为后缀结尾的一个文件夹</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hive&gt; create database hive2 location <span class="string">'/my/directory'</span></span><br></pre></td></tr></table></figure>
+<h2 id="查看数据库注释和存储路径"><a href="#查看数据库注释和存储路径" class="headerlink" title="查看数据库注释和存储路径"></a>查看数据库注释和存储路径</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hive&gt; describe database hive;</span><br></pre></td></tr></table></figure>
+<h2 id="创建数据库的同时添加注释"><a href="#创建数据库的同时添加注释" class="headerlink" title="创建数据库的同时添加注释"></a>创建数据库的同时添加注释</h2><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hive&gt; create database hive3 comment 'it is my database' WITH DBPROPERTIES('creator'='kaka','date'='2018-05-30');</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">dbproperties</span><br><span class="line">DBPROPERTIES</span><br></pre></td></tr></table></figure>
+<h2 id="查看详细的数据库注释和存储路径"><a href="#查看详细的数据库注释和存储路径" class="headerlink" title="查看详细的数据库注释和存储路径"></a>查看详细的数据库注释和存储路径</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hive&gt; describe database extended hive;</span><br></pre></td></tr></table></figure>
+<h2 id="查询所有的数据库"><a href="#查询所有的数据库" class="headerlink" title="查询所有的数据库"></a>查询所有的数据库</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hive&gt; show databases;</span><br></pre></td></tr></table></figure>
+<h2 id="模糊查询所有的数据库中以hive开头命名的数据库"><a href="#模糊查询所有的数据库中以hive开头命名的数据库" class="headerlink" title="模糊查询所有的数据库中以hive开头命名的数据库"></a>模糊查询所有的数据库中以hive开头命名的数据库</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hive&gt; show databases like <span class="string">'hive'</span>;</span><br></pre></td></tr></table></figure>
+<h2 id="更改hive3数据库的注释"><a href="#更改hive3数据库的注释" class="headerlink" title="更改hive3数据库的注释"></a>更改hive3数据库的注释</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">hive&gt; alter database hive3 <span class="built_in">set</span> dbproperties(<span class="string">'edited-by'</span>=<span class="string">'MEIXI'</span>);</span><br><span class="line">hive&gt; describe database extended hive3;</span><br></pre></td></tr></table></figure>
+<h2 id="删除数据库"><a href="#删除数据库" class="headerlink" title="删除数据库"></a>删除数据库</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">drop database hive3;</span><br></pre></td></tr></table></figure>
+<h2 id="创建表-注意：创建表之前要指定数据库"><a href="#创建表-注意：创建表之前要指定数据库" class="headerlink" title="创建表(注意：创建表之前要指定数据库)"></a>创建表(注意：创建表之前要指定数据库)</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">hive&gt; create table a(id int,name string);</span><br><span class="line">OK</span><br><span class="line">Time taken: 0.44 seconds</span><br></pre></td></tr></table></figure>
+<h2 id="同时删除数据库和表"><a href="#同时删除数据库和表" class="headerlink" title="同时删除数据库和表"></a>同时删除数据库和表</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">drop database hive2 cascade;</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">删除数据库的时候，cascade一定要慎用</span><br><span class="line"></span><br><span class="line">每个表都在HDFS文件系统上有对应的目录</span><br><span class="line"></span><br><span class="line">表在HDFS文件系统上的目录为<span class="string">'/user/hive/warehouse/[db.name](数据库名称)/table'</span>;</span><br></pre></td></tr></table></figure>
+<h2 id="创建表，同时指定要字段，以及字段之间的分割符-‘-t’制表符"><a href="#创建表，同时指定要字段，以及字段之间的分割符-‘-t’制表符" class="headerlink" title="创建表，同时指定要字段，以及字段之间的分割符(‘\t’制表符)"></a>创建表，同时指定要字段，以及字段之间的分割符(‘\t’制表符)</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">hive&gt; create table emp(empno int,ename string,job string,mgr int,hiredate string,sal double,</span><br><span class="line">comm double,deptno int)</span><br><span class="line">row format delimited fields terminated by ',';</span><br><span class="line">OK</span><br><span class="line">Time taken: 0.296 seconds</span><br></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">hive&gt; desc emp;</span><br><span class="line">OK</span><br><span class="line">empno   int</span><br><span class="line">ename   string  </span><br><span class="line">job string  </span><br><span class="line">mgr int</span><br><span class="line">hiredatestring  </span><br><span class="line">sal double  </span><br><span class="line">commdouble  </span><br><span class="line">deptno  int</span><br><span class="line">Time taken: 0.407 seconds, Fetched: 8 row(s)</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@node1 hive-1.2.1]<span class="comment"># vi emp.txt</span></span><br><span class="line">[root@node1 hive-1.2.1]<span class="comment"># cat emp.txt</span></span><br><span class="line">7379SMITH   CLIERk  79021980-12-17  800 20</span><br><span class="line">7692ALLEN   MANAGER 79821981-2-20   1600.00 300.00  30</span><br></pre></td></tr></table></figure>
+<h2 id="将emp-txt文件中的数据导入emp表中"><a href="#将emp-txt文件中的数据导入emp表中" class="headerlink" title="将emp.txt文件中的数据导入emp表中"></a>将emp.txt文件中的数据导入emp表中</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">hive&gt; load data <span class="built_in">local</span> inpath <span class="string">'/opt/modules/hive-1.2.1/emp.txt'</span> overwrite into table emp;</span><br><span class="line">Loading data to table default.emp</span><br><span class="line">Table default.emp stats: [numFiles=1, numRows=0, totalSize=126, rawDataSize=0]</span><br><span class="line">OK</span><br><span class="line">Time taken: 1.086 seconds</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@node1 hive-1.2.1]<span class="comment"># vi emp.txt</span></span><br><span class="line">[root@node1 hive-1.2.1]<span class="comment"># cat emp.txt</span></span><br><span class="line">7379,SMITH,CLIERk,7902,1980-12-17,800,20</span><br><span class="line">7692,ALLEN,MANAGER,7982,1981-2-20,1600.00,300.00,30</span><br></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">hive&gt; select * from emp;</span><br><span class="line">OK</span><br><span class="line">7379SMITHCLIERk79021980-12-17800.020.0NULL</span><br><span class="line">7692ALLENMANAGER79821981-2-201600.0300.030</span><br><span class="line">NULLNULLNULLNULLNULLNULLNULLNULL</span><br><span class="line">Time taken: 0.14 seconds, Fetched: 3 row(s)</span><br></pre></td></tr></table></figure>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hive&gt; drop table emp;</span><br></pre></td></tr></table></figure>
+<p>(1)查看表结构</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hive&gt; desc emp;</span><br></pre></td></tr></table></figure>
+<p>(2)查看表的详细结构</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hive&gt; desc extended emp;</span><br></pre></td></tr></table></figure>
+<p>(3)查看表结构(推荐使用这种方式查看，简洁明了)</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hive&gt; desc formatted emp;</span><br></pre></td></tr></table></figure>
+<h2 id="更改表名"><a href="#更改表名" class="headerlink" title="更改表名"></a>更改表名</h2><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hive&gt; ALTER TABLE emp RENAME TO emptest;</span><br></pre></td></tr></table></figure>
+<h2 id="删除表"><a href="#删除表" class="headerlink" title="删除表"></a>删除表</h2><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">hive&gt; drop table emptest;</span><br><span class="line">hive&gt; show tables;</span><br></pre></td></tr></table></figure>
+<h2 id="创建一个新表并将emp-bak的数据导入新表中"><a href="#创建一个新表并将emp-bak的数据导入新表中" class="headerlink" title="创建一个新表并将emp_bak的数据导入新表中"></a>创建一个新表并将emp_bak的数据导入新表中</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">hive&gt; create table emp_managed as select * from emp;</span><br><span class="line">Query ID = root_20160311082709_61648203-5965-4219-ae5e-4c5748966d1c</span><br><span class="line">Total jobs = 3</span><br><span class="line">Launching Job 1 out of 3</span><br><span class="line">Number of reduce tasks is <span class="keyword">set</span> <span class="keyword">to</span> <span class="number">0</span> since there<span class="string">'s no reduce operator</span></span><br><span class="line"><span class="string">Starting Job = job_1457654255652_0001, Tracking URL = http://node5:8088/proxy/application_1457654255652_0001/</span></span><br><span class="line"><span class="string">Kill Command = /opt/modules/hadoop-2.5.1/bin/hadoop job  -kill job_1457654255652_0001</span></span><br><span class="line"><span class="string">Hadoop job information for Stage-1: number of mappers: 1; number of reducers: 0</span></span><br><span class="line"><span class="string">2016-03-11 08:28:01,002 Stage-1 map = 0%,  reduce = 0%</span></span><br><span class="line"><span class="string">2016-03-11 08:28:29,956 Stage-1 map = 100%,  reduce = 0%, Cumulative CPU 2.77 sec</span></span><br><span class="line"><span class="string">MapReduce Total cumulative CPU time: 2 seconds 770 msec</span></span><br><span class="line"><span class="string">Ended Job = job_1457654255652_0001</span></span><br><span class="line"><span class="string">Stage-4 is selected by condition resolver.</span></span><br><span class="line"><span class="string">Stage-3 is filtered out by condition resolver.</span></span><br><span class="line"><span class="string">Stage-5 is filtered out by condition resolver.</span></span><br><span class="line"><span class="string">Moving data to: hdfs://matrix/usr/hive-1.2.1/warehouse/.hive-staging_hive_2016-03-11_08-27-09_038_7401835710561722844-1/-ext-10001</span></span><br><span class="line"><span class="string">Moving data to: hdfs://matrix/usr/hive-1.2.1/warehouse/emp_managed</span></span><br><span class="line"><span class="string">Table default.emp_managed stats: [numFiles=1, numRows=3, totalSize=122, rawDataSize=119]</span></span><br><span class="line"><span class="string">MapReduce Jobs Launched:</span></span><br><span class="line"><span class="string">Stage-Stage-1: Map: 1   Cumulative CPU: 2.77 sec   HDFS Read: 3586 HDFS Write: 198 SUCCESS</span></span><br><span class="line"><span class="string">Total MapReduce CPU Time Spent: 2 seconds 770 msec</span></span><br><span class="line"><span class="string">OK</span></span><br><span class="line"><span class="string">Time taken: 82.623 seconds</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hive(hive)&gt; select * from emp_managed;</span><br></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">hive&gt; select * from emp_managed;</span><br><span class="line">OK</span><br><span class="line">7379SMITHCLIERk79021980-12-17800.020.0NULL</span><br><span class="line">7692ALLENMANAGER79821981-2-201600.0300.030</span><br><span class="line">NULLNULLNULLNULLNULLNULLNULLNULL</span><br><span class="line">Time taken: 0.172 seconds, Fetched: 3 row(s)</span><br></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">在命令行下查看HDFS文件系统目录/user/hive/warehouse/hive.db/emp_managed上是否有MapReduce程序运行之后创建的文件</span><br><span class="line">[matrix@hadoop-matrix ~]$ cd /data/modules/hadoop-2.7.1</span><br><span class="line">[matrix@hadoop-matrix hadoop-2.7.1]$ ./bin/hdfs dfs -ls /user/hive/warehouse/hive.db/emp_managed</span><br></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">查看HDFS文件系统目录/user/hive/warehouse/hive.db/emp_managed下的000000_0文件</span><br><span class="line">[matrix@hadoop-matrix hadoop-2.7.1]$ ./bin/hdfs dfs -text /user/hive/warehouse/hive.db/emp_managed/000000_0</span><br><span class="line">15/09/23 03:35:34 WARN util.NativeCodeLoader: Unable to <span class="keyword">load</span> <span class="keyword">native</span>-hadoop <span class="keyword">library</span> <span class="keyword">for</span> your platform... <span class="keyword">using</span> builtin-<span class="keyword">java</span> classes <span class="keyword">where</span> applicable</span><br><span class="line"><span class="number">7379</span>SMITHCLIERk79021980<span class="number">-12</span><span class="number">-17800.020</span><span class="number">.0</span>\N</span><br><span class="line"><span class="number">7692</span>ALLENMANAGER79821981<span class="number">-2</span><span class="number">-201600.0300</span><span class="number">.030</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">hive中的数据有两种：</span><br><span class="line">   ##  一种是hive的数据，通常指的是HDFS上的数据</span><br><span class="line">   ##  一种是元数据，元数据是存在mysql上面的</span><br></pre></td></tr></table></figure>
+<p>[root@hadoop-matrix mysql-libs]# rpm -qa|grep mysql<br>[root@hadoop-matrix mysql-libs]# sudo more /root/.mysql_secret</p>
+<h1 id="The-random-password-set-for-the-root-user-at-Tue-Sep-22-17-52-04-2015-local-t"><a href="#The-random-password-set-for-the-root-user-at-Tue-Sep-22-17-52-04-2015-local-t" class="headerlink" title="The random password set for the root user at Tue Sep 22 17:52:04 2015 (local t"></a>The random password set for the root user at Tue Sep 22 17:52:04 2015 (local t</h1><p>ime): 1SPhNzl162ril_lJ</p>
+<h2 id="连接mysql"><a href="#连接mysql" class="headerlink" title="连接mysql"></a>连接mysql</h2><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mysql -uroot -p123456</span><br><span class="line"></span><br><span class="line">mysql&gt; show databases;</span><br></pre></td></tr></table></figure>
+<h2 id="删除数据库-1"><a href="#删除数据库-1" class="headerlink" title="删除数据库"></a>删除数据库</h2><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">hive&gt; drop table emp_managed;</span><br><span class="line">hive&gt; drop table emp;</span><br></pre></td></tr></table></figure>
+<h2 id="查看文件系统目录上还有没有文件"><a href="#查看文件系统目录上还有没有文件" class="headerlink" title="查看文件系统目录上还有没有文件"></a>查看文件系统目录上还有没有文件</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">TABLS：<span class="keyword">drop</span> <span class="keyword">table</span>时，hdfs和hive元数据表均被删除</span><br></pre></td></tr></table></figure>
+<h2 id="外部表和内部表有什么区别？"><a href="#外部表和内部表有什么区别？" class="headerlink" title="外部表和内部表有什么区别？"></a>外部表和内部表有什么区别？</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">[matrix@hadoop-matrix hive-1.2.1]$ hive</span><br><span class="line"></span><br><span class="line">Logging initialized using configuration in jar:file:/data/modules/hive-1.2.1/lib/hive-common-1.2.1.jar!/hive-log4j.properties</span><br><span class="line"></span><br><span class="line"><span class="comment">#log4j.appender.EventCounter=org.apache.hadoop.metrics.jvm.EventCounter</span></span><br><span class="line">log4j.appender.EventCounter=org.apache.hadoop.log.metrics.EventCounter</span><br><span class="line">mv hive-log4j.properties.template hive-log4j.properties</span><br><span class="line"></span><br><span class="line">desc formatted emp;</span><br></pre></td></tr></table></figure>
+<h2 id="创建一个外部表："><a href="#创建一个外部表：" class="headerlink" title="创建一个外部表："></a>创建一个外部表：</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">hive&gt; create external table emp_external(</span><br><span class="line">empno int,</span><br><span class="line">ename string,</span><br><span class="line">job string,</span><br><span class="line">mgr int,</span><br><span class="line">hiredate string,</span><br><span class="line">sal double,</span><br><span class="line">comm double,</span><br><span class="line">deptno int)row format delimited fields terminated by '\t'</span><br><span class="line">location '/hive_external_tmp/emp/';</span><br></pre></td></tr></table></figure>
+<h2 id="在HDFS文件系统上创建目录"><a href="#在HDFS文件系统上创建目录" class="headerlink" title="在HDFS文件系统上创建目录"></a>在HDFS文件系统上创建目录</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">./bin/hdfs dfs -mkdir -p /emp_external_tmp/emp/</span><br><span class="line">./bin/hdfs dfs -put emp.txt /emp_external_tmp/emp/</span><br></pre></td></tr></table></figure>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hive&gt; describe formatted emp_external;</span><br></pre></td></tr></table></figure>
+<h2 id="删除外部表"><a href="#删除外部表" class="headerlink" title="删除外部表"></a>删除外部表</h2><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hive&gt; drop table emp_external;</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">内部表：drop table时，hdfs和hive元数据表均被删除</span><br><span class="line">外部表：drop table时，hdfs文件不动，hive元数据删除(推荐多用，以防不测)</span><br><span class="line">哪个更安全？</span><br><span class="line">外部表！</span><br></pre></td></tr></table></figure>
+
+    </div>
+  </div>
+  
+    <div class="copy-right">
+      <div class="markdown-body">
+        <blockquote>
+        
+        
+          本文作者 : Matrix <br>
+        
+        原文链接 : <a href="">http://yoursite.com/2016/02/12/hive的DDL/</a><br>
+        版权声明 : 本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+        </blockquote>
+      </div>
+    </div>
+  
+  
+  
+    <div class="social-share" style="margin-top: -2rem" data-wechat-qrcode-title="<p>微信扫一扫</p>" data-wechat-qrcode-helper="<p>微信右上角, 扫一扫分享</p>" data-sites="qzone, qq, weibo, wechat, douban, google, facebook, twitter">
+  <span style="color: #6b7487; font-size: 1.4rem;">分享到: </span>
+</div>
+<script src="https://cdn.bootcss.com/social-share.js/1.0.16/js/social-share.min.js" async></script>
+  
+
+  
+    <div id="reward">
+  
+    <p id="reward-meta">知识 & 情怀 | 二者兼得</p>
+  
+  <button id="reward-btn">
+    
+    <span>投食</span>
+  </button>
+  <div id="reward-qrcode">
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/wechatpay.jpg" alt="微信扫一扫, 向我投食">
+        <p class="qrcode-meta">微信扫一扫, 向我投食</p>
+      </div>
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/alipaypay.jpg" alt="支付宝扫一扫, 向我投食">
+        <p class="qrcode-meta">支付宝扫一扫, 向我投食</p>
+      </div>
+    
+  </div>
+
+</div>
+
+<script>
+  (() => {
+    let button = document.querySelector('#reward-btn'),
+      qrcode = document.querySelector('#reward-qrcode'),
+      display = false;
+    
+    button.addEventListener('click', () => {
+      qrcode.style.display = display ? 'none' : 'block'
+      display = !display
+    }, false)
+  })()
+</script>
+  
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+      <span>
+        
+          <i class="iconfont icon-06tags"></i>标签: 
+          
+          <span class="span--tag">
+            <a href="/tags/大数据/">
+              #大数据
+            </a>
+          </span>
+          
+          <span class="span--tag">
+            <a href="/tags/Hive/">
+              #Hive
+            </a>
+          </span>
+          
+        
+      </span>
+    </div>
+    <div class="article-meta pull-right">
+    </div>
+  </div>
+</div>
+
+
+  <aside id="sidebar">
+    <p id="sidebar-header"></p>
+    <ol id="sidebar-toc"></ol>
+  </aside>
+  <script async>setTimeout(generateToc, 10);</script>
+
+
+  <nav class="post-navigation">
+    
+      <div class="nav-pre">
+        <i class="iconfont icon-prev"></i>
+        上一篇:
+        <a href="/2016/02/12/crontab命令/" target="_self">crontab命令</a>
+      </div>
+    
+    
+      <div class="nav-next">
+        下一篇:
+        <a href="/2016/02/12/kafka分布式搭建/" target="_self">kafka分布式搭建</a>
+        <i class="iconfont icon-next"></i>
+      </div>
+    
+  </nav>
+
+  
+    <a href="#comment" class="comment-anchor"></a>
+<div class="comment-title"><i class="iconfont icon-footprint"></i> 留下足迹 <i class="iconfont icon-footprint"></i></div>
+<div id="vcomments"></div>
+
+<script defer>
+  if( true ) {
+    let path = getRealPath()
+    new Valine({
+      el: "#vcomments",
+      appId: "Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz",
+      appKey: "WaR7nrzhliHj9aVwdQzkdlGd",
+      notify: false,
+      verify: false,
+      avatar: "robohash",
+      placeholder: "正确填写邮箱, 才能及时收到回复哦♪(^∇^*)",
+      path
+    });
+  }
+</script>
+   
+
+  
+    <script defer>
+const valineAPI = (() => {
+  try {
+    AV.init("Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz", "WaR7nrzhliHj9aVwdQzkdlGd");
+  } catch(error) {}
+  const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+      query.equalTo("identity", identity);
+      query.find().then(results => {
+        resolve(results.length > 0);
+      }, error => reject(error));
+    })
+  }
+
+  const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+      let querys = [];
+      for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+      }
+      query = AV.Query.or.apply(null ,querys);
+    } else {
+      identity = identity || getRealPath();
+      query = new AV.Query("Timer");
+      query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+      query.find()
+      .then(results => resolve(results))
+      .catch(error => reject(error))
+    })
+  }
+
+  const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let Todo = AV.Object.extend('Timer');
+      let todo = new Todo();
+      todo.set("times", 1);
+      todo.set("identity", identity);
+      todo.save().then(res => resolve(true), error => reject(error));
+    })
+  }
+
+  const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let query = new AV.Query('Timer');
+      query.equalTo("identity", identity);
+      query.find().then(todos => {
+        todos.forEach(todo => {
+          todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+      }).then(todos => resolve(true), error => reject(error));
+    })
+  }
+
+  return {
+    isExist,
+    _get,
+    update,
+    create
+  }
+})()
+
+const calcAndWriteTimes = () => {
+  let isPost = true;
+
+  let timerAllDOM = document.querySelectorAll(".article-timer");
+
+  if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+      if(exist) {
+        return valineAPI.update(identity);
+      }
+      return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+  }
+
+  let timerDOMCache = {};
+
+  for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+      timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+      timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+      };
+    }
+  }
+
+  let identities = Object.keys(timerDOMCache);
+  valineAPI._get(identities).then(results => {
+    for(let result of results) {
+      let {identity, times} = result.attributes;
+      timerDOMCache[identity].times = times;
+      timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+      if(timerDOMCache[identity].times){
+        continue;
+      }
+      timerDOMCache[identity].dom.map(item => item.innerText = 1);
+      valineAPI.create(identity);
+    }
+  }).catch(error => console.log(error.message))
+}
+
+if(true){
+  calcAndWriteTimes();
+}
+</script>
+   
+
+</div>
+
+
+      <footer>
+  <p class="site-info">
+    博客已萌萌哒运行<span id="time-to-now"></span><span class="my-face">(●'◡'●)ﾉ♥</span>
+    <br>
+    Theme - <a href="https://github.com/dongyuanxin/theme-bmw">BMW</a> | Powered by <a href="https://godbmw.com/">GodBMW</a>
+    <br>
+    
+      Copyright © 2019 Matrix
+    
+  </p>
+</footer>
+
+
+
+<script>
+const timeToNowDOM = document.querySelector("#time-to-now");
+const startTimestamp = new Date(2016, 4, 10).getTime();
+
+const updateTimeStr = () => {
+  let offset = parseInt(
+      (new Date().getTime() - startTimestamp) / 1000,
+      10
+    ),
+    day = Math.floor(offset / 86400),
+    hour = Math.floor((offset % 86400) / 3600),
+    minute = Math.floor(((offset % 86400) % 3600) / 60),
+    second = Math.floor(((offset % 86400) % 3600) % 60);
+  timeToNowDOM.innerHTML =
+    day + "天" + hour + "小时" + minute + "分钟" + second + "秒";
+  setTimeout(updateTimeStr, 500);
+}
+
+setTimeout(updateTimeStr, 500);
+</script>
+
+
+      <div class="back-to-top hidden">
+  <span>
+    <i class="iconfont icon-60"></i><span></span>%
+  </span>
+</div>
+
+<script>
+const updateIconToTop = percent => {
+  let dom = document.querySelector(".back-to-top span span");
+  dom.innerText = percent;
+  if(percent < 1) {
+    document.querySelector(".back-to-top").className = "back-to-top hidden";
+  } else {
+    document.querySelector(".back-to-top").className = "back-to-top";
+  }
+}
+
+const handleScoll = () => {
+  let isRunning = false;
+  return () => {
+    if (isRunning) return;
+    isRunning = true;
+    window.requestAnimationFrame(timestamp => {
+      let scrollTop =
+          document.documentElement.scrollTop || document.body.scrollTop,
+        scrollHeight =
+          document.documentElement.scrollHeight ||
+          document.body.scrollHeight,
+        clientHeight =
+          document.documentElement.clientHeight ||
+          document.body.clientHeight;
+      isRunning = false;
+      if (scrollTop <= 1) {
+        updateIconToTop(0);
+        return;
+      }
+      if (scrollTop + clientHeight >= scrollHeight) {
+        updateIconToTop(100);
+      } else {
+        updateIconToTop(parseInt(
+          100 * scrollTop / (scrollHeight - clientHeight),
+          10
+        ));
+      }
+    });
+  };
+}
+
+const backToTop = () => {
+  let scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop,
+    delay = 10,
+    time = 200;
+  if (scrollTop <= 20) {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    return;
+  }
+  let step = Math.ceil(scrollTop * delay / time);
+  let timer = setInterval(() => {
+    scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop;
+    if (scrollTop - step <= 0) {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      clearInterval(timer);
+    } else {
+      document.documentElement.scrollTop = scrollTop - step;
+      document.body.scrollTop = scrollTop - step;
+    }
+  }, delay);
+}
+
+document.addEventListener("scroll", handleScoll(), false);
+
+document.querySelector(".back-to-top").addEventListener("click", backToTop, false);
+
+</script>
+
+    </div>
+
+    
+      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  (() => {
+    const mathjaxConfig = {
+      showProcessingMessages: false, //关闭js加载过程信息
+      messageStyle: "none", //不显示信息
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]], //行内公式选择符
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]], //段内公式选择符
+        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"] //避开某些标签
+      },
+      "HTML-CSS": {
+        availableFonts: ["STIX", "TeX"], //可选字体
+        showMathMenu: false //关闭右击菜单显示
+      }
+    }
+
+    let mathjaxInterval = setInterval(() => {
+      if(!window.MathJax){
+        return;
+      }
+      window.MathJax.Hub.Config(mathjaxConfig)
+      window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')])
+
+      clearInterval(mathjaxInterval)
+    }, 10)    
+  })()
+</script>
+    
+
+    <script src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script>
+<script async>
+  let fancyTimer = setInterval(function(){
+    if(!window.$){
+      return;
+    }
+    $(document).ready(function() {
+      $(".post img").each(function () {
+        if($(this).parent().get(0).tagName.toLowerCase() === "a") {
+          return;
+        }
+        // $(this).attr("data-fancybox", "gallery"); // if you add 'data-fancybox', img will display after showed
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "gallery");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      });
+      
+      clearInterval(fancyTimer);
+    });
+  }, 10);
+</script>
+
+    
+  </body>
+
+</html>

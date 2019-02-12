@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta name="author" content="董沅鑫, yuanxin.me@gmail.com">
+  
+  
+  
+  <title>HBase的API使用 | 每天遇到更好的你</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="大数据,大数据,">
+  
+
+  <script>
+    console.log('\n%c Hexo-theme-bmw v4.0 ' + '%c 🎉 https://github.com/dongyuanxin/theme-bmw 🎉\n' + '\n%c View demo online ' + '%c 🔍 https://godbmw.com/ 🔍  \n' , 'color: #fadfa3; background: #030307; padding:3px 0;', '', 'color: #fadfa3; background: #030307; padding:3px 0;', '');
+  </script>
+
+  
+
+  
+
+  
+    <link rel="icon" href="/images/favicon.png">
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+  
+
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/icon/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+  <script src="/js/util.js"></script>
+<script src="/js/valine.min.js"></script>
+
+  
+
+  
+    <link href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js" async></script>
+  
+
+  
+    <link href="https://cdn.bootcss.com/social-share.js/1.0.16/css/share.min.css" rel="stylesheet">
+  
+  
+  <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js" async></script>
+  
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.0/dist/av-min.js"></script>
+  
+
+</head>
+
+  <body>
+
+    
+
+    <div id="app">
+
+      <div class="header-wrap">
+  <header>
+    <div class="site-brand">
+      <div class="site-title">
+        <!-- <a href="/">MatrixSparse</a> -->
+        <img alt="logo" class="antd-pro-layouts-user-layout-logo" src="/images/favicon.png" style="width: 40px;height: 40px;margin-top: 10px;margin-left: 5px;">
+      </div>
+    </div>
+    <nav class="site-navigation">
+      <ul class="nav-menu">
+      
+        <li class="nav-item" data-path="/">
+          
+            <a href="/" target="_self">
+              主页
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          
+            <a href="/archives/" target="_self">
+              归档
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          
+            <a href="/categories/" target="_self">
+              分类
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          
+            <a href="/tags/" target="_self">
+              标签
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="">
+          
+            <a href="javascript:void(0);" v-else="">博客地址</a>
+            <ul class="nav-menu--dropdown">
+              
+                <li>
+                  <a href="https://blog.csdn.net/qq_25371579" target="_blank">
+                    CSDN
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://github.com/matrixsparse" target="_blank">
+                    Github
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://matrixsparse.github.io/" target="_blank">
+                    Github Page
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+      </ul>
+    </nav>
+    <i class="iconfont icon-menu"></i>
+  </header>
+</div>
+
+<script>
+  let links = document.querySelectorAll('.nav-item');
+  for(let link of links){
+    let childrenLink = link.querySelector('ul');
+    link.addEventListener('mouseenter', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown active";
+      }
+    })
+    link.addEventListener('mouseleave', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown";
+      }
+    })
+  }
+  let rootRealPath = getRealPath(window.location.pathname, true);
+  for(let link of links) {
+    let linkPath = link.getAttribute("data-path");
+    if(linkPath && getRealPath(linkPath, true) === rootRealPath) {
+      link.className = "nav-item hover";
+    }
+  }
+
+  let iconMenu = document.querySelector("i.iconfont.icon-menu"),
+    iconMenuClicked = false;
+  let navDOM = document.querySelector("nav.site-navigation");
+  iconMenu.addEventListener("click", () => {
+    iconMenuClicked
+      ? navDOM.className = "site-navigation active"
+      : navDOM.className = "site-navigation";
+    iconMenuClicked = !iconMenuClicked;
+  })
+</script>
+
+
+      
+
+
+
+
+
+
+
+
+<div class="container post-index">
+
+  
+
+<div class="post">
+  <h1 class="article-title">
+    <span>HBase的API使用</span>
+  </h1>
+  <div class="article-top-meta">
+    <span>
+      发布 : 
+      2016-03-20
+    </span>
+    
+      <span>
+        分类 : 
+          <a href="/categories/大数据/">
+            大数据
+          </a>
+      </span>
+    
+    
+      <span>
+        浏览 : <span class="article-timer" data-identity="Hbase的API使用"></span>
+      </span>
+    
+  </div>
+
+  
+
+  <div class="article-content">
+    <div class="markdown-body">
+      <h2 id="1-导入jar包"><a href="#1-导入jar包" class="headerlink" title="1.导入jar包"></a>1.导入jar包</h2><p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-15/18677183.jpg" alt=""></p>
+<h2 id="2-导入额外jar包"><a href="#2-导入额外jar包" class="headerlink" title="2.导入额外jar包"></a>2.导入额外jar包</h2><p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-15/5541178.jpg" alt=""></p>
+<h2 id="3-创建表"><a href="#3-创建表" class="headerlink" title="3.创建表"></a>3.创建表</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line">TestBase.java</span><br><span class="line"></span><br><span class="line">	<span class="keyword">package</span> com.matrix.hbase;</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">import</span> java.io.IOException;</span><br><span class="line">	<span class="keyword">import</span> java.util.Random;</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">import</span> org.apache.hadoop.conf.Configuration;</span><br><span class="line">	<span class="keyword">import</span> org.apache.hadoop.hbase.HBaseConfiguration;</span><br><span class="line">	<span class="keyword">import</span> org.apache.hadoop.hbase.HColumnDescriptor;</span><br><span class="line">	<span class="keyword">import</span> org.apache.hadoop.hbase.HTableDescriptor;</span><br><span class="line">	<span class="keyword">import</span> org.apache.hadoop.hbase.TableName;</span><br><span class="line">	<span class="keyword">import</span> org.apache.hadoop.hbase.client.Admin;</span><br><span class="line">	<span class="keyword">import</span> org.apache.hadoop.hbase.client.Connection;</span><br><span class="line">	<span class="keyword">import</span> org.apache.hadoop.hbase.client.ConnectionFactory;</span><br><span class="line">	<span class="keyword">import</span> org.junit.Before;</span><br><span class="line">	<span class="keyword">import</span> org.junit.Test;</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestBase</span> </span>&#123;</span><br><span class="line">		</span><br><span class="line">		<span class="keyword">public</span> <span class="keyword">static</span> Random ra = <span class="keyword">new</span> Random();</span><br><span class="line">		<span class="keyword">public</span> <span class="keyword">static</span> Connection conn = <span class="keyword">null</span>;</span><br><span class="line">		<span class="keyword">public</span> <span class="keyword">static</span> TableName table = TableName.valueOf(<span class="string">"test"</span>.getBytes());</span><br><span class="line">	</span><br><span class="line">		<span class="meta">@Before</span></span><br><span class="line">		<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setup</span><span class="params">()</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">			Configuration config = HBaseConfiguration.create();</span><br><span class="line">			config.set(<span class="string">"hbase.zookeeper.quorum"</span>, <span class="string">"node2,node3,node5"</span>);</span><br><span class="line">			conn = ConnectionFactory.createConnection(config);</span><br><span class="line">		&#125;</span><br><span class="line">	</span><br><span class="line">		<span class="meta">@Test</span></span><br><span class="line">		<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">createTable</span><span class="params">()</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">			Admin admin = conn.getAdmin();</span><br><span class="line">			<span class="comment">// 如果表存在，则删除</span></span><br><span class="line">			<span class="keyword">if</span> (admin.tableExists(table)) &#123;</span><br><span class="line">				<span class="comment">// 删除表中数据</span></span><br><span class="line">				admin.disableTable(table);</span><br><span class="line">				<span class="comment">// 删除表</span></span><br><span class="line">				admin.deleteTable(table);</span><br><span class="line">			&#125;</span><br><span class="line">			HTableDescriptor ht = <span class="keyword">new</span> HTableDescriptor(table);</span><br><span class="line">			HColumnDescriptor hd = <span class="keyword">new</span> HColumnDescriptor(<span class="string">"cf1"</span>.getBytes());</span><br><span class="line">			hd.setMaxVersions(<span class="number">5</span>);</span><br><span class="line">			hd.setBlockCacheEnabled(<span class="keyword">true</span>);</span><br><span class="line">			hd.setBlocksize(<span class="number">1280000</span>);</span><br><span class="line">			ht.addFamily(hd);</span><br><span class="line">			admin.createTable(ht);</span><br><span class="line">		&#125;</span><br><span class="line">	</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="3-1查看表是否创建成功"><a href="#3-1查看表是否创建成功" class="headerlink" title="#3.1查看表是否创建成功"></a>#3.1查看表是否创建成功</h2><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hbase(main):024:0&gt; list</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-15/1987140.jpg" alt=""></p>
+<h2 id="4-添加数据到表中"><a href="#4-添加数据到表中" class="headerlink" title="4.添加数据到表中"></a>4.添加数据到表中</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line">TestHbase.java</span><br><span class="line"></span><br><span class="line">	<span class="keyword">package</span> com.matrix.hbase;</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">import</span> java.io.IOException;</span><br><span class="line">	<span class="keyword">import</span> java.util.ArrayList;</span><br><span class="line">	<span class="keyword">import</span> java.util.Iterator;</span><br><span class="line">	<span class="keyword">import</span> java.util.List;</span><br><span class="line">	<span class="keyword">import</span> java.util.Random;</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">import</span> org.apache.hadoop.conf.Configuration;</span><br><span class="line">	<span class="keyword">import</span> org.apache.hadoop.hbase.Cell;</span><br><span class="line">	<span class="keyword">import</span> org.apache.hadoop.hbase.HBaseConfiguration;</span><br><span class="line">	<span class="keyword">import</span> org.apache.hadoop.hbase.HColumnDescriptor;</span><br><span class="line">	<span class="keyword">import</span> org.apache.hadoop.hbase.HTableDescriptor;</span><br><span class="line">	<span class="keyword">import</span> org.apache.hadoop.hbase.TableName;</span><br><span class="line">	<span class="keyword">import</span> org.apache.hadoop.hbase.client.Admin;</span><br><span class="line">	<span class="keyword">import</span> org.apache.hadoop.hbase.client.Connection;</span><br><span class="line">	<span class="keyword">import</span> org.apache.hadoop.hbase.client.ConnectionFactory;</span><br><span class="line">	<span class="keyword">import</span> org.apache.hadoop.hbase.client.Get;</span><br><span class="line">	<span class="keyword">import</span> org.apache.hadoop.hbase.client.Put;</span><br><span class="line">	<span class="keyword">import</span> org.apache.hadoop.hbase.client.Result;</span><br><span class="line">	<span class="keyword">import</span> org.apache.hadoop.hbase.client.ResultScanner;</span><br><span class="line">	<span class="keyword">import</span> org.apache.hadoop.hbase.client.Scan;</span><br><span class="line">	<span class="keyword">import</span> org.apache.hadoop.hbase.client.Table;</span><br><span class="line">	<span class="keyword">import</span> org.junit.Before;</span><br><span class="line">	<span class="keyword">import</span> org.junit.Test;</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestHbase</span> </span>&#123;</span><br><span class="line">	</span><br><span class="line">		<span class="keyword">public</span> <span class="keyword">static</span> Random ra = <span class="keyword">new</span> Random();</span><br><span class="line">		<span class="keyword">public</span> <span class="keyword">static</span> Connection conn = <span class="keyword">null</span>;</span><br><span class="line">		<span class="keyword">public</span> <span class="keyword">static</span> TableName table = TableName.valueOf(<span class="string">"test"</span>.getBytes());</span><br><span class="line">	</span><br><span class="line">		<span class="meta">@Before</span></span><br><span class="line">		<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setup</span><span class="params">()</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">			Configuration config = HBaseConfiguration.create();</span><br><span class="line">			config.set(<span class="string">"hbase.zookeeper.quorum"</span>, <span class="string">"node2,node3,node5"</span>);</span><br><span class="line">			conn = ConnectionFactory.createConnection(config);</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="meta">@Test</span></span><br><span class="line">		<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">insert</span><span class="params">()</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">			Table ta = conn.getTable(TestHbase.table);</span><br><span class="line">			List ls = <span class="keyword">new</span> ArrayList&lt;Put&gt;();</span><br><span class="line">			<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt;= <span class="number">1000</span>; i++) &#123;</span><br><span class="line">				Put put = <span class="keyword">new</span> Put((<span class="string">"123_"</span> + i).getBytes());</span><br><span class="line">				put.addColumn(<span class="string">"cf1"</span>.getBytes(), <span class="string">"name"</span>.getBytes(), <span class="string">"zs"</span>.getBytes());</span><br><span class="line">				put.addColumn(<span class="string">"cf1"</span>.getBytes(), <span class="string">"age"</span>.getBytes(), String.valueOf(ra.nextInt(<span class="number">100</span>)).getBytes());</span><br><span class="line">				ls.add(put);</span><br><span class="line">			&#125;</span><br><span class="line">	</span><br><span class="line">			ta.put(ls);</span><br><span class="line">		&#125;</span><br><span class="line">	</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="4-1-扫描全表"><a href="#4-1-扫描全表" class="headerlink" title="4.1.扫描全表"></a>4.1.扫描全表</h3><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hbase(main):006:0&gt; scan 'test'</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-15/46924420.jpg" alt=""></p>
+<h2 id="5-根据需求查询表中数据"><a href="#5-根据需求查询表中数据" class="headerlink" title="5.根据需求查询表中数据"></a>5.根据需求查询表中数据</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line">TestHbase.java</span><br><span class="line"></span><br><span class="line">	<span class="keyword">package</span> com.matrix.hbase;</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">import</span> java.io.IOException;</span><br><span class="line">	<span class="keyword">import</span> java.util.ArrayList;</span><br><span class="line">	<span class="keyword">import</span> java.util.Iterator;</span><br><span class="line">	<span class="keyword">import</span> java.util.List;</span><br><span class="line">	<span class="keyword">import</span> java.util.Random;</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">import</span> org.apache.hadoop.conf.Configuration;</span><br><span class="line">	<span class="keyword">import</span> org.apache.hadoop.hbase.Cell;</span><br><span class="line">	<span class="keyword">import</span> org.apache.hadoop.hbase.HBaseConfiguration;</span><br><span class="line">	<span class="keyword">import</span> org.apache.hadoop.hbase.HColumnDescriptor;</span><br><span class="line">	<span class="keyword">import</span> org.apache.hadoop.hbase.HTableDescriptor;</span><br><span class="line">	<span class="keyword">import</span> org.apache.hadoop.hbase.TableName;</span><br><span class="line">	<span class="keyword">import</span> org.apache.hadoop.hbase.client.Admin;</span><br><span class="line">	<span class="keyword">import</span> org.apache.hadoop.hbase.client.Connection;</span><br><span class="line">	<span class="keyword">import</span> org.apache.hadoop.hbase.client.ConnectionFactory;</span><br><span class="line">	<span class="keyword">import</span> org.apache.hadoop.hbase.client.Get;</span><br><span class="line">	<span class="keyword">import</span> org.apache.hadoop.hbase.client.Put;</span><br><span class="line">	<span class="keyword">import</span> org.apache.hadoop.hbase.client.Result;</span><br><span class="line">	<span class="keyword">import</span> org.apache.hadoop.hbase.client.ResultScanner;</span><br><span class="line">	<span class="keyword">import</span> org.apache.hadoop.hbase.client.Scan;</span><br><span class="line">	<span class="keyword">import</span> org.apache.hadoop.hbase.client.Table;</span><br><span class="line">	<span class="keyword">import</span> org.junit.Before;</span><br><span class="line">	<span class="keyword">import</span> org.junit.Test;</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestHbase</span> </span>&#123;</span><br><span class="line">	</span><br><span class="line">		<span class="keyword">public</span> <span class="keyword">static</span> Random ra = <span class="keyword">new</span> Random();</span><br><span class="line">		<span class="keyword">public</span> <span class="keyword">static</span> Connection conn = <span class="keyword">null</span>;</span><br><span class="line">		<span class="keyword">public</span> <span class="keyword">static</span> TableName table = TableName.valueOf(<span class="string">"test"</span>.getBytes());</span><br><span class="line">	</span><br><span class="line">		<span class="meta">@Before</span></span><br><span class="line">		<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setup</span><span class="params">()</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">			Configuration config = HBaseConfiguration.create();</span><br><span class="line">			config.set(<span class="string">"hbase.zookeeper.quorum"</span>, <span class="string">"node2,node3,node5"</span>);</span><br><span class="line">			conn = ConnectionFactory.createConnection(config);</span><br><span class="line">		&#125;</span><br><span class="line">	</span><br><span class="line">		<span class="meta">@Test</span></span><br><span class="line">		<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">search</span><span class="params">()</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">			Table ta = conn.getTable(TestHbase.table);</span><br><span class="line">			Get get = <span class="keyword">new</span> Get(<span class="string">"123_996"</span>.getBytes());</span><br><span class="line">			get.addColumn(<span class="string">"cf1"</span>.getBytes(), <span class="string">"age"</span>.getBytes());</span><br><span class="line">			Result result = ta.get(get);</span><br><span class="line">			Cell cell = result.getColumnLatestCell(<span class="string">"cf1"</span>.getBytes(), <span class="string">"age"</span>.getBytes());</span><br><span class="line">			System.out.printf(<span class="keyword">new</span> String(cell.getValueArray(), <span class="string">"GBK"</span>));</span><br><span class="line">		&#125;</span><br><span class="line">	</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-15/16234705.jpg" alt=""></p>
+<h2 id="6-批量查询"><a href="#6-批量查询" class="headerlink" title="6.批量查询"></a>6.批量查询</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line">TestHbase.java</span><br><span class="line"></span><br><span class="line">	<span class="keyword">package</span> com.matrix.hbase;</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">import</span> java.io.IOException;</span><br><span class="line">	<span class="keyword">import</span> java.util.ArrayList;</span><br><span class="line">	<span class="keyword">import</span> java.util.Iterator;</span><br><span class="line">	<span class="keyword">import</span> java.util.List;</span><br><span class="line">	<span class="keyword">import</span> java.util.Random;</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">import</span> org.apache.hadoop.conf.Configuration;</span><br><span class="line">	<span class="keyword">import</span> org.apache.hadoop.hbase.Cell;</span><br><span class="line">	<span class="keyword">import</span> org.apache.hadoop.hbase.HBaseConfiguration;</span><br><span class="line">	<span class="keyword">import</span> org.apache.hadoop.hbase.HColumnDescriptor;</span><br><span class="line">	<span class="keyword">import</span> org.apache.hadoop.hbase.HTableDescriptor;</span><br><span class="line">	<span class="keyword">import</span> org.apache.hadoop.hbase.TableName;</span><br><span class="line">	<span class="keyword">import</span> org.apache.hadoop.hbase.client.Admin;</span><br><span class="line">	<span class="keyword">import</span> org.apache.hadoop.hbase.client.Connection;</span><br><span class="line">	<span class="keyword">import</span> org.apache.hadoop.hbase.client.ConnectionFactory;</span><br><span class="line">	<span class="keyword">import</span> org.apache.hadoop.hbase.client.Get;</span><br><span class="line">	<span class="keyword">import</span> org.apache.hadoop.hbase.client.Put;</span><br><span class="line">	<span class="keyword">import</span> org.apache.hadoop.hbase.client.Result;</span><br><span class="line">	<span class="keyword">import</span> org.apache.hadoop.hbase.client.ResultScanner;</span><br><span class="line">	<span class="keyword">import</span> org.apache.hadoop.hbase.client.Scan;</span><br><span class="line">	<span class="keyword">import</span> org.apache.hadoop.hbase.client.Table;</span><br><span class="line">	<span class="keyword">import</span> org.junit.Before;</span><br><span class="line">	<span class="keyword">import</span> org.junit.Test;</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestHbase</span> </span>&#123;</span><br><span class="line">	</span><br><span class="line">		<span class="keyword">public</span> <span class="keyword">static</span> Random ra = <span class="keyword">new</span> Random();</span><br><span class="line">		<span class="keyword">public</span> <span class="keyword">static</span> Connection conn = <span class="keyword">null</span>;</span><br><span class="line">		<span class="keyword">public</span> <span class="keyword">static</span> TableName table = TableName.valueOf(<span class="string">"test"</span>.getBytes());</span><br><span class="line">	</span><br><span class="line">		<span class="meta">@Before</span></span><br><span class="line">		<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setup</span><span class="params">()</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">			Configuration config = HBaseConfiguration.create();</span><br><span class="line">			config.set(<span class="string">"hbase.zookeeper.quorum"</span>, <span class="string">"node2,node3,node5"</span>);</span><br><span class="line">			conn = ConnectionFactory.createConnection(config);</span><br><span class="line">		&#125;</span><br><span class="line">	</span><br><span class="line">		<span class="meta">@Test</span></span><br><span class="line">		<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">search1</span><span class="params">()</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">			Table ta = conn.getTable(TestHbase.table);</span><br><span class="line">			Scan scan = <span class="keyword">new</span> Scan(<span class="string">"123_996"</span>.getBytes(), <span class="string">"123_999"</span>.getBytes());</span><br><span class="line">			scan.addColumn(<span class="string">"cf1"</span>.getBytes(), <span class="string">"age"</span>.getBytes());</span><br><span class="line">			ResultScanner scanner = ta.getScanner(scan);</span><br><span class="line">			Iterator&lt;Result&gt; it = scanner.iterator();</span><br><span class="line">			<span class="keyword">while</span> (it.hasNext()) &#123;</span><br><span class="line">				Result next = it.next();</span><br><span class="line">				Cell cell = next.getColumnLatestCell(<span class="string">"cf1"</span>.getBytes(), <span class="string">"age"</span>.getBytes());</span><br><span class="line">				System.out.println(<span class="keyword">new</span> String(cell.getValueArray(), <span class="string">"utf8"</span>));</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-15/61187500.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">org.apache.hadoop.ipc.RemoteException(java.io.IOException): File /tmp/hadoop-yarn/staging/root/.staging/job_1458115769034_0004/libjars/netty-all-4.0.23.Final.jar could only be replicated to 0 nodes instead of minReplication (=1).  There are 3 datanode(s) running and no node(s) are excluded <span class="keyword">in</span> this operation.</span><br></pre></td></tr></table></figure>
+    </div>
+  </div>
+  
+    <div class="copy-right">
+      <div class="markdown-body">
+        <blockquote>
+        
+        
+          本文作者 : Matrix <br>
+        
+        原文链接 : <a href="">http://yoursite.com/2016/03/20/Hbase的API使用/</a><br>
+        版权声明 : 本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+        </blockquote>
+      </div>
+    </div>
+  
+  
+  
+    <div class="social-share" style="margin-top: -2rem" data-wechat-qrcode-title="<p>微信扫一扫</p>" data-wechat-qrcode-helper="<p>微信右上角, 扫一扫分享</p>" data-sites="qzone, qq, weibo, wechat, douban, google, facebook, twitter">
+  <span style="color: #6b7487; font-size: 1.4rem;">分享到: </span>
+</div>
+<script src="https://cdn.bootcss.com/social-share.js/1.0.16/js/social-share.min.js" async></script>
+  
+
+  
+    <div id="reward">
+  
+    <p id="reward-meta">知识 & 情怀 | 二者兼得</p>
+  
+  <button id="reward-btn">
+    
+    <span>投食</span>
+  </button>
+  <div id="reward-qrcode">
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/wechatpay.jpg" alt="微信扫一扫, 向我投食">
+        <p class="qrcode-meta">微信扫一扫, 向我投食</p>
+      </div>
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/alipaypay.jpg" alt="支付宝扫一扫, 向我投食">
+        <p class="qrcode-meta">支付宝扫一扫, 向我投食</p>
+      </div>
+    
+  </div>
+
+</div>
+
+<script>
+  (() => {
+    let button = document.querySelector('#reward-btn'),
+      qrcode = document.querySelector('#reward-qrcode'),
+      display = false;
+    
+    button.addEventListener('click', () => {
+      qrcode.style.display = display ? 'none' : 'block'
+      display = !display
+    }, false)
+  })()
+</script>
+  
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+      <span>
+        
+          <i class="iconfont icon-06tags"></i>标签: 
+          
+          <span class="span--tag">
+            <a href="/tags/大数据/">
+              #大数据
+            </a>
+          </span>
+          
+        
+      </span>
+    </div>
+    <div class="article-meta pull-right">
+    </div>
+  </div>
+</div>
+
+
+  <aside id="sidebar">
+    <p id="sidebar-header"></p>
+    <ol id="sidebar-toc"></ol>
+  </aside>
+  <script async>setTimeout(generateToc, 10);</script>
+
+
+  <nav class="post-navigation">
+    
+      <div class="nav-pre">
+        <i class="iconfont icon-prev"></i>
+        上一篇:
+        <a href="/2016/03/20/Hbase的shell命令/" target="_self">HBase的shell命令</a>
+      </div>
+    
+    
+      <div class="nav-next">
+        下一篇:
+        <a href="/2016/03/20/Ganglia分布式监控部署/" target="_self">Ganglia企业级系统监控</a>
+        <i class="iconfont icon-next"></i>
+      </div>
+    
+  </nav>
+
+  
+    <a href="#comment" class="comment-anchor"></a>
+<div class="comment-title"><i class="iconfont icon-footprint"></i> 留下足迹 <i class="iconfont icon-footprint"></i></div>
+<div id="vcomments"></div>
+
+<script defer>
+  if( true ) {
+    let path = getRealPath()
+    new Valine({
+      el: "#vcomments",
+      appId: "Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz",
+      appKey: "WaR7nrzhliHj9aVwdQzkdlGd",
+      notify: false,
+      verify: false,
+      avatar: "robohash",
+      placeholder: "正确填写邮箱, 才能及时收到回复哦♪(^∇^*)",
+      path
+    });
+  }
+</script>
+   
+
+  
+    <script defer>
+const valineAPI = (() => {
+  try {
+    AV.init("Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz", "WaR7nrzhliHj9aVwdQzkdlGd");
+  } catch(error) {}
+  const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+      query.equalTo("identity", identity);
+      query.find().then(results => {
+        resolve(results.length > 0);
+      }, error => reject(error));
+    })
+  }
+
+  const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+      let querys = [];
+      for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+      }
+      query = AV.Query.or.apply(null ,querys);
+    } else {
+      identity = identity || getRealPath();
+      query = new AV.Query("Timer");
+      query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+      query.find()
+      .then(results => resolve(results))
+      .catch(error => reject(error))
+    })
+  }
+
+  const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let Todo = AV.Object.extend('Timer');
+      let todo = new Todo();
+      todo.set("times", 1);
+      todo.set("identity", identity);
+      todo.save().then(res => resolve(true), error => reject(error));
+    })
+  }
+
+  const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let query = new AV.Query('Timer');
+      query.equalTo("identity", identity);
+      query.find().then(todos => {
+        todos.forEach(todo => {
+          todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+      }).then(todos => resolve(true), error => reject(error));
+    })
+  }
+
+  return {
+    isExist,
+    _get,
+    update,
+    create
+  }
+})()
+
+const calcAndWriteTimes = () => {
+  let isPost = true;
+
+  let timerAllDOM = document.querySelectorAll(".article-timer");
+
+  if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+      if(exist) {
+        return valineAPI.update(identity);
+      }
+      return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+  }
+
+  let timerDOMCache = {};
+
+  for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+      timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+      timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+      };
+    }
+  }
+
+  let identities = Object.keys(timerDOMCache);
+  valineAPI._get(identities).then(results => {
+    for(let result of results) {
+      let {identity, times} = result.attributes;
+      timerDOMCache[identity].times = times;
+      timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+      if(timerDOMCache[identity].times){
+        continue;
+      }
+      timerDOMCache[identity].dom.map(item => item.innerText = 1);
+      valineAPI.create(identity);
+    }
+  }).catch(error => console.log(error.message))
+}
+
+if(true){
+  calcAndWriteTimes();
+}
+</script>
+   
+
+</div>
+
+
+      <footer>
+  <p class="site-info">
+    博客已萌萌哒运行<span id="time-to-now"></span><span class="my-face">(●'◡'●)ﾉ♥</span>
+    <br>
+    Theme - <a href="https://github.com/dongyuanxin/theme-bmw">BMW</a> | Powered by <a href="https://godbmw.com/">GodBMW</a>
+    <br>
+    
+      Copyright © 2019 Matrix
+    
+  </p>
+</footer>
+
+
+
+<script>
+const timeToNowDOM = document.querySelector("#time-to-now");
+const startTimestamp = new Date(2016, 4, 10).getTime();
+
+const updateTimeStr = () => {
+  let offset = parseInt(
+      (new Date().getTime() - startTimestamp) / 1000,
+      10
+    ),
+    day = Math.floor(offset / 86400),
+    hour = Math.floor((offset % 86400) / 3600),
+    minute = Math.floor(((offset % 86400) % 3600) / 60),
+    second = Math.floor(((offset % 86400) % 3600) % 60);
+  timeToNowDOM.innerHTML =
+    day + "天" + hour + "小时" + minute + "分钟" + second + "秒";
+  setTimeout(updateTimeStr, 500);
+}
+
+setTimeout(updateTimeStr, 500);
+</script>
+
+
+      <div class="back-to-top hidden">
+  <span>
+    <i class="iconfont icon-60"></i><span></span>%
+  </span>
+</div>
+
+<script>
+const updateIconToTop = percent => {
+  let dom = document.querySelector(".back-to-top span span");
+  dom.innerText = percent;
+  if(percent < 1) {
+    document.querySelector(".back-to-top").className = "back-to-top hidden";
+  } else {
+    document.querySelector(".back-to-top").className = "back-to-top";
+  }
+}
+
+const handleScoll = () => {
+  let isRunning = false;
+  return () => {
+    if (isRunning) return;
+    isRunning = true;
+    window.requestAnimationFrame(timestamp => {
+      let scrollTop =
+          document.documentElement.scrollTop || document.body.scrollTop,
+        scrollHeight =
+          document.documentElement.scrollHeight ||
+          document.body.scrollHeight,
+        clientHeight =
+          document.documentElement.clientHeight ||
+          document.body.clientHeight;
+      isRunning = false;
+      if (scrollTop <= 1) {
+        updateIconToTop(0);
+        return;
+      }
+      if (scrollTop + clientHeight >= scrollHeight) {
+        updateIconToTop(100);
+      } else {
+        updateIconToTop(parseInt(
+          100 * scrollTop / (scrollHeight - clientHeight),
+          10
+        ));
+      }
+    });
+  };
+}
+
+const backToTop = () => {
+  let scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop,
+    delay = 10,
+    time = 200;
+  if (scrollTop <= 20) {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    return;
+  }
+  let step = Math.ceil(scrollTop * delay / time);
+  let timer = setInterval(() => {
+    scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop;
+    if (scrollTop - step <= 0) {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      clearInterval(timer);
+    } else {
+      document.documentElement.scrollTop = scrollTop - step;
+      document.body.scrollTop = scrollTop - step;
+    }
+  }, delay);
+}
+
+document.addEventListener("scroll", handleScoll(), false);
+
+document.querySelector(".back-to-top").addEventListener("click", backToTop, false);
+
+</script>
+
+    </div>
+
+    
+      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  (() => {
+    const mathjaxConfig = {
+      showProcessingMessages: false, //关闭js加载过程信息
+      messageStyle: "none", //不显示信息
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]], //行内公式选择符
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]], //段内公式选择符
+        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"] //避开某些标签
+      },
+      "HTML-CSS": {
+        availableFonts: ["STIX", "TeX"], //可选字体
+        showMathMenu: false //关闭右击菜单显示
+      }
+    }
+
+    let mathjaxInterval = setInterval(() => {
+      if(!window.MathJax){
+        return;
+      }
+      window.MathJax.Hub.Config(mathjaxConfig)
+      window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')])
+
+      clearInterval(mathjaxInterval)
+    }, 10)    
+  })()
+</script>
+    
+
+    <script src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script>
+<script async>
+  let fancyTimer = setInterval(function(){
+    if(!window.$){
+      return;
+    }
+    $(document).ready(function() {
+      $(".post img").each(function () {
+        if($(this).parent().get(0).tagName.toLowerCase() === "a") {
+          return;
+        }
+        // $(this).attr("data-fancybox", "gallery"); // if you add 'data-fancybox', img will display after showed
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "gallery");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      });
+      
+      clearInterval(fancyTimer);
+    });
+  }, 10);
+</script>
+
+    
+  </body>
+
+</html>

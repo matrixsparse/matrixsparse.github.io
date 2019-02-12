@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta name="author" content="董沅鑫, yuanxin.me@gmail.com">
+  
+  
+  
+  <title>Python自动化运维 | 每天遇到更好的你</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="Python,大数据,Python,">
+  
+
+  <script>
+    console.log('\n%c Hexo-theme-bmw v4.0 ' + '%c 🎉 https://github.com/dongyuanxin/theme-bmw 🎉\n' + '\n%c View demo online ' + '%c 🔍 https://godbmw.com/ 🔍  \n' , 'color: #fadfa3; background: #030307; padding:3px 0;', '', 'color: #fadfa3; background: #030307; padding:3px 0;', '');
+  </script>
+
+  
+
+  
+
+  
+    <link rel="icon" href="/images/favicon.png">
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+  
+
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/icon/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+  <script src="/js/util.js"></script>
+<script src="/js/valine.min.js"></script>
+
+  
+
+  
+    <link href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js" async></script>
+  
+
+  
+    <link href="https://cdn.bootcss.com/social-share.js/1.0.16/css/share.min.css" rel="stylesheet">
+  
+  
+  <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js" async></script>
+  
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.0/dist/av-min.js"></script>
+  
+
+</head>
+
+  <body>
+
+    
+
+    <div id="app">
+
+      <div class="header-wrap">
+  <header>
+    <div class="site-brand">
+      <div class="site-title">
+        <!-- <a href="/">MatrixSparse</a> -->
+        <img alt="logo" class="antd-pro-layouts-user-layout-logo" src="/images/favicon.png" style="width: 40px;height: 40px;margin-top: 10px;margin-left: 5px;">
+      </div>
+    </div>
+    <nav class="site-navigation">
+      <ul class="nav-menu">
+      
+        <li class="nav-item" data-path="/">
+          
+            <a href="/" target="_self">
+              主页
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          
+            <a href="/archives/" target="_self">
+              归档
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          
+            <a href="/categories/" target="_self">
+              分类
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          
+            <a href="/tags/" target="_self">
+              标签
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="">
+          
+            <a href="javascript:void(0);" v-else="">博客地址</a>
+            <ul class="nav-menu--dropdown">
+              
+                <li>
+                  <a href="https://blog.csdn.net/qq_25371579" target="_blank">
+                    CSDN
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://github.com/matrixsparse" target="_blank">
+                    Github
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://matrixsparse.github.io/" target="_blank">
+                    Github Page
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+      </ul>
+    </nav>
+    <i class="iconfont icon-menu"></i>
+  </header>
+</div>
+
+<script>
+  let links = document.querySelectorAll('.nav-item');
+  for(let link of links){
+    let childrenLink = link.querySelector('ul');
+    link.addEventListener('mouseenter', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown active";
+      }
+    })
+    link.addEventListener('mouseleave', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown";
+      }
+    })
+  }
+  let rootRealPath = getRealPath(window.location.pathname, true);
+  for(let link of links) {
+    let linkPath = link.getAttribute("data-path");
+    if(linkPath && getRealPath(linkPath, true) === rootRealPath) {
+      link.className = "nav-item hover";
+    }
+  }
+
+  let iconMenu = document.querySelector("i.iconfont.icon-menu"),
+    iconMenuClicked = false;
+  let navDOM = document.querySelector("nav.site-navigation");
+  iconMenu.addEventListener("click", () => {
+    iconMenuClicked
+      ? navDOM.className = "site-navigation active"
+      : navDOM.className = "site-navigation";
+    iconMenuClicked = !iconMenuClicked;
+  })
+</script>
+
+
+      
+
+
+
+
+
+
+
+
+<div class="container post-index">
+
+  
+
+<div class="post">
+  <h1 class="article-title">
+    <span>Python自动化运维</span>
+  </h1>
+  <div class="article-top-meta">
+    <span>
+      发布 : 
+      2017-08-02
+    </span>
+    
+      <span>
+        分类 : 
+          <a href="/categories/Python/">
+            Python
+          </a>
+      </span>
+    
+    
+      <span>
+        浏览 : <span class="article-timer" data-identity="Python自动化运维"></span>
+      </span>
+    
+  </div>
+
+  
+
+  <div class="article-content">
+    <div class="markdown-body">
+      <p>Pexpect是Don Libes的Expect语言的一个Python实现，是一个用来启动子程序，并使用正则表达式对程序输出做出特定响应，以此实现与其自动交互的Python模块</p>
+<p>Pexpect的使用范围很广，可以用来实现与ssh、ftp、telnet等程序的自动交互，可以用来自动复制软件安装包并在不同机器自动安装，还可以用来实现软件测试中与命令行交互的自动化</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="comment"># !/usr/bin/env python</span></span><br><span class="line">from pexpect import pxssh</span><br><span class="line">import getpass</span><br><span class="line"></span><br><span class="line"><span class="comment"># 调用构造函数，创建一个 pxssh 类的对象.</span></span><br><span class="line">s = pxssh.pxssh()</span><br><span class="line"><span class="comment"># 获得用户指定 ssh 主机域名.</span></span><br><span class="line">hostname = input(<span class="string">'hostname: '</span>)</span><br><span class="line"><span class="comment"># 获得用户指定 ssh 主机用户名.</span></span><br><span class="line">username = input(<span class="string">'username: '</span>)</span><br><span class="line"><span class="comment"># 获得用户指定 ssh 主机密码.</span></span><br><span class="line">password = getpass.getpass(<span class="string">'password: '</span>)</span><br><span class="line"><span class="comment"># 利用 pxssh 类的 login 方法进行 ssh 登录，原始 prompt 为'$' , '#'或'&gt;'</span></span><br><span class="line">s.login(hostname, username, password, original_prompt=<span class="string">'[$#&gt;]'</span>)</span><br><span class="line"><span class="comment"># 发送命令 'uptime'</span></span><br><span class="line">s.sendline(<span class="string">'uptime'</span>)</span><br><span class="line"><span class="comment"># 匹配 prompt</span></span><br><span class="line">s.prompt()</span><br><span class="line"><span class="comment"># 将 prompt 前所有内容打印出，即命令 'uptime' 的执行结果.</span></span><br><span class="line"><span class="built_in">print</span>(s.before)</span><br><span class="line"><span class="comment"># 发送命令 ' ls -l '</span></span><br><span class="line">s.sendline(<span class="string">'ls -l'</span>)</span><br><span class="line"><span class="comment"># 匹配 prompt</span></span><br><span class="line">s.prompt()</span><br><span class="line"><span class="comment"># 退出 ssh session</span></span><br><span class="line">s.logout()</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>运行结果</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">hostname: 115.28.240.96</span><br><span class="line">115.28.240.96</span><br><span class="line">username: root</span><br><span class="line">root</span><br><span class="line">password: 88aa66AA</span><br><span class="line"></span><br><span class="line">b<span class="string">'uptime\r\n 13:05:13 up 30 days, 20:04,  2 users,  load average: 0.00, 0.01, 0.05\r\n'</span></span><br></pre></td></tr></table></figure>
+<h2 id="Fabric目前只支持Python2-x"><a href="#Fabric目前只支持Python2-x" class="headerlink" title="Fabric目前只支持Python2.x"></a>Fabric目前只支持Python2.x</h2><p>Fabric是一个Python（2.5-2.7）库，用于简化使用SSH的应用程序部署或系统管理任务。</p>
+<p>它提供的操作包括：执行本地或远程shell命令，上传/下载文件，以及其他辅助功能，如提示用户输入、中止执行等</p>
+<h3 id="Fabric常用参数"><a href="#Fabric常用参数" class="headerlink" title="Fabric常用参数"></a>Fabric常用参数</h3><ul>
+<li>-l：显示定义好的任务函数名</li>
+<li>-f：指定fab入口文件，默认入口文件名为fabfile.py</li>
+<li>-H：指定目标主机，多台主机用”,”号分割</li>
+</ul>
+<h3 id="Fabric常用API"><a href="#Fabric常用API" class="headerlink" title="Fabric常用API"></a>Fabric常用API</h3><ul>
+<li>local：执行本地命令，如：local(‘uname -s’)</li>
+<li>lcd：切换本地目录，如：lcd(‘/home’)</li>
+<li>cd：切换远程目录，如：cd(‘/etc’)</li>
+<li>run：执行远程命令，如：run(‘free -m’)</li>
+<li>sudo：sudo方式执行远程命令，如：sudo(‘touch/abc’)</li>
+<li>put：上传本地文件到远程主机，如：put(‘/hello’,’/home/hello’)</li>
+<li>get：从远程主机下载文件到本地，如：get(‘/home/python/world’,’/home/matrix/world’)</li>
+<li>reboot：重启远程主机，如：reboot()</li>
+<li>@task：函数装饰器，标识的函数为fab可调用，非标记的对fab不可见，纯业务逻辑</li>
+<li>@runs_once：函数装饰器，标识的函数只会执行一次，不受多台主机影响</li>
+</ul>
+<h3 id="Fabric全局属性设定"><a href="#Fabric全局属性设定" class="headerlink" title="Fabric全局属性设定"></a>Fabric全局属性设定</h3><ul>
+<li>env.host：定义目标主机，如：env.host=[‘192.168.3.243’,’192.168.3.244’]</li>
+<li>env.user：定义用户名，如：env.user=”root”</li>
+<li>env.port：定义目标主机端口，默认为22，如：env.port=”22”</li>
+<li>env.password：定义密码，如：env.password=”lmb2015”</li>
+<li>env.passwords：不同的主机不同的密码，如：<a href="mailto:env.passwords={&#39;root@192.168.3.243" target="_blank" rel="noopener">env.passwords={&#39;root@192.168.3.243</a>:22’:’lmb2015’,<a href="mailto:&#39;root@192.168.3.244" target="_blank" rel="noopener">&#39;root@192.168.3.244</a>:22’:’lmb2015’}</li>
+</ul>
+<h3 id="安装ANACONDA"><a href="#安装ANACONDA" class="headerlink" title="安装ANACONDA"></a>安装ANACONDA</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bash Anaconda2-4.4.0-Linux-x86_64.sh</span><br></pre></td></tr></table></figure>
+<h3 id="安装Fabric"><a href="#安装Fabric" class="headerlink" title="安装Fabric"></a>安装Fabric</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">conda install fabric</span><br></pre></td></tr></table></figure>
+<h3 id="执行本地shell命令"><a href="#执行本地shell命令" class="headerlink" title="执行本地shell命令"></a>执行本地shell命令</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@VM-2-2 ~]<span class="comment"># cd /data/test</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@VM-2-2 <span class="built_in">test</span>]<span class="comment"># vi fabricDemo.py</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"></span><br><span class="line">from fabric.api import <span class="built_in">local</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># fabric.api包里的local()方法可以用来执行本地Shell命令</span></span><br><span class="line">def hello():</span><br><span class="line">    <span class="built_in">local</span>(<span class="string">'ls -l /home/'</span>)</span><br></pre></td></tr></table></figure>
+<p>hello()函数就是一个任务</p>
+<blockquote>
+<p>执行</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[root@VM-2-2 <span class="built_in">test</span>]<span class="comment"># fab -f demo.py hello</span></span><br><span class="line">[localhost] <span class="built_in">local</span>: ls -l /home/</span><br><span class="line">总用量 8</span><br><span class="line">drwx------. 8 hadoop hadoop 4096 4月  14 17:17 hadoop</span><br><span class="line">drwx------  3 hanlp  hanlp  4096 5月   8 11:13 hanlp</span><br><span class="line"></span><br><span class="line">Done.</span><br></pre></td></tr></table></figure>
+<h3 id="任务带参数"><a href="#任务带参数" class="headerlink" title="任务带参数"></a>任务带参数</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[root@VM-2-2 <span class="built_in">test</span>]<span class="comment"># vi fabricDemo.py</span></span><br><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"></span><br><span class="line">def hello(name, value):</span><br><span class="line">    <span class="built_in">print</span> <span class="string">"Hello Fabric!%s=%s"</span> % (name, value)</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>执行</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@VM-2-2 <span class="built_in">test</span>]<span class="comment"># fab -f demo.py hello:name=matrix,value=sparse</span></span><br><span class="line">Hello Fabric!matrix=sparse</span><br><span class="line"></span><br><span class="line">Done.</span><br></pre></td></tr></table></figure>
+<h3 id="执行远程命令"><a href="#执行远程命令" class="headerlink" title="执行远程命令"></a>执行远程命令</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">[root@VM-2-2 <span class="built_in">test</span>]<span class="comment"># vi fabricDemo.py</span></span><br><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"></span><br><span class="line">from fabric.api import run, env</span><br><span class="line"></span><br><span class="line">env.hosts = [<span class="string">'115.28.240.96'</span>]</span><br><span class="line">env.user = <span class="string">'root'</span></span><br><span class="line">env.password = <span class="string">'xxxxxx'</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">def hello():</span><br><span class="line">    run(<span class="string">'ls -l /home'</span>)</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>执行</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">[root@VM-2-2 <span class="built_in">test</span>]<span class="comment"># fab -f demo.py hello</span></span><br><span class="line">[115.28.240.96] Executing task <span class="string">'hello'</span></span><br><span class="line">[115.28.240.96] run: ls -l /home</span><br><span class="line">[115.28.240.96] out: total 4</span><br><span class="line">[115.28.240.96] out: drwx------. 8 matrix matrix 4096 Jul 28 17:59 matrix</span><br><span class="line">[115.28.240.96] out:</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Done.</span><br><span class="line">Disconnecting from 115.28.240.96... <span class="keyword">done</span>.</span><br></pre></td></tr></table></figure>
+<h3 id="动态获取远程目录列表"><a href="#动态获取远程目录列表" class="headerlink" title="动态获取远程目录列表"></a>动态获取远程目录列表</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"></span><br><span class="line">from fabric.api import *</span><br><span class="line"></span><br><span class="line">env.hosts = [<span class="string">'192.168.3.243'</span>, <span class="string">'192.168.3.244'</span>]</span><br><span class="line">env.user = <span class="string">'root'</span></span><br><span class="line">env.password = <span class="string">'lmb2015'</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">@runs_once</span><br><span class="line">def input_raw():</span><br><span class="line">    <span class="built_in">return</span> prompt(<span class="string">"please input name："</span>, default=<span class="string">"/home"</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">def workask(dirname):</span><br><span class="line">    run(<span class="string">'ls -l '</span> + dirname)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">@task</span><br><span class="line">def go():</span><br><span class="line">    <span class="built_in">print</span> <span class="string">"start ..."</span></span><br><span class="line">    getdirname = raw_input()</span><br><span class="line">    workask(getdirname)</span><br><span class="line">    <span class="built_in">print</span> <span class="string">"end ..."</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>执行</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">[root@VM-2-2 <span class="built_in">test</span>]<span class="comment"># fab -f demo.py go</span></span><br><span class="line">[192.168.3.243] Executing task <span class="string">'go'</span></span><br><span class="line">start ...</span><br><span class="line">/root</span><br><span class="line">[192.168.3.243] run: ls -l /root</span><br><span class="line">[192.168.3.243] out: 总用量 300588</span><br><span class="line">[192.168.3.243] out: -rw-------.  1 root  root       1067 4月  28 2015 anaconda-ks.cfg</span><br><span class="line">[192.168.3.243] out: -rw-r--r--.  1 root  root        601 2月  22 10:53 id_dsa.pub</span><br><span class="line">[192.168.3.243] out: -rw-r--r--.  1 root  root      13231 4月  28 2015 install.log</span><br><span class="line">[192.168.3.243] out: -rw-r--r--.  1 root  root       3482 4月  28 2015 install.log.syslog</span><br><span class="line">[192.168.3.243] out: -rw-r--r--.  1 root  root  138082565 2月  22 10:23 jdk-7u79-linux-x64.rpm</span><br><span class="line">[192.168.3.243] out: -rw-r--r--   1 root  root  142039186 3月  13 12:09 oracle-j2sdk1.7-1.7.0+update67-1.x86_64.rpm</span><br><span class="line">[192.168.3.243] out: -rw-r--r--   1 root  root   15733676 6月  16 10:06 perl-5.16.1.tar.gz</span><br><span class="line">[192.168.3.243] out: drwxrwxr-x   6 root  root       4096 2月  12 23:14 redis-3.2.8</span><br><span class="line">[192.168.3.243] out: -rw-r--r--   1 root  root    1547237 6月  16 10:06 redis-3.2.8.tar.gz</span><br><span class="line">[192.168.3.243] out: -rw-r--r--   1 root  root    1547695 7月   6 14:51 redis-3.2.9.tar.gz</span><br><span class="line">[192.168.3.243] out: drwxr-xr-x  13 15399 19249      4096 9月  20 2013 tcl8.6.1</span><br><span class="line">[192.168.3.243] out: -rw-r--r--   1 root  root    8755700 6月  16 10:06 tcl8.6.1-src.tar.gz</span><br><span class="line">[192.168.3.243] out: -rw-r--r--.  1 root  root      46333 3月   7 14:09 zookeeper.out</span><br><span class="line">[192.168.3.243] out:</span><br><span class="line"></span><br><span class="line">end ...</span><br></pre></td></tr></table></figure>
+
+    </div>
+  </div>
+  
+    <div class="copy-right">
+      <div class="markdown-body">
+        <blockquote>
+        
+        
+          本文作者 : Matrix <br>
+        
+        原文链接 : <a href="">http://yoursite.com/2017/08/02/Python自动化运维/</a><br>
+        版权声明 : 本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+        </blockquote>
+      </div>
+    </div>
+  
+  
+  
+    <div class="social-share" style="margin-top: -2rem" data-wechat-qrcode-title="<p>微信扫一扫</p>" data-wechat-qrcode-helper="<p>微信右上角, 扫一扫分享</p>" data-sites="qzone, qq, weibo, wechat, douban, google, facebook, twitter">
+  <span style="color: #6b7487; font-size: 1.4rem;">分享到: </span>
+</div>
+<script src="https://cdn.bootcss.com/social-share.js/1.0.16/js/social-share.min.js" async></script>
+  
+
+  
+    <div id="reward">
+  
+    <p id="reward-meta">知识 & 情怀 | 二者兼得</p>
+  
+  <button id="reward-btn">
+    
+    <span>投食</span>
+  </button>
+  <div id="reward-qrcode">
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/wechatpay.jpg" alt="微信扫一扫, 向我投食">
+        <p class="qrcode-meta">微信扫一扫, 向我投食</p>
+      </div>
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/alipaypay.jpg" alt="支付宝扫一扫, 向我投食">
+        <p class="qrcode-meta">支付宝扫一扫, 向我投食</p>
+      </div>
+    
+  </div>
+
+</div>
+
+<script>
+  (() => {
+    let button = document.querySelector('#reward-btn'),
+      qrcode = document.querySelector('#reward-qrcode'),
+      display = false;
+    
+    button.addEventListener('click', () => {
+      qrcode.style.display = display ? 'none' : 'block'
+      display = !display
+    }, false)
+  })()
+</script>
+  
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+      <span>
+        
+          <i class="iconfont icon-06tags"></i>标签: 
+          
+          <span class="span--tag">
+            <a href="/tags/大数据/">
+              #大数据
+            </a>
+          </span>
+          
+          <span class="span--tag">
+            <a href="/tags/Python/">
+              #Python
+            </a>
+          </span>
+          
+        
+      </span>
+    </div>
+    <div class="article-meta pull-right">
+    </div>
+  </div>
+</div>
+
+
+  <aside id="sidebar">
+    <p id="sidebar-header"></p>
+    <ol id="sidebar-toc"></ol>
+  </aside>
+  <script async>setTimeout(generateToc, 10);</script>
+
+
+  <nav class="post-navigation">
+    
+      <div class="nav-pre">
+        <i class="iconfont icon-prev"></i>
+        上一篇:
+        <a href="/2017/07/31/ECMAScript 6彩票项目-项目构建/" target="_self">ECMAScript 6彩票项目-项目构建</a>
+      </div>
+    
+    
+      <div class="nav-next">
+        下一篇:
+        <a href="/2017/08/06/Python Flask 构建微电影网站/" target="_self">Python Flask 构建微电影网站</a>
+        <i class="iconfont icon-next"></i>
+      </div>
+    
+  </nav>
+
+  
+    <a href="#comment" class="comment-anchor"></a>
+<div class="comment-title"><i class="iconfont icon-footprint"></i> 留下足迹 <i class="iconfont icon-footprint"></i></div>
+<div id="vcomments"></div>
+
+<script defer>
+  if( true ) {
+    let path = getRealPath()
+    new Valine({
+      el: "#vcomments",
+      appId: "Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz",
+      appKey: "WaR7nrzhliHj9aVwdQzkdlGd",
+      notify: false,
+      verify: false,
+      avatar: "robohash",
+      placeholder: "正确填写邮箱, 才能及时收到回复哦♪(^∇^*)",
+      path
+    });
+  }
+</script>
+   
+
+  
+    <script defer>
+const valineAPI = (() => {
+  try {
+    AV.init("Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz", "WaR7nrzhliHj9aVwdQzkdlGd");
+  } catch(error) {}
+  const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+      query.equalTo("identity", identity);
+      query.find().then(results => {
+        resolve(results.length > 0);
+      }, error => reject(error));
+    })
+  }
+
+  const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+      let querys = [];
+      for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+      }
+      query = AV.Query.or.apply(null ,querys);
+    } else {
+      identity = identity || getRealPath();
+      query = new AV.Query("Timer");
+      query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+      query.find()
+      .then(results => resolve(results))
+      .catch(error => reject(error))
+    })
+  }
+
+  const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let Todo = AV.Object.extend('Timer');
+      let todo = new Todo();
+      todo.set("times", 1);
+      todo.set("identity", identity);
+      todo.save().then(res => resolve(true), error => reject(error));
+    })
+  }
+
+  const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let query = new AV.Query('Timer');
+      query.equalTo("identity", identity);
+      query.find().then(todos => {
+        todos.forEach(todo => {
+          todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+      }).then(todos => resolve(true), error => reject(error));
+    })
+  }
+
+  return {
+    isExist,
+    _get,
+    update,
+    create
+  }
+})()
+
+const calcAndWriteTimes = () => {
+  let isPost = true;
+
+  let timerAllDOM = document.querySelectorAll(".article-timer");
+
+  if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+      if(exist) {
+        return valineAPI.update(identity);
+      }
+      return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+  }
+
+  let timerDOMCache = {};
+
+  for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+      timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+      timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+      };
+    }
+  }
+
+  let identities = Object.keys(timerDOMCache);
+  valineAPI._get(identities).then(results => {
+    for(let result of results) {
+      let {identity, times} = result.attributes;
+      timerDOMCache[identity].times = times;
+      timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+      if(timerDOMCache[identity].times){
+        continue;
+      }
+      timerDOMCache[identity].dom.map(item => item.innerText = 1);
+      valineAPI.create(identity);
+    }
+  }).catch(error => console.log(error.message))
+}
+
+if(true){
+  calcAndWriteTimes();
+}
+</script>
+   
+
+</div>
+
+
+      <footer>
+  <p class="site-info">
+    博客已萌萌哒运行<span id="time-to-now"></span><span class="my-face">(●'◡'●)ﾉ♥</span>
+    <br>
+    Theme - <a href="https://github.com/dongyuanxin/theme-bmw">BMW</a> | Powered by <a href="https://godbmw.com/">GodBMW</a>
+    <br>
+    
+      Copyright © 2019 Matrix
+    
+  </p>
+</footer>
+
+
+
+<script>
+const timeToNowDOM = document.querySelector("#time-to-now");
+const startTimestamp = new Date(2016, 4, 10).getTime();
+
+const updateTimeStr = () => {
+  let offset = parseInt(
+      (new Date().getTime() - startTimestamp) / 1000,
+      10
+    ),
+    day = Math.floor(offset / 86400),
+    hour = Math.floor((offset % 86400) / 3600),
+    minute = Math.floor(((offset % 86400) % 3600) / 60),
+    second = Math.floor(((offset % 86400) % 3600) % 60);
+  timeToNowDOM.innerHTML =
+    day + "天" + hour + "小时" + minute + "分钟" + second + "秒";
+  setTimeout(updateTimeStr, 500);
+}
+
+setTimeout(updateTimeStr, 500);
+</script>
+
+
+      <div class="back-to-top hidden">
+  <span>
+    <i class="iconfont icon-60"></i><span></span>%
+  </span>
+</div>
+
+<script>
+const updateIconToTop = percent => {
+  let dom = document.querySelector(".back-to-top span span");
+  dom.innerText = percent;
+  if(percent < 1) {
+    document.querySelector(".back-to-top").className = "back-to-top hidden";
+  } else {
+    document.querySelector(".back-to-top").className = "back-to-top";
+  }
+}
+
+const handleScoll = () => {
+  let isRunning = false;
+  return () => {
+    if (isRunning) return;
+    isRunning = true;
+    window.requestAnimationFrame(timestamp => {
+      let scrollTop =
+          document.documentElement.scrollTop || document.body.scrollTop,
+        scrollHeight =
+          document.documentElement.scrollHeight ||
+          document.body.scrollHeight,
+        clientHeight =
+          document.documentElement.clientHeight ||
+          document.body.clientHeight;
+      isRunning = false;
+      if (scrollTop <= 1) {
+        updateIconToTop(0);
+        return;
+      }
+      if (scrollTop + clientHeight >= scrollHeight) {
+        updateIconToTop(100);
+      } else {
+        updateIconToTop(parseInt(
+          100 * scrollTop / (scrollHeight - clientHeight),
+          10
+        ));
+      }
+    });
+  };
+}
+
+const backToTop = () => {
+  let scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop,
+    delay = 10,
+    time = 200;
+  if (scrollTop <= 20) {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    return;
+  }
+  let step = Math.ceil(scrollTop * delay / time);
+  let timer = setInterval(() => {
+    scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop;
+    if (scrollTop - step <= 0) {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      clearInterval(timer);
+    } else {
+      document.documentElement.scrollTop = scrollTop - step;
+      document.body.scrollTop = scrollTop - step;
+    }
+  }, delay);
+}
+
+document.addEventListener("scroll", handleScoll(), false);
+
+document.querySelector(".back-to-top").addEventListener("click", backToTop, false);
+
+</script>
+
+    </div>
+
+    
+      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  (() => {
+    const mathjaxConfig = {
+      showProcessingMessages: false, //关闭js加载过程信息
+      messageStyle: "none", //不显示信息
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]], //行内公式选择符
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]], //段内公式选择符
+        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"] //避开某些标签
+      },
+      "HTML-CSS": {
+        availableFonts: ["STIX", "TeX"], //可选字体
+        showMathMenu: false //关闭右击菜单显示
+      }
+    }
+
+    let mathjaxInterval = setInterval(() => {
+      if(!window.MathJax){
+        return;
+      }
+      window.MathJax.Hub.Config(mathjaxConfig)
+      window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')])
+
+      clearInterval(mathjaxInterval)
+    }, 10)    
+  })()
+</script>
+    
+
+    <script src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script>
+<script async>
+  let fancyTimer = setInterval(function(){
+    if(!window.$){
+      return;
+    }
+    $(document).ready(function() {
+      $(".post img").each(function () {
+        if($(this).parent().get(0).tagName.toLowerCase() === "a") {
+          return;
+        }
+        // $(this).attr("data-fancybox", "gallery"); // if you add 'data-fancybox', img will display after showed
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "gallery");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      });
+      
+      clearInterval(fancyTimer);
+    });
+  }, 10);
+</script>
+
+    
+  </body>
+
+</html>

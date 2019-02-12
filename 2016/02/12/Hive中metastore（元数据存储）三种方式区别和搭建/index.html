@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta name="author" content="董沅鑫, yuanxin.me@gmail.com">
+  
+  
+  
+  <title>Hive中metastore（元数据存储）三种方式区别和搭建 | 每天遇到更好的你</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="大数据,大数据,Hive,">
+  
+
+  <script>
+    console.log('\n%c Hexo-theme-bmw v4.0 ' + '%c 🎉 https://github.com/dongyuanxin/theme-bmw 🎉\n' + '\n%c View demo online ' + '%c 🔍 https://godbmw.com/ 🔍  \n' , 'color: #fadfa3; background: #030307; padding:3px 0;', '', 'color: #fadfa3; background: #030307; padding:3px 0;', '');
+  </script>
+
+  
+
+  
+
+  
+    <link rel="icon" href="/images/favicon.png">
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+  
+
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/icon/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+  <script src="/js/util.js"></script>
+<script src="/js/valine.min.js"></script>
+
+  
+
+  
+    <link href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js" async></script>
+  
+
+  
+    <link href="https://cdn.bootcss.com/social-share.js/1.0.16/css/share.min.css" rel="stylesheet">
+  
+  
+  <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js" async></script>
+  
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.0/dist/av-min.js"></script>
+  
+
+</head>
+
+  <body>
+
+    
+
+    <div id="app">
+
+      <div class="header-wrap">
+  <header>
+    <div class="site-brand">
+      <div class="site-title">
+        <!-- <a href="/">MatrixSparse</a> -->
+        <img alt="logo" class="antd-pro-layouts-user-layout-logo" src="/images/favicon.png" style="width: 40px;height: 40px;margin-top: 10px;margin-left: 5px;">
+      </div>
+    </div>
+    <nav class="site-navigation">
+      <ul class="nav-menu">
+      
+        <li class="nav-item" data-path="/">
+          
+            <a href="/" target="_self">
+              主页
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          
+            <a href="/archives/" target="_self">
+              归档
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          
+            <a href="/categories/" target="_self">
+              分类
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          
+            <a href="/tags/" target="_self">
+              标签
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="">
+          
+            <a href="javascript:void(0);" v-else="">博客地址</a>
+            <ul class="nav-menu--dropdown">
+              
+                <li>
+                  <a href="https://blog.csdn.net/qq_25371579" target="_blank">
+                    CSDN
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://github.com/matrixsparse" target="_blank">
+                    Github
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://matrixsparse.github.io/" target="_blank">
+                    Github Page
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+      </ul>
+    </nav>
+    <i class="iconfont icon-menu"></i>
+  </header>
+</div>
+
+<script>
+  let links = document.querySelectorAll('.nav-item');
+  for(let link of links){
+    let childrenLink = link.querySelector('ul');
+    link.addEventListener('mouseenter', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown active";
+      }
+    })
+    link.addEventListener('mouseleave', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown";
+      }
+    })
+  }
+  let rootRealPath = getRealPath(window.location.pathname, true);
+  for(let link of links) {
+    let linkPath = link.getAttribute("data-path");
+    if(linkPath && getRealPath(linkPath, true) === rootRealPath) {
+      link.className = "nav-item hover";
+    }
+  }
+
+  let iconMenu = document.querySelector("i.iconfont.icon-menu"),
+    iconMenuClicked = false;
+  let navDOM = document.querySelector("nav.site-navigation");
+  iconMenu.addEventListener("click", () => {
+    iconMenuClicked
+      ? navDOM.className = "site-navigation active"
+      : navDOM.className = "site-navigation";
+    iconMenuClicked = !iconMenuClicked;
+  })
+</script>
+
+
+      
+
+
+
+
+
+
+
+
+<div class="container post-index">
+
+  
+
+<div class="post">
+  <h1 class="article-title">
+    <span>Hive中metastore（元数据存储）三种方式区别和搭建</span>
+  </h1>
+  <div class="article-top-meta">
+    <span>
+      发布 : 
+      2016-02-12
+    </span>
+    
+      <span>
+        分类 : 
+          <a href="/categories/大数据/">
+            大数据
+          </a>
+      </span>
+    
+    
+      <span>
+        浏览 : <span class="article-timer" data-identity="Hive中metastore（元数据存储）三种方式区别和搭建"></span>
+      </span>
+    
+  </div>
+
+  
+
+  <div class="article-content">
+    <div class="markdown-body">
+      <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Hive中metastore（元数据存储）的三种方式：</span><br><span class="line"></span><br><span class="line">a)内嵌Derby方式</span><br><span class="line"></span><br><span class="line">b)Local方式</span><br><span class="line"></span><br><span class="line">c)Remote方式</span><br></pre></td></tr></table></figure>
+<h2 id="1-内嵌Derby方式搭建"><a href="#1-内嵌Derby方式搭建" class="headerlink" title="1.内嵌Derby方式搭建"></a>1.内嵌Derby方式搭建</h2><h3 id="1-1-上传hive安装压缩文件到Linux主机的指定目录"><a href="#1-1-上传hive安装压缩文件到Linux主机的指定目录" class="headerlink" title="1.1.上传hive安装压缩文件到Linux主机的指定目录"></a>1.1.上传hive安装压缩文件到Linux主机的指定目录</h3><p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-11/83632204.jpg" alt=""></p>
+<h3 id="1-2-解压hive压缩文件，到指定目录"><a href="#1-2-解压hive压缩文件，到指定目录" class="headerlink" title="1.2.解压hive压缩文件，到指定目录"></a>1.2.解压hive压缩文件，到指定目录</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node1 software]<span class="comment"># tar -zxf apache-hive-1.2.1-bin.tar.gz -C /opt/modules</span></span><br></pre></td></tr></table></figure>
+<h3 id="1-3-修改-opt-modules-hadoop-2-5-1-share-hadoop-yarn-lib-目录下的jline-0-9-94-jar"><a href="#1-3-修改-opt-modules-hadoop-2-5-1-share-hadoop-yarn-lib-目录下的jline-0-9-94-jar" class="headerlink" title="1.3.修改/opt/modules/hadoop-2.5.1/share/hadoop/yarn/lib/目录下的jline-0.9.94.jar"></a>1.3.修改/opt/modules/hadoop-2.5.1/share/hadoop/yarn/lib/目录下的jline-0.9.94.jar</h3><h4 id="查找文件"><a href="#查找文件" class="headerlink" title="查找文件"></a>查找文件</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@node1 hadoop-2.5.1]<span class="comment"># find ./ -name "jline*.jar"</span></span><br><span class="line">./share/hadoop/yarn/lib/jline-0.9.94.jar</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@node1 lib]<span class="comment"># mv /opt/modules/hive-1.2.1/lib/jline-2.12.jar /opt/modules/hadoop-2.5.1/share/hadoop/yarn/lib/</span></span><br><span class="line">[root@node1 ~]<span class="comment"># cd /opt/modules/hadoop-2.5.1/share/hadoop/yarn/lib/</span></span><br></pre></td></tr></table></figure>
+<h4 id="删除jline-0-9-94-jar包"><a href="#删除jline-0-9-94-jar包" class="headerlink" title="删除jline-0.9.94.jar包"></a>删除jline-0.9.94.jar包</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node1 lib]<span class="comment"># rm -rf jline-0.9.94.jar</span></span><br></pre></td></tr></table></figure>
+<h3 id="1-4-修改-opt-modules-hive-1-2-1-conf目录下的hive-env-sh-template为hive-env-sh，添加HADOOP-HOME环境变量"><a href="#1-4-修改-opt-modules-hive-1-2-1-conf目录下的hive-env-sh-template为hive-env-sh，添加HADOOP-HOME环境变量" class="headerlink" title="1.4.修改/opt/modules/hive-1.2.1/conf目录下的hive-env.sh.template为hive-env.sh，添加HADOOP_HOME环境变量"></a>1.4.修改/opt/modules/hive-1.2.1/conf目录下的hive-env.sh.template为hive-env.sh，添加HADOOP_HOME环境变量</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[root@node1 conf]<span class="comment"># cp hive-env.sh.template hive-env.sh</span></span><br><span class="line"></span><br><span class="line">HADOOP_HOME=/opt/modules/hadoop-2.5.1</span><br><span class="line"></span><br><span class="line">[root@node1 conf]<span class="comment"># vi hive-env.sh</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-11/46114999.jpg" alt=""></p>
+<h3 id="1-5-修改-opt-modules-hive-1-2-1-conf目录下的hive-default-xml-template为hive-site-xml，增加配置"><a href="#1-5-修改-opt-modules-hive-1-2-1-conf目录下的hive-default-xml-template为hive-site-xml，增加配置" class="headerlink" title="1.5.修改/opt/modules/hive-1.2.1/conf目录下的hive-default.xml.template为hive-site.xml，增加配置"></a>1.5.修改/opt/modules/hive-1.2.1/conf目录下的hive-default.xml.template为hive-site.xml，增加配置</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node1 conf]<span class="comment"># mv hive-default.xml.template hive-site.xml</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span>  </span><br><span class="line"><span class="tag">&lt;<span class="name">name</span>&gt;</span>javax.jdo.option.ConnectionURL<span class="tag">&lt;/<span class="name">name</span>&gt;</span>  </span><br><span class="line"><span class="tag">&lt;<span class="name">value</span>&gt;</span>jdbc:derby:;databaseName=metastore_db;create=true<span class="tag">&lt;/<span class="name">value</span>&gt;</span>  </span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span>  </span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span>  </span><br><span class="line"><span class="tag">&lt;<span class="name">name</span>&gt;</span>javax.jdo.option.ConnectionDriverName<span class="tag">&lt;/<span class="name">name</span>&gt;</span>  </span><br><span class="line"><span class="tag">&lt;<span class="name">value</span>&gt;</span>org.apache.derby.jdbc.EmbeddedDriver<span class="tag">&lt;/<span class="name">value</span>&gt;</span>  </span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span>  </span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span>  </span><br><span class="line"><span class="tag">&lt;<span class="name">name</span>&gt;</span>hive.metastore.local<span class="tag">&lt;/<span class="name">name</span>&gt;</span>  </span><br><span class="line"><span class="tag">&lt;<span class="name">value</span>&gt;</span>true<span class="tag">&lt;/<span class="name">value</span>&gt;</span>  </span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span>  </span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span>  </span><br><span class="line"><span class="tag">&lt;<span class="name">name</span>&gt;</span>hive.metastore.warehouse.dir<span class="tag">&lt;/<span class="name">name</span>&gt;</span>  </span><br><span class="line"><span class="tag">&lt;<span class="name">value</span>&gt;</span>/usr/hive/warehouse<span class="tag">&lt;/<span class="name">value</span>&gt;</span>  </span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-11/85489580.jpg" alt=""></p>
+<h3 id="1-6-配置hive环境变量"><a href="#1-6-配置hive环境变量" class="headerlink" title="1.6.配置hive环境变量"></a>1.6.配置hive环境变量</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@node1 ~]<span class="comment"># vi ~/.bash_profile</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">export</span> HIVE_HOME=/opt/modules/hive-1.2.1</span><br><span class="line"><span class="built_in">export</span> PATH=<span class="variable">$PATH</span>:<span class="variable">$HIVE_HOME</span>/bin</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-11/30895835.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node1 ~]<span class="comment"># source ~/.bash_profile</span></span><br></pre></td></tr></table></figure>
+<h3 id="1-7-启动hive"><a href="#1-7-启动hive" class="headerlink" title="1.7.启动hive"></a>1.7.启动hive</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node1 hive-1.2.1]<span class="comment"># hive</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-11/92102903.jpg" alt=""></p>
+<h3 id="1-8-derby模式出现的问题"><a href="#1-8-derby模式出现的问题" class="headerlink" title="1.8.derby模式出现的问题"></a>1.8.derby模式出现的问题</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">发现内置默认的metastore存在问题（1.换执行路径后，原来的表不存在了。2.只能有一个用户访问同一个表）</span><br><span class="line"></span><br><span class="line">如：</span><br><span class="line">[root@node1 ~]<span class="comment"># cd /opt/modules/hive-1.2.1/</span></span><br><span class="line">[root@node1 ~]<span class="comment"># ./bin/hive</span></span><br><span class="line">hive&gt; show tables;</span><br><span class="line">OK</span><br><span class="line">tclass</span><br><span class="line">testclass</span><br><span class="line">Time taken: 3.012 seconds, Fetched: 2 row(s)</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">[root@node1 ~]<span class="comment"># cd /opt/modules/hive-1.2.1/bin</span></span><br><span class="line">[root@node1 ~]<span class="comment"># hive</span></span><br><span class="line">hive&gt; show tables;</span><br><span class="line">OK</span><br><span class="line">Time taken: 2.489 seconds</span><br><span class="line"></span><br><span class="line">一般不是用这个derby作为我们的元数据库，采用mysql的居多，</span><br><span class="line"></span><br><span class="line">因为derby数据库有个缺陷，就是只支持单连接，</span><br><span class="line"></span><br><span class="line">当然如果采用多连接的话需要进行切换目录。</span><br></pre></td></tr></table></figure>
+<h2 id="2-本地mysql模式搭建"><a href="#2-本地mysql模式搭建" class="headerlink" title="2.本地mysql模式搭建"></a>2.本地mysql模式搭建</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">这种存储方式需要在本地运行一个mysql服务器，并作如下配置</span><br><span class="line"></span><br><span class="line">（下面两种使用mysql的方式，需要将mysql的jar包拷贝到<span class="variable">$HIVE_HOME</span>/lib目录下）。</span><br></pre></td></tr></table></figure>
+<h3 id="2-1-解压，修改HADOOP-HOME-lib目录下的jline-jar-变成HIVE-HOME-lib下的jline-2-12-jar。"><a href="#2-1-解压，修改HADOOP-HOME-lib目录下的jline-jar-变成HIVE-HOME-lib下的jline-2-12-jar。" class="headerlink" title="2.1.解压，修改HADOOP_HOME\lib目录下的jline-*.jar 变成HIVE_HOME\lib下的jline-2.12.jar。"></a>2.1.解压，修改HADOOP_HOME\lib目录下的jline-*.jar 变成HIVE_HOME\lib下的jline-2.12.jar。</h3><h4 id="查找文件-1"><a href="#查找文件-1" class="headerlink" title="查找文件"></a>查找文件</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[root@node1 hadoop-2.5.1]<span class="comment"># find ./ -name "jline*.jar"</span></span><br><span class="line">./share/hadoop/yarn/lib/jline-0.9.94.jar</span><br><span class="line"></span><br><span class="line">[root@node1 lib]<span class="comment"># mv /opt/modules/hive-1.2.1/jline-2.12.jar /opt/modules/hadoop-2.5.1/share/hadoop/yarn/lib/</span></span><br><span class="line">[root@node1 ~]<span class="comment"># cd /opt/modules/hadoop-2.5.1/share/hadoop/yarn/lib/</span></span><br></pre></td></tr></table></figure>
+<h4 id="删除jline-0-9-94-jar包-1"><a href="#删除jline-0-9-94-jar包-1" class="headerlink" title="删除jline-0.9.94.jar包"></a>删除jline-0.9.94.jar包</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node1 lib]<span class="comment"># rm -rf jline-0.9.94.jar</span></span><br></pre></td></tr></table></figure>
+<h3 id="2-2-修改-opt-modules-hive-1-2-1-conf目录下的hive-env-sh-template为hive-env-sh，添加HADOOP-HOME环境变量"><a href="#2-2-修改-opt-modules-hive-1-2-1-conf目录下的hive-env-sh-template为hive-env-sh，添加HADOOP-HOME环境变量" class="headerlink" title="2.2.修改/opt/modules/hive-1.2.1/conf目录下的hive-env.sh.template为hive-env.sh，添加HADOOP_HOME环境变量"></a>2.2.修改/opt/modules/hive-1.2.1/conf目录下的hive-env.sh.template为hive-env.sh，添加HADOOP_HOME环境变量</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">HADOOP_HOME=/opt/modules/hadoop-2.5.1</span><br></pre></td></tr></table></figure>
+<h3 id="2-3-修改-opt-modules-hive-1-2-1-conf目录下的hive-default-xml-template为hive-site-xml，增加配置"><a href="#2-3-修改-opt-modules-hive-1-2-1-conf目录下的hive-default-xml-template为hive-site-xml，增加配置" class="headerlink" title="2.3.修改/opt/modules/hive-1.2.1/conf目录下的hive-default.xml.template为hive-site.xml，增加配置"></a>2.3.修改/opt/modules/hive-1.2.1/conf目录下的hive-default.xml.template为hive-site.xml，增加配置</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span>  </span><br><span class="line">  <span class="tag">&lt;<span class="name">name</span>&gt;</span>hive.metastore.warehouse.dir<span class="tag">&lt;/<span class="name">name</span>&gt;</span>  </span><br><span class="line">  <span class="tag">&lt;<span class="name">value</span>&gt;</span>/usr/hive/warehouse<span class="tag">&lt;/<span class="name">value</span>&gt;</span>  </span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span>  </span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span>  </span><br><span class="line">  <span class="tag">&lt;<span class="name">name</span>&gt;</span>hive.metastore.local<span class="tag">&lt;/<span class="name">name</span>&gt;</span>  </span><br><span class="line">  <span class="tag">&lt;<span class="name">value</span>&gt;</span>true<span class="tag">&lt;/<span class="name">value</span>&gt;</span>  </span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span>  </span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span>  </span><br><span class="line">  <span class="tag">&lt;<span class="name">name</span>&gt;</span>javax.jdo.option.ConnectionURL<span class="tag">&lt;/<span class="name">name</span>&gt;</span>  </span><br><span class="line">  <span class="tag">&lt;<span class="name">value</span>&gt;</span>jdbc:mysql://192.168.230.10:3306/hive?createDatabaseIfNotExist=true<span class="tag">&lt;/<span class="name">value</span>&gt;</span>  </span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span>  </span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span>  </span><br><span class="line">  <span class="tag">&lt;<span class="name">name</span>&gt;</span>javax.jdo.option.ConnectionDriverName<span class="tag">&lt;/<span class="name">name</span>&gt;</span>  </span><br><span class="line">  <span class="tag">&lt;<span class="name">value</span>&gt;</span>com.mysql.jdbc.Driver<span class="tag">&lt;/<span class="name">value</span>&gt;</span>  </span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span>  </span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span>  </span><br><span class="line">  <span class="tag">&lt;<span class="name">name</span>&gt;</span>javax.jdo.option.ConnectionUserName<span class="tag">&lt;/<span class="name">name</span>&gt;</span>  </span><br><span class="line">  <span class="tag">&lt;<span class="name">value</span>&gt;</span>root<span class="tag">&lt;/<span class="name">value</span>&gt;</span>  </span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span>  </span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span>  </span><br><span class="line">  <span class="tag">&lt;<span class="name">name</span>&gt;</span>javax.jdo.option.ConnectionPassword<span class="tag">&lt;/<span class="name">name</span>&gt;</span>  </span><br><span class="line">  <span class="tag">&lt;<span class="name">value</span>&gt;</span>123456<span class="tag">&lt;/<span class="name">value</span>&gt;</span>  </span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-11/99742074.jpg" alt=""></p>
+<h3 id="2-5-在mysql中创建hive数据库"><a href="#2-5-在mysql中创建hive数据库" class="headerlink" title="2.5.在mysql中创建hive数据库"></a>2.5.在mysql中创建hive数据库</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; create database hive;</span><br></pre></td></tr></table></figure>
+<h4 id="启动hive"><a href="#启动hive" class="headerlink" title="启动hive"></a>启动hive</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hive --service metastore</span><br></pre></td></tr></table></figure>
+<h3 id="2-6-上传mysql-connector-java-5-1-10-jar到-opt-modules-hive-1-2-1-lib目录下"><a href="#2-6-上传mysql-connector-java-5-1-10-jar到-opt-modules-hive-1-2-1-lib目录下" class="headerlink" title="2.6.上传mysql-connector-java-5.1.10.jar到/opt/modules/hive-1.2.1/lib目录下"></a>2.6.上传mysql-connector-java-5.1.10.jar到/opt/modules/hive-1.2.1/lib目录下</h3><p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-11/83632204.jpg" alt=""></p>
+<h3 id="2-7-安装Mysql"><a href="#2-7-安装Mysql" class="headerlink" title="2.7.安装Mysql"></a>2.7.安装Mysql</h3><h4 id="进入目录"><a href="#进入目录" class="headerlink" title="进入目录"></a>进入目录</h4><h4 id="2-7-1：解压压缩文件"><a href="#2-7-1：解压压缩文件" class="headerlink" title="2.7.1：解压压缩文件"></a>2.7.1：解压压缩文件</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@hive-matrix software]<span class="comment"># unzip  mysql-libs.zip</span></span><br></pre></td></tr></table></figure>
+<p>####2.5.2：进入目录查看要安装的rpm源码包</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@hive-matrix software]<span class="comment"># cd mysql-libs</span></span><br></pre></td></tr></table></figure>
+<h4 id="2-5-3：安装Mysql服务端"><a href="#2-5-3：安装Mysql服务端" class="headerlink" title="2.5.3：安装Mysql服务端"></a>2.5.3：安装Mysql服务端</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@hive-matrix mysql-libs]<span class="comment"># rpm -ivh MySQL-server-5.6.24-1.el6.x86_64.rpm</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">出错：可能是系统中存在MySQL相关软件</span><br></pre></td></tr></table></figure>
+<h4 id="2-5-4：查看系统是否安装过MySQL相关的软件"><a href="#2-5-4：查看系统是否安装过MySQL相关的软件" class="headerlink" title="2.5.4：查看系统是否安装过MySQL相关的软件"></a>2.5.4：查看系统是否安装过MySQL相关的软件</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@hive-matrix mysql-libs]<span class="comment"># rpm -qa|grep mysql</span></span><br></pre></td></tr></table></figure>
+<h4 id="2-5-5：强制性卸载之前的MySQL相关软件"><a href="#2-5-5：强制性卸载之前的MySQL相关软件" class="headerlink" title="2.5.5：强制性卸载之前的MySQL相关软件"></a>2.5.5：强制性卸载之前的MySQL相关软件</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@hive-matrix mysql-libs]<span class="comment"># rpm -e --nodeps mysql-libs-5.1.66-2.el6_3.x86_64</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">查看是否还存在MySQL的相关软件</span><br><span class="line">[root@hive-matrix mysql-libs]<span class="comment"># rpm -qa|grep mysql</span></span><br></pre></td></tr></table></figure>
+<h4 id="2-5-6：安装Mysql服务端"><a href="#2-5-6：安装Mysql服务端" class="headerlink" title="2.5.6：安装Mysql服务端"></a>2.5.6：安装Mysql服务端</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@hive-matrix mysql-libs]<span class="comment"># rpm -ivh MySQL-server-5.6.24-1.el6.x86_64.rpm</span></span><br></pre></td></tr></table></figure>
+<h4 id="2-5-7：查看MySQL的密码"><a href="#2-5-7：查看MySQL的密码" class="headerlink" title="2.5.7：查看MySQL的密码"></a>2.5.7：查看MySQL的密码</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[root@hive-matrix ~]<span class="comment"># sudo more /root/.mysql_secret</span></span><br><span class="line"></span><br><span class="line">MySQL密码：HLvZqFKvyrzneWf2</span><br><span class="line"></span><br><span class="line">进入目录</span><br><span class="line">[root@hive-matrix ~]<span class="comment"># cd /opt/software/mysql-libs</span></span><br><span class="line"></span><br><span class="line">查看目录下安装包</span><br></pre></td></tr></table></figure>
+<h4 id="2-5-8：查看mysql状态"><a href="#2-5-8：查看mysql状态" class="headerlink" title="2.5.8：查看mysql状态"></a>2.5.8：查看mysql状态</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@hive-matrix mysql-libs]<span class="comment"># service mysql status</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ps -aux|grep mysql</span><br><span class="line"><span class="built_in">kill</span> -9 21460</span><br></pre></td></tr></table></figure>
+<h4 id="2-5-9：启动mysql服务"><a href="#2-5-9：启动mysql服务" class="headerlink" title="2.5.9：启动mysql服务"></a>2.5.9：启动mysql服务</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@hive-matrix mysql-libs]<span class="comment"># service mysql start</span></span><br><span class="line">查看mysql状态</span><br></pre></td></tr></table></figure>
+<h4 id="2-6-1：设置mysql随着系统启动"><a href="#2-6-1：设置mysql随着系统启动" class="headerlink" title="2.6.1：设置mysql随着系统启动"></a>2.6.1：设置mysql随着系统启动</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@hive-matrix mysql-libs]<span class="comment"># chkconfig mysql on</span></span><br></pre></td></tr></table></figure>
+<h4 id="2-6-2：安装MySQL客户端"><a href="#2-6-2：安装MySQL客户端" class="headerlink" title="2.6.2：安装MySQL客户端"></a>2.6.2：安装MySQL客户端</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@hive-matrix mysql-libs]<span class="comment"># rpm -ivh  MySQL-client-5.6.24-1.el6.x86_64.rpm</span></span><br></pre></td></tr></table></figure>
+<h4 id="2-6-3：连接mysql"><a href="#2-6-3：连接mysql" class="headerlink" title="2.6.3：连接mysql"></a>2.6.3：连接mysql</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node1 mysql-libs]<span class="comment">#  mysql -uroot -pmHtNV9L9L37VYO5M</span></span><br></pre></td></tr></table></figure>
+<h4 id="2-6-4：更改mysql登录密码"><a href="#2-6-4：更改mysql登录密码" class="headerlink" title="2.6.4：更改mysql登录密码"></a>2.6.4：更改mysql登录密码</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SET PASSWORD = PASSWORD(<span class="string">'123456'</span>);</span><br></pre></td></tr></table></figure>
+<h4 id="2-6-5：退出mysql"><a href="#2-6-5：退出mysql" class="headerlink" title="2.6.5：退出mysql"></a>2.6.5：退出mysql</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">exit</span></span><br></pre></td></tr></table></figure>
+<h4 id="2-6-7：重新启动服务-同时重新登陆-使用设置的新密码"><a href="#2-6-7：重新启动服务-同时重新登陆-使用设置的新密码" class="headerlink" title="2.6.7：重新启动服务.同时重新登陆(使用设置的新密码)"></a>2.6.7：重新启动服务.同时重新登陆(使用设置的新密码)</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[matrix@hive-matrix software]$ mysql -uroot -p123456</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">这个是远程连接，需要设置mysql能进行远程连接，</span><br><span class="line">即使可以远程连接，你也需要告诉mysql那台需要进行连接也需要进行设置权限，</span><br><span class="line">这个就是mysql基于安全的考虑</span><br><span class="line">接下来我们登录mysql进行授权</span><br><span class="line">mysql&gt; use mysql;</span><br><span class="line">mysql&gt; select User,Host,Password from user;</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-11/86827009.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; UPDATE user SET Password=PASSWORD(<span class="string">'123456'</span>) <span class="built_in">where</span> USER=<span class="string">'root'</span>;</span><br><span class="line"></span><br><span class="line">创建用户</span><br><span class="line">CREATE USER <span class="string">'root'</span>@<span class="string">'192.168.230.129'</span> IDENTIFIED BY <span class="string">'123456'</span>;</span><br><span class="line">CREATE USER <span class="string">'root'</span>@<span class="string">'192.168.230.14'</span> IDENTIFIED BY <span class="string">'123456'</span>;</span><br><span class="line">CREATE USER <span class="string">'root'</span>@<span class="string">'192.168.230.1'</span> IDENTIFIED BY <span class="string">'123456'</span>;</span><br><span class="line">CREATE USER <span class="string">'root'</span>@<span class="string">'127.0.0.1'</span> IDENTIFIED BY <span class="string">'123456'</span>;</span><br><span class="line">CREATE USER <span class="string">'root'</span>@<span class="string">'hadoop-sparse.cloudyhadoop.com'</span> IDENTIFIED BY <span class="string">'123456'</span>;</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-12/83828982.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">这个是远程连接，需要设置mysql能进行远程连接，</span><br><span class="line"></span><br><span class="line">即使可以远程连接，你也需要告诉mysql那台需要进行连接也需要进行设置权限，</span><br><span class="line"></span><br><span class="line">这个就是mysql基于安全的考虑</span><br><span class="line"></span><br><span class="line">接下来我们登录mysql进行授权</span><br><span class="line"></span><br><span class="line">mysql&gt; Grant all privileges on *.* to root@<span class="string">'%'</span> identified by <span class="string">'123456'</span>;</span><br><span class="line"></span><br><span class="line">mysql&gt; Grant all privileges on *.* to root@<span class="string">'192.168.230.129'</span> identified by <span class="string">'123456'</span>;</span><br><span class="line"></span><br><span class="line">mysql&gt; Grant all privileges on *.* to root@<span class="string">'192.168.230.14'</span> identified by <span class="string">'123456'</span>;</span><br><span class="line"></span><br><span class="line">mysql&gt; Grant all privileges on *.* to root@<span class="string">'192.168.230.1'</span> identified by <span class="string">'123456'</span>;</span><br><span class="line"></span><br><span class="line">mysql&gt; Grant all privileges on *.* to root@<span class="string">'127.0.0.1'</span> identified by <span class="string">'123456'</span>;</span><br><span class="line">Grant all privileges on *.* to root@<span class="string">'hadoop-sparse.cloudyhadoop.com'</span> identified by <span class="string">'123456'</span>;</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-11/78140575.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; flush privileges;</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-11/14422895.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; select * from mysql.user <span class="built_in">where</span> user=<span class="string">'root'</span> and host=<span class="string">'%'</span>\G</span><br><span class="line"></span><br><span class="line">权限报错是因为%登录的root没有grant option的权限</span><br><span class="line"></span><br><span class="line">mysql&gt; update mysql.user <span class="built_in">set</span> Grant_priv=<span class="string">'Y'</span> <span class="built_in">where</span> user=<span class="string">'root'</span> and host=<span class="string">'%'</span>;</span><br></pre></td></tr></table></figure>
+<h4 id="2-6-8授权好了，在进入-opt-modules-hive-1-2-1目录，启动hive"><a href="#2-6-8授权好了，在进入-opt-modules-hive-1-2-1目录，启动hive" class="headerlink" title="2.6.8授权好了，在进入/opt/modules/hive-1.2.1目录，启动hive"></a>2.6.8授权好了，在进入/opt/modules/hive-1.2.1目录，启动hive</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">进入hive后，使用show tables命令查看，发现没有任何表</span><br><span class="line"></span><br><span class="line">创建一张表</span><br><span class="line"></span><br><span class="line">创建表的信息</span><br><span class="line"></span><br><span class="line">hive&gt; show create table emp;</span><br><span class="line">OK</span><br><span class="line">CREATE TABLE `emp`(</span><br><span class="line">  `empno` int,</span><br><span class="line">  `ename` string,</span><br><span class="line">  `job` string,</span><br><span class="line">  `mgr` int,</span><br><span class="line">  `hiredate` string,</span><br><span class="line">  `sal` double,</span><br><span class="line">  `comm` double,</span><br><span class="line">  `deptno` int)</span><br><span class="line">ROW FORMAT DELIMITED</span><br><span class="line">  FIELDS TERMINATED BY <span class="string">','</span></span><br><span class="line">STORED AS INPUTFORMAT</span><br><span class="line">  <span class="string">'org.apache.hadoop.mapred.TextInputFormat'</span></span><br><span class="line">OUTPUTFORMAT</span><br><span class="line">  <span class="string">'org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat'</span></span><br><span class="line">LOCATION</span><br><span class="line">  <span class="string">'hdfs://matrix/usr/hive-1.2.1/warehouse/emp'</span></span><br><span class="line">TBLPROPERTIES (</span><br><span class="line">  <span class="string">'COLUMN_STATS_ACCURATE'</span>=<span class="string">'true'</span>,</span><br><span class="line">  <span class="string">'numFiles'</span>=<span class="string">'1'</span>,</span><br><span class="line">  <span class="string">'numRows'</span>=<span class="string">'0'</span>,</span><br><span class="line">  <span class="string">'rawDataSize'</span>=<span class="string">'0'</span>,</span><br><span class="line">  <span class="string">'totalSize'</span>=<span class="string">'96'</span>,</span><br><span class="line">  <span class="string">'transient_lastDdlTime'</span>=<span class="string">'1457655930'</span>)</span><br><span class="line">Time taken: 1.094 seconds, Fetched: 24 row(s)</span><br></pre></td></tr></table></figure>
+<h4 id="2-6-9使用Navicat远程连接Linux主机上的Mysql数据库"><a href="#2-6-9使用Navicat远程连接Linux主机上的Mysql数据库" class="headerlink" title="2.6.9使用Navicat远程连接Linux主机上的Mysql数据库"></a>2.6.9使用Navicat远程连接Linux主机上的Mysql数据库</h4><p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-12/64044118.jpg" alt=""></p>
+<h3 id="2-7-进入mysql查看hive的元数据信息"><a href="#2-7-进入mysql查看hive的元数据信息" class="headerlink" title="2.7.进入mysql查看hive的元数据信息"></a>2.7.进入mysql查看hive的元数据信息</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; use hive</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-12/70990277.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; create database hive;</span><br><span class="line">mysql&gt; show tables;</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-12/7766214.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; select * from TBLS;</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-12/16463457.jpg" alt=""></p>
+<h3 id="2-8-在navicat中使用命令行查看mysql中的hive数据库"><a href="#2-8-在navicat中使用命令行查看mysql中的hive数据库" class="headerlink" title="2.8.在navicat中使用命令行查看mysql中的hive数据库"></a>2.8.在navicat中使用命令行查看mysql中的hive数据库</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">失败！用户对hive数据库操作的权限</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-12/89647898.jpg" alt=""></p>
+<h3 id="2-9-在mysql中设置允许root用户拥有对hive数据库全部权限"><a href="#2-9-在mysql中设置允许root用户拥有对hive数据库全部权限" class="headerlink" title="2.9.在mysql中设置允许root用户拥有对hive数据库全部权限"></a>2.9.在mysql中设置允许root用户拥有对hive数据库全部权限</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; GRANT all ON hive.* TO root@<span class="string">'%'</span> IDENTIFIED BY <span class="string">'123456'</span>;</span><br><span class="line">mysql&gt; flush privileges;</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-12/70669770.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GRANT all ON hive.* TO root@<span class="string">'master'</span> IDENTIFIED BY <span class="string">'123456'</span>;</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">这个是由于我的mysql不再本地(默认使用本地数据库)，这里需要配置远端元数据服务器</span><br><span class="line">hive.metastore.uris</span><br><span class="line"></span><br><span class="line">thrift://lza01:9083</span><br><span class="line">Thrift URI <span class="keyword">for</span> the remote metastore. Used by metastore client to connect to rem</span><br><span class="line">ote metastore. 然后在hive服务端启动元数据存储服务 hive –service metastore</span><br><span class="line"></span><br><span class="line">在Hive中创建表失败！</span><br><span class="line"></span><br><span class="line">FAILED: Execution Error, <span class="built_in">return</span> code 1 from org.apache.hadoop.hive.ql.exec.DDLTask. MetaException(message:For direct MetaStore DB connections, we don<span class="string">'t support retries at the client level.)</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">报错原因：没有启动</span></span><br><span class="line"><span class="string">[root@master hive-1.2.1]# hive –service metastore</span></span><br></pre></td></tr></table></figure>
+
+    </div>
+  </div>
+  
+    <div class="copy-right">
+      <div class="markdown-body">
+        <blockquote>
+        
+        
+          本文作者 : Matrix <br>
+        
+        原文链接 : <a href="">http://yoursite.com/2016/02/12/Hive中metastore（元数据存储）三种方式区别和搭建/</a><br>
+        版权声明 : 本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+        </blockquote>
+      </div>
+    </div>
+  
+  
+  
+    <div class="social-share" style="margin-top: -2rem" data-wechat-qrcode-title="<p>微信扫一扫</p>" data-wechat-qrcode-helper="<p>微信右上角, 扫一扫分享</p>" data-sites="qzone, qq, weibo, wechat, douban, google, facebook, twitter">
+  <span style="color: #6b7487; font-size: 1.4rem;">分享到: </span>
+</div>
+<script src="https://cdn.bootcss.com/social-share.js/1.0.16/js/social-share.min.js" async></script>
+  
+
+  
+    <div id="reward">
+  
+    <p id="reward-meta">知识 & 情怀 | 二者兼得</p>
+  
+  <button id="reward-btn">
+    
+    <span>投食</span>
+  </button>
+  <div id="reward-qrcode">
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/wechatpay.jpg" alt="微信扫一扫, 向我投食">
+        <p class="qrcode-meta">微信扫一扫, 向我投食</p>
+      </div>
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/alipaypay.jpg" alt="支付宝扫一扫, 向我投食">
+        <p class="qrcode-meta">支付宝扫一扫, 向我投食</p>
+      </div>
+    
+  </div>
+
+</div>
+
+<script>
+  (() => {
+    let button = document.querySelector('#reward-btn'),
+      qrcode = document.querySelector('#reward-qrcode'),
+      display = false;
+    
+    button.addEventListener('click', () => {
+      qrcode.style.display = display ? 'none' : 'block'
+      display = !display
+    }, false)
+  })()
+</script>
+  
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+      <span>
+        
+          <i class="iconfont icon-06tags"></i>标签: 
+          
+          <span class="span--tag">
+            <a href="/tags/大数据/">
+              #大数据
+            </a>
+          </span>
+          
+          <span class="span--tag">
+            <a href="/tags/Hive/">
+              #Hive
+            </a>
+          </span>
+          
+        
+      </span>
+    </div>
+    <div class="article-meta pull-right">
+    </div>
+  </div>
+</div>
+
+
+  <aside id="sidebar">
+    <p id="sidebar-header"></p>
+    <ol id="sidebar-toc"></ol>
+  </aside>
+  <script async>setTimeout(generateToc, 10);</script>
+
+
+  <nav class="post-navigation">
+    
+      <div class="nav-pre">
+        <i class="iconfont icon-prev"></i>
+        上一篇:
+        <a href="/2016/02/12/日志采集框架Flume的安装及使用/" target="_self">日志采集框架Flume的安装及使用</a>
+      </div>
+    
+    
+      <div class="nav-next">
+        下一篇:
+        <a href="/2016/02/12/Hbase的shell命令练习/" target="_self">Hbase shell命令练习</a>
+        <i class="iconfont icon-next"></i>
+      </div>
+    
+  </nav>
+
+  
+    <a href="#comment" class="comment-anchor"></a>
+<div class="comment-title"><i class="iconfont icon-footprint"></i> 留下足迹 <i class="iconfont icon-footprint"></i></div>
+<div id="vcomments"></div>
+
+<script defer>
+  if( true ) {
+    let path = getRealPath()
+    new Valine({
+      el: "#vcomments",
+      appId: "Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz",
+      appKey: "WaR7nrzhliHj9aVwdQzkdlGd",
+      notify: false,
+      verify: false,
+      avatar: "robohash",
+      placeholder: "正确填写邮箱, 才能及时收到回复哦♪(^∇^*)",
+      path
+    });
+  }
+</script>
+   
+
+  
+    <script defer>
+const valineAPI = (() => {
+  try {
+    AV.init("Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz", "WaR7nrzhliHj9aVwdQzkdlGd");
+  } catch(error) {}
+  const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+      query.equalTo("identity", identity);
+      query.find().then(results => {
+        resolve(results.length > 0);
+      }, error => reject(error));
+    })
+  }
+
+  const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+      let querys = [];
+      for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+      }
+      query = AV.Query.or.apply(null ,querys);
+    } else {
+      identity = identity || getRealPath();
+      query = new AV.Query("Timer");
+      query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+      query.find()
+      .then(results => resolve(results))
+      .catch(error => reject(error))
+    })
+  }
+
+  const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let Todo = AV.Object.extend('Timer');
+      let todo = new Todo();
+      todo.set("times", 1);
+      todo.set("identity", identity);
+      todo.save().then(res => resolve(true), error => reject(error));
+    })
+  }
+
+  const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let query = new AV.Query('Timer');
+      query.equalTo("identity", identity);
+      query.find().then(todos => {
+        todos.forEach(todo => {
+          todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+      }).then(todos => resolve(true), error => reject(error));
+    })
+  }
+
+  return {
+    isExist,
+    _get,
+    update,
+    create
+  }
+})()
+
+const calcAndWriteTimes = () => {
+  let isPost = true;
+
+  let timerAllDOM = document.querySelectorAll(".article-timer");
+
+  if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+      if(exist) {
+        return valineAPI.update(identity);
+      }
+      return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+  }
+
+  let timerDOMCache = {};
+
+  for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+      timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+      timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+      };
+    }
+  }
+
+  let identities = Object.keys(timerDOMCache);
+  valineAPI._get(identities).then(results => {
+    for(let result of results) {
+      let {identity, times} = result.attributes;
+      timerDOMCache[identity].times = times;
+      timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+      if(timerDOMCache[identity].times){
+        continue;
+      }
+      timerDOMCache[identity].dom.map(item => item.innerText = 1);
+      valineAPI.create(identity);
+    }
+  }).catch(error => console.log(error.message))
+}
+
+if(true){
+  calcAndWriteTimes();
+}
+</script>
+   
+
+</div>
+
+
+      <footer>
+  <p class="site-info">
+    博客已萌萌哒运行<span id="time-to-now"></span><span class="my-face">(●'◡'●)ﾉ♥</span>
+    <br>
+    Theme - <a href="https://github.com/dongyuanxin/theme-bmw">BMW</a> | Powered by <a href="https://godbmw.com/">GodBMW</a>
+    <br>
+    
+      Copyright © 2019 Matrix
+    
+  </p>
+</footer>
+
+
+
+<script>
+const timeToNowDOM = document.querySelector("#time-to-now");
+const startTimestamp = new Date(2016, 4, 10).getTime();
+
+const updateTimeStr = () => {
+  let offset = parseInt(
+      (new Date().getTime() - startTimestamp) / 1000,
+      10
+    ),
+    day = Math.floor(offset / 86400),
+    hour = Math.floor((offset % 86400) / 3600),
+    minute = Math.floor(((offset % 86400) % 3600) / 60),
+    second = Math.floor(((offset % 86400) % 3600) % 60);
+  timeToNowDOM.innerHTML =
+    day + "天" + hour + "小时" + minute + "分钟" + second + "秒";
+  setTimeout(updateTimeStr, 500);
+}
+
+setTimeout(updateTimeStr, 500);
+</script>
+
+
+      <div class="back-to-top hidden">
+  <span>
+    <i class="iconfont icon-60"></i><span></span>%
+  </span>
+</div>
+
+<script>
+const updateIconToTop = percent => {
+  let dom = document.querySelector(".back-to-top span span");
+  dom.innerText = percent;
+  if(percent < 1) {
+    document.querySelector(".back-to-top").className = "back-to-top hidden";
+  } else {
+    document.querySelector(".back-to-top").className = "back-to-top";
+  }
+}
+
+const handleScoll = () => {
+  let isRunning = false;
+  return () => {
+    if (isRunning) return;
+    isRunning = true;
+    window.requestAnimationFrame(timestamp => {
+      let scrollTop =
+          document.documentElement.scrollTop || document.body.scrollTop,
+        scrollHeight =
+          document.documentElement.scrollHeight ||
+          document.body.scrollHeight,
+        clientHeight =
+          document.documentElement.clientHeight ||
+          document.body.clientHeight;
+      isRunning = false;
+      if (scrollTop <= 1) {
+        updateIconToTop(0);
+        return;
+      }
+      if (scrollTop + clientHeight >= scrollHeight) {
+        updateIconToTop(100);
+      } else {
+        updateIconToTop(parseInt(
+          100 * scrollTop / (scrollHeight - clientHeight),
+          10
+        ));
+      }
+    });
+  };
+}
+
+const backToTop = () => {
+  let scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop,
+    delay = 10,
+    time = 200;
+  if (scrollTop <= 20) {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    return;
+  }
+  let step = Math.ceil(scrollTop * delay / time);
+  let timer = setInterval(() => {
+    scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop;
+    if (scrollTop - step <= 0) {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      clearInterval(timer);
+    } else {
+      document.documentElement.scrollTop = scrollTop - step;
+      document.body.scrollTop = scrollTop - step;
+    }
+  }, delay);
+}
+
+document.addEventListener("scroll", handleScoll(), false);
+
+document.querySelector(".back-to-top").addEventListener("click", backToTop, false);
+
+</script>
+
+    </div>
+
+    
+      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  (() => {
+    const mathjaxConfig = {
+      showProcessingMessages: false, //关闭js加载过程信息
+      messageStyle: "none", //不显示信息
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]], //行内公式选择符
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]], //段内公式选择符
+        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"] //避开某些标签
+      },
+      "HTML-CSS": {
+        availableFonts: ["STIX", "TeX"], //可选字体
+        showMathMenu: false //关闭右击菜单显示
+      }
+    }
+
+    let mathjaxInterval = setInterval(() => {
+      if(!window.MathJax){
+        return;
+      }
+      window.MathJax.Hub.Config(mathjaxConfig)
+      window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')])
+
+      clearInterval(mathjaxInterval)
+    }, 10)    
+  })()
+</script>
+    
+
+    <script src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script>
+<script async>
+  let fancyTimer = setInterval(function(){
+    if(!window.$){
+      return;
+    }
+    $(document).ready(function() {
+      $(".post img").each(function () {
+        if($(this).parent().get(0).tagName.toLowerCase() === "a") {
+          return;
+        }
+        // $(this).attr("data-fancybox", "gallery"); // if you add 'data-fancybox', img will display after showed
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "gallery");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      });
+      
+      clearInterval(fancyTimer);
+    });
+  }, 10);
+</script>
+
+    
+  </body>
+
+</html>

@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta name="author" content="董沅鑫, yuanxin.me@gmail.com">
+  
+  
+  
+  <title>Mahout协同过滤 | 每天遇到更好的你</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="大数据,大数据,Mahout,">
+  
+
+  <script>
+    console.log('\n%c Hexo-theme-bmw v4.0 ' + '%c 🎉 https://github.com/dongyuanxin/theme-bmw 🎉\n' + '\n%c View demo online ' + '%c 🔍 https://godbmw.com/ 🔍  \n' , 'color: #fadfa3; background: #030307; padding:3px 0;', '', 'color: #fadfa3; background: #030307; padding:3px 0;', '');
+  </script>
+
+  
+
+  
+
+  
+    <link rel="icon" href="/images/favicon.png">
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+  
+
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/icon/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+  <script src="/js/util.js"></script>
+<script src="/js/valine.min.js"></script>
+
+  
+
+  
+    <link href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js" async></script>
+  
+
+  
+    <link href="https://cdn.bootcss.com/social-share.js/1.0.16/css/share.min.css" rel="stylesheet">
+  
+  
+  <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js" async></script>
+  
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.0/dist/av-min.js"></script>
+  
+
+</head>
+
+  <body>
+
+    
+
+    <div id="app">
+
+      <div class="header-wrap">
+  <header>
+    <div class="site-brand">
+      <div class="site-title">
+        <!-- <a href="/">MatrixSparse</a> -->
+        <img alt="logo" class="antd-pro-layouts-user-layout-logo" src="/images/favicon.png" style="width: 40px;height: 40px;margin-top: 10px;margin-left: 5px;">
+      </div>
+    </div>
+    <nav class="site-navigation">
+      <ul class="nav-menu">
+      
+        <li class="nav-item" data-path="/">
+          
+            <a href="/" target="_self">
+              主页
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          
+            <a href="/archives/" target="_self">
+              归档
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          
+            <a href="/categories/" target="_self">
+              分类
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          
+            <a href="/tags/" target="_self">
+              标签
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="">
+          
+            <a href="javascript:void(0);" v-else="">博客地址</a>
+            <ul class="nav-menu--dropdown">
+              
+                <li>
+                  <a href="https://blog.csdn.net/qq_25371579" target="_blank">
+                    CSDN
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://github.com/matrixsparse" target="_blank">
+                    Github
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://matrixsparse.github.io/" target="_blank">
+                    Github Page
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+      </ul>
+    </nav>
+    <i class="iconfont icon-menu"></i>
+  </header>
+</div>
+
+<script>
+  let links = document.querySelectorAll('.nav-item');
+  for(let link of links){
+    let childrenLink = link.querySelector('ul');
+    link.addEventListener('mouseenter', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown active";
+      }
+    })
+    link.addEventListener('mouseleave', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown";
+      }
+    })
+  }
+  let rootRealPath = getRealPath(window.location.pathname, true);
+  for(let link of links) {
+    let linkPath = link.getAttribute("data-path");
+    if(linkPath && getRealPath(linkPath, true) === rootRealPath) {
+      link.className = "nav-item hover";
+    }
+  }
+
+  let iconMenu = document.querySelector("i.iconfont.icon-menu"),
+    iconMenuClicked = false;
+  let navDOM = document.querySelector("nav.site-navigation");
+  iconMenu.addEventListener("click", () => {
+    iconMenuClicked
+      ? navDOM.className = "site-navigation active"
+      : navDOM.className = "site-navigation";
+    iconMenuClicked = !iconMenuClicked;
+  })
+</script>
+
+
+      
+
+
+
+
+
+
+
+
+<div class="container post-index">
+
+  
+
+<div class="post">
+  <h1 class="article-title">
+    <span>Mahout协同过滤</span>
+  </h1>
+  <div class="article-top-meta">
+    <span>
+      发布 : 
+      2016-01-20
+    </span>
+    
+      <span>
+        分类 : 
+          <a href="/categories/大数据/">
+            大数据
+          </a>
+      </span>
+    
+    
+      <span>
+        浏览 : <span class="article-timer" data-identity="Mahout协同过滤"></span>
+      </span>
+    
+  </div>
+
+  
+
+  <div class="article-content">
+    <div class="markdown-body">
+      <h2 id="1-Mahout是什么"><a href="#1-Mahout是什么" class="headerlink" title="1.Mahout是什么"></a>1.Mahout是什么</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Mahout是一个算法库，集成了很多算法</span><br><span class="line">Apache Mahout是Apache Software Foundation(ASF)旗下的一个开源项目，提供一些可拓展的机器学习领域经典算法的实现，</span><br><span class="line">旨在帮助开发人员更加方便快捷地创建智能应用程序</span><br><span class="line">Mahout项目目前已经有了多个公共发行版本。Mahout包含许多实现，包括聚类、分类、推荐过滤、频繁子项目挖掘</span><br><span class="line">通过使用Apache Hadoop库，Mahout可以有效地拓展到Hadoop集群。</span><br><span class="line">Mahout的创始人Grant Ingersoll介绍了机器学习的基本概念，并演示了如何使用Mahout来实现文档集群、提出建议和组织内容</span><br></pre></td></tr></table></figure>
+<h2 id="2-Mahout能做什么"><a href="#2-Mahout能做什么" class="headerlink" title="2.Mahout能做什么"></a>2.Mahout能做什么</h2><h3 id="2-1-推荐引擎"><a href="#2-1-推荐引擎" class="headerlink" title="2.1.推荐引擎"></a>2.1.推荐引擎</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">在目前采用的机器学习技术中，推荐引擎是最容易被一眼认出来的，也是应用范围最广的。</span><br><span class="line">服务商或网站会根据你过去的行为为你推荐书籍、电影或文章。</span><br><span class="line">在部署了推荐系统的电子商务中，亚马逊大概是最有名的。亚马逊基于用户的交易行为和网站记录为你推荐你可能喜欢的商品</span><br><span class="line">而facebook这样的社交网络则利用推荐技术为你找到最可能尚未关联的朋友</span><br><span class="line">同时，这一技术也被各大知名国内网站所使用，如腾讯、人人、京东、淘宝</span><br></pre></td></tr></table></figure>
+<h3 id="2-2-聚类"><a href="#2-2-聚类" class="headerlink" title="2.2.聚类"></a>2.2.聚类</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">顾名思义，物以类聚，人以群为。聚类是把具有共同属性的物品进行归类</span><br><span class="line">Google news使用聚类技术通过标题把新闻文章进行分组，从而按照逻辑线索来显示新闻，而并非给出所有新闻的原始列表</span><br></pre></td></tr></table></figure>
+<h3 id="2-3-分类"><a href="#2-3-分类" class="headerlink" title="2.3.分类"></a>2.3.分类</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">分类技术决定了一个事物多大程度上从属于某种类别或类型，或者多大程度上具有或者不具有某些属性。</span><br><span class="line">与聚类一样，分类无处不在，但更多隐身于幕后。通常这些系统会考察类别中的大量实例，来学习推导分类的规则</span><br><span class="line">雅虎邮箱基于用户以前对正常邮件和垃圾邮件的报告，以及电子邮件自身的特征，来判别到来的消息是否是垃圾邮件</span><br></pre></td></tr></table></figure>
+<h2 id="3-Mahout协同过滤算法"><a href="#3-Mahout协同过滤算法" class="headerlink" title="3.Mahout协同过滤算法"></a>3.Mahout协同过滤算法</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">Mahout使用了Taste来提高协同过滤算法的实现，它是一个基于Java实现的可扩展的，高效的推荐引擎。</span><br><span class="line">Taste既实现了最基本的基于用户的和基于内容的推荐算法，同时也提供了扩展接口，使用户可以方便的定义和实现自己的推荐算法。</span><br><span class="line">同时，Taste不仅仅只适用于Java应用程序，它可以作为内部服务器的一个组件以HTTP和Web Service的形式向外界提供推荐的逻辑。</span><br><span class="line">Taste的设计使它能满足企业对推荐引擎在性能、灵活性和可扩展性等方面的要求。</span><br><span class="line"></span><br><span class="line">Taste主要包括以下几个接口：</span><br><span class="line">DataModel 是用户喜好信息的抽象接口，它的具体实现支持从任意类型的数据源抽取用户喜好信息。</span><br><span class="line">  Taste 默认提供 JDBCDataModel 和 FileDataModel，分别支持从数据库和文件中读取用户的喜好信息。</span><br><span class="line"></span><br><span class="line">UserSimilarity 和 ItemSimilarity 。</span><br><span class="line">  UserSimilarity 用于定义两个用户间的相似度，它是基于协同过滤的推荐引擎的核心部分，可以用来计算用户的“邻居”，</span><br><span class="line">  这里我们将与当前用户口味相似的用户称为他的邻居。ItemSimilarity 类似的，计算Item之间的相似度。</span><br><span class="line"></span><br><span class="line">UserNeighborhood 用于基于用户相似度的推荐方法中，推荐的内容是基于找到与当前用户喜好相似的邻居用户的方式产生的。</span><br><span class="line">UserNeighborhood 定义了确定邻居用户的方法，具体实现一般是基于 UserSimilarity 计算得到的。</span><br><span class="line"></span><br><span class="line">Recommender 是推荐引擎的抽象接口，Taste 中的核心组件。程序中，为它提供一个 DataModel，它可以计算出对不同用户的推荐内容。</span><br><span class="line">  实际应用中，主要使用它的实现类 GenericUserBasedRecommender 或者 GenericItemBasedRecommender，</span><br><span class="line">  分别实现基于用户相似度的推荐引擎或者基于内容的推荐引擎。</span><br><span class="line"></span><br><span class="line">RecommenderEvaluator ：评分器。</span><br><span class="line"></span><br><span class="line">RecommenderIRStatsEvaluator ：搜集推荐性能相关的指标，包括准确率、召回率等等。</span><br></pre></td></tr></table></figure>
+<h3 id="3-1-DataModel"><a href="#3-1-DataModel" class="headerlink" title="3.1.DataModel"></a>3.1.DataModel</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">org.apache.mahout.cf.taste.impl.model.GenericDataModel</span><br><span class="line">org.apache.mahout.cf.taste.impl.model.GenericBooleanPrefDataModel</span><br><span class="line">org.apache.mahout.cf.taste.impl.model.PlusAnonymousUserDataModel</span><br><span class="line">org.apache.mahout.cf.taste.impl.model.file.FileDataModel</span><br><span class="line">org.apache.mahout.cf.taste.impl.model.hbase.HBaseDataModel</span><br><span class="line">org.apache.mahout.cf.taste.impl.model.cassandra.CassandraDataModel</span><br><span class="line">org.apache.mahout.cf.taste.impl.model.mongodb.MongoDBDataModel</span><br><span class="line">org.apache.mahout.cf.taste.impl.model.jdbc.SQL92JDBCDataModel</span><br><span class="line">org.apache.mahout.cf.taste.impl.model.jdbc.MySQLJDBCDataModel</span><br><span class="line">org.apache.mahout.cf.taste.impl.model.jdbc.PostgreSQLJDBCDataModel</span><br><span class="line">org.apache.mahout.cf.taste.impl.model.jdbc.GenericJDBCDataModel</span><br><span class="line">org.apache.mahout.cf.taste.impl.model.jdbc.SQL92BooleanPrefJDBCDataModel</span><br><span class="line">org.apache.mahout.cf.taste.impl.model.jdbc.MySQLBooleanPrefJDBCDataModel</span><br><span class="line">org.apache.mahout.cf.taste.impl.model.jdbc.PostgreBooleanPrefSQLJDBCDataModel</span><br><span class="line">org.apache.mahout.cf.taste.impl.model.jdbc.ReloadFromJDBCDataModel</span><br><span class="line">从类名上就可以大概猜出来每个DataModel的用途，奇怪的是竟然没有HDFS的DataModel，有人实现了一个，请参考 MAHOUT-1579</span><br></pre></td></tr></table></figure>
+<h3 id="3-2-相似度"><a href="#3-2-相似度" class="headerlink" title="3.2.相似度"></a>3.2.相似度</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">UserSimilarity 和 ItemSimilarity 相似度实现有以下几种：</span><br><span class="line">CityBlockSimilarity ：基于Manhattan距离相似度</span><br><span class="line">EuclideanDistanceSimilarity ：基于欧几里德距离计算相似度</span><br><span class="line">LogLikelihoodSimilarity ：基于对数似然比的相似度</span><br><span class="line">PearsonCorrelationSimilarity ：基于皮尔逊相关系数计算相似度</span><br><span class="line">SpearmanCorrelationSimilarity ：基于皮尔斯曼相关系数相似度</span><br><span class="line">TanimotoCoefficientSimilarity ：基于谷本系数计算相似度</span><br><span class="line">UncenteredCosineSimilarity ：计算 Cosine 相似度</span><br></pre></td></tr></table></figure>
+<h3 id="3-3-最近邻域"><a href="#3-3-最近邻域" class="headerlink" title="3.3.最近邻域"></a>3.3.最近邻域</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">UserNeighborhood 主要实现有两种：</span><br><span class="line">NearestNUserNeighborhood：对每个用户取固定数量N个最近邻居</span><br><span class="line">ThresholdUserNeighborhood：对每个用户基于一定的限制，取落在相似度限制以内的所有用户为邻居</span><br></pre></td></tr></table></figure>
+<h3 id="3-4-推荐引擎"><a href="#3-4-推荐引擎" class="headerlink" title="3.4.推荐引擎"></a>3.4.推荐引擎</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Recommender分为以下几种实现：</span><br><span class="line">GenericUserBasedRecommender：基于用户的推荐引擎</span><br><span class="line">GenericBooleanPrefUserBasedRecommender：基于用户的无偏好值推荐引擎</span><br><span class="line">GenericItemBasedRecommender：基于物品的推荐引擎</span><br><span class="line">GenericBooleanPrefItemBasedRecommender：基于物品的无偏好值推荐引擎</span><br></pre></td></tr></table></figure>
+<h3 id="3-5-推荐系统评测"><a href="#3-5-推荐系统评测" class="headerlink" title="3.5.推荐系统评测"></a>3.5.推荐系统评测</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">RecommenderEvaluator有以下几种实现：</span><br><span class="line">AverageAbsoluteDifferenceRecommenderEvaluator ：计算平均差值</span><br><span class="line">RMSRecommenderEvaluator ：计算均方根差</span><br></pre></td></tr></table></figure>
+<h2 id="4-Mahout协同过滤算法编程"><a href="#4-Mahout协同过滤算法编程" class="headerlink" title="4.Mahout协同过滤算法编程"></a>4.Mahout协同过滤算法编程</h2><h3 id="4-1-创建Maven项目"><a href="#4-1-创建Maven项目" class="headerlink" title="4.1.创建Maven项目"></a>4.1.创建Maven项目</h3><p><img src="http://p1.bpimg.com/581590/aeafac289499bfd2.png" alt="Markdown"></p>
+<p><img src="http://p1.bpimg.com/581590/ea1b05c7a9bb7dab.png" alt="Markdown"></p>
+<p><img src="http://p1.bpimg.com/581590/10eb64f8a0ddf7e0.png" alt="Markdown"></p>
+<p><img src="http://p1.bpimg.com/581590/8efb8a2e96d4f634.png" alt="Markdown"></p>
+<p><img src="http://p1.bpimg.com/581590/e1f44d8a099ee35d.png" alt="Markdown"></p>
+<h3 id="4-2-导入Mahout依赖"><a href="#4-2-导入Mahout依赖" class="headerlink" title="4.2.导入Mahout依赖"></a>4.2.导入Mahout依赖</h3><h4 id="pom-xml"><a href="#pom-xml" class="headerlink" title="pom.xml"></a>pom.xml</h4><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">project</span> <span class="attr">xmlns</span>=<span class="string">"http://maven.apache.org/POM/4.0.0"</span> <span class="attr">xmlns:xsi</span>=<span class="string">"http://www.w3.org/2001/XMLSchema-instance"</span></span></span><br><span class="line"><span class="tag">	<span class="attr">xsi:schemaLocation</span>=<span class="string">"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">modelVersion</span>&gt;</span>4.0.0<span class="tag">&lt;/<span class="name">modelVersion</span>&gt;</span></span><br><span class="line"></span><br><span class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.matrix<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>Mahout<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">version</span>&gt;</span>0.0.1-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">packaging</span>&gt;</span>jar<span class="tag">&lt;/<span class="name">packaging</span>&gt;</span></span><br><span class="line"></span><br><span class="line">	<span class="tag">&lt;<span class="name">name</span>&gt;</span>Mahout<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	<span class="tag">&lt;<span class="name">properties</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">project.build.sourceEncoding</span>&gt;</span>UTF-8<span class="tag">&lt;/<span class="name">project.build.sourceEncoding</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">properties</span>&gt;</span></span><br><span class="line"></span><br><span class="line">	<span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>jdk.tools<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jdk.tools<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">version</span>&gt;</span>1.7<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">scope</span>&gt;</span>system<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">systemPath</span>&gt;</span>$&#123;JAVA_HOME&#125;/lib/tools.jar<span class="tag">&lt;/<span class="name">systemPath</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.mahout<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mahout-examples<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">version</span>&gt;</span>0.11.2<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">exclusions</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">exclusion</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.slf4j<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>slf4j-log4j12<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;/<span class="name">exclusion</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;/<span class="name">exclusions</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>junit<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>junit<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">version</span>&gt;</span>4.11<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">project</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<h3 id="4-3-下载电影评分数据"><a href="#4-3-下载电影评分数据" class="headerlink" title="4.3.下载电影评分数据"></a>4.3.下载电影评分数据</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">下载地址：http://grouplens.org/datasets/movielens/</span><br><span class="line">数据类别：7.2万用户对1万部电影的百万级评价和10万个标签数据</span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bpimg.com/581590/31747e44910cf9ec.png" alt="Markdown"></p>
+<p><img src="http://p1.bqimg.com/581590/5d7efe7fcf17b4df.png" alt="Markdown"></p>
+<p><img src="http://p1.bqimg.com/581590/1c78adf53325e8ea.png" alt="Markdown"></p>
+<p><img src="http://p1.bpimg.com/581590/1298554a6d0e2c3b.png" alt="Markdown"></p>
+<h3 id="4-4-编写基于用户的推荐"><a href="#4-4-编写基于用户的推荐" class="headerlink" title="4.4.编写基于用户的推荐"></a>4.4.编写基于用户的推荐</h3><h4 id="BaseUserRecommender-java"><a href="#BaseUserRecommender-java" class="headerlink" title="BaseUserRecommender.java"></a>BaseUserRecommender.java</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.matrix.Mahout;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.File;</span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.apache.mahout.cf.taste.impl.neighborhood.NearestNUserNeighborhood;</span><br><span class="line"><span class="keyword">import</span> org.apache.mahout.cf.taste.impl.recommender.GenericUserBasedRecommender;</span><br><span class="line"><span class="keyword">import</span> org.apache.mahout.cf.taste.impl.similarity.PearsonCorrelationSimilarity;</span><br><span class="line"><span class="keyword">import</span> org.apache.mahout.cf.taste.model.DataModel;</span><br><span class="line"><span class="keyword">import</span> org.apache.mahout.cf.taste.neighborhood.UserNeighborhood;</span><br><span class="line"><span class="keyword">import</span> org.apache.mahout.cf.taste.recommender.RecommendedItem;</span><br><span class="line"><span class="keyword">import</span> org.apache.mahout.cf.taste.recommender.Recommender;</span><br><span class="line"><span class="keyword">import</span> org.apache.mahout.cf.taste.similarity.UserSimilarity;</span><br><span class="line"><span class="keyword">import</span> org.apache.mahout.cf.taste.similarity.precompute.example.GroupLensDataModel;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 迄今为止在个性化推荐系统中，协同过滤（Collaborative Filtering）技术是应用最成功的技术。</span></span><br><span class="line"><span class="comment"> * 目前国内外互联网上有许多大型网站已经应用这项技术为用户更加智能的推荐内容。</span></span><br><span class="line"><span class="comment"> * 如果你想要研究协同过滤，一定不能错过MovieLens（http://movielens.umn.edu/）。它是协同过滤最著名的研究项目之一。</span></span><br><span class="line"><span class="comment"> * 第一代协同过滤算法</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * Recommender&lt;BR&gt;</span></span><br><span class="line"><span class="comment"> * 创建人:Matrix &lt;BR&gt;</span></span><br><span class="line"><span class="comment"> * 时间：2017年1月19日-下午6:34:46 &lt;BR&gt;</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@version</span> 1.0.0</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BaseUserRecommender</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	 <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">	<span class="comment">//准备数据 这里是电影评分数据</span></span><br><span class="line">	File file = <span class="keyword">new</span> File(<span class="string">"F:\\software\\workstation\\Mahout\\ratings.dat"</span>);</span><br><span class="line">	<span class="comment">//将数据加载到内存中，GroupLensDataModel是针对开放电影评论数据的</span></span><br><span class="line">	DataModel dataModel = <span class="keyword">new</span> GroupLensDataModel(file);</span><br><span class="line">	<span class="comment">//计算相似度，相似度算法有很多种，欧几里得、皮尔逊等等。</span></span><br><span class="line">	UserSimilarity similarity = <span class="keyword">new</span> PearsonCorrelationSimilarity(dataModel);</span><br><span class="line">	<span class="comment">//计算最近邻域，邻居有两种算法，基于固定数量的邻居和基于相似度的邻居，这里使用基于固定数量的邻居</span></span><br><span class="line">	UserNeighborhood userNeighborhood = <span class="keyword">new</span> NearestNUserNeighborhood(<span class="number">100</span>, similarity, dataModel);</span><br><span class="line">	<span class="comment">//构建推荐器，协同过滤推荐有两种，分别是基于用户的和基于物品的，这里使用基于用户的协同过滤推荐</span></span><br><span class="line">	Recommender recommender = <span class="keyword">new</span> GenericUserBasedRecommender(dataModel, userNeighborhood, similarity);</span><br><span class="line">	<span class="comment">//推荐10部电影给id为5的用户</span></span><br><span class="line">	List&lt;RecommendedItem&gt; recommendedItemList = recommender.recommend(<span class="number">5</span>, <span class="number">10</span>);</span><br><span class="line">	<span class="comment">//打印推荐的结果</span></span><br><span class="line">	System.out.println(<span class="string">"使用基于用户的协同过滤算法"</span>);</span><br><span class="line">	System.out.println(<span class="string">"为用户5推荐10个商品"</span>);</span><br><span class="line">	<span class="keyword">for</span> (RecommendedItem recommendedItem : recommendedItemList) &#123;</span><br><span class="line">	System.out.println(recommendedItem);</span><br><span class="line">	&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bpimg.com/581590/50e8142385fc745c.png" alt="Markdown"></p>
+<p><img src="http://p1.bpimg.com/581590/5184f21aa2aefea3.png" alt="Markdown"></p>
+<h3 id="4-5-编写基于物品的推荐"><a href="#4-5-编写基于物品的推荐" class="headerlink" title="4.5.编写基于物品的推荐"></a>4.5.编写基于物品的推荐</h3><h4 id="BaseItemRecommender-java"><a href="#BaseItemRecommender-java" class="headerlink" title="BaseItemRecommender.java"></a>BaseItemRecommender.java</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.matrix.Mahout;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.apache.mahout.cf.taste.impl.recommender.GenericItemBasedRecommender;</span><br><span class="line"><span class="keyword">import</span> org.apache.mahout.cf.taste.impl.similarity.PearsonCorrelationSimilarity;</span><br><span class="line"><span class="keyword">import</span> org.apache.mahout.cf.taste.model.DataModel;</span><br><span class="line"><span class="keyword">import</span> org.apache.mahout.cf.taste.recommender.RecommendedItem;</span><br><span class="line"><span class="keyword">import</span> org.apache.mahout.cf.taste.similarity.ItemSimilarity;</span><br><span class="line"><span class="keyword">import</span> org.apache.mahout.cf.taste.similarity.precompute.example.GroupLensDataModel;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.File;</span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Describe:</span></span><br><span class="line"><span class="comment"> * 与基于用户的技术不同的是，这种方法比较的是内容项与内容项之间的相似度。</span></span><br><span class="line"><span class="comment"> * Item-based 方法同样需要进行三个步骤获得推荐：</span></span><br><span class="line"><span class="comment"> * 1）得到内容项（Item）的历史评分数据；</span></span><br><span class="line"><span class="comment"> * 2）针对内容项进行内容项之间的相似度计算，找到目标内容项的“最近邻居”；</span></span><br><span class="line"><span class="comment"> * 3）产生推荐。这里内容项之间的相似度是通过比较两个内容项上的用户行为选择矢量得到的。</span></span><br><span class="line"><span class="comment"> * 第二代协同过滤算法</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * BaseItemRecommender&lt;BR&gt;</span></span><br><span class="line"><span class="comment"> * 创建人:Matrix &lt;BR&gt;</span></span><br><span class="line"><span class="comment"> * 时间：2017年1月19日-下午7:19:33 &lt;BR&gt;</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@version</span> 1.0.0</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BaseItemRecommender</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="comment">//准备数据 这里是电影评分数据</span></span><br><span class="line">        File file = <span class="keyword">new</span> File(<span class="string">"F:\\software\\workstation\\Mahout\\ratings.dat"</span>);</span><br><span class="line">        <span class="comment">//将数据加载到内存中，GroupLensDataModel是针对开放电影评论数据的</span></span><br><span class="line">        DataModel dataModel = <span class="keyword">new</span> GroupLensDataModel(file);</span><br><span class="line">        <span class="comment">//计算相似度，相似度算法有很多种，欧几里得、皮尔逊等等。</span></span><br><span class="line">        ItemSimilarity itemSimilarity = <span class="keyword">new</span> PearsonCorrelationSimilarity(dataModel);</span><br><span class="line">        <span class="comment">//构建推荐器，协同过滤推荐有两种，分别是基于用户的和基于物品的，这里使用基于物品的协同过滤推荐</span></span><br><span class="line">        GenericItemBasedRecommender recommender = <span class="keyword">new</span> GenericItemBasedRecommender(dataModel, itemSimilarity);</span><br><span class="line">        <span class="comment">//给用户ID等于5的用户推荐10个与2398相似的商品</span></span><br><span class="line">        List&lt;RecommendedItem&gt; recommendedItemList = recommender.recommendedBecause(<span class="number">5</span>, <span class="number">2398</span>, <span class="number">10</span>);</span><br><span class="line">        <span class="comment">//打印推荐的结果</span></span><br><span class="line">        System.out.println(<span class="string">"使用基于物品的协同过滤算法"</span>);</span><br><span class="line">        System.out.println(<span class="string">"根据用户5当前浏览的商品2398，推荐10个相似的商品"</span>);</span><br><span class="line">        <span class="keyword">for</span> (RecommendedItem recommendedItem : recommendedItemList) &#123;</span><br><span class="line">            System.out.println(recommendedItem);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">long</span> start = System.currentTimeMillis();</span><br><span class="line">        recommendedItemList = recommender.recommendedBecause(<span class="number">5</span>, <span class="number">34</span>, <span class="number">10</span>);</span><br><span class="line">        <span class="comment">//打印推荐的结果</span></span><br><span class="line">        System.out.println(<span class="string">"使用基于物品的协同过滤算法"</span>);</span><br><span class="line">        System.out.println(<span class="string">"根据用户5当前浏览的商品2398，推荐10个相似的商品"</span>);</span><br><span class="line">        <span class="keyword">for</span> (RecommendedItem recommendedItem : recommendedItemList) &#123;</span><br><span class="line">            System.out.println(recommendedItem);</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println(System.currentTimeMillis() -start);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bpimg.com/581590/1903a8e924593390.png" alt="Markdown"></p>
+<p><img src="http://p1.bqimg.com/581590/8dc1941a2b88ac5a.png" alt="Markdown"></p>
+<h3 id="4-6-评估推荐模型"><a href="#4-6-评估推荐模型" class="headerlink" title="4.6.评估推荐模型"></a>4.6.评估推荐模型</h3><h4 id="MyEvaluator-java"><a href="#MyEvaluator-java" class="headerlink" title="MyEvaluator.java"></a>MyEvaluator.java</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.matrix.Mahout;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.apache.mahout.cf.taste.common.TasteException;</span><br><span class="line"><span class="keyword">import</span> org.apache.mahout.cf.taste.eval.RecommenderBuilder;</span><br><span class="line"><span class="keyword">import</span> org.apache.mahout.cf.taste.eval.RecommenderEvaluator;</span><br><span class="line"><span class="keyword">import</span> org.apache.mahout.cf.taste.impl.eval.AverageAbsoluteDifferenceRecommenderEvaluator;</span><br><span class="line"><span class="keyword">import</span> org.apache.mahout.cf.taste.impl.neighborhood.NearestNUserNeighborhood;</span><br><span class="line"><span class="keyword">import</span> org.apache.mahout.cf.taste.impl.recommender.GenericUserBasedRecommender;</span><br><span class="line"><span class="keyword">import</span> org.apache.mahout.cf.taste.impl.similarity.PearsonCorrelationSimilarity;</span><br><span class="line"><span class="keyword">import</span> org.apache.mahout.cf.taste.model.DataModel;</span><br><span class="line"><span class="keyword">import</span> org.apache.mahout.cf.taste.neighborhood.UserNeighborhood;</span><br><span class="line"><span class="keyword">import</span> org.apache.mahout.cf.taste.recommender.Recommender;</span><br><span class="line"><span class="keyword">import</span> org.apache.mahout.cf.taste.similarity.UserSimilarity;</span><br><span class="line"><span class="keyword">import</span> org.apache.mahout.cf.taste.similarity.precompute.example.GroupLensDataModel;</span><br><span class="line"><span class="keyword">import</span> java.io.File;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 获取推荐模型的评分</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * MyEvaluator&lt;BR&gt;</span></span><br><span class="line"><span class="comment"> * 创建人:Matrix &lt;BR&gt;</span></span><br><span class="line"><span class="comment"> * 时间：2017年1月19日-下午10:03:56 &lt;BR&gt;</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@version</span> 1.0.0</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyEvaluator</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="comment">//准备数据 这里是电影评分数据</span></span><br><span class="line">        File file = <span class="keyword">new</span> File(<span class="string">"F:\\software\\workstation\\Mahout\\ratings.dat"</span>);</span><br><span class="line">        <span class="comment">//将数据加载到内存中，GroupLensDataModel是针对开放电影评论数据的</span></span><br><span class="line">        DataModel dataModel = <span class="keyword">new</span> GroupLensDataModel(file);</span><br><span class="line">        <span class="comment">//推荐评估，使用均方根</span></span><br><span class="line">        <span class="comment">//RecommenderEvaluator evaluator = new RMSRecommenderEvaluator();</span></span><br><span class="line">        <span class="comment">//推荐评估，使用平均差值</span></span><br><span class="line">        RecommenderEvaluator evaluator = <span class="keyword">new</span> AverageAbsoluteDifferenceRecommenderEvaluator();</span><br><span class="line">        RecommenderBuilder builder = <span class="keyword">new</span> RecommenderBuilder() &#123;</span><br><span class="line">            <span class="function"><span class="keyword">public</span> Recommender <span class="title">buildRecommender</span><span class="params">(DataModel dataModel)</span> <span class="keyword">throws</span> TasteException </span>&#123;</span><br><span class="line">                UserSimilarity similarity = <span class="keyword">new</span> PearsonCorrelationSimilarity(dataModel);</span><br><span class="line">                UserNeighborhood neighborhood = <span class="keyword">new</span> NearestNUserNeighborhood(<span class="number">2</span>, similarity, dataModel);</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> GenericUserBasedRecommender(dataModel, neighborhood, similarity);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;;</span><br><span class="line">        <span class="comment">// 用70%的数据用作训练，剩下的30%用来测试</span></span><br><span class="line">        <span class="keyword">double</span> score = evaluator.evaluate(builder, <span class="keyword">null</span>, dataModel, <span class="number">0.7</span>, <span class="number">1.0</span>);</span><br><span class="line">        <span class="comment">//最后得出的评估值越小，说明推荐结果越好</span></span><br><span class="line">        System.out.println(score);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/581590/c9978fa623ae2424.png" alt="Markdown"></p>
+<h3 id="4-7-获取推荐的查准率和查全率"><a href="#4-7-获取推荐的查准率和查全率" class="headerlink" title="4.7.获取推荐的查准率和查全率"></a>4.7.获取推荐的查准率和查全率</h3><h4 id="MyIRStatistics-java"><a href="#MyIRStatistics-java" class="headerlink" title="MyIRStatistics.java"></a>MyIRStatistics.java</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.matrix.Mahout;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.apache.mahout.cf.taste.common.TasteException;</span><br><span class="line"><span class="keyword">import</span> org.apache.mahout.cf.taste.eval.IRStatistics;</span><br><span class="line"><span class="keyword">import</span> org.apache.mahout.cf.taste.eval.RecommenderBuilder;</span><br><span class="line"><span class="keyword">import</span> org.apache.mahout.cf.taste.eval.RecommenderIRStatsEvaluator;</span><br><span class="line"><span class="keyword">import</span> org.apache.mahout.cf.taste.impl.eval.GenericRecommenderIRStatsEvaluator;</span><br><span class="line"><span class="keyword">import</span> org.apache.mahout.cf.taste.impl.neighborhood.NearestNUserNeighborhood;</span><br><span class="line"><span class="keyword">import</span> org.apache.mahout.cf.taste.impl.recommender.GenericUserBasedRecommender;</span><br><span class="line"><span class="keyword">import</span> org.apache.mahout.cf.taste.impl.similarity.PearsonCorrelationSimilarity;</span><br><span class="line"><span class="keyword">import</span> org.apache.mahout.cf.taste.model.DataModel;</span><br><span class="line"><span class="keyword">import</span> org.apache.mahout.cf.taste.neighborhood.UserNeighborhood;</span><br><span class="line"><span class="keyword">import</span> org.apache.mahout.cf.taste.recommender.Recommender;</span><br><span class="line"><span class="keyword">import</span> org.apache.mahout.cf.taste.similarity.UserSimilarity;</span><br><span class="line"><span class="keyword">import</span> org.apache.mahout.cf.taste.similarity.precompute.example.GroupLensDataModel;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.File;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 获取推荐结果的查准率和召回率</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * MyIRStatistics&lt;BR&gt;</span></span><br><span class="line"><span class="comment"> * 创建人:Matrix &lt;BR&gt;</span></span><br><span class="line"><span class="comment"> * 时间：2017年1月19日-下午10:02:59 &lt;BR&gt;</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@version</span> 1.0.0</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyIRStatistics</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="comment">//准备数据 这里是电影评分数据</span></span><br><span class="line">        File file = <span class="keyword">new</span> File(<span class="string">"F:\\software\\workstation\\Mahout\\ratings.dat"</span>);</span><br><span class="line">        <span class="comment">//将数据加载到内存中，GroupLensDataModel是针对开放电影评论数据的</span></span><br><span class="line">        DataModel dataModel = <span class="keyword">new</span> GroupLensDataModel(file);</span><br><span class="line">        RecommenderIRStatsEvaluator statsEvaluator = <span class="keyword">new</span> GenericRecommenderIRStatsEvaluator();</span><br><span class="line">        RecommenderBuilder recommenderBuilder = <span class="keyword">new</span> RecommenderBuilder() &#123;</span><br><span class="line">            <span class="function"><span class="keyword">public</span> Recommender <span class="title">buildRecommender</span><span class="params">(DataModel model)</span> <span class="keyword">throws</span> TasteException </span>&#123;</span><br><span class="line">                UserSimilarity similarity = <span class="keyword">new</span> PearsonCorrelationSimilarity(model);</span><br><span class="line">                UserNeighborhood neighborhood = <span class="keyword">new</span> NearestNUserNeighborhood(<span class="number">4</span>, similarity, model);</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> GenericUserBasedRecommender(model, neighborhood, similarity);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;;</span><br><span class="line">        <span class="comment">// 计算推荐4个结果时的查准率和召回率</span></span><br><span class="line">        <span class="comment">//使用评估器，并设定评估期的参数</span></span><br><span class="line">        <span class="comment">//4表示"precision and recall at 4"即相当于推荐top4，然后在top-4的推荐上计算准确率和召回率</span></span><br><span class="line">        IRStatistics stats = statsEvaluator.evaluate(recommenderBuilder, <span class="keyword">null</span>, dataModel, <span class="keyword">null</span>, <span class="number">4</span>, GenericRecommenderIRStatsEvaluator.CHOOSE_THRESHOLD, <span class="number">1.0</span>);</span><br><span class="line">        System.out.println(stats.getPrecision());</span><br><span class="line">        System.out.println(stats.getRecall());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/581590/bd7c994c3389957f.png" alt="Markdown"></p>
+<p><img src="http://p1.bpimg.com/581590/4c56673e9cda687e.png" alt="Markdown"></p>
+
+    </div>
+  </div>
+  
+    <div class="copy-right">
+      <div class="markdown-body">
+        <blockquote>
+        
+        
+          本文作者 : Matrix <br>
+        
+        原文链接 : <a href="">http://yoursite.com/2016/01/20/Mahout协同过滤/</a><br>
+        版权声明 : 本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+        </blockquote>
+      </div>
+    </div>
+  
+  
+  
+    <div class="social-share" style="margin-top: -2rem" data-wechat-qrcode-title="<p>微信扫一扫</p>" data-wechat-qrcode-helper="<p>微信右上角, 扫一扫分享</p>" data-sites="qzone, qq, weibo, wechat, douban, google, facebook, twitter">
+  <span style="color: #6b7487; font-size: 1.4rem;">分享到: </span>
+</div>
+<script src="https://cdn.bootcss.com/social-share.js/1.0.16/js/social-share.min.js" async></script>
+  
+
+  
+    <div id="reward">
+  
+    <p id="reward-meta">知识 & 情怀 | 二者兼得</p>
+  
+  <button id="reward-btn">
+    
+    <span>投食</span>
+  </button>
+  <div id="reward-qrcode">
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/wechatpay.jpg" alt="微信扫一扫, 向我投食">
+        <p class="qrcode-meta">微信扫一扫, 向我投食</p>
+      </div>
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/alipaypay.jpg" alt="支付宝扫一扫, 向我投食">
+        <p class="qrcode-meta">支付宝扫一扫, 向我投食</p>
+      </div>
+    
+  </div>
+
+</div>
+
+<script>
+  (() => {
+    let button = document.querySelector('#reward-btn'),
+      qrcode = document.querySelector('#reward-qrcode'),
+      display = false;
+    
+    button.addEventListener('click', () => {
+      qrcode.style.display = display ? 'none' : 'block'
+      display = !display
+    }, false)
+  })()
+</script>
+  
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+      <span>
+        
+          <i class="iconfont icon-06tags"></i>标签: 
+          
+          <span class="span--tag">
+            <a href="/tags/大数据/">
+              #大数据
+            </a>
+          </span>
+          
+          <span class="span--tag">
+            <a href="/tags/Mahout/">
+              #Mahout
+            </a>
+          </span>
+          
+        
+      </span>
+    </div>
+    <div class="article-meta pull-right">
+    </div>
+  </div>
+</div>
+
+
+  <aside id="sidebar">
+    <p id="sidebar-header"></p>
+    <ol id="sidebar-toc"></ol>
+  </aside>
+  <script async>setTimeout(generateToc, 10);</script>
+
+
+  <nav class="post-navigation">
+    
+      <div class="nav-pre">
+        <i class="iconfont icon-prev"></i>
+        上一篇:
+        <a href="/2016/01/20/MR案例之手机流量/" target="_self">MR案例之手机流量</a>
+      </div>
+    
+    
+      <div class="nav-next">
+        下一篇:
+        <a href="/2016/01/20/统计分析基础概念/" target="_self">统计分析基础概念</a>
+        <i class="iconfont icon-next"></i>
+      </div>
+    
+  </nav>
+
+  
+    <a href="#comment" class="comment-anchor"></a>
+<div class="comment-title"><i class="iconfont icon-footprint"></i> 留下足迹 <i class="iconfont icon-footprint"></i></div>
+<div id="vcomments"></div>
+
+<script defer>
+  if( true ) {
+    let path = getRealPath()
+    new Valine({
+      el: "#vcomments",
+      appId: "Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz",
+      appKey: "WaR7nrzhliHj9aVwdQzkdlGd",
+      notify: false,
+      verify: false,
+      avatar: "robohash",
+      placeholder: "正确填写邮箱, 才能及时收到回复哦♪(^∇^*)",
+      path
+    });
+  }
+</script>
+   
+
+  
+    <script defer>
+const valineAPI = (() => {
+  try {
+    AV.init("Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz", "WaR7nrzhliHj9aVwdQzkdlGd");
+  } catch(error) {}
+  const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+      query.equalTo("identity", identity);
+      query.find().then(results => {
+        resolve(results.length > 0);
+      }, error => reject(error));
+    })
+  }
+
+  const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+      let querys = [];
+      for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+      }
+      query = AV.Query.or.apply(null ,querys);
+    } else {
+      identity = identity || getRealPath();
+      query = new AV.Query("Timer");
+      query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+      query.find()
+      .then(results => resolve(results))
+      .catch(error => reject(error))
+    })
+  }
+
+  const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let Todo = AV.Object.extend('Timer');
+      let todo = new Todo();
+      todo.set("times", 1);
+      todo.set("identity", identity);
+      todo.save().then(res => resolve(true), error => reject(error));
+    })
+  }
+
+  const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let query = new AV.Query('Timer');
+      query.equalTo("identity", identity);
+      query.find().then(todos => {
+        todos.forEach(todo => {
+          todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+      }).then(todos => resolve(true), error => reject(error));
+    })
+  }
+
+  return {
+    isExist,
+    _get,
+    update,
+    create
+  }
+})()
+
+const calcAndWriteTimes = () => {
+  let isPost = true;
+
+  let timerAllDOM = document.querySelectorAll(".article-timer");
+
+  if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+      if(exist) {
+        return valineAPI.update(identity);
+      }
+      return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+  }
+
+  let timerDOMCache = {};
+
+  for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+      timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+      timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+      };
+    }
+  }
+
+  let identities = Object.keys(timerDOMCache);
+  valineAPI._get(identities).then(results => {
+    for(let result of results) {
+      let {identity, times} = result.attributes;
+      timerDOMCache[identity].times = times;
+      timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+      if(timerDOMCache[identity].times){
+        continue;
+      }
+      timerDOMCache[identity].dom.map(item => item.innerText = 1);
+      valineAPI.create(identity);
+    }
+  }).catch(error => console.log(error.message))
+}
+
+if(true){
+  calcAndWriteTimes();
+}
+</script>
+   
+
+</div>
+
+
+      <footer>
+  <p class="site-info">
+    博客已萌萌哒运行<span id="time-to-now"></span><span class="my-face">(●'◡'●)ﾉ♥</span>
+    <br>
+    Theme - <a href="https://github.com/dongyuanxin/theme-bmw">BMW</a> | Powered by <a href="https://godbmw.com/">GodBMW</a>
+    <br>
+    
+      Copyright © 2019 Matrix
+    
+  </p>
+</footer>
+
+
+
+<script>
+const timeToNowDOM = document.querySelector("#time-to-now");
+const startTimestamp = new Date(2016, 4, 10).getTime();
+
+const updateTimeStr = () => {
+  let offset = parseInt(
+      (new Date().getTime() - startTimestamp) / 1000,
+      10
+    ),
+    day = Math.floor(offset / 86400),
+    hour = Math.floor((offset % 86400) / 3600),
+    minute = Math.floor(((offset % 86400) % 3600) / 60),
+    second = Math.floor(((offset % 86400) % 3600) % 60);
+  timeToNowDOM.innerHTML =
+    day + "天" + hour + "小时" + minute + "分钟" + second + "秒";
+  setTimeout(updateTimeStr, 500);
+}
+
+setTimeout(updateTimeStr, 500);
+</script>
+
+
+      <div class="back-to-top hidden">
+  <span>
+    <i class="iconfont icon-60"></i><span></span>%
+  </span>
+</div>
+
+<script>
+const updateIconToTop = percent => {
+  let dom = document.querySelector(".back-to-top span span");
+  dom.innerText = percent;
+  if(percent < 1) {
+    document.querySelector(".back-to-top").className = "back-to-top hidden";
+  } else {
+    document.querySelector(".back-to-top").className = "back-to-top";
+  }
+}
+
+const handleScoll = () => {
+  let isRunning = false;
+  return () => {
+    if (isRunning) return;
+    isRunning = true;
+    window.requestAnimationFrame(timestamp => {
+      let scrollTop =
+          document.documentElement.scrollTop || document.body.scrollTop,
+        scrollHeight =
+          document.documentElement.scrollHeight ||
+          document.body.scrollHeight,
+        clientHeight =
+          document.documentElement.clientHeight ||
+          document.body.clientHeight;
+      isRunning = false;
+      if (scrollTop <= 1) {
+        updateIconToTop(0);
+        return;
+      }
+      if (scrollTop + clientHeight >= scrollHeight) {
+        updateIconToTop(100);
+      } else {
+        updateIconToTop(parseInt(
+          100 * scrollTop / (scrollHeight - clientHeight),
+          10
+        ));
+      }
+    });
+  };
+}
+
+const backToTop = () => {
+  let scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop,
+    delay = 10,
+    time = 200;
+  if (scrollTop <= 20) {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    return;
+  }
+  let step = Math.ceil(scrollTop * delay / time);
+  let timer = setInterval(() => {
+    scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop;
+    if (scrollTop - step <= 0) {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      clearInterval(timer);
+    } else {
+      document.documentElement.scrollTop = scrollTop - step;
+      document.body.scrollTop = scrollTop - step;
+    }
+  }, delay);
+}
+
+document.addEventListener("scroll", handleScoll(), false);
+
+document.querySelector(".back-to-top").addEventListener("click", backToTop, false);
+
+</script>
+
+    </div>
+
+    
+      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  (() => {
+    const mathjaxConfig = {
+      showProcessingMessages: false, //关闭js加载过程信息
+      messageStyle: "none", //不显示信息
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]], //行内公式选择符
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]], //段内公式选择符
+        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"] //避开某些标签
+      },
+      "HTML-CSS": {
+        availableFonts: ["STIX", "TeX"], //可选字体
+        showMathMenu: false //关闭右击菜单显示
+      }
+    }
+
+    let mathjaxInterval = setInterval(() => {
+      if(!window.MathJax){
+        return;
+      }
+      window.MathJax.Hub.Config(mathjaxConfig)
+      window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')])
+
+      clearInterval(mathjaxInterval)
+    }, 10)    
+  })()
+</script>
+    
+
+    <script src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script>
+<script async>
+  let fancyTimer = setInterval(function(){
+    if(!window.$){
+      return;
+    }
+    $(document).ready(function() {
+      $(".post img").each(function () {
+        if($(this).parent().get(0).tagName.toLowerCase() === "a") {
+          return;
+        }
+        // $(this).attr("data-fancybox", "gallery"); // if you add 'data-fancybox', img will display after showed
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "gallery");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      });
+      
+      clearInterval(fancyTimer);
+    });
+  }, 10);
+</script>
+
+    
+  </body>
+
+</html>

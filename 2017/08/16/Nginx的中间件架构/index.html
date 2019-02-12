@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta name="author" content="董沅鑫, yuanxin.me@gmail.com">
+  
+  
+  
+  <title>Nginx的中间件架构 | 每天遇到更好的你</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="大数据,大数据,Nginx,">
+  
+
+  <script>
+    console.log('\n%c Hexo-theme-bmw v4.0 ' + '%c 🎉 https://github.com/dongyuanxin/theme-bmw 🎉\n' + '\n%c View demo online ' + '%c 🔍 https://godbmw.com/ 🔍  \n' , 'color: #fadfa3; background: #030307; padding:3px 0;', '', 'color: #fadfa3; background: #030307; padding:3px 0;', '');
+  </script>
+
+  
+
+  
+
+  
+    <link rel="icon" href="/images/favicon.png">
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+  
+
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/icon/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+  <script src="/js/util.js"></script>
+<script src="/js/valine.min.js"></script>
+
+  
+
+  
+    <link href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js" async></script>
+  
+
+  
+    <link href="https://cdn.bootcss.com/social-share.js/1.0.16/css/share.min.css" rel="stylesheet">
+  
+  
+  <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js" async></script>
+  
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.0/dist/av-min.js"></script>
+  
+
+</head>
+
+  <body>
+
+    
+
+    <div id="app">
+
+      <div class="header-wrap">
+  <header>
+    <div class="site-brand">
+      <div class="site-title">
+        <!-- <a href="/">MatrixSparse</a> -->
+        <img alt="logo" class="antd-pro-layouts-user-layout-logo" src="/images/favicon.png" style="width: 40px;height: 40px;margin-top: 10px;margin-left: 5px;">
+      </div>
+    </div>
+    <nav class="site-navigation">
+      <ul class="nav-menu">
+      
+        <li class="nav-item" data-path="/">
+          
+            <a href="/" target="_self">
+              主页
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          
+            <a href="/archives/" target="_self">
+              归档
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          
+            <a href="/categories/" target="_self">
+              分类
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          
+            <a href="/tags/" target="_self">
+              标签
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="">
+          
+            <a href="javascript:void(0);" v-else="">博客地址</a>
+            <ul class="nav-menu--dropdown">
+              
+                <li>
+                  <a href="https://blog.csdn.net/qq_25371579" target="_blank">
+                    CSDN
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://github.com/matrixsparse" target="_blank">
+                    Github
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://matrixsparse.github.io/" target="_blank">
+                    Github Page
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+      </ul>
+    </nav>
+    <i class="iconfont icon-menu"></i>
+  </header>
+</div>
+
+<script>
+  let links = document.querySelectorAll('.nav-item');
+  for(let link of links){
+    let childrenLink = link.querySelector('ul');
+    link.addEventListener('mouseenter', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown active";
+      }
+    })
+    link.addEventListener('mouseleave', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown";
+      }
+    })
+  }
+  let rootRealPath = getRealPath(window.location.pathname, true);
+  for(let link of links) {
+    let linkPath = link.getAttribute("data-path");
+    if(linkPath && getRealPath(linkPath, true) === rootRealPath) {
+      link.className = "nav-item hover";
+    }
+  }
+
+  let iconMenu = document.querySelector("i.iconfont.icon-menu"),
+    iconMenuClicked = false;
+  let navDOM = document.querySelector("nav.site-navigation");
+  iconMenu.addEventListener("click", () => {
+    iconMenuClicked
+      ? navDOM.className = "site-navigation active"
+      : navDOM.className = "site-navigation";
+    iconMenuClicked = !iconMenuClicked;
+  })
+</script>
+
+
+      
+
+
+
+
+
+
+
+
+<div class="container post-index">
+
+  
+
+<div class="post">
+  <h1 class="article-title">
+    <span>Nginx的中间件架构</span>
+  </h1>
+  <div class="article-top-meta">
+    <span>
+      发布 : 
+      2017-08-16
+    </span>
+    
+      <span>
+        分类 : 
+          <a href="/categories/大数据/">
+            大数据
+          </a>
+      </span>
+    
+    
+      <span>
+        浏览 : <span class="article-timer" data-identity="Nginx的中间件架构"></span>
+      </span>
+    
+  </div>
+
+  
+
+  <div class="article-content">
+    <div class="markdown-body">
+      <h2 id="准备"><a href="#准备" class="headerlink" title="准备"></a>准备</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Cetntos 7</span><br></pre></td></tr></table></figure>
+<h3 id="安装基本库"><a href="#安装基本库" class="headerlink" title="安装基本库"></a>安装基本库</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum -y install gcc gcc-c++ autoconf pcre pcre-devel make automake</span><br></pre></td></tr></table></figure>
+<h3 id="安装基本工具"><a href="#安装基本工具" class="headerlink" title="安装基本工具"></a>安装基本工具</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum -y install wget httpd-tools vim</span><br></pre></td></tr></table></figure>
+<h3 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /data/nginx/;mkdir app download logs work backup</span><br></pre></td></tr></table></figure>
+<ul>
+<li>/data/nginx<ul>
+<li>app：代码目录</li>
+<li>download：源码包</li>
+<li>logs：自定义日志</li>
+<li>work：shell脚本</li>
+<li>backup：默认配置文件</li>
+</ul>
+</li>
+</ul>
+<h3 id="查看yum源是否可用"><a href="#查看yum源是否可用" class="headerlink" title="查看yum源是否可用"></a>查看yum源是否可用</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum list | grep gcc</span><br></pre></td></tr></table></figure>
+<h3 id="查看是否有iptables规则"><a href="#查看是否有iptables规则" class="headerlink" title="查看是否有iptables规则"></a>查看是否有iptables规则</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">iptables -L</span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1filzsal8yfj21ha0ck440.jpg" alt="All text"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">iptables -t nat -L</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>关闭iptables规则</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">iptables -F</span><br><span class="line">iptables -t nat -F</span><br></pre></td></tr></table></figure>
+<h3 id="查看命令"><a href="#查看命令" class="headerlink" title="查看命令"></a>查看命令</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@sparsematrix nginx]<span class="comment"># getenforce</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1filzx4mq0aj21ds0323zl.jpg" alt="All text"></p>
+<h2 id="Nginx简述"><a href="#Nginx简述" class="headerlink" title="Nginx简述"></a>Nginx简述</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Nginx是一个开源且高性能、可靠的HTTP中间件、代理服务</span><br></pre></td></tr></table></figure>
+<h3 id="常见的HTTP服务"><a href="#常见的HTTP服务" class="headerlink" title="常见的HTTP服务"></a>常见的HTTP服务</h3><ul>
+<li>HTTPD - Apache基金会</li>
+<li>IIS - 微软</li>
+<li>GWS - Google</li>
+</ul>
+<h2 id="为什么选择Nginx"><a href="#为什么选择Nginx" class="headerlink" title="为什么选择Nginx"></a>为什么选择Nginx</h2><h3 id="IO多路复用epoll-并发问题"><a href="#IO多路复用epoll-并发问题" class="headerlink" title="IO多路复用epoll/并发问题"></a>IO多路复用epoll/并发问题</h3><p>多个描述符I/O操作都能在一个线程内并发交替地顺序完成，这就叫I/O多路复用，这里的”复用”指的是复用同一个线程</p>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fim07ul04wj21wq0giae5.jpg" alt="All text"></p>
+<blockquote>
+<p>什么是epoll</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">IO多路复用的实现方式select、poll、epoll</span><br></pre></td></tr></table></figure>
+<ul>
+<li>select：结账的时候，服务员不告诉老板哪桌要结账，老板一个个去问才知道哪桌要结账</li>
+<li>epoll：结账的时候，服务员告诉老板哪桌要结账</li>
+</ul>
+<h3 id="轻量级"><a href="#轻量级" class="headerlink" title="轻量级"></a>轻量级</h3><ul>
+<li>功能模块少</li>
+<li>代码模块化</li>
+</ul>
+<h3 id="CPU亲和-affinity"><a href="#CPU亲和-affinity" class="headerlink" title="CPU亲和(affinity)"></a>CPU亲和(affinity)</h3><blockquote>
+<p>CPU亲和</p>
+</blockquote>
+<p>是一种把CPU核心和Nginx工作进程绑定的方式，把每个worker进程固定在一个CPU上执行，减少切换CPU的cache miss，获得更好的性能</p>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fim0j2qutsj21y40iwtd6.jpg" alt="All text"></p>
+<h3 id="0拷贝"><a href="#0拷贝" class="headerlink" title="0拷贝"></a>0拷贝</h3><h2 id="Nginx安装"><a href="#Nginx安装" class="headerlink" title="Nginx安装"></a>Nginx安装</h2><ul>
+<li>Mainline version：开发版</li>
+<li>Stable version：稳定版</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@sparsematrix ~]<span class="comment"># vim /etc/yum.repos.d/nginx.repo</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[nginx]</span><br><span class="line">name=nginx repo</span><br><span class="line">baseurl=http://nginx.org/packages/centos/7/<span class="variable">$basearch</span>/</span><br><span class="line">gpgcheck=0</span><br><span class="line">enabled=1</span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fimesan0trj21v40rmagh.jpg" alt="All text"></p>
+<h3 id="查看yum源中nginx相关版本"><a href="#查看yum源中nginx相关版本" class="headerlink" title="查看yum源中nginx相关版本"></a>查看yum源中nginx相关版本</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@sparsematrix ~]<span class="comment"># yum list | grep nginx</span></span><br></pre></td></tr></table></figure>
+<h3 id="使用yum源安装Nginx"><a href="#使用yum源安装Nginx" class="headerlink" title="使用yum源安装Nginx"></a>使用yum源安装Nginx</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@sparsematrix ~]<span class="comment"># yum install nginx -y</span></span><br></pre></td></tr></table></figure>
+<h3 id="查看当前安装nginx版本"><a href="#查看当前安装nginx版本" class="headerlink" title="查看当前安装nginx版本"></a>查看当前安装nginx版本</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@sparsematrix ~]<span class="comment"># nginx -v</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fimej0moqkj21bo02sjsj.jpg" alt="All text"></p>
+<h3 id="查看Nginx编译参数"><a href="#查看Nginx编译参数" class="headerlink" title="查看Nginx编译参数"></a>查看Nginx编译参数</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@sparsematrix ~]<span class="comment"># nginx -V</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fimekxcei6j21da0w27tc.jpg" alt="All text"></p>
+<h3 id="Nginx安装编译参数详解"><a href="#Nginx安装编译参数详解" class="headerlink" title="Nginx安装编译参数详解"></a>Nginx安装编译参数详解</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line">--prefix=/etc/nginx 【安装目的目录或路径】</span><br><span class="line">--sbin-path=/usr/sbin/nginx 【安装目的目录或路径】</span><br><span class="line">--modules-path=/usr/lib64/nginx/modules 【安装目的目录或路径】</span><br><span class="line">--conf-path=/etc/nginx/nginx.conf 【安装目的目录或路径】</span><br><span class="line">--error-log-path=/var/<span class="built_in">log</span>/nginx/error.log 【安装目的目录或路径】</span><br><span class="line">--http-log-path=/var/<span class="built_in">log</span>/nginx/access.log 【安装目的目录或路径】</span><br><span class="line">--pid-path=/var/run/nginx.pid 【安装目的目录或路径】</span><br><span class="line">--lock-path=/var/run/nginx.lock 【安装目的目录或路径】</span><br><span class="line">--http-client-body-temp-path=/var/cache/nginx/client_temp【执行对应模块时，Nginx所保留的临时性文件】</span><br><span class="line">--http-proxy-temp-path=/var/cache/nginx/proxy_temp 【执行对应模块时，Nginx所保留的临时性文件】</span><br><span class="line">--http-fastcgi-temp-path=/var/cache/nginx/fastcgi_temp 【执行对应模块时，Nginx所保留的临时性文件】</span><br><span class="line">--http-uwsgi-temp-path=/var/cache/nginx/uwsgi_temp 【执行对应模块时，Nginx所保留的临时性文件】</span><br><span class="line">--http-scgi-temp-path=/var/cache/nginx/scgi_temp【执行对应模块时，Nginx所保留的临时性文件】</span><br><span class="line">--user=nginx</span><br><span class="line">--group=nginx【设定Nginx进程启动的用户和组用户】</span><br><span class="line">--with-compat</span><br><span class="line">--with-file-aio</span><br><span class="line">--with-threads</span><br><span class="line">--with-http_addition_module</span><br><span class="line">--with-http_auth_request_module</span><br><span class="line">--with-http_dav_module</span><br><span class="line">--with-http_flv_module</span><br><span class="line">--with-http_gunzip_module</span><br><span class="line">--with-http_gzip_static_module</span><br><span class="line">--with-http_mp4_module</span><br><span class="line">--with-http_random_index_module【目录中选择一个随机主页】</span><br><span class="line">    Syntax：random_index on | off</span><br><span class="line">    Default：random_index off</span><br><span class="line">    Context：location</span><br><span class="line">--with-http_realip_module</span><br><span class="line">--with-http_secure_link_module</span><br><span class="line">--with-http_slice_module</span><br><span class="line">--with-http_ssl_module</span><br><span class="line">--with-http_stub_status_module【Nginx的客户端状态】</span><br><span class="line">    Syntax：stub_status</span><br><span class="line">    Default： -</span><br><span class="line">    Context： server，location</span><br><span class="line">--with-http_sub_module</span><br><span class="line">--with-http_v2_module</span><br><span class="line">--with-mail</span><br><span class="line">--with-mail_ssl_module</span><br><span class="line">--with-stream</span><br><span class="line">--with-stream_realip_module</span><br><span class="line">--with-stream_ssl_module</span><br><span class="line">--with-stream_ssl_preread_module</span><br><span class="line">--with-cc-opt=<span class="string">'-O2 -g -pipe -Wall -Wp,-D_FORTIFY_SOURCE=2 -fexceptions -fstack-protector-strong --param=ssp-buffer-size=4 -grecord-gcc-switches -m64 -mtune=generic -fPIC'</span>【设置额外的参数将被添加到CFLAGS变量】</span><br><span class="line">--with-ld-opt=<span class="string">'-Wl,-z,relro -Wl,-z,now -pie'</span>【设置附加的参数，链接系统库】</span><br></pre></td></tr></table></figure>
+<h3 id="Nginx安装目录解析"><a href="#Nginx安装目录解析" class="headerlink" title="Nginx安装目录解析"></a>Nginx安装目录解析</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">使用yum源安装其实安装的都是一个个rpm包</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>使用rpm -ql查看nginx的安装目录</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@sparsematrix ~]<span class="comment"># rpm -ql nginx</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">/etc/logrotate.d/nginx【配置文件】Nginx日志轮转，用于logrotate服务的日志切割</span><br><span class="line">/etc/nginx【目录、配置文件】Nginx主配置文件</span><br><span class="line">/etc/nginx/conf.d【目录、配置文件】Nginx主配置文件</span><br><span class="line">/etc/nginx/conf.d/default.conf【目录、配置文件】Nginx主配置文件</span><br><span class="line">/etc/nginx/fastcgi_params【配置文件】cgi配置相关，fastcgi配置</span><br><span class="line">/etc/nginx/koi-utf【配置文件】编码转换映射转化文件</span><br><span class="line">/etc/nginx/koi-win【配置文件】编码转换映射转化文件</span><br><span class="line">/etc/nginx/mime.types【配置文件】设置http协议的Content-Type与拓展名对应关系</span><br><span class="line">/etc/nginx/modules【目录】Nginx模块目录</span><br><span class="line">/etc/nginx/nginx.conf【目录、配置文件】Nginx主配置文件</span><br><span class="line">/etc/nginx/scgi_params【配置文件】cgi配置相关，fastcgi配置</span><br><span class="line">/etc/nginx/uwsgi_params【配置文件】cgi配置相关，fastcgi配置</span><br><span class="line">/etc/nginx/win-utf【配置文件】编码转换映射转化文件</span><br><span class="line">/etc/sysconfig/nginx【配置文件】用于配置出系统守护进程管理器管理方式</span><br><span class="line">/etc/sysconfig/nginx-debug【配置文件】用于配置出系统守护进程管理器管理方式</span><br><span class="line">/usr/lib/systemd/system/nginx-debug.service【配置文件】用于配置出系统守护进程管理器管理方式</span><br><span class="line">/usr/lib/systemd/system/nginx.service【配置文件】用于配置出系统守护进程管理器管理方式</span><br><span class="line">/usr/lib64/nginx</span><br><span class="line">/usr/lib64/nginx/modules【目录】Nginx模块目录</span><br><span class="line">/usr/libexec/initscripts/legacy-actions/nginx</span><br><span class="line">/usr/libexec/initscripts/legacy-actions/nginx/check-reload</span><br><span class="line">/usr/libexec/initscripts/legacy-actions/nginx/upgrade</span><br><span class="line">/usr/sbin/nginx【命令】Nginx服务的启动管理的终端命令</span><br><span class="line">/usr/sbin/nginx-debug【命令】Nginx服务的启动管理的终端命令</span><br><span class="line">/usr/share/doc/nginx-1.12.1【文件、目录】Nginx的手册和帮助文件</span><br><span class="line">/usr/share/doc/nginx-1.12.1/COPYRIGHT【文件、目录】Nginx的手册和帮助文件</span><br><span class="line">/usr/share/man/man8/nginx.8.gz【文件、目录】Nginx的手册和帮助文件</span><br><span class="line">/usr/share/nginx</span><br><span class="line">/usr/share/nginx/html</span><br><span class="line">/usr/share/nginx/html/50x.html</span><br><span class="line">/usr/share/nginx/html/index.html</span><br><span class="line">/var/cache/nginx【目录】Nginx的缓存目录</span><br><span class="line">/var/<span class="built_in">log</span>/nginx【目录】Nginx的日志目录</span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fimeqpfjgtj21cc104ndm.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@sparsematrix ~]<span class="comment"># yum install -y curl</span></span><br></pre></td></tr></table></figure>
+<p>curl可以理解为浏览器</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@sparsematrix ~]<span class="comment"># curl -v http://www.baidu.com</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fiqzbdobjdj221g14ex6g.jpg" alt=""></p>
+<blockquote>
+<p>启动Nginx</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@sparsematrix ~]<span class="comment"># /usr/sbin/nginx</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fiqzqmftanj22140ewgou.jpg" alt="All text"></p>
+<blockquote>
+<p>关闭nginx</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@sparsematrix ~]<span class="comment"># nginx -s stop</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>平滑启动 nginx</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nginx -s reload</span><br></pre></td></tr></table></figure>
+<h2 id="Nginx默认配置语法"><a href="#Nginx默认配置语法" class="headerlink" title="Nginx默认配置语法"></a>Nginx默认配置语法</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">[root@sparsematrix ~]<span class="comment"># cd /etc/nginx/</span></span><br><span class="line">[root@sparsematrix nginx]<span class="comment"># cat nginx.conf</span></span><br><span class="line"></span><br><span class="line">user  nginx;<span class="comment"># user【设置Nginx服务的系统使用用户】</span></span><br><span class="line">worker_processes  1;<span class="comment"># worker_processes【工作进程数】</span></span><br><span class="line"></span><br><span class="line">error_log  /var/<span class="built_in">log</span>/nginx/error.log warn;<span class="comment"># error_log【Nginx的错误日志】</span></span><br><span class="line">pid        /var/run/nginx.pid;<span class="comment"># pid【Nginx服务启动时候pid】</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># events worker_connections【每个进程允许最大连接数】</span></span><br><span class="line"><span class="comment"># events use【工作进程数】</span></span><br><span class="line">events &#123;</span><br><span class="line">    worker_connections  1024;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">http &#123;</span><br><span class="line">    include       /etc/nginx/mime.types;</span><br><span class="line">    default_type  application/octet-stream;</span><br><span class="line"></span><br><span class="line">    log_format  main  <span class="string">'$remote_addr - $remote_user [$time_local] "$request" '</span></span><br><span class="line">                      <span class="string">'$status $body_bytes_sent "$http_referer" '</span></span><br><span class="line">                      <span class="string">'"$http_user_agent" "$http_x_forwarded_for"'</span>;</span><br><span class="line"></span><br><span class="line">    access_log  /var/<span class="built_in">log</span>/nginx/access.log  main;</span><br><span class="line"></span><br><span class="line">    sendfile        on;</span><br><span class="line">    <span class="comment">#tcp_nopush     on;</span></span><br><span class="line"></span><br><span class="line">    keepalive_timeout  65;</span><br><span class="line"></span><br><span class="line">    <span class="comment">#gzip  on;</span></span><br><span class="line"></span><br><span class="line">    include /etc/nginx/conf.d/*.conf;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="查看-etc-nginx-conf-d-default-conf"><a href="#查看-etc-nginx-conf-d-default-conf" class="headerlink" title="查看/etc/nginx/conf.d/default.conf"></a>查看/etc/nginx/conf.d/default.conf</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line">[root@sparsematrix nginx]<span class="comment"># cd /etc/nginx/conf.d/</span></span><br><span class="line">[root@sparsematrix conf.d]<span class="comment"># ls</span></span><br><span class="line">default.conf</span><br><span class="line">[root@sparsematrix conf.d]<span class="comment"># cat default.conf</span></span><br><span class="line">server &#123;</span><br><span class="line">    listen       8088;</span><br><span class="line">    server_name  localhost;</span><br><span class="line"></span><br><span class="line">    <span class="comment">#charset koi8-r;</span></span><br><span class="line">    <span class="comment">#access_log  /var/log/nginx/host.access.log  main;</span></span><br><span class="line"></span><br><span class="line">    location / &#123;</span><br><span class="line">        root   /usr/share/nginx/html;</span><br><span class="line">        index  index.html index.htm;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">#error_page  404              /404.html;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># redirect server error pages to the static page /50x.html</span></span><br><span class="line">    <span class="comment">#</span></span><br><span class="line">    error_page   500 502 503 504  /50x.html;</span><br><span class="line">    location = /50x.html &#123;</span><br><span class="line">        root   /usr/share/nginx/html;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment"># proxy the PHP scripts to Apache listening on 127.0.0.1:80</span></span><br><span class="line">    <span class="comment">#</span></span><br><span class="line">    <span class="comment">#location ~ \.php$ &#123;</span></span><br><span class="line">    <span class="comment">#    proxy_pass   http://127.0.0.1;</span></span><br><span class="line">    <span class="comment">#&#125;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># pass the PHP scripts to FastCGI server listening on 127.0.0.1:9000</span></span><br><span class="line">    <span class="comment">#</span></span><br><span class="line">    <span class="comment">#location ~ \.php$ &#123;</span></span><br><span class="line">    <span class="comment">#    root           html;</span></span><br><span class="line">    <span class="comment">#    fastcgi_pass   127.0.0.1:9000;</span></span><br><span class="line">    <span class="comment">#    fastcgi_index  index.php;</span></span><br><span class="line">    <span class="comment">#    fastcgi_param  SCRIPT_FILENAME  /scripts$fastcgi_script_name;</span></span><br><span class="line">    <span class="comment">#    include        fastcgi_params;</span></span><br><span class="line">    <span class="comment">#&#125;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># deny access to .htaccess files, if Apache's document root</span></span><br><span class="line">    <span class="comment"># concurs with nginx's one</span></span><br><span class="line">    <span class="comment">#</span></span><br><span class="line">    <span class="comment">#location ~ /\.ht &#123;</span></span><br><span class="line">    <span class="comment">#    deny  all;</span></span><br><span class="line">    <span class="comment">#&#125;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="检查配置文件语法"><a href="#检查配置文件语法" class="headerlink" title="检查配置文件语法"></a>检查配置文件语法</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@sparsematrix ~]<span class="comment"># nginx -t -c /etc/nginx/nginx.conf</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fiqymp2mu6j21o0046tbx.jpg" alt="All text"></p>
+<h3 id="log-format"><a href="#log-format" class="headerlink" title="log_format"></a>log_format</h3><blockquote>
+<p>查看access_log</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@sparsematrix ~]<span class="comment"># head /var/log/nginx/access.log</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fiqzvy5a9dj221s07211c.jpg" alt="All text"></p>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fiqyr42ukbj21na0yatjo.jpg" alt="All text"></p>
+<h2 id="Nginx模块"><a href="#Nginx模块" class="headerlink" title="Nginx模块"></a>Nginx模块</h2><ul>
+<li>官方模块</li>
+<li>第三方模块</li>
+</ul>
+<h3 id="stub-status"><a href="#stub-status" class="headerlink" title="stub_status"></a>stub_status</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@sparsematrix ~]<span class="comment"># vi /etc/nginx/conf.d/default.conf</span></span><br><span class="line">location /mystatus &#123;</span><br><span class="line">    stub_status;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fiqzyu4djoj21k40xs7fe.jpg" alt="All text"></p>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fiqzxzgutbj215808u76l.jpg" alt="All text"></p>
+<h3 id="random-index"><a href="#random-index" class="headerlink" title="random_index"></a>random_index</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[root@sparsematrix <span class="built_in">test</span>]<span class="comment"># pwd</span></span><br><span class="line">/data/nginx/<span class="built_in">test</span></span><br><span class="line">[root@sparsematrix <span class="built_in">test</span>]<span class="comment"># ll</span></span><br><span class="line">总用量 12</span><br><span class="line">-rw-r--r--. 1 root root 149 8月  21 08:05 1.html</span><br><span class="line">-rw-r--r--. 1 root root 149 8月  21 08:06 2.html</span><br><span class="line">-rw-r--r--. 1 root root 151 8月  21 08:06 3.html</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[root@sparsematrix ~]<span class="comment"># vi /etc/nginx/conf.d/default.conf</span></span><br><span class="line">location / &#123;</span><br><span class="line">    <span class="comment">#root   /usr/share/nginx/html;</span></span><br><span class="line">    root /data/nginx/<span class="built_in">test</span>;</span><br><span class="line">    random_index on;</span><br><span class="line">    <span class="comment">#index  index.html index.htm;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>不断刷新浏览器</p>
+</blockquote>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fir0zx5qtyj21re0dcjso.jpg" alt="All text"></p>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fir0zx90l0j215m08qt9k.jpg" alt="All text"></p>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fir0zx9ycpj215i0a6756.jpg" alt="All text"></p>
+
+    </div>
+  </div>
+  
+    <div class="copy-right">
+      <div class="markdown-body">
+        <blockquote>
+        
+        
+          本文作者 : Matrix <br>
+        
+        原文链接 : <a href="">http://yoursite.com/2017/08/16/Nginx的中间件架构/</a><br>
+        版权声明 : 本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+        </blockquote>
+      </div>
+    </div>
+  
+  
+  
+    <div class="social-share" style="margin-top: -2rem" data-wechat-qrcode-title="<p>微信扫一扫</p>" data-wechat-qrcode-helper="<p>微信右上角, 扫一扫分享</p>" data-sites="qzone, qq, weibo, wechat, douban, google, facebook, twitter">
+  <span style="color: #6b7487; font-size: 1.4rem;">分享到: </span>
+</div>
+<script src="https://cdn.bootcss.com/social-share.js/1.0.16/js/social-share.min.js" async></script>
+  
+
+  
+    <div id="reward">
+  
+    <p id="reward-meta">知识 & 情怀 | 二者兼得</p>
+  
+  <button id="reward-btn">
+    
+    <span>投食</span>
+  </button>
+  <div id="reward-qrcode">
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/wechatpay.jpg" alt="微信扫一扫, 向我投食">
+        <p class="qrcode-meta">微信扫一扫, 向我投食</p>
+      </div>
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/alipaypay.jpg" alt="支付宝扫一扫, 向我投食">
+        <p class="qrcode-meta">支付宝扫一扫, 向我投食</p>
+      </div>
+    
+  </div>
+
+</div>
+
+<script>
+  (() => {
+    let button = document.querySelector('#reward-btn'),
+      qrcode = document.querySelector('#reward-qrcode'),
+      display = false;
+    
+    button.addEventListener('click', () => {
+      qrcode.style.display = display ? 'none' : 'block'
+      display = !display
+    }, false)
+  })()
+</script>
+  
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+      <span>
+        
+          <i class="iconfont icon-06tags"></i>标签: 
+          
+          <span class="span--tag">
+            <a href="/tags/大数据/">
+              #大数据
+            </a>
+          </span>
+          
+          <span class="span--tag">
+            <a href="/tags/Nginx/">
+              #Nginx
+            </a>
+          </span>
+          
+        
+      </span>
+    </div>
+    <div class="article-meta pull-right">
+    </div>
+  </div>
+</div>
+
+
+  <aside id="sidebar">
+    <p id="sidebar-header"></p>
+    <ol id="sidebar-toc"></ol>
+  </aside>
+  <script async>setTimeout(generateToc, 10);</script>
+
+
+  <nav class="post-navigation">
+    
+      <div class="nav-pre">
+        <i class="iconfont icon-prev"></i>
+        上一篇:
+        <a href="/2017/08/11/Python之MAMP安装/" target="_self">Python之MAMP安装</a>
+      </div>
+    
+    
+      <div class="nav-next">
+        下一篇:
+        <a href="/2017/08/21/Scala和IDE的安装/" target="_self">Scala和IDE的安装</a>
+        <i class="iconfont icon-next"></i>
+      </div>
+    
+  </nav>
+
+  
+    <a href="#comment" class="comment-anchor"></a>
+<div class="comment-title"><i class="iconfont icon-footprint"></i> 留下足迹 <i class="iconfont icon-footprint"></i></div>
+<div id="vcomments"></div>
+
+<script defer>
+  if( true ) {
+    let path = getRealPath()
+    new Valine({
+      el: "#vcomments",
+      appId: "Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz",
+      appKey: "WaR7nrzhliHj9aVwdQzkdlGd",
+      notify: false,
+      verify: false,
+      avatar: "robohash",
+      placeholder: "正确填写邮箱, 才能及时收到回复哦♪(^∇^*)",
+      path
+    });
+  }
+</script>
+   
+
+  
+    <script defer>
+const valineAPI = (() => {
+  try {
+    AV.init("Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz", "WaR7nrzhliHj9aVwdQzkdlGd");
+  } catch(error) {}
+  const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+      query.equalTo("identity", identity);
+      query.find().then(results => {
+        resolve(results.length > 0);
+      }, error => reject(error));
+    })
+  }
+
+  const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+      let querys = [];
+      for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+      }
+      query = AV.Query.or.apply(null ,querys);
+    } else {
+      identity = identity || getRealPath();
+      query = new AV.Query("Timer");
+      query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+      query.find()
+      .then(results => resolve(results))
+      .catch(error => reject(error))
+    })
+  }
+
+  const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let Todo = AV.Object.extend('Timer');
+      let todo = new Todo();
+      todo.set("times", 1);
+      todo.set("identity", identity);
+      todo.save().then(res => resolve(true), error => reject(error));
+    })
+  }
+
+  const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let query = new AV.Query('Timer');
+      query.equalTo("identity", identity);
+      query.find().then(todos => {
+        todos.forEach(todo => {
+          todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+      }).then(todos => resolve(true), error => reject(error));
+    })
+  }
+
+  return {
+    isExist,
+    _get,
+    update,
+    create
+  }
+})()
+
+const calcAndWriteTimes = () => {
+  let isPost = true;
+
+  let timerAllDOM = document.querySelectorAll(".article-timer");
+
+  if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+      if(exist) {
+        return valineAPI.update(identity);
+      }
+      return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+  }
+
+  let timerDOMCache = {};
+
+  for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+      timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+      timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+      };
+    }
+  }
+
+  let identities = Object.keys(timerDOMCache);
+  valineAPI._get(identities).then(results => {
+    for(let result of results) {
+      let {identity, times} = result.attributes;
+      timerDOMCache[identity].times = times;
+      timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+      if(timerDOMCache[identity].times){
+        continue;
+      }
+      timerDOMCache[identity].dom.map(item => item.innerText = 1);
+      valineAPI.create(identity);
+    }
+  }).catch(error => console.log(error.message))
+}
+
+if(true){
+  calcAndWriteTimes();
+}
+</script>
+   
+
+</div>
+
+
+      <footer>
+  <p class="site-info">
+    博客已萌萌哒运行<span id="time-to-now"></span><span class="my-face">(●'◡'●)ﾉ♥</span>
+    <br>
+    Theme - <a href="https://github.com/dongyuanxin/theme-bmw">BMW</a> | Powered by <a href="https://godbmw.com/">GodBMW</a>
+    <br>
+    
+      Copyright © 2019 Matrix
+    
+  </p>
+</footer>
+
+
+
+<script>
+const timeToNowDOM = document.querySelector("#time-to-now");
+const startTimestamp = new Date(2016, 4, 10).getTime();
+
+const updateTimeStr = () => {
+  let offset = parseInt(
+      (new Date().getTime() - startTimestamp) / 1000,
+      10
+    ),
+    day = Math.floor(offset / 86400),
+    hour = Math.floor((offset % 86400) / 3600),
+    minute = Math.floor(((offset % 86400) % 3600) / 60),
+    second = Math.floor(((offset % 86400) % 3600) % 60);
+  timeToNowDOM.innerHTML =
+    day + "天" + hour + "小时" + minute + "分钟" + second + "秒";
+  setTimeout(updateTimeStr, 500);
+}
+
+setTimeout(updateTimeStr, 500);
+</script>
+
+
+      <div class="back-to-top hidden">
+  <span>
+    <i class="iconfont icon-60"></i><span></span>%
+  </span>
+</div>
+
+<script>
+const updateIconToTop = percent => {
+  let dom = document.querySelector(".back-to-top span span");
+  dom.innerText = percent;
+  if(percent < 1) {
+    document.querySelector(".back-to-top").className = "back-to-top hidden";
+  } else {
+    document.querySelector(".back-to-top").className = "back-to-top";
+  }
+}
+
+const handleScoll = () => {
+  let isRunning = false;
+  return () => {
+    if (isRunning) return;
+    isRunning = true;
+    window.requestAnimationFrame(timestamp => {
+      let scrollTop =
+          document.documentElement.scrollTop || document.body.scrollTop,
+        scrollHeight =
+          document.documentElement.scrollHeight ||
+          document.body.scrollHeight,
+        clientHeight =
+          document.documentElement.clientHeight ||
+          document.body.clientHeight;
+      isRunning = false;
+      if (scrollTop <= 1) {
+        updateIconToTop(0);
+        return;
+      }
+      if (scrollTop + clientHeight >= scrollHeight) {
+        updateIconToTop(100);
+      } else {
+        updateIconToTop(parseInt(
+          100 * scrollTop / (scrollHeight - clientHeight),
+          10
+        ));
+      }
+    });
+  };
+}
+
+const backToTop = () => {
+  let scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop,
+    delay = 10,
+    time = 200;
+  if (scrollTop <= 20) {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    return;
+  }
+  let step = Math.ceil(scrollTop * delay / time);
+  let timer = setInterval(() => {
+    scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop;
+    if (scrollTop - step <= 0) {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      clearInterval(timer);
+    } else {
+      document.documentElement.scrollTop = scrollTop - step;
+      document.body.scrollTop = scrollTop - step;
+    }
+  }, delay);
+}
+
+document.addEventListener("scroll", handleScoll(), false);
+
+document.querySelector(".back-to-top").addEventListener("click", backToTop, false);
+
+</script>
+
+    </div>
+
+    
+      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  (() => {
+    const mathjaxConfig = {
+      showProcessingMessages: false, //关闭js加载过程信息
+      messageStyle: "none", //不显示信息
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]], //行内公式选择符
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]], //段内公式选择符
+        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"] //避开某些标签
+      },
+      "HTML-CSS": {
+        availableFonts: ["STIX", "TeX"], //可选字体
+        showMathMenu: false //关闭右击菜单显示
+      }
+    }
+
+    let mathjaxInterval = setInterval(() => {
+      if(!window.MathJax){
+        return;
+      }
+      window.MathJax.Hub.Config(mathjaxConfig)
+      window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')])
+
+      clearInterval(mathjaxInterval)
+    }, 10)    
+  })()
+</script>
+    
+
+    <script src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script>
+<script async>
+  let fancyTimer = setInterval(function(){
+    if(!window.$){
+      return;
+    }
+    $(document).ready(function() {
+      $(".post img").each(function () {
+        if($(this).parent().get(0).tagName.toLowerCase() === "a") {
+          return;
+        }
+        // $(this).attr("data-fancybox", "gallery"); // if you add 'data-fancybox', img will display after showed
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "gallery");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      });
+      
+      clearInterval(fancyTimer);
+    });
+  }, 10);
+</script>
+
+    
+  </body>
+
+</html>

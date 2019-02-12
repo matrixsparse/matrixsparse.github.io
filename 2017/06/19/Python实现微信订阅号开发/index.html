@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta name="author" content="董沅鑫, yuanxin.me@gmail.com">
+  
+  
+  
+  <title>Python实现微信订阅号开发 | 每天遇到更好的你</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="Python,大数据,Python,">
+  
+
+  <script>
+    console.log('\n%c Hexo-theme-bmw v4.0 ' + '%c 🎉 https://github.com/dongyuanxin/theme-bmw 🎉\n' + '\n%c View demo online ' + '%c 🔍 https://godbmw.com/ 🔍  \n' , 'color: #fadfa3; background: #030307; padding:3px 0;', '', 'color: #fadfa3; background: #030307; padding:3px 0;', '');
+  </script>
+
+  
+
+  
+
+  
+    <link rel="icon" href="/images/favicon.png">
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+  
+
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/icon/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+  <script src="/js/util.js"></script>
+<script src="/js/valine.min.js"></script>
+
+  
+
+  
+    <link href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js" async></script>
+  
+
+  
+    <link href="https://cdn.bootcss.com/social-share.js/1.0.16/css/share.min.css" rel="stylesheet">
+  
+  
+  <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js" async></script>
+  
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.0/dist/av-min.js"></script>
+  
+
+</head>
+
+  <body>
+
+    
+
+    <div id="app">
+
+      <div class="header-wrap">
+  <header>
+    <div class="site-brand">
+      <div class="site-title">
+        <!-- <a href="/">MatrixSparse</a> -->
+        <img alt="logo" class="antd-pro-layouts-user-layout-logo" src="/images/favicon.png" style="width: 40px;height: 40px;margin-top: 10px;margin-left: 5px;">
+      </div>
+    </div>
+    <nav class="site-navigation">
+      <ul class="nav-menu">
+      
+        <li class="nav-item" data-path="/">
+          
+            <a href="/" target="_self">
+              主页
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          
+            <a href="/archives/" target="_self">
+              归档
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          
+            <a href="/categories/" target="_self">
+              分类
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          
+            <a href="/tags/" target="_self">
+              标签
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="">
+          
+            <a href="javascript:void(0);" v-else="">博客地址</a>
+            <ul class="nav-menu--dropdown">
+              
+                <li>
+                  <a href="https://blog.csdn.net/qq_25371579" target="_blank">
+                    CSDN
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://github.com/matrixsparse" target="_blank">
+                    Github
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://matrixsparse.github.io/" target="_blank">
+                    Github Page
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+      </ul>
+    </nav>
+    <i class="iconfont icon-menu"></i>
+  </header>
+</div>
+
+<script>
+  let links = document.querySelectorAll('.nav-item');
+  for(let link of links){
+    let childrenLink = link.querySelector('ul');
+    link.addEventListener('mouseenter', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown active";
+      }
+    })
+    link.addEventListener('mouseleave', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown";
+      }
+    })
+  }
+  let rootRealPath = getRealPath(window.location.pathname, true);
+  for(let link of links) {
+    let linkPath = link.getAttribute("data-path");
+    if(linkPath && getRealPath(linkPath, true) === rootRealPath) {
+      link.className = "nav-item hover";
+    }
+  }
+
+  let iconMenu = document.querySelector("i.iconfont.icon-menu"),
+    iconMenuClicked = false;
+  let navDOM = document.querySelector("nav.site-navigation");
+  iconMenu.addEventListener("click", () => {
+    iconMenuClicked
+      ? navDOM.className = "site-navigation active"
+      : navDOM.className = "site-navigation";
+    iconMenuClicked = !iconMenuClicked;
+  })
+</script>
+
+
+      
+
+
+
+
+
+
+
+
+<div class="container post-index">
+
+  
+
+<div class="post">
+  <h1 class="article-title">
+    <span>Python实现微信订阅号开发</span>
+  </h1>
+  <div class="article-top-meta">
+    <span>
+      发布 : 
+      2017-06-19
+    </span>
+    
+      <span>
+        分类 : 
+          <a href="/categories/Python/">
+            Python
+          </a>
+      </span>
+    
+    
+      <span>
+        浏览 : <span class="article-timer" data-identity="Python实现微信订阅号开发"></span>
+      </span>
+    
+  </div>
+
+  
+
+  <div class="article-content">
+    <div class="markdown-body">
+      <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">此微信订阅号开发全程使用python语言进行开发</span><br></pre></td></tr></table></figure>
+<h2 id="1-搭建服务"><a href="#1-搭建服务" class="headerlink" title="1.搭建服务"></a>1.搭建服务</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">以web.py为网络框架，web.py提供了一种简单方法去制作一个网站</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>环境准备</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">(1).安装python2.7版本以上</span><br><span class="line">(2).安装libxml2, libxslt, lxml库</span><br><span class="line"></span><br><span class="line">pip install -i https://pypi.douban.com/simple/ lxml</span><br><span class="line">pip install -i https://pypi.douban.com/simple/ web.py</span><br><span class="line">pip install -i https://pypi.douban.com/simple/ libxml2</span><br><span class="line">pip install -i https://pypi.douban.com/simple/ libxslt</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>main.py</p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="comment"># filename：main.py</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 导入web.py模块</span></span><br><span class="line"><span class="keyword">import</span> web</span><br><span class="line"></span><br><span class="line">urls = (</span><br><span class="line">    <span class="string">'/wx'</span>,<span class="string">'Handle'</span>,</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Handle</span><span class="params">(object)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">GET</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">return</span> <span class="string">"hello，this is a test"</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    app = web.application(urls,globals())</span><br><span class="line">    app.run()</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">如果出现<span class="string">"socket.error: No socket could be created"</span>错误信息</span><br><span class="line">可能为80端口号被占用，可能是没有权限</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>使用5002端口，启动Main.py</p>
+</blockquote>
+<p><img src="http://i2.muimg.com/581590/cecb3dba652247ee.png" alt="Markdown"></p>
+<p><img src="http://i2.muimg.com/581590/6ad1c03e4ef238db.png" alt="Markdown"></p>
+<h2 id="2-申请订阅号"><a href="#2-申请订阅号" class="headerlink" title="2.申请订阅号"></a>2.申请订阅号</h2><p><img src="http://i4.piimg.com/581590/3ca5ff1496edc6fb.png" alt="Markdown"></p>
+<p><img src="http://i4.piimg.com/581590/35446fa5eac00bff.png" alt="Markdown"></p>
+<p><img src="http://i4.piimg.com/581590/5b5fcb1749c334d2.png" alt="Markdown"></p>
+<p><img src="http://i4.piimg.com/581590/76be425a25c48b1e.png" alt="Markdown"></p>
+<p><img src="http://i4.piimg.com/581590/65297637b0311403.png" alt="Markdown"></p>
+<p><img src="http://i2.muimg.com/581590/dcfae00b33b7ee43.png" alt="Markdown"></p>
+<h2 id="3-开发者基本配置"><a href="#3-开发者基本配置" class="headerlink" title="3.开发者基本配置"></a>3.开发者基本配置</h2><p><img src="http://i2.muimg.com/581590/55c6fc48f027e869.png" alt="Markdown"></p>
+<p><img src="http://i1.buimg.com/581590/9c1cfc730ba3b3ed.png" alt="Markdown"></p>
+<p><img src="http://i2.muimg.com/581590/4d0e170f305f1328.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">现在选择提交肯定是验证token失败，因为还需要完成代码逻辑。改动原先main.py文件，新增handle.py</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>main.py</p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="comment"># filename：main.py</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 导入web.py模块</span></span><br><span class="line"><span class="keyword">import</span> web</span><br><span class="line"><span class="keyword">from</span> handle <span class="keyword">import</span> Handle</span><br><span class="line"></span><br><span class="line">urls = (</span><br><span class="line">    <span class="string">'/wx'</span>,<span class="string">'Handle'</span>,</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># class Handle(object):</span></span><br><span class="line"><span class="comment">#     def GET(self):</span></span><br><span class="line"><span class="comment">#         return "hello,this is a test"</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    app = web.application(urls,globals())</span><br><span class="line">    app.run()</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>handle.py</p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="comment"># filename: handle.py</span></span><br><span class="line"><span class="comment"># author: Haodi Wang</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> hashlib</span><br><span class="line"><span class="keyword">import</span> web</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Handle</span><span class="params">(object)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">GET</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            data = web.input()</span><br><span class="line">            <span class="keyword">if</span> len(data) == <span class="number">0</span>:</span><br><span class="line">                <span class="keyword">return</span> <span class="string">"hello,this is handle view"</span></span><br><span class="line">            signature = data.signature</span><br><span class="line">            timestamp = data.timestamp</span><br><span class="line">            nonce = data.nonce</span><br><span class="line">            echostr = data.echostr</span><br><span class="line">            token = <span class="string">"sparsematrix"</span></span><br><span class="line"></span><br><span class="line">            list = [token, timestamp, nonce]</span><br><span class="line">            list.sort()</span><br><span class="line">            <span class="keyword">print</span> <span class="string">"list:"</span>,list</span><br><span class="line">            sha1 = hashlib.sha1()</span><br><span class="line">            map(sha1.update, list)</span><br><span class="line">            hashcode = sha1.hexdigest()</span><br><span class="line">            <span class="keyword">print</span> <span class="string">"hashcode"</span>,hashcode</span><br><span class="line">            <span class="keyword">print</span> <span class="string">"handle/GET func: hashcode,signature:"</span>, hashcode, signature</span><br><span class="line">            <span class="keyword">if</span> hashcode == signature:</span><br><span class="line">                <span class="keyword">return</span> echostr</span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                <span class="keyword">return</span> <span class="string">""</span></span><br><span class="line">        <span class="keyword">except</span> Exception, Argument:</span><br><span class="line">            <span class="keyword">return</span> Argument</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">重新启动成功后（python main.py 80），点击提交按钮。</span><br><span class="line">若提示<span class="string">"token验证失败"</span>, 请认真检查代码或网络链接等。</span><br><span class="line">若token验证成功，会自动返回基本配置的主页面，点击启动按钮</span><br></pre></td></tr></table></figure>
+<p><img src="http://i2.muimg.com/581590/1514038e532bd018.png" alt="Markdown"></p>
+<h2 id="4-搭建一个安全稳定高效的公众号框架"><a href="#4-搭建一个安全稳定高效的公众号框架" class="headerlink" title="4.搭建一个安全稳定高效的公众号框架"></a>4.搭建一个安全稳定高效的公众号框架</h2><p><img src="http://i2.muimg.com/581590/931ab5a2e6cdbf17.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">主要有三个部分：</span><br><span class="line"></span><br><span class="line">负责业务逻辑部分的服务器，</span><br><span class="line">负责对接微信API的API-Proxy服务器</span><br><span class="line">以及唯一的AccessToken中控服务器</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>(1).AccessToken中控服务器：</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">负责： 提供主动刷新和被动刷新机制来刷新accessToken并存储（为了防止并发刷新，注意加并发锁），</span><br><span class="line">提供给业务逻辑有效的accessToken。</span><br><span class="line">优点： 避免业务逻辑方并发获取access_token，避免AccessToken互相覆盖，提高业务功能的稳定性。</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>(2).API-Proxy服务器：</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">负责：专一与微信API对接，不同的服务器可以负责对接不同的业务逻辑，更可进行调用频率、权限限制。</span><br><span class="line">优点：某台API-proxy异常，还有其余服务器支持继续提供服务，提高稳定性，</span><br><span class="line">避免直接暴漏内部接口，有效防止恶意攻击，提高安全性。</span><br></pre></td></tr></table></figure>
+<h2 id="5-实现”你问我答”"><a href="#5-实现”你问我答”" class="headerlink" title="5.实现”你问我答”"></a>5.实现”你问我答”</h2><blockquote>
+<p>目的</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">理解被动消息的含义</span><br><span class="line">理解收\发消息机制</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>预实现功能</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">粉丝给公众号一条文本消息，公众号立马回复一条文本消息给粉丝，不需要通过公众平台网页操作</span><br></pre></td></tr></table></figure>
+<h3 id="5-1-接受文本消息"><a href="#5-1-接受文本消息" class="headerlink" title="5.1.接受文本消息"></a>5.1.接受文本消息</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">粉丝给公众号发送的文本消息。官方wiki链接：消息管理/接收消息-接受普通消息</span><br><span class="line">粉丝给公众号发送文本消息：<span class="string">"欢迎开启公众号开发者模式"</span>，在开发者后台，收到公众平台发送的xml</span><br><span class="line">如下：（下文均隐藏了ToUserName 及 FromUserName 信息）</span><br></pre></td></tr></table></figure>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">xml</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">ToUserName</span>&gt;</span>&lt;![CDATA[公众号]]&gt;<span class="tag">&lt;/<span class="name">ToUserName</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">FromUserName</span>&gt;</span>&lt;![CDATA[粉丝号]]&gt;<span class="tag">&lt;/<span class="name">FromUserName</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">CreateTime</span>&gt;</span>1460537339<span class="tag">&lt;/<span class="name">CreateTime</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">MsgType</span>&gt;</span>&lt;![CDATA[text]]&gt;<span class="tag">&lt;/<span class="name">MsgType</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">Content</span>&gt;</span>&lt;![CDATA[欢迎开启公众号开发者模式]]&gt;<span class="tag">&lt;/<span class="name">Content</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">MsgId</span>&gt;</span>6272960105994287618<span class="tag">&lt;/<span class="name">MsgId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">xml</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">createTime 是微信公众平台记录粉丝发送该消息的具体时间</span><br><span class="line">text: 用于标记该xml 是文本消息，一般用于区别判断</span><br><span class="line">欢迎开启公众号开发者模式: 说明该粉丝发给公众号的具体内容是欢迎开启公众号开发者模式</span><br><span class="line">MsgId: 是公众平台为记录识别该消息的一个标记数值, 微信后台系统自动产生</span><br></pre></td></tr></table></figure>
+<h3 id="5-2-被动回复文本消息"><a href="#5-2-被动回复文本消息" class="headerlink" title="5.2. 被动回复文本消息"></a>5.2. 被动回复文本消息</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">即公众号给粉丝发送的文本消息，官方wiki链接: 消息管理/接收消息-被动回复消息</span><br><span class="line">特别强调：</span><br><span class="line">1） 被动回复消息，即发送被动响应消息，不同于客服消息接口</span><br><span class="line">2） 它其实并不是一种接口，而是对微信服务器发过来消息的一次回复</span><br><span class="line">3） 收到粉丝消息后不想或者不能5秒内回复时，需回复“success”字符串（下文详细介绍）</span><br><span class="line">4） 客服接口在满足一定条件下随时调用</span><br><span class="line">公众号想回复给粉丝一条文本消息，内容为“<span class="built_in">test</span>”, 那么开发者发送给公众平台后台的xml 内容如下：</span><br></pre></td></tr></table></figure>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">xml</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">ToUserName</span>&gt;</span>&lt;![CDATA[粉丝号]]&gt;<span class="tag">&lt;/<span class="name">ToUserName</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">FromUserName</span>&gt;</span>&lt;![CDATA[公众号]]&gt;<span class="tag">&lt;/<span class="name">FromUserName</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">CreateTime</span>&gt;</span>1460541339<span class="tag">&lt;/<span class="name">CreateTime</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">MsgType</span>&gt;</span>&lt;![CDATA[text]]&gt;<span class="tag">&lt;/<span class="name">MsgType</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">Content</span>&gt;</span>&lt;![CDATA[test]]&gt;<span class="tag">&lt;/<span class="name">Content</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">xml</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">特别备注：</span><br><span class="line">1）ToUserName（接受者）、FromUserName(发送者) 字段请实际填写。</span><br><span class="line">2）createtime 只用于标记开发者回复消息的时间，微信后台发送此消息都是不受这个字段约束。</span><br><span class="line">3）text : 用于标记 此次行为是发送文本消息 （当然可以是image/voice等类型）。</span><br><span class="line">4）文本换行 ‘\n’。</span><br></pre></td></tr></table></figure>
+<h3 id="5-3-回复success问题"><a href="#5-3-回复success问题" class="headerlink" title="5.3.回复success问题"></a>5.3.回复success问题</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">查询官方wiki 开头强调： 假如服务器无法保证在五秒内处理回复，则必须回复<span class="string">"success"</span>或者<span class="string">""</span>（空串），否则微信后台会发起三次重试。</span><br><span class="line">解释一下为何有这么奇怪的规定。</span><br><span class="line">发起重试是微信后台为了尽可以保证粉丝发送的内容开发者均可以收到。</span><br><span class="line">如果开发者不进行回复，微信后台没办法确认开发者已收到消息，只好重试。</span><br><span class="line">真的是这样子吗？尝试一下收到消息后，不做任何回复。在日志中查看到微信后台发起了三次重试操作，日志截图如下：</span><br><span class="line"></span><br><span class="line">三次重试后，依旧没有及时回复任何内容，系统自动在粉丝会话界面出现错误提示“该公众号暂时无法提供服务，请稍后再试”。</span><br></pre></td></tr></table></figure>
+<h3 id="5-4-流程图"><a href="#5-4-流程图" class="headerlink" title="5.4.流程图"></a>5.4.流程图</h3><p><img src="http://i1.buimg.com/581590/f1be81e1370d0c4a.png" alt="Markdown"></p>
+<h3 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">main.py文件不改变，handle.py 需要增加一下代码，增加新的文件receive.py, reply.py</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>main.py</p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="comment"># filename：main.py</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 导入web.py模块</span></span><br><span class="line"><span class="keyword">import</span> web</span><br><span class="line"><span class="keyword">from</span> handle <span class="keyword">import</span> Handle</span><br><span class="line"></span><br><span class="line">urls = (</span><br><span class="line">    <span class="string">'/wx'</span>, <span class="string">'Handle'</span>,</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    app = web.application(urls, globals())</span><br><span class="line">    app.run()</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>handle.py</p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="comment"># filename: handle.py</span></span><br><span class="line"><span class="comment"># author: Haodi Wang</span></span><br><span class="line"><span class="keyword">import</span> hashlib</span><br><span class="line"><span class="keyword">import</span> reply</span><br><span class="line"><span class="keyword">import</span> receive</span><br><span class="line"><span class="keyword">import</span> web</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Handle</span><span class="params">(object)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">POST</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            webData = web.data()</span><br><span class="line">            <span class="keyword">print</span> <span class="string">"Handle Post webdata is "</span>, webData  <span class="comment"># 后台打日志</span></span><br><span class="line">            recMsg = receive.parse_xml(webData)</span><br><span class="line">            <span class="keyword">if</span> isinstance(recMsg, receive.Msg) <span class="keyword">and</span> recMsg.MsgType == <span class="string">'text'</span>:</span><br><span class="line">                toUser = recMsg.FromUserName</span><br><span class="line">                fromUser = recMsg.ToUserName</span><br><span class="line">                content = <span class="string">"test"</span></span><br><span class="line">                replyMsg = reply.TextMsg(toUser, fromUser, content)</span><br><span class="line">                <span class="keyword">return</span> replyMsg.send()</span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                <span class="keyword">print</span> <span class="string">"暂且不处理"</span></span><br><span class="line">                <span class="keyword">return</span> <span class="string">"success"</span></span><br><span class="line">        <span class="keyword">except</span> Exception, Argment:</span><br><span class="line">            <span class="keyword">return</span> Argment</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>receive.py</p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="comment"># filename: receive.py</span></span><br><span class="line"><span class="comment"># author: Haodi Wang</span></span><br><span class="line"><span class="keyword">import</span> xml.etree.ElementTree <span class="keyword">as</span> ET</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">parse_xml</span><span class="params">(web_data)</span>:</span></span><br><span class="line">    <span class="keyword">if</span> len(web_data) == <span class="number">0</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">None</span></span><br><span class="line">    xmlData = ET.fromstring(web_data)</span><br><span class="line">    msg_type = xmlData.find(<span class="string">'MsgType'</span>).text</span><br><span class="line">    <span class="keyword">if</span> msg_type == <span class="string">'text'</span>:</span><br><span class="line">        <span class="keyword">return</span> TextMsg(xmlData)</span><br><span class="line">    <span class="keyword">elif</span> msg_type == <span class="string">'image'</span>:</span><br><span class="line">        <span class="keyword">return</span> ImageMsg(xmlData)</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Msg</span><span class="params">(object)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, xmlData)</span>:</span></span><br><span class="line">        self.ToUserName = xmlData.find(<span class="string">'ToUserName'</span>).text</span><br><span class="line">        self.FromUserName = xmlData.find(<span class="string">'FromUserName'</span>).text</span><br><span class="line">        self.CreateTime = xmlData.find(<span class="string">'CreateTime'</span>).text</span><br><span class="line">        self.MsgType = xmlData.find(<span class="string">'MsgType'</span>).text</span><br><span class="line">        self.MsgId = xmlData.find(<span class="string">'MsgId'</span>).text</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TextMsg</span><span class="params">(Msg)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, xmlData)</span>:</span></span><br><span class="line">        Msg.__init__(self, xmlData)</span><br><span class="line">        self.Content = xmlData.find(<span class="string">'Content'</span>).text.encode(<span class="string">"utf-8"</span>)</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ImageMsg</span><span class="params">(Msg)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, xmlData)</span>:</span></span><br><span class="line">        Msg.__init__(self, xmlData)</span><br><span class="line">        self.PicUrl = xmlData.find(<span class="string">'PicUrl'</span>).text</span><br><span class="line">        self.MediaId = xmlData.find(<span class="string">'MediaId'</span>).text</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>reply.py</p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding:utf-8 -*-</span></span><br><span class="line"><span class="comment"># filename: reply.py</span></span><br><span class="line"><span class="comment"># author: Haodi Wang</span></span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Msg</span><span class="params">(object)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">send</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">return</span> <span class="string">"success"</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TextMsg</span><span class="params">(Msg)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, toUserName, fromUserName, content)</span>:</span></span><br><span class="line">        self.__dict = dict()</span><br><span class="line">        self.__dict[<span class="string">'ToUserName'</span>] = toUserName</span><br><span class="line">        self.__dict[<span class="string">'FromUserName'</span>] = fromUserName</span><br><span class="line">        self.__dict[<span class="string">'CreateTime'</span>] = int(time.time())</span><br><span class="line">        self.__dict[<span class="string">'Content'</span>] = content</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">send</span><span class="params">(self)</span>:</span></span><br><span class="line">        XmlForm = <span class="string">"""</span></span><br><span class="line"><span class="string">        &lt;xml&gt;</span></span><br><span class="line"><span class="string">        &lt;ToUserName&gt;&lt;![CDATA[&#123;ToUserName&#125;]]&gt;&lt;/ToUserName&gt;</span></span><br><span class="line"><span class="string">        &lt;FromUserName&gt;&lt;![CDATA[&#123;FromUserName&#125;]]&gt;&lt;/FromUserName&gt;</span></span><br><span class="line"><span class="string">        &lt;CreateTime&gt;&#123;CreateTime&#125;&lt;/CreateTime&gt;</span></span><br><span class="line"><span class="string">        &lt;MsgType&gt;&lt;![CDATA[text]]&gt;&lt;/MsgType&gt;</span></span><br><span class="line"><span class="string">        &lt;Content&gt;&lt;![CDATA[&#123;Content&#125;]]&gt;&lt;/Content&gt;</span></span><br><span class="line"><span class="string">        &lt;/xml&gt;</span></span><br><span class="line"><span class="string">        """</span></span><br><span class="line">        <span class="keyword">return</span> XmlForm.format(**self.__dict)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ImageMsg</span><span class="params">(Msg)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, toUserName, fromUserName, mediaId)</span>:</span></span><br><span class="line">        self.__dict = dict()</span><br><span class="line">        self.__dict[<span class="string">'ToUserName'</span>] = toUserName</span><br><span class="line">        self.__dict[<span class="string">'FromUserName'</span>] = fromUserName</span><br><span class="line">        self.__dict[<span class="string">'CreateTime'</span>] = int(time.time())</span><br><span class="line">        self.__dict[<span class="string">'MediaId'</span>] = mediaId</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">send</span><span class="params">(self)</span>:</span></span><br><span class="line">        XmlForm = <span class="string">"""</span></span><br><span class="line"><span class="string">        &lt;xml&gt;</span></span><br><span class="line"><span class="string">        &lt;ToUserName&gt;&lt;![CDATA[&#123;ToUserName&#125;]]&gt;&lt;/ToUserName&gt;</span></span><br><span class="line"><span class="string">        &lt;FromUserName&gt;&lt;![CDATA[&#123;FromUserName&#125;]]&gt;&lt;/FromUserName&gt;</span></span><br><span class="line"><span class="string">        &lt;CreateTime&gt;&#123;CreateTime&#125;&lt;/CreateTime&gt;</span></span><br><span class="line"><span class="string">        &lt;MsgType&gt;&lt;![CDATA[image]]&gt;&lt;/MsgType&gt;</span></span><br><span class="line"><span class="string">        &lt;Image&gt;</span></span><br><span class="line"><span class="string">        &lt;MediaId&gt;&lt;![CDATA[&#123;MediaId&#125;]]&gt;&lt;/MediaId&gt;</span></span><br><span class="line"><span class="string">        &lt;/Image&gt;</span></span><br><span class="line"><span class="string">        &lt;/xml&gt;</span></span><br><span class="line"><span class="string">        """</span></span><br><span class="line">        <span class="keyword">return</span> XmlForm.format(**self.__dict)</span><br></pre></td></tr></table></figure>
+<h3 id="在线测试"><a href="#在线测试" class="headerlink" title="在线测试"></a>在线测试</h3><blockquote>
+<p><a href="https://mp.weixin.qq.com/debug/" target="_blank" rel="noopener">微信在线测试的平台</a></p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">微信公众平台有提供一个在线测试的平台，方便开发者模拟场景测试代码逻辑。</span><br><span class="line"></span><br><span class="line">正如被动回复文本消息 交代此被动回复接口不同于客服接口，测试时也要注意区别。</span><br><span class="line"></span><br><span class="line">在线测试目的在于测试开发者代码逻辑是否有误、是否符合预期。</span><br><span class="line">即便测试成功也不会发送内容给粉丝。所以可以随意测试。</span><br></pre></td></tr></table></figure>
+<p><img src="http://i2.muimg.com/581590/31863a8e857714d0.png" alt="Markdown"></p>
+<p><img src="http://i2.muimg.com/581590/0290ac4b79d4606d.png" alt="Markdown"></p>
+<h2 id="真实体验"><a href="#真实体验" class="headerlink" title="真实体验"></a>真实体验</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">拿出手机，微信扫描公众号二维码，成为自己公众号的第一个粉丝。公众号二维码位置如下图：</span><br></pre></td></tr></table></figure>
+<p><img src="http://i2.muimg.com/581590/b863a37e1b3cb4a4.png" alt="Markdown"></p>
+<p><img src="http://i2.muimg.com/581590/4c363b56cebb29e7.png" alt="Markdown"></p>
+<h2 id="6-实现”图”尚往来"><a href="#6-实现”图”尚往来" class="headerlink" title="6.实现”图”尚往来"></a>6.实现”图”尚往来</h2><blockquote>
+<p>目的</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">(1).引入素材管理</span><br><span class="line">(2).以文本消息，图片消息为基础，可自行理解剩余的语音消息、视频消息、地理消息等</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>预实现功能：</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">接受粉丝发送的图片消息，并立马回复相同的图片给粉丝</span><br></pre></td></tr></table></figure>
+<h3 id="6-1-接收图片消息"><a href="#6-1-接收图片消息" class="headerlink" title="6.1.接收图片消息"></a>6.1.接收图片消息</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">即粉丝给公众号发送的图片消息。粉丝给公众号发送一张图片消息，在公众号开发者后台接收到的xml如下:</span><br></pre></td></tr></table></figure>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">xml</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">ToUserName</span>&gt;</span>&lt;![CDATA[公众号]]&gt;<span class="tag">&lt;/<span class="name">ToUserName</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">FromUserName</span>&gt;</span>&lt;![CDATA[粉丝号]]&gt;<span class="tag">&lt;/<span class="name">FromUserName</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">CreateTime</span>&gt;</span>1460536575<span class="tag">&lt;/<span class="name">CreateTime</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">MsgType</span>&gt;</span>&lt;![CDATA[image]]&gt;<span class="tag">&lt;/<span class="name">MsgType</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">PicUrl</span>&gt;</span>&lt;![CDATA[http://mmbiz.qpic.cn/xxxxxx /0]]&gt;<span class="tag">&lt;/<span class="name">PicUrl</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">MsgId</span>&gt;</span>6272956824639273066<span class="tag">&lt;/<span class="name">MsgId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">MediaId</span>&gt;</span>&lt;![CDATA[gyci5a-xxxxx-OL]]&gt;<span class="tag">&lt;/<span class="name">MediaId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">xml</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>特别说明</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">PicUrl: 这个参数是微信系统把<span class="string">"粉丝"</span>发送的图片消息自动转化成url。 这个url可用浏览器打开查看到图片。</span><br><span class="line">MediaId: 是微信系统产生的id用于标记该图片</span><br></pre></td></tr></table></figure>
+<h3 id="6-2-被动回复图片消息"><a href="#6-2-被动回复图片消息" class="headerlink" title="6.2.被动回复图片消息"></a>6.2.被动回复图片消息</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">即公众号给粉丝发送的图片消息</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>特别说明</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">(1).被动回复消息，即发送被动响应消息，不同于客服消息接口</span><br><span class="line">(2).它其实并不是一种接口，而是对微信服务器发过来消息的一次回复</span><br><span class="line">(3).收到粉丝消息后不想或者不能5秒内回复时，需回复<span class="string">"success"</span>字符串</span><br><span class="line">(4).客服接口在满足一定条件下随时调用</span><br><span class="line">开发者发送给微信后台的xml 如下：</span><br></pre></td></tr></table></figure>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">xml</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">ToUserName</span>&gt;</span>&lt;![CDATA[粉丝号]]&gt;<span class="tag">&lt;/<span class="name">ToUserName</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">FromUserName</span>&gt;</span>&lt;![CDATA[公众号]]&gt;<span class="tag">&lt;/<span class="name">FromUserName</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">CreateTime</span>&gt;</span>1460536576<span class="tag">&lt;/<span class="name">CreateTime</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">MsgType</span>&gt;</span>&lt;![CDATA[image]]&gt;<span class="tag">&lt;/<span class="name">MsgType</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">Image</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">MediaId</span>&gt;</span>&lt;![CDATA[gyci5oxxxxxxv3cOL]]&gt;<span class="tag">&lt;/<span class="name">MediaId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">Image</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">xml</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">这里填写的MediaId的内容，其实就是粉丝的发送图片的原MediaId，所以粉丝收到了一张一模一样的原图。</span><br><span class="line">如果想回复粉丝其它图片怎么呢？</span><br><span class="line"></span><br><span class="line">(1).新增素材，请参考 新增临时素材 或者 新增永久素材</span><br><span class="line">(2).获取其MediaId，请参考获取临时素材MediaID 或者 获取永久素材MediaID</span><br></pre></td></tr></table></figure>
+<h3 id="流程图"><a href="#流程图" class="headerlink" title="流程图"></a>流程图</h3><p><img src="http://i2.muimg.com/581590/17b5e4a18df62442.png" alt="Markdown"></p>
+<blockquote>
+<p>handle.py</p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="comment"># filename: handle.py</span></span><br><span class="line"><span class="comment"># author: Haodi Wang</span></span><br><span class="line"><span class="keyword">import</span> hashlib</span><br><span class="line"><span class="keyword">import</span> reply</span><br><span class="line"><span class="keyword">import</span> receive</span><br><span class="line"><span class="keyword">import</span> web</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Handle</span><span class="params">(object)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">POST</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            webData = web.data()</span><br><span class="line">            <span class="keyword">print</span> <span class="string">"Handle Post webdata is "</span>, webData   <span class="comment">#后台打日志</span></span><br><span class="line">            recMsg = receive.parse_xml(webData)</span><br><span class="line">            <span class="keyword">if</span> isinstance(recMsg, receive.Msg):</span><br><span class="line">                toUser = recMsg.FromUserName</span><br><span class="line">                fromUser = recMsg.ToUserName</span><br><span class="line">                <span class="keyword">if</span> recMsg.MsgType == <span class="string">'text'</span>:</span><br><span class="line">                    content = <span class="string">"test"</span></span><br><span class="line">                    replyMsg = reply.TextMsg(toUser, fromUser, content)</span><br><span class="line">                    <span class="keyword">return</span> replyMsg.send()</span><br><span class="line">                <span class="keyword">if</span> recMsg.MsgType == <span class="string">'image'</span>:</span><br><span class="line">                    mediaId = recMsg.MediaId</span><br><span class="line">                    replyMsg = reply.ImageMsg(toUser, fromUser, mediaId)</span><br><span class="line">                    <span class="keyword">return</span> replyMsg.send()</span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                    <span class="keyword">return</span> reply.Msg().send()</span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                <span class="keyword">print</span> <span class="string">"暂且不处理"</span></span><br><span class="line">                <span class="keyword">return</span> reply.Msg().send()</span><br><span class="line">        <span class="keyword">except</span> Exception, Argment:</span><br><span class="line">            <span class="keyword">return</span> Argment</span><br></pre></td></tr></table></figure>
+<h2 id="7-AccessToken"><a href="#7-AccessToken" class="headerlink" title="7.AccessToken"></a>7.AccessToken</h2><h3 id="7-1-查看appid及appsecret"><a href="#7-1-查看appid及appsecret" class="headerlink" title="7.1.查看appid及appsecret"></a>7.1.查看appid及appsecret</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">公众平台官网查看， 其中AppSecret 不点击重置时候，则一直保持不变</span><br><span class="line"></span><br><span class="line">access_token是公众号的全局唯一接口调用凭据，公众号调用各接口时都需使用access_token。</span><br><span class="line"></span><br><span class="line">开发者需要进行妥善保存。access_token的存储至少要保留512个字符空间。</span><br><span class="line"></span><br><span class="line">access_token的有效期目前为2个小时，需定时刷新，重复获取将导致上次获取的access_token失效。</span><br></pre></td></tr></table></figure>
+<p>f813e764eb892f1ef6e3e2b2ebc6bddb</p>
+<h3 id="7-2-获取accessToken"><a href="#7-2-获取accessToken" class="headerlink" title="7.2.获取accessToken"></a>7.2.获取accessToken</h3><blockquote>
+<p>临时方法获取</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">为了方便先体验其他接口，可以临时通过 在线测试 或者 浏览器获取accessToken</span><br></pre></td></tr></table></figure>
+<p><img src="http://i2.muimg.com/581590/895ef6412a721f89.png" alt="Markdown"></p>
+<p><img src="http://i2.muimg.com/581590/7ec662a2531ad666.png" alt="Markdown"></p>
+<h3 id="7-3-接口获取"><a href="#7-3-接口获取" class="headerlink" title="7.3.接口获取"></a>7.3.接口获取</h3><blockquote>
+<p>特别强调</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">(1).第三方需要一个access_token获取和刷新的中控服务器。</span><br><span class="line">(2).并发获取access_token会导致AccessToken互相覆盖，影响具体的业务功能</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>basic.py</p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="comment"># filename: basic.py</span></span><br><span class="line"><span class="comment"># Author: Haodi Wang</span></span><br><span class="line"><span class="keyword">import</span> urllib</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">import</span> json</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Basic</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></span><br><span class="line">        self.__accessToken = <span class="string">''</span></span><br><span class="line">        self.__leftTime = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__real_get_access_token</span><span class="params">(self)</span>:</span></span><br><span class="line">        appId = <span class="string">"xxx"</span></span><br><span class="line">        appSecret = <span class="string">"xxx"</span></span><br><span class="line"></span><br><span class="line">        postUrl = (<span class="string">"https://api.weixin.qq.com/cgi-bin/token?grant_type="</span></span><br><span class="line">                   <span class="string">"client_credential&amp;appid=%s&amp;secret=%s"</span> % (appId, appSecret))</span><br><span class="line">        urlResp = urllib.urlopen(postUrl)</span><br><span class="line">        urlResp = json.loads(urlResp.read())</span><br><span class="line"></span><br><span class="line">        self.__accessToken = urlResp[<span class="string">'access_token'</span>]</span><br><span class="line">        self.__leftTime = urlResp[<span class="string">'expires_in'</span>]</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get_access_token</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">if</span> self.__leftTime &lt; <span class="number">10</span>:</span><br><span class="line">            self.__real_get_access_token()</span><br><span class="line">        <span class="keyword">return</span> self.__accessToken</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">run</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">while</span> (<span class="keyword">True</span>):</span><br><span class="line">            <span class="keyword">if</span> self.__leftTime &gt; <span class="number">10</span>:</span><br><span class="line">                time.sleep(<span class="number">2</span>)</span><br><span class="line">                self.__leftTime -= <span class="number">2</span></span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                self.__real_get_access_token()</span><br></pre></td></tr></table></figure>
+<h2 id="8-临时素材"><a href="#8-临时素材" class="headerlink" title="8. 临时素材"></a>8. 临时素材</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">公众号经常有需要用到一些临时性的多媒体素材的场景</span><br><span class="line"></span><br><span class="line">例如在使用接口特别是发送消息时，对多媒体文件、多媒体消息的获取和调用等操作，是通过MediaID来进行的。</span><br><span class="line"></span><br><span class="line">譬如实现<span class="string">"图"</span>尚往来中，粉丝给公众号发送图片消息，便产生一临时素材。</span><br><span class="line"></span><br><span class="line">因为永久素材有数量的限制，但是公众号又需要临时性使用一些素材，因而产生了临时素材。</span><br><span class="line"></span><br><span class="line">这类素材不在微信公众平台后台长期存储，所以在公众平台官网的素材管理中查询不到，但是可以通过接口对其操作。</span><br><span class="line"></span><br><span class="line">其他详情请以公众平台官网wiki介绍为依据。</span><br></pre></td></tr></table></figure>
+<h3 id="8-1-新建临时素材"><a href="#8-1-新建临时素材" class="headerlink" title="8.1.新建临时素材"></a>8.1.新建临时素材</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">接口详情请依据wiki介绍。提供参考代码如何上传素材作为临时素材，供其它接口使用。</span><br><span class="line"></span><br><span class="line">vim media.py  编写完成之后，直接运行media.py 即可上传临时素材。</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>media.py</p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="comment"># filename: meida.py</span></span><br><span class="line"><span class="keyword">from</span> basic <span class="keyword">import</span> Basic</span><br><span class="line"><span class="keyword">import</span> urllib2</span><br><span class="line"><span class="keyword">import</span> poster.encode</span><br><span class="line"><span class="keyword">import</span> json</span><br><span class="line"><span class="keyword">from</span> poster.streaminghttp <span class="keyword">import</span> register_openers</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Media</span><span class="params">(object)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></span><br><span class="line">        register_openers()</span><br><span class="line">    <span class="comment">#上传图片</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">uplaod</span><span class="params">(self, accessToken, filePath, mediaType)</span>:</span></span><br><span class="line">        openFile = open(filePath, <span class="string">"rb"</span>)</span><br><span class="line">        param = &#123;<span class="string">'media'</span>: openFile&#125;</span><br><span class="line">        postData, postHeaders = poster.encode.multipart_encode(param)</span><br><span class="line"></span><br><span class="line">        postUrl = <span class="string">"https://api.weixin.qq.com/cgi-bin/media/upload?access_token=%s&amp;type=%s"</span> % (accessToken, mediaType)</span><br><span class="line">        request = urllib2.Request(postUrl, postData, postHeaders)</span><br><span class="line">        urlResp = urllib2.urlopen(request)</span><br><span class="line">        <span class="keyword">print</span> urlResp.read()</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get</span><span class="params">(self, accessToken, mediaId)</span>:</span></span><br><span class="line">        postUrl = <span class="string">"https://api.weixin.qq.com/cgi-bin/media/get?access_token=%s&amp;media_id=%s"</span> % (accessToken, mediaId)</span><br><span class="line">        urlResp = urllib2.urlopen(postUrl)</span><br><span class="line"></span><br><span class="line">        headers = urlResp.info().__dict__[<span class="string">'headers'</span>]</span><br><span class="line">        <span class="keyword">if</span> (<span class="string">'Content-Type: application/json\r\n'</span> <span class="keyword">in</span> headers) <span class="keyword">or</span> (<span class="string">'Content-Type: text/plain\r\n'</span> <span class="keyword">in</span> headers):</span><br><span class="line">            jsonDict = json.loads(urlResp.read())</span><br><span class="line">            <span class="keyword">print</span> jsonDict</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            buffer = urlResp.read()  <span class="comment"># 素材的二进制</span></span><br><span class="line">            mediaFile = file(<span class="string">"test_media.jpg"</span>, <span class="string">"wb"</span>)</span><br><span class="line">            mediaFile.write(buffer)</span><br><span class="line">            <span class="keyword">print</span> <span class="string">"get successful"</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    myMedia = Media()</span><br><span class="line">    accessToken = Basic().get_access_token()</span><br><span class="line">    <span class="keyword">print</span> <span class="string">"accessToken："</span>,accessToken</span><br><span class="line">    filePath = <span class="string">"/data/agv机器人.png"</span>   <span class="comment">#请安实际填写</span></span><br><span class="line">    mediaType = <span class="string">"image"</span></span><br><span class="line">    <span class="comment"># myMedia.uplaod(accessToken, filePath, mediaType)</span></span><br><span class="line">    mediaId = <span class="string">"8iw9i7wp7gq2QdXgEeUbULLAbGgH-fpWIdFqvTPtHUPoaxmg6V9YeaCLVkXxomaV"</span></span><br><span class="line">    myMedia.get(accessToken, mediaId)</span><br></pre></td></tr></table></figure>
+<h3 id="8-2-获取临时素材MediaID"><a href="#8-2-获取临时素材MediaID" class="headerlink" title="8.2.获取临时素材MediaID"></a>8.2.获取临时素材MediaID</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">临时素材的MediaID 没有提供特定的接口进行统一查询，因此有俩种方式</span><br><span class="line">(1).通过接口上次的临时素材，在调用成功的情况下，从返回JSON数据中提取MediaID，可临时使用</span><br><span class="line">(2).粉丝互动中的临时素材，可从xml 数据提取MediaID，可临时使用</span><br></pre></td></tr></table></figure>
+<h3 id="8-3-下载临时素材"><a href="#8-3-下载临时素材" class="headerlink" title="8.3.下载临时素材"></a>8.3.下载临时素材</h3><blockquote>
+<p>手工体验</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">开发者如何保存粉丝发送的图片呢？</span><br><span class="line">接口文档：获取临时素材接口，为方便理解，从最简单浏览器获取素材的方法入手，根据实际情况，浏览器输入网址：</span><br></pre></td></tr></table></figure>
+<p><a href="https://api.weixin.qq.com/cgi-bin/media/get?access_token=ACCESS_TOKEN&amp;media_id=MEDIA_ID" target="_blank" rel="noopener">https://api.weixin.qq.com/cgi-bin/media/get?access_token=ACCESS_TOKEN&amp;media_id=MEDIA_ID</a> （自行替换数据）<br>ACCESS_TOKEN 如 “AccessToken”章节讲解<br>MEDIA_ID 如 图尚往来/接受图片消息xml中的MediaId 讲解<br>只要数据正确，则会下载图片到本地，如下图：</p>
+<h2 id="9-自定义菜单"><a href="#9-自定义菜单" class="headerlink" title="9.自定义菜单"></a>9.自定义菜单</h2><blockquote>
+<p>目的</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">三个菜单栏，体验click、view、media_id 三种类型的菜单按钮</span><br><span class="line"></span><br><span class="line">订阅号需要微信认证才可以，使用自定义菜单接口、个性化菜单接口</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>menu.py</p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="comment"># filename: menu.py</span></span><br><span class="line"><span class="comment"># author: Haodi Wang</span></span><br><span class="line"><span class="keyword">import</span> urllib</span><br><span class="line"><span class="keyword">from</span> basic <span class="keyword">import</span> Basic</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Menu</span><span class="params">(object)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">create</span><span class="params">(self, postData, accessToken)</span>:</span></span><br><span class="line">        postUrl = <span class="string">"https://api.weixin.qq.com/cgi-bin/menu/create?access_token=%s"</span> % accessToken</span><br><span class="line">        <span class="keyword">if</span> isinstance(postData, unicode):</span><br><span class="line">            postData = postData.encode(<span class="string">'utf-8'</span>)</span><br><span class="line">        urlResp = urllib.urlopen(url=postUrl, data=postData)</span><br><span class="line">        <span class="keyword">print</span> urlResp.read()</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">query</span><span class="params">(self, accessToken)</span>:</span></span><br><span class="line">        postUrl = <span class="string">"https://api.weixin.qq.com/cgi-bin/menu/get?access_token=%s"</span> % accessToken</span><br><span class="line">        urlResp = urllib.urlopen(url=postUrl)</span><br><span class="line">        <span class="keyword">print</span> urlResp.read()</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">delete</span><span class="params">(self, accessToken)</span>:</span></span><br><span class="line">        postUrl = <span class="string">"https://api.weixin.qq.com/cgi-bin/menu/delete?access_token=%s"</span> % accessToken</span><br><span class="line">        urlResp = urllib.urlopen(url=postUrl)</span><br><span class="line">        <span class="keyword">print</span> urlResp.read()</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 获取自定义菜单配置接口</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get_current_selfmenu_info</span><span class="params">(self, accessToken)</span>:</span></span><br><span class="line">        postUrl = <span class="string">"https://api.weixin.qq.com/cgi-bin/get_current_selfmenu_info?access_token=%s"</span> % accessToken</span><br><span class="line">        urlResp = urllib.urlopen(url=postUrl)</span><br><span class="line">        <span class="keyword">print</span> urlResp.read()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    myMenu = Menu()</span><br><span class="line">    postJson = <span class="string">"""</span></span><br><span class="line"><span class="string">    &#123;</span></span><br><span class="line"><span class="string">        "button":</span></span><br><span class="line"><span class="string">        [</span></span><br><span class="line"><span class="string">            &#123;</span></span><br><span class="line"><span class="string">                "type": "click",</span></span><br><span class="line"><span class="string">                "name": "开发指引",</span></span><br><span class="line"><span class="string">                "key":  "mpGuide"</span></span><br><span class="line"><span class="string">            &#125;,</span></span><br><span class="line"><span class="string">            &#123;</span></span><br><span class="line"><span class="string">                "name": "公众平台",</span></span><br><span class="line"><span class="string">                "sub_button":</span></span><br><span class="line"><span class="string">                [</span></span><br><span class="line"><span class="string">                    &#123;</span></span><br><span class="line"><span class="string">                        "type": "view",</span></span><br><span class="line"><span class="string">                        "name": "更新公告",</span></span><br><span class="line"><span class="string">                        "url": "http://mp.weixin.qq.com/wiki?t=resource/res_main&amp;id=mp1418702138&amp;token=&amp;lang=zh_CN"</span></span><br><span class="line"><span class="string">                    &#125;,</span></span><br><span class="line"><span class="string">                    &#123;</span></span><br><span class="line"><span class="string">                        "type": "view",</span></span><br><span class="line"><span class="string">                        "name": "接口权限说明",</span></span><br><span class="line"><span class="string">                        "url": "http://mp.weixin.qq.com/wiki?t=resource/res_main&amp;id=mp1418702138&amp;token=&amp;lang=zh_CN"</span></span><br><span class="line"><span class="string">                    &#125;,</span></span><br><span class="line"><span class="string">                    &#123;</span></span><br><span class="line"><span class="string">                        "type": "view",</span></span><br><span class="line"><span class="string">                        "name": "返回码说明",</span></span><br><span class="line"><span class="string">                        "url": "http://mp.weixin.qq.com/wiki?t=resource/res_main&amp;id=mp1433747234&amp;token=&amp;lang=zh_CN"</span></span><br><span class="line"><span class="string">                    &#125;</span></span><br><span class="line"><span class="string">                ]</span></span><br><span class="line"><span class="string">            &#125;</span></span><br><span class="line"><span class="string">          ]</span></span><br><span class="line"><span class="string">    &#125;</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line">    accessToken = Basic().get_access_token()</span><br><span class="line">    <span class="keyword">print</span> accessToken</span><br><span class="line">    <span class="comment"># myMenu.delete(accessToken)</span></span><br><span class="line">    myMenu.create(postJson, accessToken)</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>使用图灵微信第三方平台接管公众号</p>
+</blockquote>
+<p><img src="http://i2.muimg.com/581590/3b572bbf46a245de.png" alt="Markdown"></p>
+<p><img src="http://i2.muimg.com/581590/13c9081a7f7b1dc2.png" alt="Markdown"></p>
+
+    </div>
+  </div>
+  
+    <div class="copy-right">
+      <div class="markdown-body">
+        <blockquote>
+        
+        
+          本文作者 : Matrix <br>
+        
+        原文链接 : <a href="">http://yoursite.com/2017/06/19/Python实现微信订阅号开发/</a><br>
+        版权声明 : 本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+        </blockquote>
+      </div>
+    </div>
+  
+  
+  
+    <div class="social-share" style="margin-top: -2rem" data-wechat-qrcode-title="<p>微信扫一扫</p>" data-wechat-qrcode-helper="<p>微信右上角, 扫一扫分享</p>" data-sites="qzone, qq, weibo, wechat, douban, google, facebook, twitter">
+  <span style="color: #6b7487; font-size: 1.4rem;">分享到: </span>
+</div>
+<script src="https://cdn.bootcss.com/social-share.js/1.0.16/js/social-share.min.js" async></script>
+  
+
+  
+    <div id="reward">
+  
+    <p id="reward-meta">知识 & 情怀 | 二者兼得</p>
+  
+  <button id="reward-btn">
+    
+    <span>投食</span>
+  </button>
+  <div id="reward-qrcode">
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/wechatpay.jpg" alt="微信扫一扫, 向我投食">
+        <p class="qrcode-meta">微信扫一扫, 向我投食</p>
+      </div>
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/alipaypay.jpg" alt="支付宝扫一扫, 向我投食">
+        <p class="qrcode-meta">支付宝扫一扫, 向我投食</p>
+      </div>
+    
+  </div>
+
+</div>
+
+<script>
+  (() => {
+    let button = document.querySelector('#reward-btn'),
+      qrcode = document.querySelector('#reward-qrcode'),
+      display = false;
+    
+    button.addEventListener('click', () => {
+      qrcode.style.display = display ? 'none' : 'block'
+      display = !display
+    }, false)
+  })()
+</script>
+  
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+      <span>
+        
+          <i class="iconfont icon-06tags"></i>标签: 
+          
+          <span class="span--tag">
+            <a href="/tags/大数据/">
+              #大数据
+            </a>
+          </span>
+          
+          <span class="span--tag">
+            <a href="/tags/Python/">
+              #Python
+            </a>
+          </span>
+          
+        
+      </span>
+    </div>
+    <div class="article-meta pull-right">
+    </div>
+  </div>
+</div>
+
+
+  <aside id="sidebar">
+    <p id="sidebar-header"></p>
+    <ol id="sidebar-toc"></ol>
+  </aside>
+  <script async>setTimeout(generateToc, 10);</script>
+
+
+  <nav class="post-navigation">
+    
+      <div class="nav-pre">
+        <i class="iconfont icon-prev"></i>
+        上一篇:
+        <a href="/2017/06/19/微信第三方开放平台开发攻略/" target="_self">微信第三方开放平台开发攻略</a>
+      </div>
+    
+    
+      <div class="nav-next">
+        下一篇:
+        <a href="/2017/06/20/Python机器学习/" target="_self">Python机器学习</a>
+        <i class="iconfont icon-next"></i>
+      </div>
+    
+  </nav>
+
+  
+    <a href="#comment" class="comment-anchor"></a>
+<div class="comment-title"><i class="iconfont icon-footprint"></i> 留下足迹 <i class="iconfont icon-footprint"></i></div>
+<div id="vcomments"></div>
+
+<script defer>
+  if( true ) {
+    let path = getRealPath()
+    new Valine({
+      el: "#vcomments",
+      appId: "Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz",
+      appKey: "WaR7nrzhliHj9aVwdQzkdlGd",
+      notify: false,
+      verify: false,
+      avatar: "robohash",
+      placeholder: "正确填写邮箱, 才能及时收到回复哦♪(^∇^*)",
+      path
+    });
+  }
+</script>
+   
+
+  
+    <script defer>
+const valineAPI = (() => {
+  try {
+    AV.init("Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz", "WaR7nrzhliHj9aVwdQzkdlGd");
+  } catch(error) {}
+  const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+      query.equalTo("identity", identity);
+      query.find().then(results => {
+        resolve(results.length > 0);
+      }, error => reject(error));
+    })
+  }
+
+  const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+      let querys = [];
+      for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+      }
+      query = AV.Query.or.apply(null ,querys);
+    } else {
+      identity = identity || getRealPath();
+      query = new AV.Query("Timer");
+      query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+      query.find()
+      .then(results => resolve(results))
+      .catch(error => reject(error))
+    })
+  }
+
+  const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let Todo = AV.Object.extend('Timer');
+      let todo = new Todo();
+      todo.set("times", 1);
+      todo.set("identity", identity);
+      todo.save().then(res => resolve(true), error => reject(error));
+    })
+  }
+
+  const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let query = new AV.Query('Timer');
+      query.equalTo("identity", identity);
+      query.find().then(todos => {
+        todos.forEach(todo => {
+          todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+      }).then(todos => resolve(true), error => reject(error));
+    })
+  }
+
+  return {
+    isExist,
+    _get,
+    update,
+    create
+  }
+})()
+
+const calcAndWriteTimes = () => {
+  let isPost = true;
+
+  let timerAllDOM = document.querySelectorAll(".article-timer");
+
+  if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+      if(exist) {
+        return valineAPI.update(identity);
+      }
+      return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+  }
+
+  let timerDOMCache = {};
+
+  for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+      timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+      timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+      };
+    }
+  }
+
+  let identities = Object.keys(timerDOMCache);
+  valineAPI._get(identities).then(results => {
+    for(let result of results) {
+      let {identity, times} = result.attributes;
+      timerDOMCache[identity].times = times;
+      timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+      if(timerDOMCache[identity].times){
+        continue;
+      }
+      timerDOMCache[identity].dom.map(item => item.innerText = 1);
+      valineAPI.create(identity);
+    }
+  }).catch(error => console.log(error.message))
+}
+
+if(true){
+  calcAndWriteTimes();
+}
+</script>
+   
+
+</div>
+
+
+      <footer>
+  <p class="site-info">
+    博客已萌萌哒运行<span id="time-to-now"></span><span class="my-face">(●'◡'●)ﾉ♥</span>
+    <br>
+    Theme - <a href="https://github.com/dongyuanxin/theme-bmw">BMW</a> | Powered by <a href="https://godbmw.com/">GodBMW</a>
+    <br>
+    
+      Copyright © 2019 Matrix
+    
+  </p>
+</footer>
+
+
+
+<script>
+const timeToNowDOM = document.querySelector("#time-to-now");
+const startTimestamp = new Date(2016, 4, 10).getTime();
+
+const updateTimeStr = () => {
+  let offset = parseInt(
+      (new Date().getTime() - startTimestamp) / 1000,
+      10
+    ),
+    day = Math.floor(offset / 86400),
+    hour = Math.floor((offset % 86400) / 3600),
+    minute = Math.floor(((offset % 86400) % 3600) / 60),
+    second = Math.floor(((offset % 86400) % 3600) % 60);
+  timeToNowDOM.innerHTML =
+    day + "天" + hour + "小时" + minute + "分钟" + second + "秒";
+  setTimeout(updateTimeStr, 500);
+}
+
+setTimeout(updateTimeStr, 500);
+</script>
+
+
+      <div class="back-to-top hidden">
+  <span>
+    <i class="iconfont icon-60"></i><span></span>%
+  </span>
+</div>
+
+<script>
+const updateIconToTop = percent => {
+  let dom = document.querySelector(".back-to-top span span");
+  dom.innerText = percent;
+  if(percent < 1) {
+    document.querySelector(".back-to-top").className = "back-to-top hidden";
+  } else {
+    document.querySelector(".back-to-top").className = "back-to-top";
+  }
+}
+
+const handleScoll = () => {
+  let isRunning = false;
+  return () => {
+    if (isRunning) return;
+    isRunning = true;
+    window.requestAnimationFrame(timestamp => {
+      let scrollTop =
+          document.documentElement.scrollTop || document.body.scrollTop,
+        scrollHeight =
+          document.documentElement.scrollHeight ||
+          document.body.scrollHeight,
+        clientHeight =
+          document.documentElement.clientHeight ||
+          document.body.clientHeight;
+      isRunning = false;
+      if (scrollTop <= 1) {
+        updateIconToTop(0);
+        return;
+      }
+      if (scrollTop + clientHeight >= scrollHeight) {
+        updateIconToTop(100);
+      } else {
+        updateIconToTop(parseInt(
+          100 * scrollTop / (scrollHeight - clientHeight),
+          10
+        ));
+      }
+    });
+  };
+}
+
+const backToTop = () => {
+  let scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop,
+    delay = 10,
+    time = 200;
+  if (scrollTop <= 20) {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    return;
+  }
+  let step = Math.ceil(scrollTop * delay / time);
+  let timer = setInterval(() => {
+    scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop;
+    if (scrollTop - step <= 0) {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      clearInterval(timer);
+    } else {
+      document.documentElement.scrollTop = scrollTop - step;
+      document.body.scrollTop = scrollTop - step;
+    }
+  }, delay);
+}
+
+document.addEventListener("scroll", handleScoll(), false);
+
+document.querySelector(".back-to-top").addEventListener("click", backToTop, false);
+
+</script>
+
+    </div>
+
+    
+      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  (() => {
+    const mathjaxConfig = {
+      showProcessingMessages: false, //关闭js加载过程信息
+      messageStyle: "none", //不显示信息
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]], //行内公式选择符
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]], //段内公式选择符
+        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"] //避开某些标签
+      },
+      "HTML-CSS": {
+        availableFonts: ["STIX", "TeX"], //可选字体
+        showMathMenu: false //关闭右击菜单显示
+      }
+    }
+
+    let mathjaxInterval = setInterval(() => {
+      if(!window.MathJax){
+        return;
+      }
+      window.MathJax.Hub.Config(mathjaxConfig)
+      window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')])
+
+      clearInterval(mathjaxInterval)
+    }, 10)    
+  })()
+</script>
+    
+
+    <script src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script>
+<script async>
+  let fancyTimer = setInterval(function(){
+    if(!window.$){
+      return;
+    }
+    $(document).ready(function() {
+      $(".post img").each(function () {
+        if($(this).parent().get(0).tagName.toLowerCase() === "a") {
+          return;
+        }
+        // $(this).attr("data-fancybox", "gallery"); // if you add 'data-fancybox', img will display after showed
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "gallery");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      });
+      
+      clearInterval(fancyTimer);
+    });
+  }, 10);
+</script>
+
+    
+  </body>
+
+</html>

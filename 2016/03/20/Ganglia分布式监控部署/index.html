@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta name="author" content="董沅鑫, yuanxin.me@gmail.com">
+  
+  
+  
+  <title>Ganglia企业级系统监控 | 每天遇到更好的你</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="大数据,大数据,">
+  
+
+  <script>
+    console.log('\n%c Hexo-theme-bmw v4.0 ' + '%c 🎉 https://github.com/dongyuanxin/theme-bmw 🎉\n' + '\n%c View demo online ' + '%c 🔍 https://godbmw.com/ 🔍  \n' , 'color: #fadfa3; background: #030307; padding:3px 0;', '', 'color: #fadfa3; background: #030307; padding:3px 0;', '');
+  </script>
+
+  
+
+  
+
+  
+    <link rel="icon" href="/images/favicon.png">
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+  
+
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/icon/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+  <script src="/js/util.js"></script>
+<script src="/js/valine.min.js"></script>
+
+  
+
+  
+    <link href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js" async></script>
+  
+
+  
+    <link href="https://cdn.bootcss.com/social-share.js/1.0.16/css/share.min.css" rel="stylesheet">
+  
+  
+  <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js" async></script>
+  
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.0/dist/av-min.js"></script>
+  
+
+</head>
+
+  <body>
+
+    
+
+    <div id="app">
+
+      <div class="header-wrap">
+  <header>
+    <div class="site-brand">
+      <div class="site-title">
+        <!-- <a href="/">MatrixSparse</a> -->
+        <img alt="logo" class="antd-pro-layouts-user-layout-logo" src="/images/favicon.png" style="width: 40px;height: 40px;margin-top: 10px;margin-left: 5px;">
+      </div>
+    </div>
+    <nav class="site-navigation">
+      <ul class="nav-menu">
+      
+        <li class="nav-item" data-path="/">
+          
+            <a href="/" target="_self">
+              主页
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          
+            <a href="/archives/" target="_self">
+              归档
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          
+            <a href="/categories/" target="_self">
+              分类
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          
+            <a href="/tags/" target="_self">
+              标签
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="">
+          
+            <a href="javascript:void(0);" v-else="">博客地址</a>
+            <ul class="nav-menu--dropdown">
+              
+                <li>
+                  <a href="https://blog.csdn.net/qq_25371579" target="_blank">
+                    CSDN
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://github.com/matrixsparse" target="_blank">
+                    Github
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://matrixsparse.github.io/" target="_blank">
+                    Github Page
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+      </ul>
+    </nav>
+    <i class="iconfont icon-menu"></i>
+  </header>
+</div>
+
+<script>
+  let links = document.querySelectorAll('.nav-item');
+  for(let link of links){
+    let childrenLink = link.querySelector('ul');
+    link.addEventListener('mouseenter', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown active";
+      }
+    })
+    link.addEventListener('mouseleave', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown";
+      }
+    })
+  }
+  let rootRealPath = getRealPath(window.location.pathname, true);
+  for(let link of links) {
+    let linkPath = link.getAttribute("data-path");
+    if(linkPath && getRealPath(linkPath, true) === rootRealPath) {
+      link.className = "nav-item hover";
+    }
+  }
+
+  let iconMenu = document.querySelector("i.iconfont.icon-menu"),
+    iconMenuClicked = false;
+  let navDOM = document.querySelector("nav.site-navigation");
+  iconMenu.addEventListener("click", () => {
+    iconMenuClicked
+      ? navDOM.className = "site-navigation active"
+      : navDOM.className = "site-navigation";
+    iconMenuClicked = !iconMenuClicked;
+  })
+</script>
+
+
+      
+
+
+
+
+
+
+
+
+<div class="container post-index">
+
+  
+
+<div class="post">
+  <h1 class="article-title">
+    <span>Ganglia企业级系统监控</span>
+  </h1>
+  <div class="article-top-meta">
+    <span>
+      发布 : 
+      2016-03-20
+    </span>
+    
+      <span>
+        分类 : 
+          <a href="/categories/大数据/">
+            大数据
+          </a>
+      </span>
+    
+    
+      <span>
+        浏览 : <span class="article-timer" data-identity="Ganglia分布式监控部署"></span>
+      </span>
+    
+  </div>
+
+  
+
+  <div class="article-content">
+    <div class="markdown-body">
+      <h2 id="1-现在有哪些分布式企业级监控？"><a href="#1-现在有哪些分布式企业级监控？" class="headerlink" title="1.现在有哪些分布式企业级监控？"></a>1.现在有哪些分布式企业级监控？</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(1).Ganglia(无界面配置)</span><br><span class="line">(2).Nagios(无界面配置)</span><br><span class="line">(3).Zabbix(界面配置)</span><br></pre></td></tr></table></figure>
+<h2 id="2-Ganglia监控对象"><a href="#2-Ganglia监控对象" class="headerlink" title="2.Ganglia监控对象"></a>2.Ganglia监控对象</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">(1).监控Hadoop(在这方面用的比较多)</span><br><span class="line">(2).监控Hbase</span><br></pre></td></tr></table></figure>
+<h2 id="3-Ganglia简介"><a href="#3-Ganglia简介" class="headerlink" title="3.Ganglia简介"></a>3.Ganglia简介</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Ganglia 是 UC Berkeley 发起的一个开源监视项目，设计用于测量数以千计的节点。</span><br><span class="line">每台计算机都运行一个收集和发送度量数据（如处理器速度、内存使用量等）的名为 gmond 的守护进程。</span><br><span class="line">它将从操作系统和指定主机中收集。</span><br><span class="line">接收所有度量数据的主机可以显示这些数据并且可以将这些数据的精简表单传递到层次结构中。</span><br><span class="line">正因为有这种层次结构模式，才使得Ganglia可以实现良好的扩展。gmond带来的系统负载非常少，这使得它成为在集群中各台计算机上运行的一段代码，而不会影响用户性能</span><br></pre></td></tr></table></figure>
+<h3 id="3-1-Ganglia组件"><a href="#3-1-Ganglia组件" class="headerlink" title="3.1.Ganglia组件"></a>3.1.Ganglia组件</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">Ganglia 监控套件包括三个主要部分：gmond，gmetad，和网页接口，通常被称为ganglia-web。</span><br><span class="line"></span><br><span class="line">Gmond :是一个守护进程，他运行在每一个需要监测的节点上，收集监测统计，发送和接受在同一个组播或单播通道上的统计信息 </span><br><span class="line">如果它是一个发送者(mute=no)它会收集基本指标，比如系统负载（load_one）,CPU利用率。</span><br><span class="line">它同时也会发送用户通过添加C/Python模块来自定义的指标。 </span><br><span class="line">如果它是一个接收者（deaf=no）它会聚合所有从别的主机上发来的指标，并把它们都保存在内存缓冲区中。</span><br><span class="line"></span><br><span class="line">Gmetad:也是一个守护进程，他定期检查gmonds，从那里拉取数据，并将他们的指标存储在RRD存储引擎中。</span><br><span class="line">它可以查询多个集群并聚合指标。</span><br><span class="line">它也被用于生成用户界面的web前端。</span><br><span class="line"></span><br><span class="line">Ganglia-web :顾名思义，它应该安装在有gmetad运行的机器上，以便读取RRD文件。 </span><br><span class="line">集群是主机和度量数据的逻辑分组，比如数据库服务器，网页服务器，生产，测试，QA等，他们都是完全分开的，你需要为每个集群运行单独的gmond实例。</span><br><span class="line"></span><br><span class="line">一般来说每个集群需要一个接收的gmond，每个网站需要一个gmetad。</span><br></pre></td></tr></table></figure>
+<h3 id="3-2-单播模式下的Ganglia"><a href="#3-2-单播模式下的Ganglia" class="headerlink" title="3.2.单播模式下的Ganglia"></a>3.2.单播模式下的Ganglia</h3><p><img src="http://p1.bpimg.com/581590/ea7e70201da0691c.png" alt="Markdown"></p>
+<h3 id="3-3-广播模式下的Ganglia"><a href="#3-3-广播模式下的Ganglia" class="headerlink" title="3.3.广播模式下的Ganglia"></a>3.3.广播模式下的Ganglia</h3><p><img src="http://p1.bpimg.com/581590/16f4f36c1b3ef811.png" alt="Markdown"></p>
+<h2 id="4-Ganglia安装"><a href="#4-Ganglia安装" class="headerlink" title="4.Ganglia安装"></a>4.Ganglia安装</h2><h3 id="4-1-节点部署服务情况"><a href="#4-1-节点部署服务情况" class="headerlink" title="4.1.节点部署服务情况"></a>4.1.节点部署服务情况</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">node01(192.168.230.10)、node02(192.168.230.11)、node03(192.168.230.12)、node04(192.168.230.13)</span><br><span class="line">NameNode(NNA)   NameNode(NNS)</span><br><span class="line">   DataNodeDataNode </span><br><span class="line">ResourceManager(RMA)ResourceManager(RMS)</span><br><span class="line">   NodeManager NodeManager  NodeManager</span><br><span class="line">   zookeeper   zookeeperzookeeper</span><br></pre></td></tr></table></figure>
+<h3 id="4-2-安装yum-epel源"><a href="#4-2-安装yum-epel源" class="headerlink" title="4.2.安装yum epel源"></a>4.2.安装yum epel源</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@node01 ~]<span class="comment"># rpm -Uvh http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm</span></span><br><span class="line">[root@node02 ~]<span class="comment"># rpm -Uvh http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm</span></span><br><span class="line">[root@node03 ~]<span class="comment"># rpm -Uvh http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm</span></span><br><span class="line">[root@node04 ~]<span class="comment"># rpm -Uvh http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bpimg.com/581590/019b5a7687e7f012.png" alt="Markdown"></p>
+<h3 id="4-3-安装依赖包"><a href="#4-3-安装依赖包" class="headerlink" title="4.3.安装依赖包"></a>4.3.安装依赖包</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@node01 ~]<span class="comment"># yum -y install httpd-devel automake autoconf libtool ncurses-devel libxslt groff pcre-devel pkgconfig</span></span><br><span class="line">[root@node02 ~]<span class="comment"># yum -y install httpd-devel automake autoconf libtool ncurses-devel libxslt groff pcre-devel pkgconfig</span></span><br><span class="line">[root@node03 ~]<span class="comment"># yum -y install httpd-devel automake autoconf libtool ncurses-devel libxslt groff pcre-devel pkgconfig</span></span><br><span class="line">[root@node04 ~]<span class="comment"># yum -y install httpd-devel automake autoconf libtool ncurses-devel libxslt groff pcre-devel pkgconfig</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://i1.piimg.com/581590/37108d13fb1e6044.png" alt="Markdown"></p>
+<h3 id="4-4-查看Ganglia安装包"><a href="#4-4-查看Ganglia安装包" class="headerlink" title="4.4.查看Ganglia安装包"></a>4.4.查看Ganglia安装包</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node01 ~]<span class="comment"># yum search ganglia</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://i1.piimg.com/581590/86c29e4973bf6ec8.png" alt="Markdown"></p>
+<h3 id="4-5-在NNA上安装Ganglia"><a href="#4-5-在NNA上安装Ganglia" class="headerlink" title="4.5.在NNA上安装Ganglia"></a>4.5.在NNA上安装Ganglia</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">yum -y install ganglia* (包括gmetad，gmond，ganglia-web)</span><br><span class="line">[root@node01 ~]<span class="comment"># yum -y install ganglia*</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://i1.piimg.com/581590/db652460d758a136.png" alt="Markdown"></p>
+<h3 id="4-6-其他节点上安装Ganglia-Gmond"><a href="#4-6-其他节点上安装Ganglia-Gmond" class="headerlink" title="4.6.其他节点上安装Ganglia-Gmond"></a>4.6.其他节点上安装Ganglia-Gmond</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@node02 ~]<span class="comment"># yum install ganglia-gmond</span></span><br><span class="line">[root@node03 ~]<span class="comment"># yum install ganglia-gmond</span></span><br><span class="line">[root@node04 ~]<span class="comment"># yum install ganglia-gmond</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://i1.piimg.com/581590/5466adff3a4a76aa.png" alt="Markdown"></p>
+<h3 id="4-7-在安装好Ganglia后，我们需要对Ganglia工具进行配置，在由Ganglia-web服务的节点上，我们需要配置web服务"><a href="#4-7-在安装好Ganglia后，我们需要对Ganglia工具进行配置，在由Ganglia-web服务的节点上，我们需要配置web服务" class="headerlink" title="4.7.在安装好Ganglia后，我们需要对Ganglia工具进行配置，在由Ganglia-web服务的节点上，我们需要配置web服务"></a>4.7.在安装好Ganglia后，我们需要对Ganglia工具进行配置，在由Ganglia-web服务的节点上，我们需要配置web服务</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node01 hadoop-2.5.1]<span class="comment"># vi /etc/httpd/conf.d/ganglia.conf</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">#</span><br><span class="line"># Ganglia monitoring system php web frontend</span><br><span class="line">#</span><br><span class="line"></span><br><span class="line">Alias /ganglia /usr/share/ganglia</span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">Location</span> /<span class="attr">ganglia</span>&gt;</span></span><br><span class="line">Order deny,allow</span><br><span class="line"># Deny from all</span><br><span class="line">Allow from all</span><br><span class="line"># Allow from 127.0.0.1</span><br><span class="line"># Allow from ::1</span><br><span class="line"># Allow from .example.com</span><br><span class="line"><span class="tag">&lt;/<span class="name">Location</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://i1.piimg.com/581590/863e328f685c225a.png" alt="Markdown"></p>
+<h3 id="4-8-在-etc-ganglia-gmetad-conf修改内容如下所示："><a href="#4-8-在-etc-ganglia-gmetad-conf修改内容如下所示：" class="headerlink" title="4.8.在/etc/ganglia/gmetad.conf修改内容如下所示："></a>4.8.在/etc/ganglia/gmetad.conf修改内容如下所示：</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node01 hadoop-2.5.1]<span class="comment"># vi /etc/ganglia/gmetad.conf</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/581590/05c39d337c784825.png" alt="Markdown"></p>
+<h3 id="4-9-在NNA配置gmond-conf"><a href="#4-9-在NNA配置gmond-conf" class="headerlink" title="4.9.在NNA配置gmond.conf"></a>4.9.在NNA配置gmond.conf</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node01 hadoop-2.5.1]<span class="comment"># vi /etc/ganglia/gmond.conf</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/581590/113ab56520a29ba2.png" alt="Markdown"></p>
+<p><img src="http://p1.bqimg.com/581590/1e2c614b99a2e2c7.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@node01 hadoop-2.5.1]<span class="comment"># scp -r /etc/ganglia/gmond.conf root@node02:/etc/ganglia/</span></span><br><span class="line">[root@node01 hadoop-2.5.1]<span class="comment"># scp -r /etc/ganglia/gmond.conf root@node03:/etc/ganglia/</span></span><br><span class="line">[root@node01 hadoop-2.5.1]<span class="comment"># scp -r /etc/ganglia/gmond.conf root@node04:/etc/ganglia/</span></span><br></pre></td></tr></table></figure>
+<h3 id="4-10-配置主节点监控文件"><a href="#4-10-配置主节点监控文件" class="headerlink" title="4.10.配置主节点监控文件"></a>4.10.配置主节点监控文件</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[root@node01 hadoop-2.5.1]<span class="comment"># vi /opt/modules/hadoop-2.5.1/etc/hadoop/hadoop-metrics2.properties</span></span><br><span class="line"></span><br><span class="line">namenode.sink.ganglia.servers=node01:8649</span><br><span class="line">resourcemanager.sink.ganglia.servers=node01:8649</span><br><span class="line">mrappmaster.sink.ganglia.servers=node01:8649</span><br><span class="line">jobhistoryserver.sink.ganglia.servers=node01:8649</span><br></pre></td></tr></table></figure>
+<h3 id="4-11-从节点配置"><a href="#4-11-从节点配置" class="headerlink" title="4.11.从节点配置"></a>4.11.从节点配置</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@node02 hadoop-2.5.1]<span class="comment"># vi /opt/modules/hadoop-2.5.1/etc/hadoop/hadoop-metrics2.properties</span></span><br><span class="line"></span><br><span class="line">datanode.sink.ganglia.servers=node02:8649</span><br><span class="line">nodemanager.sink.ganglia.server=node02:8649</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@node02 hadoop-2.5.1]<span class="comment"># vi /opt/modules/hadoop-2.5.1/etc/hadoop/hadoop-metrics2.properties</span></span><br><span class="line"></span><br><span class="line">datanode.sink.ganglia.servers=node03:8649</span><br><span class="line">nodemanager.sink.ganglia.server=node03:8649</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@node04 hadoop-2.5.1]<span class="comment"># vi /opt/modules/hadoop-2.5.1/etc/hadoop/hadoop-metrics2.properties</span></span><br><span class="line"></span><br><span class="line">datanode.sink.ganglia.servers=node04:8649</span><br><span class="line">nodemanager.sink.ganglia.server=node04:8649</span><br></pre></td></tr></table></figure>
+<h3 id="4-12-安装-php环境"><a href="#4-12-安装-php环境" class="headerlink" title="4.12.安装 php环境"></a>4.12.安装 php环境</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ganglia使用一个web前端服务来展示监控信息。该服务是使用PHP编写的。因此需要配置php运行环境。</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@node01 ~]<span class="comment"># yum install httpd</span></span><br><span class="line">[root@node01 ~]<span class="comment"># yum install php</span></span><br><span class="line">[root@node01 ~]<span class="comment"># service httpd start</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">在/<span class="keyword">var</span>/www/html/下面建立一个文件info.php，内容如下：</span><br><span class="line"><span class="meta">&lt;?php</span> </span><br><span class="line"><span class="keyword">echo</span> <span class="string">'Hello, world!'</span>; </span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">在浏览器中输入http://192.168.230.10/info.php，看看是否能正常工作</span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/581590/f6582a4684395fa5.png" alt="Markdown"></p>
+<h3 id="4-13-启动ganglia"><a href="#4-13-启动ganglia" class="headerlink" title="4.13.启动ganglia"></a>4.13.启动ganglia</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@node01 html]<span class="comment"># service gmetad start</span></span><br><span class="line">[root@node01 html]<span class="comment"># service gmond start</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/581590/a477069b6f215adf.png" alt="Markdown"></p>
+<h3 id="4-14-从页面上访问"><a href="#4-14-从页面上访问" class="headerlink" title="4.14.从页面上访问"></a>4.14.从页面上访问</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">http://192.168.230.10/ganglia</span><br><span class="line"></span><br><span class="line">一些注意问题：</span><br><span class="line">1、gmetad收集到的信息被放到/var/lib/ganglia/rrds/</span><br><span class="line">2、可以通过以下命令检查是否有数据在传输</span><br><span class="line"></span><br><span class="line">如果报错There was an error collecting ganglia data (127.0.0.1:8652): </span><br><span class="line">fsockopen error: Connection refused，然后gmetad status显示gmetad 已死，</span><br><span class="line">但是 subsys 被锁，这需要改一下目录的权限 chown matrix:matrix /var/lib/ganglia/rrds即可解决。</span><br></pre></td></tr></table></figure>
+    </div>
+  </div>
+  
+    <div class="copy-right">
+      <div class="markdown-body">
+        <blockquote>
+        
+        
+          本文作者 : Matrix <br>
+        
+        原文链接 : <a href="">http://yoursite.com/2016/03/20/Ganglia分布式监控部署/</a><br>
+        版权声明 : 本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+        </blockquote>
+      </div>
+    </div>
+  
+  
+  
+    <div class="social-share" style="margin-top: -2rem" data-wechat-qrcode-title="<p>微信扫一扫</p>" data-wechat-qrcode-helper="<p>微信右上角, 扫一扫分享</p>" data-sites="qzone, qq, weibo, wechat, douban, google, facebook, twitter">
+  <span style="color: #6b7487; font-size: 1.4rem;">分享到: </span>
+</div>
+<script src="https://cdn.bootcss.com/social-share.js/1.0.16/js/social-share.min.js" async></script>
+  
+
+  
+    <div id="reward">
+  
+    <p id="reward-meta">知识 & 情怀 | 二者兼得</p>
+  
+  <button id="reward-btn">
+    
+    <span>投食</span>
+  </button>
+  <div id="reward-qrcode">
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/wechatpay.jpg" alt="微信扫一扫, 向我投食">
+        <p class="qrcode-meta">微信扫一扫, 向我投食</p>
+      </div>
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/alipaypay.jpg" alt="支付宝扫一扫, 向我投食">
+        <p class="qrcode-meta">支付宝扫一扫, 向我投食</p>
+      </div>
+    
+  </div>
+
+</div>
+
+<script>
+  (() => {
+    let button = document.querySelector('#reward-btn'),
+      qrcode = document.querySelector('#reward-qrcode'),
+      display = false;
+    
+    button.addEventListener('click', () => {
+      qrcode.style.display = display ? 'none' : 'block'
+      display = !display
+    }, false)
+  })()
+</script>
+  
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+      <span>
+        
+          <i class="iconfont icon-06tags"></i>标签: 
+          
+          <span class="span--tag">
+            <a href="/tags/大数据/">
+              #大数据
+            </a>
+          </span>
+          
+        
+      </span>
+    </div>
+    <div class="article-meta pull-right">
+    </div>
+  </div>
+</div>
+
+
+  <aside id="sidebar">
+    <p id="sidebar-header"></p>
+    <ol id="sidebar-toc"></ol>
+  </aside>
+  <script async>setTimeout(generateToc, 10);</script>
+
+
+  <nav class="post-navigation">
+    
+      <div class="nav-pre">
+        <i class="iconfont icon-prev"></i>
+        上一篇:
+        <a href="/2016/03/20/Hbase的API使用/" target="_self">HBase的API使用</a>
+      </div>
+    
+    
+      <div class="nav-next">
+        下一篇:
+        <a href="/2016/03/20/MR案例之WordCount/" target="_self">MR案例之WordCount</a>
+        <i class="iconfont icon-next"></i>
+      </div>
+    
+  </nav>
+
+  
+    <a href="#comment" class="comment-anchor"></a>
+<div class="comment-title"><i class="iconfont icon-footprint"></i> 留下足迹 <i class="iconfont icon-footprint"></i></div>
+<div id="vcomments"></div>
+
+<script defer>
+  if( true ) {
+    let path = getRealPath()
+    new Valine({
+      el: "#vcomments",
+      appId: "Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz",
+      appKey: "WaR7nrzhliHj9aVwdQzkdlGd",
+      notify: false,
+      verify: false,
+      avatar: "robohash",
+      placeholder: "正确填写邮箱, 才能及时收到回复哦♪(^∇^*)",
+      path
+    });
+  }
+</script>
+   
+
+  
+    <script defer>
+const valineAPI = (() => {
+  try {
+    AV.init("Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz", "WaR7nrzhliHj9aVwdQzkdlGd");
+  } catch(error) {}
+  const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+      query.equalTo("identity", identity);
+      query.find().then(results => {
+        resolve(results.length > 0);
+      }, error => reject(error));
+    })
+  }
+
+  const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+      let querys = [];
+      for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+      }
+      query = AV.Query.or.apply(null ,querys);
+    } else {
+      identity = identity || getRealPath();
+      query = new AV.Query("Timer");
+      query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+      query.find()
+      .then(results => resolve(results))
+      .catch(error => reject(error))
+    })
+  }
+
+  const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let Todo = AV.Object.extend('Timer');
+      let todo = new Todo();
+      todo.set("times", 1);
+      todo.set("identity", identity);
+      todo.save().then(res => resolve(true), error => reject(error));
+    })
+  }
+
+  const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let query = new AV.Query('Timer');
+      query.equalTo("identity", identity);
+      query.find().then(todos => {
+        todos.forEach(todo => {
+          todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+      }).then(todos => resolve(true), error => reject(error));
+    })
+  }
+
+  return {
+    isExist,
+    _get,
+    update,
+    create
+  }
+})()
+
+const calcAndWriteTimes = () => {
+  let isPost = true;
+
+  let timerAllDOM = document.querySelectorAll(".article-timer");
+
+  if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+      if(exist) {
+        return valineAPI.update(identity);
+      }
+      return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+  }
+
+  let timerDOMCache = {};
+
+  for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+      timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+      timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+      };
+    }
+  }
+
+  let identities = Object.keys(timerDOMCache);
+  valineAPI._get(identities).then(results => {
+    for(let result of results) {
+      let {identity, times} = result.attributes;
+      timerDOMCache[identity].times = times;
+      timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+      if(timerDOMCache[identity].times){
+        continue;
+      }
+      timerDOMCache[identity].dom.map(item => item.innerText = 1);
+      valineAPI.create(identity);
+    }
+  }).catch(error => console.log(error.message))
+}
+
+if(true){
+  calcAndWriteTimes();
+}
+</script>
+   
+
+</div>
+
+
+      <footer>
+  <p class="site-info">
+    博客已萌萌哒运行<span id="time-to-now"></span><span class="my-face">(●'◡'●)ﾉ♥</span>
+    <br>
+    Theme - <a href="https://github.com/dongyuanxin/theme-bmw">BMW</a> | Powered by <a href="https://godbmw.com/">GodBMW</a>
+    <br>
+    
+      Copyright © 2019 Matrix
+    
+  </p>
+</footer>
+
+
+
+<script>
+const timeToNowDOM = document.querySelector("#time-to-now");
+const startTimestamp = new Date(2016, 4, 10).getTime();
+
+const updateTimeStr = () => {
+  let offset = parseInt(
+      (new Date().getTime() - startTimestamp) / 1000,
+      10
+    ),
+    day = Math.floor(offset / 86400),
+    hour = Math.floor((offset % 86400) / 3600),
+    minute = Math.floor(((offset % 86400) % 3600) / 60),
+    second = Math.floor(((offset % 86400) % 3600) % 60);
+  timeToNowDOM.innerHTML =
+    day + "天" + hour + "小时" + minute + "分钟" + second + "秒";
+  setTimeout(updateTimeStr, 500);
+}
+
+setTimeout(updateTimeStr, 500);
+</script>
+
+
+      <div class="back-to-top hidden">
+  <span>
+    <i class="iconfont icon-60"></i><span></span>%
+  </span>
+</div>
+
+<script>
+const updateIconToTop = percent => {
+  let dom = document.querySelector(".back-to-top span span");
+  dom.innerText = percent;
+  if(percent < 1) {
+    document.querySelector(".back-to-top").className = "back-to-top hidden";
+  } else {
+    document.querySelector(".back-to-top").className = "back-to-top";
+  }
+}
+
+const handleScoll = () => {
+  let isRunning = false;
+  return () => {
+    if (isRunning) return;
+    isRunning = true;
+    window.requestAnimationFrame(timestamp => {
+      let scrollTop =
+          document.documentElement.scrollTop || document.body.scrollTop,
+        scrollHeight =
+          document.documentElement.scrollHeight ||
+          document.body.scrollHeight,
+        clientHeight =
+          document.documentElement.clientHeight ||
+          document.body.clientHeight;
+      isRunning = false;
+      if (scrollTop <= 1) {
+        updateIconToTop(0);
+        return;
+      }
+      if (scrollTop + clientHeight >= scrollHeight) {
+        updateIconToTop(100);
+      } else {
+        updateIconToTop(parseInt(
+          100 * scrollTop / (scrollHeight - clientHeight),
+          10
+        ));
+      }
+    });
+  };
+}
+
+const backToTop = () => {
+  let scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop,
+    delay = 10,
+    time = 200;
+  if (scrollTop <= 20) {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    return;
+  }
+  let step = Math.ceil(scrollTop * delay / time);
+  let timer = setInterval(() => {
+    scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop;
+    if (scrollTop - step <= 0) {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      clearInterval(timer);
+    } else {
+      document.documentElement.scrollTop = scrollTop - step;
+      document.body.scrollTop = scrollTop - step;
+    }
+  }, delay);
+}
+
+document.addEventListener("scroll", handleScoll(), false);
+
+document.querySelector(".back-to-top").addEventListener("click", backToTop, false);
+
+</script>
+
+    </div>
+
+    
+      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  (() => {
+    const mathjaxConfig = {
+      showProcessingMessages: false, //关闭js加载过程信息
+      messageStyle: "none", //不显示信息
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]], //行内公式选择符
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]], //段内公式选择符
+        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"] //避开某些标签
+      },
+      "HTML-CSS": {
+        availableFonts: ["STIX", "TeX"], //可选字体
+        showMathMenu: false //关闭右击菜单显示
+      }
+    }
+
+    let mathjaxInterval = setInterval(() => {
+      if(!window.MathJax){
+        return;
+      }
+      window.MathJax.Hub.Config(mathjaxConfig)
+      window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')])
+
+      clearInterval(mathjaxInterval)
+    }, 10)    
+  })()
+</script>
+    
+
+    <script src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script>
+<script async>
+  let fancyTimer = setInterval(function(){
+    if(!window.$){
+      return;
+    }
+    $(document).ready(function() {
+      $(".post img").each(function () {
+        if($(this).parent().get(0).tagName.toLowerCase() === "a") {
+          return;
+        }
+        // $(this).attr("data-fancybox", "gallery"); // if you add 'data-fancybox', img will display after showed
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "gallery");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      });
+      
+      clearInterval(fancyTimer);
+    });
+  }, 10);
+</script>
+
+    
+  </body>
+
+</html>

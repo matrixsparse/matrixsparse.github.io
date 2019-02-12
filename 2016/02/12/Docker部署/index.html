@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta name="author" content="董沅鑫, yuanxin.me@gmail.com">
+  
+  
+  
+  <title>Docker部署 | 每天遇到更好的你</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="Docker,Docker,">
+  
+
+  <script>
+    console.log('\n%c Hexo-theme-bmw v4.0 ' + '%c 🎉 https://github.com/dongyuanxin/theme-bmw 🎉\n' + '\n%c View demo online ' + '%c 🔍 https://godbmw.com/ 🔍  \n' , 'color: #fadfa3; background: #030307; padding:3px 0;', '', 'color: #fadfa3; background: #030307; padding:3px 0;', '');
+  </script>
+
+  
+
+  
+
+  
+    <link rel="icon" href="/images/favicon.png">
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+  
+
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/icon/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+  <script src="/js/util.js"></script>
+<script src="/js/valine.min.js"></script>
+
+  
+
+  
+    <link href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js" async></script>
+  
+
+  
+    <link href="https://cdn.bootcss.com/social-share.js/1.0.16/css/share.min.css" rel="stylesheet">
+  
+  
+  <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js" async></script>
+  
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.0/dist/av-min.js"></script>
+  
+
+</head>
+
+  <body>
+
+    
+
+    <div id="app">
+
+      <div class="header-wrap">
+  <header>
+    <div class="site-brand">
+      <div class="site-title">
+        <!-- <a href="/">MatrixSparse</a> -->
+        <img alt="logo" class="antd-pro-layouts-user-layout-logo" src="/images/favicon.png" style="width: 40px;height: 40px;margin-top: 10px;margin-left: 5px;">
+      </div>
+    </div>
+    <nav class="site-navigation">
+      <ul class="nav-menu">
+      
+        <li class="nav-item" data-path="/">
+          
+            <a href="/" target="_self">
+              主页
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          
+            <a href="/archives/" target="_self">
+              归档
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          
+            <a href="/categories/" target="_self">
+              分类
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          
+            <a href="/tags/" target="_self">
+              标签
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="">
+          
+            <a href="javascript:void(0);" v-else="">博客地址</a>
+            <ul class="nav-menu--dropdown">
+              
+                <li>
+                  <a href="https://blog.csdn.net/qq_25371579" target="_blank">
+                    CSDN
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://github.com/matrixsparse" target="_blank">
+                    Github
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://matrixsparse.github.io/" target="_blank">
+                    Github Page
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+      </ul>
+    </nav>
+    <i class="iconfont icon-menu"></i>
+  </header>
+</div>
+
+<script>
+  let links = document.querySelectorAll('.nav-item');
+  for(let link of links){
+    let childrenLink = link.querySelector('ul');
+    link.addEventListener('mouseenter', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown active";
+      }
+    })
+    link.addEventListener('mouseleave', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown";
+      }
+    })
+  }
+  let rootRealPath = getRealPath(window.location.pathname, true);
+  for(let link of links) {
+    let linkPath = link.getAttribute("data-path");
+    if(linkPath && getRealPath(linkPath, true) === rootRealPath) {
+      link.className = "nav-item hover";
+    }
+  }
+
+  let iconMenu = document.querySelector("i.iconfont.icon-menu"),
+    iconMenuClicked = false;
+  let navDOM = document.querySelector("nav.site-navigation");
+  iconMenu.addEventListener("click", () => {
+    iconMenuClicked
+      ? navDOM.className = "site-navigation active"
+      : navDOM.className = "site-navigation";
+    iconMenuClicked = !iconMenuClicked;
+  })
+</script>
+
+
+      
+
+
+
+
+
+
+
+
+<div class="container post-index">
+
+  
+
+<div class="post">
+  <h1 class="article-title">
+    <span>Docker部署</span>
+  </h1>
+  <div class="article-top-meta">
+    <span>
+      发布 : 
+      2016-02-12
+    </span>
+    
+      <span>
+        分类 : 
+          <a href="/categories/Docker/">
+            Docker
+          </a>
+      </span>
+    
+    
+      <span>
+        浏览 : <span class="article-timer" data-identity="Docker部署"></span>
+      </span>
+    
+  </div>
+
+  
+
+  <div class="article-content">
+    <div class="markdown-body">
+      <h1 id="Docker部署"><a href="#Docker部署" class="headerlink" title="Docker部署"></a>Docker部署</h1><h2 id="1-安装Docker"><a href="#1-安装Docker" class="headerlink" title="1.安装Docker"></a>1.安装Docker</h2><h3 id="1-1-配置YUM源"><a href="#1-1-配置YUM源" class="headerlink" title="1.1.配置YUM源"></a>1.1.配置YUM源</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@docker yum.repos.d]<span class="comment"># vi rdo-release.repo</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://i1.piimg.com/581590/117c8c93f2f0a1e6.png" alt="Markdown"></p>
+<p><img src="http://i1.piimg.com/581590/86f389b168fea8f3.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[root@docker yum.repos.d]<span class="comment"># yum clean all</span></span><br><span class="line">Loaded plugins: fastestmirror</span><br><span class="line">Cleaning repos: base epel extras foreman foreman-plugins openstack-icehouse puppetlabs-deps puppetlabs-products updates</span><br><span class="line">Cleaning up Everything</span><br><span class="line">Cleaning up list of fastest mirrors</span><br></pre></td></tr></table></figure>
+<p><img src="http://i1.piimg.com/581590/c0738d8bddadccbc.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@docker yum.repos.d]<span class="comment"># yum makecache</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://i1.piimg.com/581590/2165b4ecf7713b0b.png" alt="Markdown"></p>
+<h3 id="1-2-安装docker镜像"><a href="#1-2-安装docker镜像" class="headerlink" title="1.2.安装docker镜像"></a>1.2.安装docker镜像</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@docker ~]<span class="comment"># yum -y install docker-io</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://i1.piimg.com/581590/ac90b8e8b9241b0b.png" alt="Markdown"></p>
+<h4 id="1-2-1-docker启动不成功"><a href="#1-2-1-docker启动不成功" class="headerlink" title="1.2.1.docker启动不成功"></a>1.2.1.docker启动不成功</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">查看日志</span><br><span class="line">[root@docker ~]<span class="comment"># tail -f /var/log/docker</span></span><br><span class="line">[root@docker ~]<span class="comment"># yum upgrade device-mapper-libs</span></span><br></pre></td></tr></table></figure>
+<h3 id="1-3-启动docker服务"><a href="#1-3-启动docker服务" class="headerlink" title="1.3.启动docker服务"></a>1.3.启动docker服务</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@docker ~]<span class="comment"># service docker start</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://i1.piimg.com/581590/0f13bb4d92cc54df.png" alt="Markdown"></p>
+<h3 id="1-4-设置docker开启启动"><a href="#1-4-设置docker开启启动" class="headerlink" title="1.4.设置docker开启启动"></a>1.4.设置docker开启启动</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@docker ~]<span class="comment"># chkconfig docker on</span></span><br></pre></td></tr></table></figure>
+<h3 id="1-5-docker搜索镜像"><a href="#1-5-docker搜索镜像" class="headerlink" title="1.5.docker搜索镜像"></a>1.5.docker搜索镜像</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@docker ~]<span class="comment"># docker search nginx</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://i1.piimg.com/581590/8bd365f395851187.png" alt="Markdown"></p>
+<h3 id="1-6-docker帮助命令"><a href="#1-6-docker帮助命令" class="headerlink" title="1.6.docker帮助命令"></a>1.6.docker帮助命令</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@docker ~]<span class="comment"># docker --help</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://i1.piimg.com/581590/12b58f3173983c0c.png" alt="Markdown"></p>
+<p><img src="http://p1.bqimg.com/581590/0ce7228eec9f8063.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">1、获取镜像</span><br><span class="line">docker pull 镜像路径地址</span><br><span class="line"></span><br><span class="line">2、启动容器</span><br><span class="line">docker run -d(后台进程) -p(外部端口和容器端口映射) 8090:80 --name cname imagename</span><br><span class="line"></span><br><span class="line">3、容器内进程</span><br><span class="line">docker top 容器名</span><br><span class="line"></span><br><span class="line">4、查看容器</span><br><span class="line">docker ps</span><br><span class="line"></span><br><span class="line">5、查看镜像</span><br><span class="line">docker images</span><br><span class="line"></span><br><span class="line">6、删除镜像容器</span><br><span class="line">docker rm 容器 docker rmi 镜像</span><br><span class="line"></span><br><span class="line">7、容器内日志</span><br><span class="line">docker logs</span><br></pre></td></tr></table></figure>
+<h3 id="1-7-查看docker镜像"><a href="#1-7-查看docker镜像" class="headerlink" title="1.7.查看docker镜像"></a>1.7.查看docker镜像</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@docker ~]<span class="comment"># docker images</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/581590/8f27b0b93e4f365b.png" alt="Markdown"></p>
+<h3 id="1-8-查看在docker容器中安装nginx镜像-拉取镜像"><a href="#1-8-查看在docker容器中安装nginx镜像-拉取镜像" class="headerlink" title="1.8.查看在docker容器中安装nginx镜像/拉取镜像"></a>1.8.查看在docker容器中安装nginx镜像/拉取镜像</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@docker ~]<span class="comment"># docker pull index.tenxcloud.com/docker_library/nginx</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/581590/44ede161d924e3f4.png" alt="Markdown"></p>
+<p>[root@docker ~]# docker images</p>
+<p><img src="http://p1.bqimg.com/581590/e332e69b35469569.png" alt="Markdown"></p>
+<h3 id="1-9-docker容器启动"><a href="#1-9-docker容器启动" class="headerlink" title="1.9.docker容器启动"></a>1.9.docker容器启动</h3><p>[root@docker ~]# docker run -d -p 8090:80 –name matrix index.tenxcloud.com/docker_library/nginx</p>
+<p><img src="http://i1.piimg.com/581590/0e226e9d43d25a2d.png" alt="Markdown"></p>
+<h3 id="1-10-查看docker容器"><a href="#1-10-查看docker容器" class="headerlink" title="1.10.查看docker容器"></a>1.10.查看docker容器</h3><p>[root@docker ~]# docker ps</p>
+<p><img src="http://i1.piimg.com/581590/f860c9daf2f74b28.png" alt="Markdown"></p>
+<h3 id="1-11-查看docker容器版本信息"><a href="#1-11-查看docker容器版本信息" class="headerlink" title="1.11.查看docker容器版本信息"></a>1.11.查看docker容器版本信息</h3><p>[root@docker ~]# docker version</p>
+<p><img src="http://p1.bqimg.com/581590/8ad706200a65663b.png" alt="Markdown"></p>
+<h3 id="1-11-在web浏览器中查看nginx是否启动成功"><a href="#1-11-在web浏览器中查看nginx是否启动成功" class="headerlink" title="1.11.在web浏览器中查看nginx是否启动成功"></a>1.11.在web浏览器中查看nginx是否启动成功</h3><p><a href="http://192.168.230.15:8090/" target="_blank" rel="noopener">http://192.168.230.15:8090/</a></p>
+<p><img src="http://i1.piimg.com/581590/8ca0ce9b6c9b3473.png" alt="Markdown"></p>
+<h2 id="2-进入Docker容器"><a href="#2-进入Docker容器" class="headerlink" title="2.进入Docker容器"></a>2.进入Docker容器</h2><p>[root@docker ~]# docker exec –help</p>
+<p><img src="http://p1.bqimg.com/581590/a28231e6d8cb7387.png" alt="Markdown"></p>
+<p>[root@docker ~]# docker exec -it matrix /bin/bash</p>
+<p><img src="http://p1.bqimg.com/581590/a99283b361b112fe.png" alt="Markdown"></p>
+<p>root@201aa042ecfb:/# ip a</p>
+<p><img src="http://p1.bqimg.com/581590/58b4f3651b38e36b.png" alt="Markdown"></p>
+<h2 id="3-Docker容器日志查看"><a href="#3-Docker容器日志查看" class="headerlink" title="3.Docker容器日志查看"></a>3.Docker容器日志查看</h2><p>[root@docker ~]# docker logs matrix</p>
+<p><img src="http://i1.piimg.com/581590/48fc9be48b86d930.png" alt="Markdown"></p>
+<h2 id="4-Docker容器内进程"><a href="#4-Docker容器内进程" class="headerlink" title="4.Docker容器内进程"></a>4.Docker容器内进程</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@docker ~]<span class="comment"># docker top matrix</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://i1.piimg.com/581590/d7bd0b3823d9c7e6.png" alt="Markdown"></p>
+<p>[root@docker ~]# brctl show<br>bridge name    bridge id        STP enabled    interfaces<br>docker0        8000.3eb355672a06    no        vethc2bac4f</p>
+<p><img src="http://i1.piimg.com/581590/ce9329df525ecc9d.png" alt="Markdown"></p>
+<h2 id="5-容器详细信息"><a href="#5-容器详细信息" class="headerlink" title="5.容器详细信息"></a>5.容器详细信息</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@docker ~]<span class="comment"># docker inspect matrix</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://i1.piimg.com/581590/958b80d3bbae9e9d.png" alt="Markdown"></p>
+<h2 id="5-Docker网络架构"><a href="#5-Docker网络架构" class="headerlink" title="5.Docker网络架构"></a>5.Docker网络架构</h2><p><img src="http://i1.piimg.com/581590/4d5c24082f810306.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">[root@docker ~]<span class="comment"># iptables -t nat -S</span></span><br><span class="line">-P PREROUTING ACCEPT</span><br><span class="line">-P POSTROUTING ACCEPT</span><br><span class="line">-P OUTPUT ACCEPT</span><br><span class="line">-N DOCKER</span><br><span class="line">-A PREROUTING -m addrtype --dst-type LOCAL -j DOCKER </span><br><span class="line">-A POSTROUTING -s 172.17.0.0/16 ! -o docker0 -j MASQUERADE </span><br><span class="line">-A POSTROUTING -s 172.17.0.0/16 ! -o docker0 -j MASQUERADE </span><br><span class="line">-A POSTROUTING -s 172.17.0.1/32 -d 172.17.0.1/32 -p tcp -m tcp --dport 80 -j MASQUERADE </span><br><span class="line">-A OUTPUT ! -d 127.0.0.0/8 -m addrtype --dst-type LOCAL -j DOCKER </span><br><span class="line">-A DOCKER ! -i docker0 -p tcp -m tcp --dport 8090 -j DNAT --to-destination 172.17.0.1:80 </span><br><span class="line"></span><br><span class="line">非-s地址，非其他任何地址，-o docker0出去，进行地址伪装snat</span><br></pre></td></tr></table></figure>
+<p><img src="http://i1.piimg.com/581590/a8dd0798d707f5ad.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@docker ~]<span class="comment"># yum install tcpdump -y</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bpimg.com/581590/e5c395890109f700.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@docker ~]<span class="comment"># brctl show</span></span><br><span class="line">bridge name	bridge id		STP enabled	interfaces</span><br><span class="line">docker0		8000.3eb355672a06	no		vethc2bac4f</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@docker ~]<span class="comment"># tcpdump -n -i vethc2bac4f icmp</span></span><br><span class="line">tcpdump: WARNING: vethc2bac4f: no IPv4 address assigned</span><br><span class="line">tcpdump: verbose output suppressed, use -v or -vv <span class="keyword">for</span> full protocol decode</span><br><span class="line">listening on vethc2bac4f, link-type EN10MB (Ethernet), capture size 65535 bytes</span><br></pre></td></tr></table></figure>
+<h2 id="6-镜像制作"><a href="#6-镜像制作" class="headerlink" title="6.镜像制作"></a>6.镜像制作</h2><h3 id="6-1-安装Docker："><a href="#6-1-安装Docker：" class="headerlink" title="6.1.安装Docker："></a>6.1.安装Docker：</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@docker ~]<span class="comment"># yum -y install docker-io</span></span><br></pre></td></tr></table></figure>
+<h3 id="6-2-启动Docker："><a href="#6-2-启动Docker：" class="headerlink" title="6.2.启动Docker："></a>6.2.启动Docker：</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@docker ~]<span class="comment"># service docker start</span></span><br></pre></td></tr></table></figure>
+<h3 id="6-3-安装制作CentOS镜像的工具："><a href="#6-3-安装制作CentOS镜像的工具：" class="headerlink" title="6.3.安装制作CentOS镜像的工具："></a>6.3.安装制作CentOS镜像的工具：</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@docker ~]<span class="comment"># yum -y install febootstrap</span></span><br></pre></td></tr></table></figure>
+<h3 id="6-4-制作CentOS镜像文件centos6-image目录"><a href="#6-4-制作CentOS镜像文件centos6-image目录" class="headerlink" title="6.4.制作CentOS镜像文件centos6-image目录"></a>6.4.制作CentOS镜像文件centos6-image目录</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@docker ~]<span class="comment"># febootstrap -i bash -i wget -i yum -i iputils -i iproute -i man -i /</span></span><br><span class="line">vim-minimal -i openssh-server -i openssh-clients -i net-tools centos6 centos6-image http://mirrors.aliyun.com/centos/6/os/x86_64/</span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bpimg.com/581590/30a17f5334134ddb.png" alt="Markdown"></p>
+<p><img src="http://p1.bpimg.com/581590/e37d93bf7740bd2d.png" alt="Markdown"></p>
+<p><img src="http://p1.bqimg.com/581590/1825fb4326230eed.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">查看内核版本、发行版本号</span><br><span class="line">[root@docker ~]<span class="comment"># uname -r</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/581590/0b724e8589bfec31.png" alt="Markdown"></p>
+<h3 id="6-5-制作Docker镜像，镜像名字是centos6-base"><a href="#6-5-制作Docker镜像，镜像名字是centos6-base" class="headerlink" title="6.5.制作Docker镜像，镜像名字是centos6-base"></a>6.5.制作Docker镜像，镜像名字是centos6-base</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> centos6-image &amp;&amp; tar -c .|docker import - centos6-base</span><br><span class="line">[root@docker centos6-image]<span class="comment"># tar -c .|docker import - centos6-base</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bpimg.com/581590/18989196ee763176.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@docker centos6-image]<span class="comment"># docker images</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bpimg.com/581590/127fa2f4ebf919c9.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@docker centos6-image]<span class="comment"># docker run -it --name matriximage centos6-base /bin/bash</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bpimg.com/581590/b88623a1a1bff35c.png" alt="Markdown"></p>
+<p><img src="http://p1.bpimg.com/581590/677fc89e17b698eb.png" alt="Markdown"></p>
+<h3 id="6-6-自动化生成镜像"><a href="#6-6-自动化生成镜像" class="headerlink" title="6.6.自动化生成镜像"></a>6.6.自动化生成镜像</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@docker centos6-image]<span class="comment"># cd</span></span><br><span class="line">[root@docker ~]<span class="comment"># mkdir dockerfile</span></span><br><span class="line">[root@docker ~]<span class="comment"># cd dockerfile</span></span><br><span class="line">[root@docker dockerfile]<span class="comment"># vi Dockerfile</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">#Dockerfile</span><br><span class="line">FROM centos6-base</span><br><span class="line">MAINTAINER matrix</span><br><span class="line">RUN ssh-keygen -q -N &quot;&quot; -t dsa -f /etc/ssh/ssh_host_dsa_key</span><br><span class="line">RUN ssh-keygen -q -N &quot;&quot; -t rsa -f /etc/ssh/ssh_host_rsa_key</span><br><span class="line">RUN sed -ri &apos;s/sessionrequired pam_loginuid.so/#sessionrequired pam_loginuid.so/g&apos; /etc/pam.d/sshd</span><br><span class="line">RUN mkdir -p /root/.ssh &amp;&amp; chown root.root /root &amp;&amp; chmod 700 /root/.ssh</span><br><span class="line">RUN echo &apos;root:123456&apos; | chpasswd</span><br><span class="line">RUN mv /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.backup</span><br><span class="line">RUN wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-6.repo</span><br><span class="line">RUN wget -O /etc/yum.repos.d/epel.repo http://mirrors.aliyun.com/repo/epel-6.repo</span><br><span class="line">RUN yum clean all</span><br><span class="line">ENV LANG en_US.UTF-8</span><br><span class="line">ENV LC_ALL en_US.UTF-8</span><br><span class="line">ADD run.sh /run.sh</span><br><span class="line">RUN chmod 777 /run.sh</span><br><span class="line">EXPOSE 22</span><br><span class="line">EXPOSE 80</span><br><span class="line">CMD [&quot;/run.sh&quot;]</span><br><span class="line">#End</span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/581590/a2167693513472c2.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@docker dockerfile]<span class="comment"># vi run.sh</span></span><br><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line">/usr/sbin/sshd -D</span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/581590/5131fcd102cd27b6.png" alt="Markdown"></p>
+<p><img src="http://p1.bqimg.com/581590/063f94ed845ad8a8.png" alt="Markdown"></p>
+<h3 id="6-7-制作可以ssh登陆的Docker镜像，名字是centos6-ssh"><a href="#6-7-制作可以ssh登陆的Docker镜像，名字是centos6-ssh" class="headerlink" title="6.7.制作可以ssh登陆的Docker镜像，名字是centos6-ssh"></a>6.7.制作可以ssh登陆的Docker镜像，名字是centos6-ssh</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@docker dockerfile]<span class="comment"># docker build -t centos6-ssh .</span></span><br><span class="line">经过前面的六个步骤，一个可以登陆的本地docker镜像就制作好了。</span><br><span class="line">用户名是：root，密码是：123456</span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/581590/68ed737782e9bd41.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@docker dockerfile]<span class="comment"># docker images</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/581590/052b577f9dbbd7ec.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@docker dockerfile]<span class="comment"># docker run -d -p 8888:22 --name ssh01 centos6-ssh</span></span><br><span class="line">9e50796c90b376eb474a79b5c17727df3df6c91f0596c5a60bab06fba22aef65</span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/581590/9cb4f51c1ebbadba.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">[root@docker dockerfile]<span class="comment"># ssh --help</span></span><br><span class="line">usage: ssh [-1246AaCfgKkMNnqsTtVvXxYy] [-b bind_address] [-c cipher_spec]</span><br><span class="line">[-D [bind_address:]port] [-e escape_char] [-F configfile]</span><br><span class="line">[-I pkcs11] [-i identity_file]</span><br><span class="line">[-L [bind_address:]port:host:hostport]</span><br><span class="line">[-l login_name] [-m mac_spec] [-O ctl_cmd] [-o option] [-p port]</span><br><span class="line">[-R [bind_address:]port:host:hostport] [-S ctl_path]</span><br><span class="line">[-W host:port] [-w local_tun[:remote_tun]]</span><br><span class="line">[user@]hostname [<span class="built_in">command</span>]</span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/581590/99befeb3846814cb.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@docker dockerfile]<span class="comment"># ssh -p 8888 root@127.0.0.1</span></span><br><span class="line">root@127.0.0.1<span class="string">'s password: </span></span><br><span class="line"><span class="string">-bash-4.1#</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/581590/4069f6007f92d9a0.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@docker dockerfile]<span class="comment"># docker save index.tenxcloud.com/docker_library/nginx &gt; nginx.tar.gz</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/581590/8b25227106595fd7.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@docker dockerfile]<span class="comment"># ls</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/581590/7ac540b9e3e35f3e.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@docker dockerfile]<span class="comment"># ls -alh</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/581590/c021c157e710985f.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@docker dockerfile]<span class="comment"># docker load -i nginx.tar.gz</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://i1.piimg.com/581590/b66bd5f41063e2ca.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@docker dockerfile]<span class="comment"># docker ps</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/581590/55aad57e48f0ebc9.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@docker dockerfile]<span class="comment"># docker export --help</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/581590/8dfdc4c7761316ac.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">[root@docker dockerfile]<span class="comment"># docker export --help</span></span><br><span class="line"></span><br><span class="line">Usage: docker <span class="built_in">export</span> [OPTIONS] CONTAINER</span><br><span class="line"></span><br><span class="line">Export a filesystem as a tar archive (streamed to STDOUT by default)</span><br><span class="line"></span><br><span class="line">--<span class="built_in">help</span>=<span class="literal">false</span>   Print usage</span><br><span class="line">-o, --output=  Write to a file, instead of STDOUT</span><br><span class="line">You have new mail <span class="keyword">in</span> /var/spool/mail/root</span><br><span class="line"></span><br><span class="line">[root@docker dockerfile]<span class="comment"># docker export -o redis.tar.gz ssh01</span></span><br><span class="line">[root@docker dockerfile]<span class="comment"># ls</span></span><br><span class="line">Dockerfile  nginx.tar.gz  redis.tar.gz  run.sh</span><br><span class="line">You have new mail <span class="keyword">in</span> /var/spool/mail/root</span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/581590/b48b2057b0c6d411.png" alt="Markdown"></p>
+<h3 id="6-8-制作个redis镜像"><a href="#6-8-制作个redis镜像" class="headerlink" title="6.8.制作个redis镜像"></a>6.8.制作个redis镜像</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[root@docker dockerfile]<span class="comment"># mkdir redis</span></span><br><span class="line">[root@docker dockerfile]<span class="comment"># cd r</span></span><br><span class="line">redis/redis.tar.gz  run.sh</span><br><span class="line">[root@docker dockerfile]<span class="comment"># cd redis</span></span><br><span class="line">[root@docker redis]<span class="comment"># vi Dockerfile</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">FROM centos6-ssh</span><br><span class="line">RUN yum install -y redis</span><br><span class="line">RUN sed -ri <span class="string">'s/bind 0.0.0.0/bind 127.0.0.1/g'</span> /etc/redis.conf</span><br><span class="line">EXPOSE 6379</span><br><span class="line">CMD [<span class="string">"redis-server"</span>]</span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/581590/277d13401cce2404.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@docker redis]<span class="comment"># docker build -t redis01 .</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/581590/e0695b643d8c0029.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@docker redis]<span class="comment"># docker images</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/581590/beb2e31ea41651cc.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@docker redis]<span class="comment"># docker run -d -p 7878:6379 --name redismatrix redis01</span></span><br><span class="line">913f14b5404f75675d60b053abbcae50889ba2f9b1ab281aa07e6d5a4454d88e</span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/581590/631ed13bc0507c59.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@docker redis]<span class="comment"># docker ps</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/581590/545a5776b874ba2a.png" alt="Markdown"></p>
+
+    </div>
+  </div>
+  
+    <div class="copy-right">
+      <div class="markdown-body">
+        <blockquote>
+        
+        
+          本文作者 : Matrix <br>
+        
+        原文链接 : <a href="">http://yoursite.com/2016/02/12/Docker部署/</a><br>
+        版权声明 : 本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+        </blockquote>
+      </div>
+    </div>
+  
+  
+  
+    <div class="social-share" style="margin-top: -2rem" data-wechat-qrcode-title="<p>微信扫一扫</p>" data-wechat-qrcode-helper="<p>微信右上角, 扫一扫分享</p>" data-sites="qzone, qq, weibo, wechat, douban, google, facebook, twitter">
+  <span style="color: #6b7487; font-size: 1.4rem;">分享到: </span>
+</div>
+<script src="https://cdn.bootcss.com/social-share.js/1.0.16/js/social-share.min.js" async></script>
+  
+
+  
+    <div id="reward">
+  
+    <p id="reward-meta">知识 & 情怀 | 二者兼得</p>
+  
+  <button id="reward-btn">
+    
+    <span>投食</span>
+  </button>
+  <div id="reward-qrcode">
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/wechatpay.jpg" alt="微信扫一扫, 向我投食">
+        <p class="qrcode-meta">微信扫一扫, 向我投食</p>
+      </div>
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/alipaypay.jpg" alt="支付宝扫一扫, 向我投食">
+        <p class="qrcode-meta">支付宝扫一扫, 向我投食</p>
+      </div>
+    
+  </div>
+
+</div>
+
+<script>
+  (() => {
+    let button = document.querySelector('#reward-btn'),
+      qrcode = document.querySelector('#reward-qrcode'),
+      display = false;
+    
+    button.addEventListener('click', () => {
+      qrcode.style.display = display ? 'none' : 'block'
+      display = !display
+    }, false)
+  })()
+</script>
+  
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+      <span>
+        
+          <i class="iconfont icon-06tags"></i>标签: 
+          
+          <span class="span--tag">
+            <a href="/tags/Docker/">
+              #Docker
+            </a>
+          </span>
+          
+        
+      </span>
+    </div>
+    <div class="article-meta pull-right">
+    </div>
+  </div>
+</div>
+
+
+  <aside id="sidebar">
+    <p id="sidebar-header"></p>
+    <ol id="sidebar-toc"></ol>
+  </aside>
+  <script async>setTimeout(generateToc, 10);</script>
+
+
+  <nav class="post-navigation">
+    
+      <div class="nav-pre">
+        <i class="iconfont icon-prev"></i>
+        上一篇:
+        <a href="/2016/02/12/Hive静态分区(一级&amp;两级) &amp; 动态分区/" target="_self">Hive静态分区(一级&二级)&动态分区</a>
+      </div>
+    
+    
+      <div class="nav-next">
+        下一篇:
+        <a href="/2016/02/12/MRJoin连接/" target="_self">MRJoin连接</a>
+        <i class="iconfont icon-next"></i>
+      </div>
+    
+  </nav>
+
+  
+    <a href="#comment" class="comment-anchor"></a>
+<div class="comment-title"><i class="iconfont icon-footprint"></i> 留下足迹 <i class="iconfont icon-footprint"></i></div>
+<div id="vcomments"></div>
+
+<script defer>
+  if( true ) {
+    let path = getRealPath()
+    new Valine({
+      el: "#vcomments",
+      appId: "Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz",
+      appKey: "WaR7nrzhliHj9aVwdQzkdlGd",
+      notify: false,
+      verify: false,
+      avatar: "robohash",
+      placeholder: "正确填写邮箱, 才能及时收到回复哦♪(^∇^*)",
+      path
+    });
+  }
+</script>
+   
+
+  
+    <script defer>
+const valineAPI = (() => {
+  try {
+    AV.init("Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz", "WaR7nrzhliHj9aVwdQzkdlGd");
+  } catch(error) {}
+  const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+      query.equalTo("identity", identity);
+      query.find().then(results => {
+        resolve(results.length > 0);
+      }, error => reject(error));
+    })
+  }
+
+  const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+      let querys = [];
+      for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+      }
+      query = AV.Query.or.apply(null ,querys);
+    } else {
+      identity = identity || getRealPath();
+      query = new AV.Query("Timer");
+      query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+      query.find()
+      .then(results => resolve(results))
+      .catch(error => reject(error))
+    })
+  }
+
+  const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let Todo = AV.Object.extend('Timer');
+      let todo = new Todo();
+      todo.set("times", 1);
+      todo.set("identity", identity);
+      todo.save().then(res => resolve(true), error => reject(error));
+    })
+  }
+
+  const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let query = new AV.Query('Timer');
+      query.equalTo("identity", identity);
+      query.find().then(todos => {
+        todos.forEach(todo => {
+          todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+      }).then(todos => resolve(true), error => reject(error));
+    })
+  }
+
+  return {
+    isExist,
+    _get,
+    update,
+    create
+  }
+})()
+
+const calcAndWriteTimes = () => {
+  let isPost = true;
+
+  let timerAllDOM = document.querySelectorAll(".article-timer");
+
+  if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+      if(exist) {
+        return valineAPI.update(identity);
+      }
+      return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+  }
+
+  let timerDOMCache = {};
+
+  for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+      timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+      timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+      };
+    }
+  }
+
+  let identities = Object.keys(timerDOMCache);
+  valineAPI._get(identities).then(results => {
+    for(let result of results) {
+      let {identity, times} = result.attributes;
+      timerDOMCache[identity].times = times;
+      timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+      if(timerDOMCache[identity].times){
+        continue;
+      }
+      timerDOMCache[identity].dom.map(item => item.innerText = 1);
+      valineAPI.create(identity);
+    }
+  }).catch(error => console.log(error.message))
+}
+
+if(true){
+  calcAndWriteTimes();
+}
+</script>
+   
+
+</div>
+
+
+      <footer>
+  <p class="site-info">
+    博客已萌萌哒运行<span id="time-to-now"></span><span class="my-face">(●'◡'●)ﾉ♥</span>
+    <br>
+    Theme - <a href="https://github.com/dongyuanxin/theme-bmw">BMW</a> | Powered by <a href="https://godbmw.com/">GodBMW</a>
+    <br>
+    
+      Copyright © 2019 Matrix
+    
+  </p>
+</footer>
+
+
+
+<script>
+const timeToNowDOM = document.querySelector("#time-to-now");
+const startTimestamp = new Date(2016, 4, 10).getTime();
+
+const updateTimeStr = () => {
+  let offset = parseInt(
+      (new Date().getTime() - startTimestamp) / 1000,
+      10
+    ),
+    day = Math.floor(offset / 86400),
+    hour = Math.floor((offset % 86400) / 3600),
+    minute = Math.floor(((offset % 86400) % 3600) / 60),
+    second = Math.floor(((offset % 86400) % 3600) % 60);
+  timeToNowDOM.innerHTML =
+    day + "天" + hour + "小时" + minute + "分钟" + second + "秒";
+  setTimeout(updateTimeStr, 500);
+}
+
+setTimeout(updateTimeStr, 500);
+</script>
+
+
+      <div class="back-to-top hidden">
+  <span>
+    <i class="iconfont icon-60"></i><span></span>%
+  </span>
+</div>
+
+<script>
+const updateIconToTop = percent => {
+  let dom = document.querySelector(".back-to-top span span");
+  dom.innerText = percent;
+  if(percent < 1) {
+    document.querySelector(".back-to-top").className = "back-to-top hidden";
+  } else {
+    document.querySelector(".back-to-top").className = "back-to-top";
+  }
+}
+
+const handleScoll = () => {
+  let isRunning = false;
+  return () => {
+    if (isRunning) return;
+    isRunning = true;
+    window.requestAnimationFrame(timestamp => {
+      let scrollTop =
+          document.documentElement.scrollTop || document.body.scrollTop,
+        scrollHeight =
+          document.documentElement.scrollHeight ||
+          document.body.scrollHeight,
+        clientHeight =
+          document.documentElement.clientHeight ||
+          document.body.clientHeight;
+      isRunning = false;
+      if (scrollTop <= 1) {
+        updateIconToTop(0);
+        return;
+      }
+      if (scrollTop + clientHeight >= scrollHeight) {
+        updateIconToTop(100);
+      } else {
+        updateIconToTop(parseInt(
+          100 * scrollTop / (scrollHeight - clientHeight),
+          10
+        ));
+      }
+    });
+  };
+}
+
+const backToTop = () => {
+  let scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop,
+    delay = 10,
+    time = 200;
+  if (scrollTop <= 20) {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    return;
+  }
+  let step = Math.ceil(scrollTop * delay / time);
+  let timer = setInterval(() => {
+    scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop;
+    if (scrollTop - step <= 0) {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      clearInterval(timer);
+    } else {
+      document.documentElement.scrollTop = scrollTop - step;
+      document.body.scrollTop = scrollTop - step;
+    }
+  }, delay);
+}
+
+document.addEventListener("scroll", handleScoll(), false);
+
+document.querySelector(".back-to-top").addEventListener("click", backToTop, false);
+
+</script>
+
+    </div>
+
+    
+      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  (() => {
+    const mathjaxConfig = {
+      showProcessingMessages: false, //关闭js加载过程信息
+      messageStyle: "none", //不显示信息
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]], //行内公式选择符
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]], //段内公式选择符
+        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"] //避开某些标签
+      },
+      "HTML-CSS": {
+        availableFonts: ["STIX", "TeX"], //可选字体
+        showMathMenu: false //关闭右击菜单显示
+      }
+    }
+
+    let mathjaxInterval = setInterval(() => {
+      if(!window.MathJax){
+        return;
+      }
+      window.MathJax.Hub.Config(mathjaxConfig)
+      window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')])
+
+      clearInterval(mathjaxInterval)
+    }, 10)    
+  })()
+</script>
+    
+
+    <script src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script>
+<script async>
+  let fancyTimer = setInterval(function(){
+    if(!window.$){
+      return;
+    }
+    $(document).ready(function() {
+      $(".post img").each(function () {
+        if($(this).parent().get(0).tagName.toLowerCase() === "a") {
+          return;
+        }
+        // $(this).attr("data-fancybox", "gallery"); // if you add 'data-fancybox', img will display after showed
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "gallery");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      });
+      
+      clearInterval(fancyTimer);
+    });
+  }, 10);
+</script>
+
+    
+  </body>
+
+</html>

@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta name="author" content="董沅鑫, yuanxin.me@gmail.com">
+  
+  
+  
+  <title>ChatScript在Centos7下使用 | 每天遇到更好的你</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="ChatScript,ChatScript,">
+  
+
+  <script>
+    console.log('\n%c Hexo-theme-bmw v4.0 ' + '%c 🎉 https://github.com/dongyuanxin/theme-bmw 🎉\n' + '\n%c View demo online ' + '%c 🔍 https://godbmw.com/ 🔍  \n' , 'color: #fadfa3; background: #030307; padding:3px 0;', '', 'color: #fadfa3; background: #030307; padding:3px 0;', '');
+  </script>
+
+  
+
+  
+
+  
+    <link rel="icon" href="/images/favicon.png">
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+  
+
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/icon/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+  <script src="/js/util.js"></script>
+<script src="/js/valine.min.js"></script>
+
+  
+
+  
+    <link href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js" async></script>
+  
+
+  
+    <link href="https://cdn.bootcss.com/social-share.js/1.0.16/css/share.min.css" rel="stylesheet">
+  
+  
+  <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js" async></script>
+  
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.0/dist/av-min.js"></script>
+  
+
+</head>
+
+  <body>
+
+    
+
+    <div id="app">
+
+      <div class="header-wrap">
+  <header>
+    <div class="site-brand">
+      <div class="site-title">
+        <!-- <a href="/">MatrixSparse</a> -->
+        <img alt="logo" class="antd-pro-layouts-user-layout-logo" src="/images/favicon.png" style="width: 40px;height: 40px;margin-top: 10px;margin-left: 5px;">
+      </div>
+    </div>
+    <nav class="site-navigation">
+      <ul class="nav-menu">
+      
+        <li class="nav-item" data-path="/">
+          
+            <a href="/" target="_self">
+              主页
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          
+            <a href="/archives/" target="_self">
+              归档
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          
+            <a href="/categories/" target="_self">
+              分类
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          
+            <a href="/tags/" target="_self">
+              标签
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="">
+          
+            <a href="javascript:void(0);" v-else="">博客地址</a>
+            <ul class="nav-menu--dropdown">
+              
+                <li>
+                  <a href="https://blog.csdn.net/qq_25371579" target="_blank">
+                    CSDN
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://github.com/matrixsparse" target="_blank">
+                    Github
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://matrixsparse.github.io/" target="_blank">
+                    Github Page
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+      </ul>
+    </nav>
+    <i class="iconfont icon-menu"></i>
+  </header>
+</div>
+
+<script>
+  let links = document.querySelectorAll('.nav-item');
+  for(let link of links){
+    let childrenLink = link.querySelector('ul');
+    link.addEventListener('mouseenter', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown active";
+      }
+    })
+    link.addEventListener('mouseleave', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown";
+      }
+    })
+  }
+  let rootRealPath = getRealPath(window.location.pathname, true);
+  for(let link of links) {
+    let linkPath = link.getAttribute("data-path");
+    if(linkPath && getRealPath(linkPath, true) === rootRealPath) {
+      link.className = "nav-item hover";
+    }
+  }
+
+  let iconMenu = document.querySelector("i.iconfont.icon-menu"),
+    iconMenuClicked = false;
+  let navDOM = document.querySelector("nav.site-navigation");
+  iconMenu.addEventListener("click", () => {
+    iconMenuClicked
+      ? navDOM.className = "site-navigation active"
+      : navDOM.className = "site-navigation";
+    iconMenuClicked = !iconMenuClicked;
+  })
+</script>
+
+
+      
+
+
+
+
+
+
+
+
+<div class="container post-index">
+
+  
+
+<div class="post">
+  <h1 class="article-title">
+    <span>ChatScript在Centos7下使用</span>
+  </h1>
+  <div class="article-top-meta">
+    <span>
+      发布 : 
+      2017-07-07
+    </span>
+    
+      <span>
+        分类 : 
+          <a href="/categories/ChatScript/">
+            ChatScript
+          </a>
+      </span>
+    
+    
+      <span>
+        浏览 : <span class="article-timer" data-identity="ChatScript在Centos7下使用"></span>
+      </span>
+    
+  </div>
+
+  
+
+  <div class="article-content">
+    <div class="markdown-body">
+      <h2 id="ChatScript是什么"><a href="#ChatScript是什么" class="headerlink" title="ChatScript是什么"></a>ChatScript是什么</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ChatScript是一个使用C++语言开发的对话系统，基于一种对话流脚本语言实现对话逻辑</span><br></pre></td></tr></table></figure>
+<h2 id="ChatScript在Centos7下使用"><a href="#ChatScript在Centos7下使用" class="headerlink" title="ChatScript在Centos7下使用"></a>ChatScript在Centos7下使用</h2><h3 id="To-compile-CS-src-you-will-need-to-have-Curl-installed"><a href="#To-compile-CS-src-you-will-need-to-have-Curl-installed" class="headerlink" title="To compile CS src, you will need to have Curl installed"></a>To compile CS src, you will need to have Curl installed</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@sparsematrix ~]<span class="comment"># yum -y install libcurl libcurl-devel</span></span><br><span class="line">[lmb_bi@lmb-robot-239 ~]$ sudo yum -y install libcurl libcurl-devel</span><br></pre></td></tr></table></figure>
+<h3 id="在github上下载ChatScript中文多轮对话Bots"><a href="#在github上下载ChatScript中文多轮对话Bots" class="headerlink" title="在github上下载ChatScript中文多轮对话Bots"></a>在github上下载ChatScript中文多轮对话Bots</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://github.com/candlewill/Bots</span><br></pre></td></tr></table></figure>
+<h3 id="在Centos上部署Cmake"><a href="#在Centos上部署Cmake" class="headerlink" title="在Centos上部署Cmake"></a>在Centos上部署Cmake</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@sparsematrix ~]<span class="comment"># yum install -y gcc gcc-c++ make automake</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[root@sparsematrix ~]<span class="comment"># wget http://www.cmake.org/files/v2.8/cmake-2.8.10.2.tar.gz</span></span><br><span class="line">[root@sparsematrix ~]<span class="comment"># tar -zxvf cmake-2.8.10.2.tar.gz -C /usr/local</span></span><br><span class="line">[root@sparsematrix ~]<span class="comment"># cd /usr/local/cmake-2.8.10.2/</span></span><br><span class="line">[root@sparsematrix cmake-2.8.10.2]<span class="comment"># ./bootstrap</span></span><br><span class="line">[root@sparsematrix cmake-2.8.10.2]<span class="comment"># gmake</span></span><br><span class="line">[root@sparsematrix cmake-2.8.10.2]<span class="comment"># gmake install</span></span><br><span class="line">[root@sparsematrix cmake-2.8.10.2]<span class="comment"># cmake --version</span></span><br><span class="line">cmake version 2.8.10.2</span><br></pre></td></tr></table></figure>
+<h3 id="解压"><a href="#解压" class="headerlink" title="解压"></a>解压</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@sparsematrix ~]<span class="comment"># unzip Bots-master.zip</span></span><br></pre></td></tr></table></figure>
+<h3 id="编译ChatScript"><a href="#编译ChatScript" class="headerlink" title="编译ChatScript"></a>编译ChatScript</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /usr/<span class="built_in">local</span>/Bots-master/ChatScript-7.3/SRC</span><br><span class="line">make server</span><br></pre></td></tr></table></figure>
+<h3 id="本地运行模式"><a href="#本地运行模式" class="headerlink" title="本地运行模式"></a>本地运行模式</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /usr/<span class="built_in">local</span>/Bots-master</span><br><span class="line">chmod 777 start*</span><br><span class="line">mkdir -p LOGS</span><br><span class="line">mkdir -p TOPIC/BUILD1</span><br><span class="line">./start_compile.sh</span><br><span class="line">./start_compile_lib.sh</span><br><span class="line">./start_local.sh</span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fhh3s8ts8kj20v20gvmy8.jpg" alt=""></p>
+<h3 id="添加主题"><a href="#添加主题" class="headerlink" title="添加主题"></a>添加主题</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@sparsematrix ~]<span class="comment"># cd /usr/local/Bots-master/BOTDATA/TEST</span></span><br><span class="line">[root@sparsematrix TEST]<span class="comment"># vi apologize.top</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">topic: ~apologize keep repeat ( 不好意思 对不起 sorry 我不是故意的 )</span><br><span class="line"></span><br><span class="line">u: (不好意思)</span><br><span class="line">    没关系，这是一件小事！</span><br><span class="line">    a: (没有)</span><br><span class="line">        好吧</span><br><span class="line">    a: (有)</span><br><span class="line">        遵命</span><br></pre></td></tr></table></figure>
+<h3 id="对话脚本编译"><a href="#对话脚本编译" class="headerlink" title="对话脚本编译"></a>对话脚本编译</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@sparsematrix ~]<span class="comment"># cd /usr/local/Bots-master</span></span><br><span class="line">[root@sparsematrix Bots-master]<span class="comment"># ./start_local.sh</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>在终端输入如下命令，先加载公共资源进行编译</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">:build 0</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>在终端输入如下命令，完成对话脚本的编译</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">:build Test reset</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">程序会去到根目录（Bots-master文件夹）寻找 filesTest.txt 文件，然后加载这个文件中所列出来的所有文件</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[root@sparsematrix Bots-master]<span class="comment"># cat filesTest.txt </span></span><br><span class="line"><span class="comment"># multibot</span></span><br><span class="line">../BOTDATA/TEST/ <span class="comment"># tutorial bot data</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># load in chatscript quibbles</span></span><br><span class="line">../BOTDATA/QUIBBLE/</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>在终端输入如下命令，完成对话脚本的编译</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">:build xiaola reset</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@sparsematrix Bots-master]<span class="comment"># cat filesxiaola.txt</span></span><br><span class="line"><span class="comment"># load in chatscript quibbles</span></span><br><span class="line">../BOTDATA/XIAOLA/</span><br></pre></td></tr></table></figure>
+<h3 id="Preparing-for-compiling-on-the-Server"><a href="#Preparing-for-compiling-on-the-Server" class="headerlink" title="Preparing for compiling on the Server"></a>Preparing for compiling on the Server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">:clean</span><br></pre></td></tr></table></figure>
+<h3 id="Commands-affecting-the-server"><a href="#Commands-affecting-the-server" class="headerlink" title="Commands affecting the server"></a>Commands affecting the server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">:show serverlog</span><br><span class="line">:show echoserver</span><br><span class="line">:quit</span><br><span class="line">:crash</span><br></pre></td></tr></table></figure>
+<h2 id="以Web的形式获取ChatScript的服务"><a href="#以Web的形式获取ChatScript的服务" class="headerlink" title="以Web的形式获取ChatScript的服务"></a>以Web的形式获取ChatScript的服务</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[root@sparsematrix ~]<span class="comment"># yum install httpd -y</span></span><br><span class="line">[root@sparsematrix ~]<span class="comment"># service httpd start</span></span><br><span class="line">[root@sparsematrix ~]<span class="comment"># chkconfig httpd on</span></span><br><span class="line">[root@sparsematrix ~]<span class="comment"># rpm -ql httpd</span></span><br><span class="line">[root@sparsematrix ~]<span class="comment"># yum install php php-devel -y</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@sparsematrix ChatScript-7.3]<span class="comment"># vi WEBINTERFACE/SIMPLE/index.php</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fhik0k4u3mj21qq1541dv.jpg" alt=""></p>
+<blockquote>
+<p>index.php</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br></pre></td><td class="code"><pre><span class="line"> &lt;?php</span><br><span class="line"></span><br><span class="line">// Program: chatScriptClient.php</span><br><span class="line"></span><br><span class="line">// Credits:  This program is derived from a sample client script by Alejandro Gervasio</span><br><span class="line">//   posted here:  www dot devshed dot com/c/a/PHP/An-Introduction-to-Sockets-in-PHP/</span><br><span class="line">// Modified 2012 by R. Wade Schuette  -- Augmented  2014 by Bruce Wilcox</span><br><span class="line"></span><br><span class="line">// Function -- a working skeleton of a client to the ChatScript Server</span><br><span class="line">// NOTES:   Be sure to put <span class="keyword">in</span> your correct host, port, username, and bot name below !</span><br><span class="line"></span><br><span class="line">// LEGAL STUFF:</span><br><span class="line">// Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the <span class="string">"Software"</span>), to deal</span><br><span class="line">// <span class="keyword">in</span> the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, or sell</span><br><span class="line">// copies of the Software, and to permit persons to whom the Software is furnished to <span class="keyword">do</span> so, subject to the following conditions:</span><br><span class="line"></span><br><span class="line">// The above copyright notice and this permission notice shall be included <span class="keyword">in</span> all copies or substantial portions of the Software.</span><br><span class="line"></span><br><span class="line">// THE SOFTWARE IS PROVIDED <span class="string">"AS IS"</span>, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,</span><br><span class="line">// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,</span><br><span class="line">// WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</span><br><span class="line">//*********************************************************************************/</span><br><span class="line"></span><br><span class="line">//  =============  user values ====</span><br><span class="line"><span class="variable">$host</span> = <span class="string">"115.28.240.96"</span>;  //  &lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt; YOUR CHATSCRIPT SERVER IP ADDRESS GOES HERE</span><br><span class="line"><span class="variable">$port</span> = 1024;     // &lt;&lt;&lt;&lt;&lt;&lt;&lt; your portnumber <span class="keyword">if</span> different from 1024</span><br><span class="line"><span class="variable">$bot</span>  = <span class="string">""</span>;  // &lt;&lt;&lt;&lt;&lt;&lt;&lt; desired botname, or <span class="string">""</span> <span class="keyword">for</span> default bot</span><br><span class="line"><span class="variable">$null</span> = <span class="string">"\x00"</span>;</span><br><span class="line"><span class="variable">$botprefix</span> = <span class="string">"Bot: "</span>;</span><br><span class="line"><span class="variable">$userprefix</span> = <span class="string">"You: "</span>;</span><br><span class="line"></span><br><span class="line">//=========================</span><br><span class="line">// Note - the top part (PHP) is skipped on the first display of this form, but fires on each loop after that.</span><br><span class="line">ini_set(<span class="string">'display_errors'</span>,<span class="string">'on'</span>);</span><br><span class="line">error_reporting(E_ALL);</span><br><span class="line"><span class="keyword">if</span>(<span class="variable">$_POST</span>[<span class="string">'send'</span>])</span><br><span class="line">&#123;</span><br><span class="line">    // open client connection to TCP server</span><br><span class="line">	<span class="variable">$userip</span> = (<span class="variable">$_SERVER</span>[<span class="string">'X_FORWARDED_FOR'</span>]) ? <span class="variable">$_SERVER</span>[<span class="string">'X_FORWARDED_FOR'</span>] : <span class="variable">$_SERVER</span>[<span class="string">'REMOTE_ADDR'</span>]; // get actual ip address of user as his id</span><br><span class="line"></span><br><span class="line">    <span class="variable">$msg</span>=<span class="variable">$_POST</span>[<span class="string">'message'</span>];</span><br><span class="line">    <span class="built_in">echo</span> <span class="string">'&lt;h2&gt;'</span>.<span class="variable">$userprefix</span>.<span class="variable">$msg</span>.<span class="string">'&lt;/h2&gt;'</span>;</span><br><span class="line"></span><br><span class="line">    // fifth parameter <span class="keyword">in</span> fsockopen is timeout <span class="keyword">in</span> seconds</span><br><span class="line">    <span class="keyword">if</span>(!<span class="variable">$fp</span>=fsockopen(<span class="variable">$host</span>,<span class="variable">$port</span>,<span class="variable">$errstr</span>,<span class="variable">$errno</span>,300))</span><br><span class="line">    &#123;</span><br><span class="line">        trigger_error(<span class="string">'Error opening socket'</span>,E_USER_ERROR);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    fputs(<span class="variable">$fp</span>,<span class="variable">$message</span>); // write message to socket server</span><br><span class="line">    <span class="keyword">while</span> (!feof(<span class="variable">$fp</span>))</span><br><span class="line">	&#123;</span><br><span class="line">        <span class="variable">$ret</span>= fgets(<span class="variable">$fp</span>, 500);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    fclose(<span class="variable">$fp</span>); // close socket connection</span><br><span class="line"></span><br><span class="line">	<span class="comment"># check for out-of-band messages</span></span><br><span class="line"></span><br><span class="line">	//  <span class="built_in">echo</span> <span class="string">"Chatbot <span class="variable">$bot</span> replied to <span class="variable">$user</span>:"</span>;</span><br><span class="line">    <span class="built_in">echo</span> <span class="string">'&lt;h2&gt;'</span>.<span class="variable">$botprefix</span>.<span class="variable">$ret</span>.<span class="string">'&lt;/h2&gt;'</span>;</span><br><span class="line">&#125;</span><br><span class="line">?&gt;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&lt;!DOCTYPE HTML&gt;</span><br><span class="line">&lt;html&gt;</span><br><span class="line">  &lt;head&gt;</span><br><span class="line">    &lt;title&gt;</span><br><span class="line">      CHATSCRIPT SERVER</span><br><span class="line">    &lt;/title&gt;</span><br><span class="line">    &lt;meta http-equiv=<span class="string">"Content-Type"</span> content=<span class="string">"text/html; charset=utf-8"</span> /&gt;</span><br><span class="line">  &lt;/head&gt;</span><br><span class="line">  &lt;body onload=<span class="string">"document.getElementById('message').focus()"</span>&gt;</span><br><span class="line">    &lt;form action=<span class="string">"&lt;?php echo <span class="variable">$_SERVER</span>['PHP_SELF'] ?&gt;"</span> method=<span class="string">"post"</span>&gt;</span><br><span class="line">    &lt;p&gt;</span><br><span class="line">      Enter your message below:</span><br><span class="line">    &lt;/p&gt;</span><br><span class="line">    &lt;table&gt;</span><br><span class="line">      &lt;tr&gt;</span><br><span class="line">        &lt;td&gt;Message:&lt;/td&gt;</span><br><span class="line">        &lt;td&gt;&lt;input <span class="built_in">type</span>=<span class="string">"text"</span> name=<span class="string">"message"</span> id=<span class="string">"message"</span> size=<span class="string">"70"</span> /&gt;&lt;/td&gt;</span><br><span class="line">      &lt;/tr&gt;</span><br><span class="line">      &lt;tr&gt;</span><br><span class="line">        &lt;td colspan=<span class="string">"2"</span>&gt;&lt;input <span class="built_in">type</span>=<span class="string">"submit"</span> name=<span class="string">"send"</span> value=<span class="string">"Send Value"</span> /&gt;&lt;/td&gt;</span><br><span class="line">      &lt;/tr&gt;</span><br><span class="line">    &lt;/table&gt;</span><br><span class="line">    &lt;/form&gt;</span><br><span class="line"></span><br><span class="line">&lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@sparsematrix ChatScript-7.3]<span class="comment"># cp WEBINTERFACE/SIMPLE/*.* /var/www/html</span></span><br><span class="line">or</span><br><span class="line">[root@sparsematrix ChatScript-7.3]<span class="comment"># cp WEBINTERFACE/BETTER/*.* /var/www/html</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[root@sparsematrix ~]<span class="comment"># systemctl start firewalld</span></span><br><span class="line">[root@sparsematrix ~]<span class="comment"># setsebool -P httpd_can_network_connect on</span></span><br><span class="line">[root@sparsematrix ~]<span class="comment"># netstat -tan</span></span><br><span class="line">[root@sparsematrix ~]<span class="comment"># netstat -tunpl</span></span><br><span class="line">[root@sparsematrix ~]<span class="comment"># firewall-cmd --zone=public --add-port=1024/tcp --permanent</span></span><br><span class="line">[root@sparsematrix ~]<span class="comment"># firewall-cmd --zone=public --add-port=80/tcp --permanent</span></span><br><span class="line">[root@sparsematrix ~]<span class="comment"># firewall-cmd --reload</span></span><br><span class="line">[root@sparsematrix ~]<span class="comment"># netstat -tunlp | grep 1024</span></span><br></pre></td></tr></table></figure>
+<h3 id="Server"><a href="#Server" class="headerlink" title="Server"></a>Server</h3><h4 id="第一种Server启动方式"><a href="#第一种Server启动方式" class="headerlink" title="第一种Server启动方式"></a>第一种Server启动方式</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@sparsematrix ~]<span class="comment"># cd /usr/local/Bots-master</span></span><br><span class="line">[root@sparsematrix Bots-master]<span class="comment"># chmod u+x ChatScript-7.3/BINARIES/LinuxChatScript64</span></span><br><span class="line">[root@sparsematrix Bots-master]<span class="comment"># ./ChatScript-7.3/BINARIES/LinuxChatScript64</span></span><br></pre></td></tr></table></figure>
+<h4 id="第二种Server启动方式"><a href="#第二种Server启动方式" class="headerlink" title="第二种Server启动方式"></a>第二种Server启动方式</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@sparsematrix Bots-master]<span class="comment"># nohup sh start_server_7.52.sh &amp; &gt;/dev/null</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">当用户注销或者网络中断时，终端后收到SIGHUP信号，从而关闭其所有子进程</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>nohup命令会忽略SIGHUP信号，从而终端退出时不会影响到后台作业</p>
+</blockquote>
+<blockquote>
+<p>查看后台运行任务</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@sparsematrix Bots-master]<span class="comment"># jobs</span></span><br><span class="line">[1]+  Running  nohup sh start_server_7.52.sh 2&gt;&amp;1 &amp;</span><br><span class="line">[root@sparsematrix Bots-master]<span class="comment"># ps -ef</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>查看监听端口</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">netstat -apn | grep 1024</span><br><span class="line">(Not all processes could be identified, non-owned process info</span><br><span class="line"> will not be shown, you would have to be root to see it all.)</span><br><span class="line">tcp        0      0 0.0.0.0:1024            0.0.0.0:*               LISTEN      570/BINARIES/ChatSc </span><br><span class="line">tcp        0      0 192.168.1.239:1024      192.168.1.249:33256     TIME_WAIT   -</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>kill掉端口服务</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">kill</span> -9 570</span><br></pre></td></tr></table></figure>
+<h4 id="第三种Server启动方式"><a href="#第三种Server启动方式" class="headerlink" title="第三种Server启动方式"></a>第三种Server启动方式</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./start_server_7.52.sh &gt;/dev/null 2&gt;&amp;1 &amp;</span><br></pre></td></tr></table></figure>
+<h3 id="Client"><a href="#Client" class="headerlink" title="Client"></a>Client</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">在浏览器地址栏中访问，http://115.28.240.96/index.php</span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fhi85473g4j21oi0l2dj9.jpg" alt=""></p>
+<h2 id="Python获取Chatscript服务"><a href="#Python获取Chatscript服务" class="headerlink" title="Python获取Chatscript服务"></a>Python获取Chatscript服务</h2><blockquote>
+<p>pychatscript.py</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"></span><br><span class="line">import socket</span><br><span class="line"></span><br><span class="line">host = <span class="string">'115.28.240.96'</span></span><br><span class="line">port = 1024</span><br><span class="line">bufsize = 1024</span><br><span class="line"></span><br><span class="line">def send(query,host,port, bot=<span class="string">''</span>):</span><br><span class="line">    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)</span><br><span class="line">    s.connect((host, port))</span><br><span class="line">    ip = host</span><br><span class="line">    text = <span class="string">'%s\x00%s\x00%s\x00'</span> % (ip, bot, query)</span><br><span class="line">    s.send(text.encode(<span class="string">'utf8'</span>))</span><br><span class="line"></span><br><span class="line">    data = b<span class="string">''</span></span><br><span class="line">    <span class="keyword">while</span> 1:</span><br><span class="line">        block = s.recv(1024)</span><br><span class="line">        <span class="keyword">if</span> block:</span><br><span class="line">            data += block</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="built_in">break</span></span><br><span class="line">    <span class="built_in">return</span> data.decode(<span class="string">'utf8'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    <span class="keyword">while</span> True:</span><br><span class="line">        user_input = input(<span class="string">'&gt;'</span>)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">'bot：'</span>,send(user_input,host,port))</span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fhimevi8ftj21t619kn59.jpg" alt=""></p>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fhjgs0rn5ij20pd0gw3z9.jpg" alt=""></p>
+<blockquote>
+<p>查看日志</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@sparsematrix ChatScript-7.3]<span class="comment"># tail -f LOGS/serverlog1024.txt</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fhjerr25hbj217i075q4d.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">日志中没有显示user，只显示IP</span><br></pre></td></tr></table></figure>
+<h3 id="难点1"><a href="#难点1" class="headerlink" title="难点1"></a>难点1</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">php下<span class="variable">$null</span>以十六进制输出的结果？</span><br><span class="line">\x00是空字符</span><br></pre></td></tr></table></figure>
+<h3 id="难点2"><a href="#难点2" class="headerlink" title="难点2"></a>难点2</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">参照ChatScript官方给出的index.php</span><br><span class="line">用户每次输入的query都要建立一次套接字连接</span><br></pre></td></tr></table></figure>
+<h3 id="平台交互脚本"><a href="#平台交互脚本" class="headerlink" title="平台交互脚本"></a>平台交互脚本</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"></span><br><span class="line">import socket</span><br><span class="line">import sys</span><br><span class="line"></span><br><span class="line">reload(sys)</span><br><span class="line">sys.setdefaultencoding(<span class="string">'utf-8'</span>)</span><br><span class="line"></span><br><span class="line">CONNECT_HOST = <span class="string">'192.168.0.25'</span></span><br><span class="line">CONNECT_PORT = 1024</span><br><span class="line">BUFSIZE = 1024</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">def send(query, user, bot):</span><br><span class="line">    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)</span><br><span class="line">    s.connect((CONNECT_HOST, CONNECT_PORT))</span><br><span class="line">    <span class="keyword">if</span> user != <span class="string">''</span>:</span><br><span class="line">        text = <span class="string">'%s\x00%s\x00%s\x00'</span> % (user, bot, query)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        text = <span class="string">'%s\x00%s\x00%s\x00'</span> % (CONNECT_HOST, bot, query)</span><br><span class="line">    s.send(text.encode(<span class="string">'utf8'</span>))</span><br><span class="line"></span><br><span class="line">    data = b<span class="string">''</span></span><br><span class="line">    <span class="keyword">while</span> 1:</span><br><span class="line">        block = s.recv(BUFSIZE)</span><br><span class="line">        <span class="keyword">if</span> block:</span><br><span class="line">            data += block</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="built_in">break</span></span><br><span class="line">    <span class="built_in">return</span> data.decode(<span class="string">'utf8'</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    user = raw_input(<span class="string">'user&gt;'</span>)</span><br><span class="line">    <span class="keyword">if</span> user == <span class="string">''</span>:</span><br><span class="line">        user = raw_input(<span class="string">'Please input user&gt;'</span>)</span><br><span class="line">    bot = raw_input(<span class="string">'bots&gt;'</span>)</span><br><span class="line">    <span class="comment"># 初始化机器人</span></span><br><span class="line">    query = <span class="string">'hello'</span></span><br><span class="line">    flag = <span class="string">'No such bot.'</span> <span class="keyword">in</span> send(query, user, bot)</span><br><span class="line">    <span class="keyword">if</span> flag:</span><br><span class="line">        query = <span class="string">':build '</span> + bot</span><br><span class="line">        <span class="built_in">print</span> send(query, user, bot)</span><br><span class="line">    flag = False</span><br><span class="line">    <span class="keyword">while</span> not flag:</span><br><span class="line">        query = raw_input(<span class="string">'query&gt;'</span>)</span><br><span class="line">        <span class="keyword">if</span> query == <span class="string">''</span>:</span><br><span class="line">            query = raw_input(<span class="string">'Please input query&gt;'</span>)</span><br><span class="line">        data = send(query, user, bot)</span><br><span class="line">        flag = <span class="string">'No such bot.'</span> <span class="keyword">in</span> data</span><br><span class="line">        <span class="built_in">print</span> <span class="string">'bot：'</span>, data</span><br></pre></td></tr></table></figure>
+<h3 id="查看交互日志"><a href="#查看交互日志" class="headerlink" title="查看交互日志"></a>查看交互日志</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@sparsematrix Bots-master]<span class="comment"># tail -f USERS/log*</span></span><br></pre></td></tr></table></figure>
+<h3 id="创建Bots"><a href="#创建Bots" class="headerlink" title="创建Bots"></a>创建Bots</h3><blockquote>
+<p>mkdir BOTDATA/xxx</p>
+</blockquote>
+<blockquote>
+<p>vi filesxxx.txt</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># multibot</span></span><br><span class="line"><span class="comment">#../BOTDATA/TEST/   # tutorial bot data</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># load in chatscript quibbles</span></span><br><span class="line">../BOTDATA/xxx/</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">:build xxx</span><br></pre></td></tr></table></figure>
+<h2 id="ChatScript对话引擎进阶"><a href="#ChatScript对话引擎进阶" class="headerlink" title="ChatScript对话引擎进阶"></a>ChatScript对话引擎进阶</h2><h2 id="综述"><a href="#综述" class="headerlink" title="综述"></a>综述</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">注释：用井号（<span class="comment">#）作为注释标志，井号和前文内容之间需要用空格隔开</span></span><br><span class="line">另外，<span class="comment">#!，表示 样例输入，用于自动测试</span></span><br></pre></td></tr></table></figure>
+<h3 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">概念(concept)定义了同义词、抽象语义等内容</span><br><span class="line">定义概念时，可以使用词性信息（POS information）对其修饰</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">concept: ~mynouns NOUN NOUN_SINGULAR (boxdead foxtrot)</span><br><span class="line">concept: ~myadjectives ADJECTIVE ADJECTIVE_BASIC (moony dizcious)</span><br></pre></td></tr></table></figure>
+<h3 id="话题"><a href="#话题" class="headerlink" title="话题"></a>话题</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ChatScript对于每次用户的输入，并不是检查全部规则来找到匹配的，需以~开始</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">topic: ~DEATH [dead corpse death die body] </span><br><span class="line"> </span><br><span class="line">t: I don’t want to die </span><br><span class="line">?: (When will you die) I don’t know.</span><br></pre></td></tr></table></figure>
+<h3 id="关键词"><a href="#关键词" class="headerlink" title="关键词"></a>关键词</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">如果一句话能够触发多个话题，系统选择最可能触发（触发词数 量、触发词长度）的进入。</span><br><span class="line">跳入某个话题之后，然后去寻找规则，看看那个规则能够匹配，</span><br><span class="line">如果这个话题下的所有规则都不能匹配，那么只输出开场白。</span><br></pre></td></tr></table></figure>
+<h3 id="规则"><a href="#规则" class="headerlink" title="规则"></a>规则</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">一条规则由四部分组成：</span><br><span class="line">规则类型、规则标签、规则模式、规则输出</span><br><span class="line">如，?: MEAT (you like meat) I <span class="keyword">do</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">规则类型一共有四种：</span><br><span class="line">    陈述句(s:)</span><br><span class="line">    疑问句(?:)</span><br><span class="line">    陈述句或者疑问句(u:)</span><br><span class="line">    开场白(gambit, t:)</span><br><span class="line">    除此之外，规则还可以以 </span><br><span class="line">        a:</span><br><span class="line">        b: </span><br><span class="line">        q:开头，表示二级规则，用来处理分支情况，称为Rejoinders</span><br><span class="line">        二级规则不能作为顶级规则，只有当父级规则已经匹配，才会去匹配。</span><br></pre></td></tr></table></figure>
+<h3 id="随机开场白"><a href="#随机开场白" class="headerlink" title="随机开场白"></a>随机开场白</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@sparsematrix ~]<span class="comment"># cd /usr/local/Bots-master/BOTDATA/XIAOLA</span></span><br><span class="line">[root@sparsematrix XIAOLA]<span class="comment"># vi beach.top</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">Topic: ~beach [beach sand ocean sand_castle] </span><br><span class="line"></span><br><span class="line">u: ( ~country) ^refine() <span class="comment"># gets any reference to a country     </span></span><br><span class="line">	a: (Turkey) I like Turkey     </span><br><span class="line">	a: (Sweden) I like Sweden </span><br><span class="line"></span><br><span class="line"><span class="comment"># subtopic about swimming </span></span><br><span class="line">r: Do you like the ocean? </span><br><span class="line"> </span><br><span class="line">t: I like swimming <span class="keyword">in</span> the ocean. </span><br><span class="line"> </span><br><span class="line">t: I often go to the beach to swim. </span><br><span class="line"> </span><br><span class="line"><span class="comment"># subtopic about sand castles.</span></span><br><span class="line">r: Have you made sand castles?     </span><br><span class="line">    a: (~yes) Maybe sometime you can make some that I can go see.     </span><br><span class="line">    a: (~no) I admire those who make luxury sand castles. </span><br><span class="line"> </span><br><span class="line">t: I<span class="string">'ve seen pictures of some really grand sand castles.</span></span><br></pre></td></tr></table></figure>
+<h3 id="宏"><a href="#宏" class="headerlink" title="宏"></a>宏</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">使用宏(Macros)的方式 共享脚本代码。 </span><br><span class="line">宏名和宏参数名需要以^开始，宏定义的结束以文件结束或者新宏定义开始为标志。</span><br></pre></td></tr></table></figure>
+    </div>
+  </div>
+  
+    <div class="copy-right">
+      <div class="markdown-body">
+        <blockquote>
+        
+        
+          本文作者 : Matrix <br>
+        
+        原文链接 : <a href="">http://yoursite.com/2017/07/07/ChatScript在Centos7下使用/</a><br>
+        版权声明 : 本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+        </blockquote>
+      </div>
+    </div>
+  
+  
+  
+    <div class="social-share" style="margin-top: -2rem" data-wechat-qrcode-title="<p>微信扫一扫</p>" data-wechat-qrcode-helper="<p>微信右上角, 扫一扫分享</p>" data-sites="qzone, qq, weibo, wechat, douban, google, facebook, twitter">
+  <span style="color: #6b7487; font-size: 1.4rem;">分享到: </span>
+</div>
+<script src="https://cdn.bootcss.com/social-share.js/1.0.16/js/social-share.min.js" async></script>
+  
+
+  
+    <div id="reward">
+  
+    <p id="reward-meta">知识 & 情怀 | 二者兼得</p>
+  
+  <button id="reward-btn">
+    
+    <span>投食</span>
+  </button>
+  <div id="reward-qrcode">
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/wechatpay.jpg" alt="微信扫一扫, 向我投食">
+        <p class="qrcode-meta">微信扫一扫, 向我投食</p>
+      </div>
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/alipaypay.jpg" alt="支付宝扫一扫, 向我投食">
+        <p class="qrcode-meta">支付宝扫一扫, 向我投食</p>
+      </div>
+    
+  </div>
+
+</div>
+
+<script>
+  (() => {
+    let button = document.querySelector('#reward-btn'),
+      qrcode = document.querySelector('#reward-qrcode'),
+      display = false;
+    
+    button.addEventListener('click', () => {
+      qrcode.style.display = display ? 'none' : 'block'
+      display = !display
+    }, false)
+  })()
+</script>
+  
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+      <span>
+        
+          <i class="iconfont icon-06tags"></i>标签: 
+          
+          <span class="span--tag">
+            <a href="/tags/ChatScript/">
+              #ChatScript
+            </a>
+          </span>
+          
+        
+      </span>
+    </div>
+    <div class="article-meta pull-right">
+    </div>
+  </div>
+</div>
+
+
+  <aside id="sidebar">
+    <p id="sidebar-header"></p>
+    <ol id="sidebar-toc"></ol>
+  </aside>
+  <script async>setTimeout(generateToc, 10);</script>
+
+
+  <nav class="post-navigation">
+    
+      <div class="nav-pre">
+        <i class="iconfont icon-prev"></i>
+        上一篇:
+        <a href="/2017/07/07/TensorFlow/" target="_self">TensorFlow</a>
+      </div>
+    
+    
+      <div class="nav-next">
+        下一篇:
+        <a href="/2017/07/09/Nginx分发层部署以及基于lua完成基于商品id的定向流量分发策略/" target="_self">Nginx分发层部署以及基于lua完成基于商品id的定向流量分发策略</a>
+        <i class="iconfont icon-next"></i>
+      </div>
+    
+  </nav>
+
+  
+    <a href="#comment" class="comment-anchor"></a>
+<div class="comment-title"><i class="iconfont icon-footprint"></i> 留下足迹 <i class="iconfont icon-footprint"></i></div>
+<div id="vcomments"></div>
+
+<script defer>
+  if( true ) {
+    let path = getRealPath()
+    new Valine({
+      el: "#vcomments",
+      appId: "Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz",
+      appKey: "WaR7nrzhliHj9aVwdQzkdlGd",
+      notify: false,
+      verify: false,
+      avatar: "robohash",
+      placeholder: "正确填写邮箱, 才能及时收到回复哦♪(^∇^*)",
+      path
+    });
+  }
+</script>
+   
+
+  
+    <script defer>
+const valineAPI = (() => {
+  try {
+    AV.init("Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz", "WaR7nrzhliHj9aVwdQzkdlGd");
+  } catch(error) {}
+  const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+      query.equalTo("identity", identity);
+      query.find().then(results => {
+        resolve(results.length > 0);
+      }, error => reject(error));
+    })
+  }
+
+  const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+      let querys = [];
+      for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+      }
+      query = AV.Query.or.apply(null ,querys);
+    } else {
+      identity = identity || getRealPath();
+      query = new AV.Query("Timer");
+      query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+      query.find()
+      .then(results => resolve(results))
+      .catch(error => reject(error))
+    })
+  }
+
+  const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let Todo = AV.Object.extend('Timer');
+      let todo = new Todo();
+      todo.set("times", 1);
+      todo.set("identity", identity);
+      todo.save().then(res => resolve(true), error => reject(error));
+    })
+  }
+
+  const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let query = new AV.Query('Timer');
+      query.equalTo("identity", identity);
+      query.find().then(todos => {
+        todos.forEach(todo => {
+          todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+      }).then(todos => resolve(true), error => reject(error));
+    })
+  }
+
+  return {
+    isExist,
+    _get,
+    update,
+    create
+  }
+})()
+
+const calcAndWriteTimes = () => {
+  let isPost = true;
+
+  let timerAllDOM = document.querySelectorAll(".article-timer");
+
+  if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+      if(exist) {
+        return valineAPI.update(identity);
+      }
+      return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+  }
+
+  let timerDOMCache = {};
+
+  for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+      timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+      timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+      };
+    }
+  }
+
+  let identities = Object.keys(timerDOMCache);
+  valineAPI._get(identities).then(results => {
+    for(let result of results) {
+      let {identity, times} = result.attributes;
+      timerDOMCache[identity].times = times;
+      timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+      if(timerDOMCache[identity].times){
+        continue;
+      }
+      timerDOMCache[identity].dom.map(item => item.innerText = 1);
+      valineAPI.create(identity);
+    }
+  }).catch(error => console.log(error.message))
+}
+
+if(true){
+  calcAndWriteTimes();
+}
+</script>
+   
+
+</div>
+
+
+      <footer>
+  <p class="site-info">
+    博客已萌萌哒运行<span id="time-to-now"></span><span class="my-face">(●'◡'●)ﾉ♥</span>
+    <br>
+    Theme - <a href="https://github.com/dongyuanxin/theme-bmw">BMW</a> | Powered by <a href="https://godbmw.com/">GodBMW</a>
+    <br>
+    
+      Copyright © 2019 Matrix
+    
+  </p>
+</footer>
+
+
+
+<script>
+const timeToNowDOM = document.querySelector("#time-to-now");
+const startTimestamp = new Date(2016, 4, 10).getTime();
+
+const updateTimeStr = () => {
+  let offset = parseInt(
+      (new Date().getTime() - startTimestamp) / 1000,
+      10
+    ),
+    day = Math.floor(offset / 86400),
+    hour = Math.floor((offset % 86400) / 3600),
+    minute = Math.floor(((offset % 86400) % 3600) / 60),
+    second = Math.floor(((offset % 86400) % 3600) % 60);
+  timeToNowDOM.innerHTML =
+    day + "天" + hour + "小时" + minute + "分钟" + second + "秒";
+  setTimeout(updateTimeStr, 500);
+}
+
+setTimeout(updateTimeStr, 500);
+</script>
+
+
+      <div class="back-to-top hidden">
+  <span>
+    <i class="iconfont icon-60"></i><span></span>%
+  </span>
+</div>
+
+<script>
+const updateIconToTop = percent => {
+  let dom = document.querySelector(".back-to-top span span");
+  dom.innerText = percent;
+  if(percent < 1) {
+    document.querySelector(".back-to-top").className = "back-to-top hidden";
+  } else {
+    document.querySelector(".back-to-top").className = "back-to-top";
+  }
+}
+
+const handleScoll = () => {
+  let isRunning = false;
+  return () => {
+    if (isRunning) return;
+    isRunning = true;
+    window.requestAnimationFrame(timestamp => {
+      let scrollTop =
+          document.documentElement.scrollTop || document.body.scrollTop,
+        scrollHeight =
+          document.documentElement.scrollHeight ||
+          document.body.scrollHeight,
+        clientHeight =
+          document.documentElement.clientHeight ||
+          document.body.clientHeight;
+      isRunning = false;
+      if (scrollTop <= 1) {
+        updateIconToTop(0);
+        return;
+      }
+      if (scrollTop + clientHeight >= scrollHeight) {
+        updateIconToTop(100);
+      } else {
+        updateIconToTop(parseInt(
+          100 * scrollTop / (scrollHeight - clientHeight),
+          10
+        ));
+      }
+    });
+  };
+}
+
+const backToTop = () => {
+  let scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop,
+    delay = 10,
+    time = 200;
+  if (scrollTop <= 20) {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    return;
+  }
+  let step = Math.ceil(scrollTop * delay / time);
+  let timer = setInterval(() => {
+    scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop;
+    if (scrollTop - step <= 0) {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      clearInterval(timer);
+    } else {
+      document.documentElement.scrollTop = scrollTop - step;
+      document.body.scrollTop = scrollTop - step;
+    }
+  }, delay);
+}
+
+document.addEventListener("scroll", handleScoll(), false);
+
+document.querySelector(".back-to-top").addEventListener("click", backToTop, false);
+
+</script>
+
+    </div>
+
+    
+      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  (() => {
+    const mathjaxConfig = {
+      showProcessingMessages: false, //关闭js加载过程信息
+      messageStyle: "none", //不显示信息
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]], //行内公式选择符
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]], //段内公式选择符
+        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"] //避开某些标签
+      },
+      "HTML-CSS": {
+        availableFonts: ["STIX", "TeX"], //可选字体
+        showMathMenu: false //关闭右击菜单显示
+      }
+    }
+
+    let mathjaxInterval = setInterval(() => {
+      if(!window.MathJax){
+        return;
+      }
+      window.MathJax.Hub.Config(mathjaxConfig)
+      window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')])
+
+      clearInterval(mathjaxInterval)
+    }, 10)    
+  })()
+</script>
+    
+
+    <script src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script>
+<script async>
+  let fancyTimer = setInterval(function(){
+    if(!window.$){
+      return;
+    }
+    $(document).ready(function() {
+      $(".post img").each(function () {
+        if($(this).parent().get(0).tagName.toLowerCase() === "a") {
+          return;
+        }
+        // $(this).attr("data-fancybox", "gallery"); // if you add 'data-fancybox', img will display after showed
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "gallery");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      });
+      
+      clearInterval(fancyTimer);
+    });
+  }, 10);
+</script>
+
+    
+  </body>
+
+</html>

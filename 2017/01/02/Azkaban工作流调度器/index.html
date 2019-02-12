@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta name="author" content="董沅鑫, yuanxin.me@gmail.com">
+  
+  
+  
+  <title>Azkanban工作流调度器 | 每天遇到更好的你</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="大前端,大数据,">
+  
+
+  <script>
+    console.log('\n%c Hexo-theme-bmw v4.0 ' + '%c 🎉 https://github.com/dongyuanxin/theme-bmw 🎉\n' + '\n%c View demo online ' + '%c 🔍 https://godbmw.com/ 🔍  \n' , 'color: #fadfa3; background: #030307; padding:3px 0;', '', 'color: #fadfa3; background: #030307; padding:3px 0;', '');
+  </script>
+
+  
+
+  
+
+  
+    <link rel="icon" href="/images/favicon.png">
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+  
+
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/icon/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+  <script src="/js/util.js"></script>
+<script src="/js/valine.min.js"></script>
+
+  
+
+  
+    <link href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js" async></script>
+  
+
+  
+    <link href="https://cdn.bootcss.com/social-share.js/1.0.16/css/share.min.css" rel="stylesheet">
+  
+  
+  <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js" async></script>
+  
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.0/dist/av-min.js"></script>
+  
+
+</head>
+
+  <body>
+
+    
+
+    <div id="app">
+
+      <div class="header-wrap">
+  <header>
+    <div class="site-brand">
+      <div class="site-title">
+        <!-- <a href="/">MatrixSparse</a> -->
+        <img alt="logo" class="antd-pro-layouts-user-layout-logo" src="/images/favicon.png" style="width: 40px;height: 40px;margin-top: 10px;margin-left: 5px;">
+      </div>
+    </div>
+    <nav class="site-navigation">
+      <ul class="nav-menu">
+      
+        <li class="nav-item" data-path="/">
+          
+            <a href="/" target="_self">
+              主页
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          
+            <a href="/archives/" target="_self">
+              归档
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          
+            <a href="/categories/" target="_self">
+              分类
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          
+            <a href="/tags/" target="_self">
+              标签
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="">
+          
+            <a href="javascript:void(0);" v-else="">博客地址</a>
+            <ul class="nav-menu--dropdown">
+              
+                <li>
+                  <a href="https://blog.csdn.net/qq_25371579" target="_blank">
+                    CSDN
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://github.com/matrixsparse" target="_blank">
+                    Github
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://matrixsparse.github.io/" target="_blank">
+                    Github Page
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+      </ul>
+    </nav>
+    <i class="iconfont icon-menu"></i>
+  </header>
+</div>
+
+<script>
+  let links = document.querySelectorAll('.nav-item');
+  for(let link of links){
+    let childrenLink = link.querySelector('ul');
+    link.addEventListener('mouseenter', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown active";
+      }
+    })
+    link.addEventListener('mouseleave', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown";
+      }
+    })
+  }
+  let rootRealPath = getRealPath(window.location.pathname, true);
+  for(let link of links) {
+    let linkPath = link.getAttribute("data-path");
+    if(linkPath && getRealPath(linkPath, true) === rootRealPath) {
+      link.className = "nav-item hover";
+    }
+  }
+
+  let iconMenu = document.querySelector("i.iconfont.icon-menu"),
+    iconMenuClicked = false;
+  let navDOM = document.querySelector("nav.site-navigation");
+  iconMenu.addEventListener("click", () => {
+    iconMenuClicked
+      ? navDOM.className = "site-navigation active"
+      : navDOM.className = "site-navigation";
+    iconMenuClicked = !iconMenuClicked;
+  })
+</script>
+
+
+      
+
+
+
+
+
+
+
+
+<div class="container post-index">
+
+  
+
+<div class="post">
+  <h1 class="article-title">
+    <span>Azkanban工作流调度器</span>
+  </h1>
+  <div class="article-top-meta">
+    <span>
+      发布 : 
+      2017-01-02
+    </span>
+    
+      <span>
+        分类 : 
+          <a href="/categories/大前端/">
+            大前端
+          </a>
+      </span>
+    
+    
+      <span>
+        浏览 : <span class="article-timer" data-identity="Azkaban工作流调度器"></span>
+      </span>
+    
+  </div>
+
+  
+
+  <div class="article-content">
+    <div class="markdown-body">
+      <h2 id="1-为什么需要工作流调度系统"><a href="#1-为什么需要工作流调度系统" class="headerlink" title="1.为什么需要工作流调度系统"></a>1.为什么需要工作流调度系统</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">一个完成的数据分析系统通常是由大量任务单元组成</span><br><span class="line">shell脚本程序，java程序，mapreduce程序、hive脚本等</span><br><span class="line">各任务单元之间存在时间先后及前后依赖关系</span><br><span class="line">为了很好地组织起这样的复杂执行计划，需要一个工作流调度系统来调度执行</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">例如：我们可能有这样一个需求，某个业务系统每天产生20G原始数据，我们每天都要对其进行处理</span><br><span class="line">1、通过Hadoop先将原始数据同步到HDFS上</span><br><span class="line">2、借助MapReduce计算框架对原始数据进行转换，生成数据以分区表的形式存储到多张Hive表中</span><br><span class="line">3、需要对Hive中多个表的数据进行JOIN处理，得到一个明细数据Hive大表</span><br><span class="line">4、将明细数据进行复杂的统计分析，得到结果报表信息</span><br><span class="line">5、需要将统计分析得到的结果数据同步到业务系统中，供业务调用使用</span><br></pre></td></tr></table></figure>
+<h2 id="2-工作流调度实现方式"><a href="#2-工作流调度实现方式" class="headerlink" title="2.工作流调度实现方式"></a>2.工作流调度实现方式</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">简单的任务调度：直接使用linux的crontab来定义</span><br><span class="line">复杂的任务调度：开发调度平台</span><br><span class="line"> 或使用现成的开源调度系统，比如ooize、azkaban等</span><br></pre></td></tr></table></figure>
+<h2 id="3-常见工作流调度系统"><a href="#3-常见工作流调度系统" class="headerlink" title="3.常见工作流调度系统"></a>3.常见工作流调度系统</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">市面上目前有愈多工作流调度器</span><br><span class="line">在hadoop领域，常见的工作流调度器有Oozie，Azkaban，Cascading，Hamake等</span><br></pre></td></tr></table></figure>
+<h2 id="4-Azkaban介绍"><a href="#4-Azkaban介绍" class="headerlink" title="4.Azkaban介绍"></a>4.Azkaban介绍</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Azkaban是由Kinkedin开源的一个批量工作流任务调度器。用于在一个工作流内以一个特定的顺序运行一组工作和流程。</span><br><span class="line">Azkaban定义了一种KV文件格式来建立任务之间的依赖关系，并提供一个易于使用的web用户界面维护和跟踪你的工作流</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">它有如下功能特点：</span><br><span class="line">1、Web用户界面</span><br><span class="line">2、方便上传工作流</span><br><span class="line">3、方便设置任务之间的关系</span><br><span class="line">4、调度工作流</span><br><span class="line">5、认证/授权(权限的工作)</span><br><span class="line">6、能够杀死并重新启动工作流</span><br><span class="line">7、模块化和可插拔的插件机制</span><br><span class="line">8、项目工作区</span><br><span class="line">9、工作流和任务的日志记录和审计</span><br></pre></td></tr></table></figure>
+<h2 id="5-Azkaban安装部署"><a href="#5-Azkaban安装部署" class="headerlink" title="5.Azkaban安装部署"></a>5.Azkaban安装部署</h2><h3 id="5-1-准备工作"><a href="#5-1-准备工作" class="headerlink" title="5.1.准备工作"></a>5.1.准备工作</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Azkaban Web服务器</span><br><span class="line">azkaban-web-server-2.5.0.tar.gz</span><br><span class="line">Azkaban执行服务器 </span><br><span class="line">azkaban-executor-server-2.5.0.tar.gz</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">MySQL</span><br><span class="line">目前azkaban只支持mysql,需安装mysql服务器,</span><br><span class="line">本文档中默认已安装好mysql服务器,并建立了root用户,密码123456</span><br><span class="line"></span><br><span class="line">下载地址:http://azkaban.github.io/downloads.html</span><br></pre></td></tr></table></figure>
+<h3 id="5-1-Azkaban安装"><a href="#5-1-Azkaban安装" class="headerlink" title="5.1.Azkaban安装"></a>5.1.Azkaban安装</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">将安装文件上传到集群,最好上传到安装 hive、sqoop的机器上,方便命令的执行</span><br><span class="line">在当前用户目录下新建 azkabantools目录,用于存放源安装文件.新建azkaban目录,用于存放azkaban运行程序</span><br></pre></td></tr></table></figure>
+<h4 id="5-1-1-Azkaban-web服务器安装"><a href="#5-1-1-Azkaban-web服务器安装" class="headerlink" title="5.1.1.Azkaban web服务器安装"></a>5.1.1.Azkaban web服务器安装</h4><h5 id="解压azkaban-web-server-2-5-0-tar-gz"><a href="#解压azkaban-web-server-2-5-0-tar-gz" class="headerlink" title="解压azkaban-web-server-2.5.0.tar.gz"></a>解压azkaban-web-server-2.5.0.tar.gz</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node02 software]<span class="comment"># tar -zxvf azkaban-web-server-2.5.0.tar.gz -C /opt/modules</span></span><br></pre></td></tr></table></figure>
+<h4 id="5-1-2-azkaban执行服器安装"><a href="#5-1-2-azkaban执行服器安装" class="headerlink" title="5.1.2.azkaban执行服器安装"></a>5.1.2.azkaban执行服器安装</h4><h5 id="解压azkaban-executor-server-2-5-0-tar-gz"><a href="#解压azkaban-executor-server-2-5-0-tar-gz" class="headerlink" title="解压azkaban-executor-server-2.5.0.tar.gz"></a>解压azkaban-executor-server-2.5.0.tar.gz</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node02 software]<span class="comment"># tar -zxvf azkaban-executor-server-2.5.0.tar.gz -C /opt/modules</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">[root@node02 software]<span class="comment"># cd /opt/modules</span></span><br><span class="line">[root@node02 modules]<span class="comment"># ll</span></span><br><span class="line">total 32</span><br><span class="line">drwxr-xr-x.  7 root   root   4096 Jan 25 13:31 azkaban-executor-2.5.0</span><br><span class="line">drwxr-xr-x.  8 root   root   4096 Jan 25 13:30 azkaban-web-2.5.0</span><br><span class="line">drwxr-xr-x.  9 matrix matrix 4096 Jan  7 13:44 elasticsearch-2.4.2</span><br><span class="line">drwxr-xr-x.  8 root   root   4096 Jan 24 18:58 flume-1.6.0</span><br><span class="line">drwxr-xr-x. 12 matrix matrix 4096 Jan 23 21:00 hadoop-2.5.1</span><br><span class="line">drwxr-xr-x.  8 root   root   4096 Jan 23 18:43 hive-1.2.1</span><br><span class="line">drwxr-xr-x.  3 matrix matrix 4096 Dec 19 16:01 journalnode</span><br><span class="line">drwxr-xr-x. 12 matrix matrix 4096 Dec 17 21:20 zookeeper</span><br><span class="line">[root@node02 modules]<span class="comment"># mv azkaban-executor-2.5.0 executor</span></span><br><span class="line">[root@node02 modules]<span class="comment"># mv azkaban-web-2.5.0 webserver</span></span><br><span class="line">[root@node02 modules]<span class="comment"># mv webserver ./azkaban</span></span><br><span class="line">[root@node02 modules]<span class="comment"># mv executor ./azkaban</span></span><br></pre></td></tr></table></figure>
+<h4 id="5-1-3-azkaban脚本导入"><a href="#5-1-3-azkaban脚本导入" class="headerlink" title="5.1.3.azkaban脚本导入"></a>5.1.3.azkaban脚本导入</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node02 software]<span class="comment"># tar -zxvf azkaban-sql-script-2.5.0.tar.gz -C /opt/modules</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/1949/25b03fecb1069121.png" alt="Markdown"></p>
+<h5 id="5-1-3-1-azkaban脚本导入"><a href="#5-1-3-1-azkaban脚本导入" class="headerlink" title="5.1.3.1.azkaban脚本导入"></a>5.1.3.1.azkaban脚本导入</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">将解压后的mysql脚本,导入到mysql中:</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">进入mysql</span><br><span class="line">[root@node02 ~]<span class="comment"># mysql -uroot -p</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; create database azkanban;</span><br><span class="line">Query OK, 1 row affected (0.07 sec)</span><br><span class="line">mysql&gt; use azkanban;</span><br><span class="line">Database changed</span><br><span class="line">mysql&gt; source /opt/modules/azkaban-2.5.0/create-all-sql-2.5.0.sql;</span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/1949/0c9e02a0b4e9d41f.png" alt="Markdown"></p>
+<h4 id="5-1-4-创建SSL配置"><a href="#5-1-4-创建SSL配置" class="headerlink" title="5.1.4.创建SSL配置"></a>5.1.4.创建SSL配置</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Azkanban Web页面使用https来访问的</span><br><span class="line">参考地址: http://docs.codehaus.org/display/JETTY/How+to+configure+SSL</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">[root@node02 ~]<span class="comment"># keytool -keystore keystore -alias jetty -genkey -keyalg RSA</span></span><br><span class="line">运行此命令后,会提示输入当前生成 keystor的密码及相应信息,输入的密码请劳记,信息如下:</span><br><span class="line">输入keystore密码： 123456</span><br><span class="line">再次输入新密码: 123456</span><br><span class="line">您的名字与姓氏是什么？不填</span><br><span class="line">[Unknown]： </span><br><span class="line">您的组织单位名称是什么？</span><br><span class="line">[Unknown]： </span><br><span class="line">您的组织名称是什么？</span><br><span class="line">[Unknown]： </span><br><span class="line">您所在的城市或区域名称是什么？</span><br><span class="line">[Unknown]： </span><br><span class="line">您所在的州或省份名称是什么？</span><br><span class="line">[Unknown]： </span><br><span class="line">该单位的两字母国家代码是什么</span><br><span class="line">[Unknown]：  CN</span><br><span class="line">CN=Unknown, OU=Unknown, O=Unknown, L=Unknown, ST=Unknown, C=CN 正确吗？</span><br><span class="line">[否]：  y</span><br><span class="line">输入&lt;jetty&gt;的主密码123456</span><br><span class="line">（如果和 keystore 密码相同，按回车）： </span><br><span class="line">再次输入新密码:123456</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#完成上述工作后,将在当前目录生成 keystore 证书文件,</span></span><br><span class="line">[root@node02 ~]<span class="comment"># ll</span></span><br><span class="line">total 44</span><br><span class="line">-rw-------. 1 root root  1101 Dec 13 08:20 anaconda-ks.cfg</span><br><span class="line">-rw-r--r--. 1 root root  8815 Dec 13 08:20 install.log</span><br><span class="line">-rw-r--r--. 1 root root  3384 Dec 13 08:17 install.log.syslog</span><br><span class="line">-rw-r--r--. 1 root root  2234 Jan 25 13:55 keystore</span><br><span class="line">-rw-r--r--. 1 root root 19046 Jan 23 20:35 zookeeper.out</span><br></pre></td></tr></table></figure>
+<h5 id="5-1-4-1-创建SSL配置将keystore拷贝到azkaban-web服务器根目录中"><a href="#5-1-4-1-创建SSL配置将keystore拷贝到azkaban-web服务器根目录中" class="headerlink" title="5.1.4.1.创建SSL配置将keystore拷贝到azkaban web服务器根目录中"></a>5.1.4.1.创建SSL配置将keystore拷贝到azkaban web服务器根目录中</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node02 ~]<span class="comment"># cp keystore /opt/modules/azkaban/webserver/</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">配置文件</span><br><span class="line">注：先配置好服务器节点上的时区</span><br><span class="line">1、先生成时区配置文件Asia/Shanghai，用交互式命令tzselect即可</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node02 ~]<span class="comment"># tzselect</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/1949/166e87613432bfb2.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">2、拷贝该时区文件，覆盖系统本地时区配置</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[root@node02 ~]<span class="comment"># cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime</span></span><br><span class="line">cp: overwrite `/etc/localtime<span class="string">'? y</span></span><br><span class="line"><span class="string">[root@node02 ~]# scp -r /usr/share/zoneinfo/Asia/Shanghai root@node01:/etc/localtime</span></span><br><span class="line"><span class="string">[root@node02 ~]# scp -r /usr/share/zoneinfo/Asia/Shanghai root@node03:/etc/localtime 100%  388 0.4KB/s   00:00</span></span><br><span class="line"><span class="string">[root@node02 ~]# scp -r /usr/share/zoneinfo/Asia/Shanghai root@node04:/etc/localtime  100%  388 0.4KB/s   00:00</span></span><br></pre></td></tr></table></figure>
+<h5 id="5-1-4-2-azkaban-web服务器配置"><a href="#5-1-4-2-azkaban-web服务器配置" class="headerlink" title="5.1.4.2.azkaban web服务器配置"></a>5.1.4.2.azkaban web服务器配置</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">进入azkaban web服务器安装目录 conf目录</span><br><span class="line">修改azkaban.properties文件</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[root@node02 ~]<span class="comment"># cd /opt/modules</span></span><br><span class="line">[root@node02 modules]<span class="comment"># cd azkaban</span></span><br><span class="line">[root@node02 azkaban]<span class="comment"># cd webserver/</span></span><br><span class="line">[root@node02 webserver]<span class="comment"># cd conf</span></span><br><span class="line">[root@node02 conf]<span class="comment"># vi azkaban.properties</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">内容说明如下:</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#Azkaban Personalization Settings</span></span><br><span class="line">azkaban.name=Test   <span class="comment">#服务器UI名称,用于服务器上方显示的名字</span></span><br><span class="line">azkaban.label=My Local Azkaban  <span class="comment">#描述</span></span><br><span class="line">azkaban.color=<span class="comment">#FF3601   #UI颜色</span></span><br><span class="line">azkaban.default.servlet.path=/index <span class="comment">#</span></span><br><span class="line">web.resource.dir=web/   <span class="comment">#默认根web目录</span></span><br><span class="line">default.timezone.id=Asia/Shanghai   <span class="comment">#默认时区,已改为亚洲/上海 默认为美国</span></span><br><span class="line"> </span><br><span class="line"><span class="comment">#Azkaban UserManager class</span></span><br><span class="line">user.manager.class=azkaban.user.XmlUserManager   <span class="comment">#用户权限管理默认类</span></span><br><span class="line">user.manager.xml.file=conf/azkaban-users.xml <span class="comment">#用户配置,具体配置参加下文</span></span><br><span class="line"> </span><br><span class="line"><span class="comment">#Loader for projects</span></span><br><span class="line">executor.global.properties=conf/global.properties<span class="comment"># global配置文件所在位置</span></span><br><span class="line">azkaban.project.dir=projects  </span><br><span class="line"> </span><br><span class="line">database.type=mysql<span class="comment">#数据库类型</span></span><br><span class="line">mysql.port=3306<span class="comment">#端口号</span></span><br><span class="line">mysql.host=localhost   <span class="comment">#数据库连接IP</span></span><br><span class="line">mysql.database=azkanban <span class="comment">#数据库实例名</span></span><br><span class="line">mysql.user=root<span class="comment">#数据库用户名</span></span><br><span class="line">mysql.password=123456<span class="comment">#数据库密码</span></span><br><span class="line">mysql.numconnections=100   <span class="comment">#最大连接数</span></span><br><span class="line"> </span><br><span class="line"><span class="comment"># Velocity dev mode</span></span><br><span class="line">velocity.dev.mode=<span class="literal">false</span></span><br><span class="line"><span class="comment"># Jetty服务器属性.</span></span><br><span class="line">jetty.maxThreads=25<span class="comment">#最大线程数</span></span><br><span class="line">jetty.ssl.port=8443<span class="comment">#Jetty SSL端口</span></span><br><span class="line">jetty.port=8081<span class="comment">#Jetty端口</span></span><br><span class="line">jetty.keystore=keystore<span class="comment">#SSL文件名</span></span><br><span class="line">jetty.password=123456  <span class="comment">#SSL文件密码</span></span><br><span class="line">jetty.keypassword=123456   <span class="comment">#Jetty主密码与keystore文件相同</span></span><br><span class="line">jetty.truststore=keystore  <span class="comment">#SSL文件名</span></span><br><span class="line">jetty.trustpassword=123456 <span class="comment">#SSL文件密码</span></span><br><span class="line"> </span><br><span class="line"><span class="comment"># 执行服务器属性</span></span><br><span class="line">executor.port=12321<span class="comment">#执行服务器端口</span></span><br><span class="line"> </span><br><span class="line"><span class="comment"># 邮件设置</span></span><br><span class="line">mail.sender=xxxxxxxx@163.com   <span class="comment">#发送邮箱</span></span><br><span class="line">mail.host=smtp.163.com 发送邮箱smtp地址</span><br><span class="line">mail.user=xxxxxxxx <span class="comment">#发送邮件时显示的名称</span></span><br><span class="line">mail.password=**********   <span class="comment">#邮箱密码</span></span><br><span class="line">job.failure.email=xxxxxxxx@163.com <span class="comment">#任务失败时发送邮件的地址</span></span><br><span class="line">job.success.email=xxxxxxxx@163.com <span class="comment">#任务成功时发送邮件的地址</span></span><br><span class="line">lockdown.create.projects=<span class="literal">false</span>  </span><br><span class="line">cache.directory=cache  <span class="comment">#缓存目录</span></span><br></pre></td></tr></table></figure>
+<h5 id="5-1-4-3-用户配置"><a href="#5-1-4-3-用户配置" class="headerlink" title="5.1.4.3.用户配置"></a>5.1.4.3.用户配置</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#进入azkaban web服务器conf目录,修改azkaban-users.xml</span></span><br><span class="line"><span class="comment">#增加管理员用户</span></span><br><span class="line">[root@node02 conf]<span class="comment"># vi azkaban-users.xml</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">azkaban-users</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">user</span> <span class="attr">username</span>=<span class="string">"azkaban"</span> <span class="attr">password</span>=<span class="string">"azkaban"</span> <span class="attr">roles</span>=<span class="string">"admin"</span> <span class="attr">groups</span>=<span class="string">"azkaban"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">user</span> <span class="attr">username</span>=<span class="string">"metrics"</span> <span class="attr">password</span>=<span class="string">"metrics"</span> <span class="attr">roles</span>=<span class="string">"metrics"</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">user</span> <span class="attr">username</span>=<span class="string">"admin"</span> <span class="attr">password</span>=<span class="string">"admin"</span> <span class="attr">roles</span>=<span class="string">"admin,metrics"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">role</span> <span class="attr">name</span>=<span class="string">"admin"</span> <span class="attr">permissions</span>=<span class="string">"ADMIN"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">role</span> <span class="attr">name</span>=<span class="string">"metrics"</span> <span class="attr">permissions</span>=<span class="string">"METRICS"</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">azkaban-users</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/1949/4e39a1cb61630d78.png" alt="Markdown"></p>
+<h5 id="5-1-4-4-azkaban执行服务器executor配置"><a href="#5-1-4-4-azkaban执行服务器executor配置" class="headerlink" title="5.1.4.4.azkaban执行服务器executor配置"></a>5.1.4.4.azkaban执行服务器executor配置</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#进入执行executor安装目录conf,修改azkaban.properties</span></span><br><span class="line">[root@node02 azkaban]<span class="comment"># cd executor/conf</span></span><br><span class="line">[root@node02 conf]<span class="comment"># vi azkaban.properties</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#Azkaban</span></span><br><span class="line">default.timezone.id=Asia/Shanghai</span><br><span class="line"></span><br><span class="line"><span class="comment"># Azkaban JobTypes Plugins</span></span><br><span class="line">azkaban.jobtype.plugin.dir=plugins/jobtypes</span><br><span class="line"></span><br><span class="line"><span class="comment">#Loader for projects</span></span><br><span class="line">executor.global.properties=conf/global.properties</span><br><span class="line">azkaban.project.dir=projects</span><br><span class="line"></span><br><span class="line">database.type=mysql</span><br><span class="line">mysql.port=3306</span><br><span class="line">mysql.host=localhost</span><br><span class="line">mysql.database=azkanban</span><br><span class="line">mysql.user=root</span><br><span class="line">mysql.password=123456</span><br><span class="line">mysql.numconnections=100</span><br><span class="line"></span><br><span class="line"><span class="comment"># Azkaban Executor settings</span></span><br><span class="line">executor.maxThreads=50</span><br><span class="line">executor.port=12321</span><br><span class="line">executor.flow.threads=30</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#Azkaban</span></span><br><span class="line">default.timezone.id=Asia/Shanghai  <span class="comment">#时区</span></span><br><span class="line"> </span><br><span class="line"><span class="comment"># Azkaban JobTypes 插件配置</span></span><br><span class="line">azkaban.jobtype.plugin.dir=plugins/jobtypes<span class="comment">#jobtype 插件所在位置</span></span><br><span class="line"> </span><br><span class="line"><span class="comment">#Loader for projects</span></span><br><span class="line">executor.global.properties=conf/global.properties</span><br><span class="line">azkaban.project.dir=projects</span><br><span class="line"> </span><br><span class="line"><span class="comment">#数据库设置</span></span><br><span class="line">database.type=mysql  <span class="comment">#数据库类型(目前只支持mysql)</span></span><br><span class="line">mysql.port=3306  <span class="comment">#数据库端口号</span></span><br><span class="line">mysql.host=localhost<span class="comment">#数据库IP地址</span></span><br><span class="line">mysql.database=azkanban   <span class="comment">#数据库实例名</span></span><br><span class="line">mysql.user=root  <span class="comment">#数据库用户名</span></span><br><span class="line">mysql.password=123456  <span class="comment">#数据库密码</span></span><br><span class="line">mysql.numconnections=100 <span class="comment">#最大连接数</span></span><br><span class="line"> </span><br><span class="line"><span class="comment"># 执行服务器配置</span></span><br><span class="line">executor.maxThreads=50<span class="comment">#最大线程数</span></span><br><span class="line">executor.port=12321   <span class="comment">#端口号(如修改,请与web服务中一致)</span></span><br><span class="line">executor.flow.threads=30  <span class="comment">#线程数</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bpimg.com/1949/201024c4ee7031ac.png" alt="Markdown"></p>
+<h4 id="5-1-5-启动azkaban"><a href="#5-1-5-启动azkaban" class="headerlink" title="5.1.5.启动azkaban"></a>5.1.5.启动azkaban</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">1.确认Hadoop集群/(hdfs、yarn、zookeeper)是否启动</span><br><span class="line">2.在azkaban web服务器目录下执行启动命令</span><br><span class="line">[root@node02 ~]<span class="comment"># cd /opt/modules/azkaban/webserver/</span></span><br><span class="line">[root@node02 webserver]<span class="comment"># ./bin/azkaban-web-start.sh</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/1949/d64a9683dc56a233.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">注:在web服务器根目录运行</span><br><span class="line">或者启动到后台</span><br><span class="line">nohup  bin/azkaban-web-start.sh  1&gt;/tmp/azstd.out  2&gt;/tmp/azerr.out &amp;</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">3.执行服务器</span><br><span class="line">在执行服务器目录下执行启动命令</span><br><span class="line">[root@node02 executor]<span class="comment"># ./bin/azkaban-executor-start.sh</span></span><br><span class="line">注:只能要执行服务器根目录运行</span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/1949/308f724c0cedcc0c.png" alt="Markdown"></p>
+<p>[root@node02 ~]# jps<br>1610 QuorumPeerMain<br>1670 DataNode<br>2296 AzkabanWebServer<br>2312 AzkabanExecutorServer<br>1725 JournalNode<br>2378 Jps</p>
+<h4 id="5-1-6-在浏览器查看Azkaban-Web-UI"><a href="#5-1-6-在浏览器查看Azkaban-Web-UI" class="headerlink" title="5.1.6.在浏览器查看Azkaban Web UI"></a>5.1.6.在浏览器查看Azkaban Web UI</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">启动完成后,在浏览器(建议使用谷歌浏览器)中输入https://服务器IP地址:8443 ,</span><br><span class="line">即可访问azkaban服务了.在登录中输入刚才新的用户名及密码(均为admin),点击login.</span><br><span class="line"></span><br><span class="line">https://192.168.230.11:8443/</span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/1949/65abfeca7f15a6b7.png" alt="Markdown"></p>
+<p><img src="http://p1.bqimg.com/1949/a835043b9bd722e2.png" alt="Markdown"></p>
+<h2 id="6-Azkaban实战"><a href="#6-Azkaban实战" class="headerlink" title="6.Azkaban实战"></a>6.Azkaban实战</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Azkaba内置的任务类型支持<span class="built_in">command</span>、java</span><br></pre></td></tr></table></figure>
+<h3 id="6-1-Command类型单一job示例"><a href="#6-1-Command类型单一job示例" class="headerlink" title="6.1.Command类型单一job示例"></a>6.1.Command类型单一job示例</h3><h4 id="6-1-1-创建job描述文件"><a href="#6-1-1-创建job描述文件" class="headerlink" title="6.1.1.创建job描述文件"></a>6.1.1.创建job描述文件</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@node02 ~]<span class="comment"># vi command.job</span></span><br><span class="line"><span class="comment">#command.job</span></span><br><span class="line"><span class="built_in">type</span>=<span class="built_in">command</span></span><br><span class="line"><span class="built_in">command</span>=<span class="built_in">echo</span> <span class="string">'hello'</span></span><br></pre></td></tr></table></figure>
+<h4 id="6-1-2-将job资源文件打包成zip文件"><a href="#6-1-2-将job资源文件打包成zip文件" class="headerlink" title="6.1.2.将job资源文件打包成zip文件"></a>6.1.2.将job资源文件打包成zip文件</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">zip command.job</span><br></pre></td></tr></table></figure>
+<h4 id="6-1-3-通过azkaban的web管理平台创建project并上传job压缩包"><a href="#6-1-3-通过azkaban的web管理平台创建project并上传job压缩包" class="headerlink" title="6.1.3.通过azkaban的web管理平台创建project并上传job压缩包"></a>6.1.3.通过azkaban的web管理平台创建project并上传job压缩包</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">首先创建project</span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bpimg.com/581590/4e2c15c7455a1366.png" alt="Markdown"> </p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">上传zip包</span><br><span class="line">``` </span><br><span class="line"></span><br><span class="line">![Markdown](http://p1.bpimg.com/581590/8c2bc0515bac3737.png)</span><br><span class="line"></span><br><span class="line">![Markdown](http://p1.bpimg.com/581590/d8542aba7458b56e.png)</span><br><span class="line"></span><br><span class="line">![Markdown](http://p1.bpimg.com/581590/5eec8067f8d38fd4.png)</span><br><span class="line"></span><br><span class="line">![Markdown](http://i1.piimg.com/581590/f11654d351692ed2.png)</span><br><span class="line"></span><br><span class="line">![Markdown](http://i1.piimg.com/581590/74338cf3d56bc850.png)</span><br><span class="line"></span><br><span class="line"><span class="comment">#### 6.1.4.启动执行该job</span></span><br><span class="line"></span><br><span class="line">![Markdown](http://i1.piimg.com/581590/bf880a1ebc414bee.png)</span><br><span class="line"></span><br><span class="line">![Markdown](http://i1.piimg.com/581590/042b196cecdd693e.png)</span><br><span class="line"></span><br><span class="line"><span class="comment">### 6.2.Command类型多job工作流flow</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#### 6.2.1.创建有依赖关系的多个job描述</span></span><br><span class="line"></span><br><span class="line">```bash</span><br><span class="line">第一个job：foo.job</span><br><span class="line"><span class="comment"># foo.job</span></span><br><span class="line"><span class="built_in">type</span>=<span class="built_in">command</span></span><br><span class="line"><span class="built_in">command</span>=<span class="built_in">echo</span> foo</span><br><span class="line"></span><br><span class="line">第二个job：bar.job依赖foo.job</span><br><span class="line"><span class="comment"># bar.job</span></span><br><span class="line"><span class="built_in">type</span>=<span class="built_in">command</span></span><br><span class="line">dependencies=foo</span><br><span class="line"><span class="built_in">command</span>=<span class="built_in">echo</span> bar</span><br></pre></td></tr></table></figure>
+<h4 id="6-2-2-将所有job资源文件打到一个zip包中"><a href="#6-2-2-将所有job资源文件打到一个zip包中" class="headerlink" title="6.2.2.将所有job资源文件打到一个zip包中"></a>6.2.2.将所有job资源文件打到一个zip包中</h4><p><img src="http://i1.piimg.com/581590/377cb0daf913b760.png" alt="Markdown"></p>
+<h4 id="6-2-3-在azkaban的web管理界面创建工程并上传zip包"><a href="#6-2-3-在azkaban的web管理界面创建工程并上传zip包" class="headerlink" title="6.2.3.在azkaban的web管理界面创建工程并上传zip包"></a>6.2.3.在azkaban的web管理界面创建工程并上传zip包</h4><p><img src="http://i1.piimg.com/581590/485fa4512269eab3.png" alt="Markdown"></p>
+<p><img src="http://i1.piimg.com/581590/d358abe14474a526.png" alt="Markdown"></p>
+<h4 id="6-2-4-启动工作流flow"><a href="#6-2-4-启动工作流flow" class="headerlink" title="6.2.4.启动工作流flow"></a>6.2.4.启动工作流flow</h4><p><img src="http://i1.piimg.com/581590/556b27957e50fcdd.png" alt="Markdown"></p>
+<p><img src="http://i1.piimg.com/581590/e795c39b1e2b9047.png" alt="Markdown"></p>
+<p><img src="http://i1.piimg.com/581590/163cda38d1430c4c.png" alt="Markdown"></p>
+<p><img src="http://i1.piimg.com/581590/a76f9186cfbead84.png" alt="Markdown"></p>
+
+    </div>
+  </div>
+  
+    <div class="copy-right">
+      <div class="markdown-body">
+        <blockquote>
+        
+        
+          本文作者 : Matrix <br>
+        
+        原文链接 : <a href="">http://yoursite.com/2017/01/02/Azkaban工作流调度器/</a><br>
+        版权声明 : 本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+        </blockquote>
+      </div>
+    </div>
+  
+  
+  
+    <div class="social-share" style="margin-top: -2rem" data-wechat-qrcode-title="<p>微信扫一扫</p>" data-wechat-qrcode-helper="<p>微信右上角, 扫一扫分享</p>" data-sites="qzone, qq, weibo, wechat, douban, google, facebook, twitter">
+  <span style="color: #6b7487; font-size: 1.4rem;">分享到: </span>
+</div>
+<script src="https://cdn.bootcss.com/social-share.js/1.0.16/js/social-share.min.js" async></script>
+  
+
+  
+    <div id="reward">
+  
+    <p id="reward-meta">知识 & 情怀 | 二者兼得</p>
+  
+  <button id="reward-btn">
+    
+    <span>投食</span>
+  </button>
+  <div id="reward-qrcode">
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/wechatpay.jpg" alt="微信扫一扫, 向我投食">
+        <p class="qrcode-meta">微信扫一扫, 向我投食</p>
+      </div>
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/alipaypay.jpg" alt="支付宝扫一扫, 向我投食">
+        <p class="qrcode-meta">支付宝扫一扫, 向我投食</p>
+      </div>
+    
+  </div>
+
+</div>
+
+<script>
+  (() => {
+    let button = document.querySelector('#reward-btn'),
+      qrcode = document.querySelector('#reward-qrcode'),
+      display = false;
+    
+    button.addEventListener('click', () => {
+      qrcode.style.display = display ? 'none' : 'block'
+      display = !display
+    }, false)
+  })()
+</script>
+  
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+      <span>
+        
+          <i class="iconfont icon-06tags"></i>标签: 
+          
+          <span class="span--tag">
+            <a href="/tags/大数据/">
+              #大数据
+            </a>
+          </span>
+          
+        
+      </span>
+    </div>
+    <div class="article-meta pull-right">
+    </div>
+  </div>
+</div>
+
+
+  <aside id="sidebar">
+    <p id="sidebar-header"></p>
+    <ol id="sidebar-toc"></ol>
+  </aside>
+  <script async>setTimeout(generateToc, 10);</script>
+
+
+  <nav class="post-navigation">
+    
+      <div class="nav-pre">
+        <i class="iconfont icon-prev"></i>
+        上一篇:
+        <a href="/2016/11/09/webpack概念&amp;安装&amp;配置/" target="_self">webpack概念&安装&配置</a>
+      </div>
+    
+    
+      <div class="nav-next">
+        下一篇:
+        <a href="/2017/01/10/Centos7下相关常用操作命令/" target="_self">Centos7下相关常用操作命令</a>
+        <i class="iconfont icon-next"></i>
+      </div>
+    
+  </nav>
+
+  
+    <a href="#comment" class="comment-anchor"></a>
+<div class="comment-title"><i class="iconfont icon-footprint"></i> 留下足迹 <i class="iconfont icon-footprint"></i></div>
+<div id="vcomments"></div>
+
+<script defer>
+  if( true ) {
+    let path = getRealPath()
+    new Valine({
+      el: "#vcomments",
+      appId: "Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz",
+      appKey: "WaR7nrzhliHj9aVwdQzkdlGd",
+      notify: false,
+      verify: false,
+      avatar: "robohash",
+      placeholder: "正确填写邮箱, 才能及时收到回复哦♪(^∇^*)",
+      path
+    });
+  }
+</script>
+   
+
+  
+    <script defer>
+const valineAPI = (() => {
+  try {
+    AV.init("Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz", "WaR7nrzhliHj9aVwdQzkdlGd");
+  } catch(error) {}
+  const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+      query.equalTo("identity", identity);
+      query.find().then(results => {
+        resolve(results.length > 0);
+      }, error => reject(error));
+    })
+  }
+
+  const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+      let querys = [];
+      for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+      }
+      query = AV.Query.or.apply(null ,querys);
+    } else {
+      identity = identity || getRealPath();
+      query = new AV.Query("Timer");
+      query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+      query.find()
+      .then(results => resolve(results))
+      .catch(error => reject(error))
+    })
+  }
+
+  const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let Todo = AV.Object.extend('Timer');
+      let todo = new Todo();
+      todo.set("times", 1);
+      todo.set("identity", identity);
+      todo.save().then(res => resolve(true), error => reject(error));
+    })
+  }
+
+  const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let query = new AV.Query('Timer');
+      query.equalTo("identity", identity);
+      query.find().then(todos => {
+        todos.forEach(todo => {
+          todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+      }).then(todos => resolve(true), error => reject(error));
+    })
+  }
+
+  return {
+    isExist,
+    _get,
+    update,
+    create
+  }
+})()
+
+const calcAndWriteTimes = () => {
+  let isPost = true;
+
+  let timerAllDOM = document.querySelectorAll(".article-timer");
+
+  if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+      if(exist) {
+        return valineAPI.update(identity);
+      }
+      return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+  }
+
+  let timerDOMCache = {};
+
+  for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+      timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+      timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+      };
+    }
+  }
+
+  let identities = Object.keys(timerDOMCache);
+  valineAPI._get(identities).then(results => {
+    for(let result of results) {
+      let {identity, times} = result.attributes;
+      timerDOMCache[identity].times = times;
+      timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+      if(timerDOMCache[identity].times){
+        continue;
+      }
+      timerDOMCache[identity].dom.map(item => item.innerText = 1);
+      valineAPI.create(identity);
+    }
+  }).catch(error => console.log(error.message))
+}
+
+if(true){
+  calcAndWriteTimes();
+}
+</script>
+   
+
+</div>
+
+
+      <footer>
+  <p class="site-info">
+    博客已萌萌哒运行<span id="time-to-now"></span><span class="my-face">(●'◡'●)ﾉ♥</span>
+    <br>
+    Theme - <a href="https://github.com/dongyuanxin/theme-bmw">BMW</a> | Powered by <a href="https://godbmw.com/">GodBMW</a>
+    <br>
+    
+      Copyright © 2019 Matrix
+    
+  </p>
+</footer>
+
+
+
+<script>
+const timeToNowDOM = document.querySelector("#time-to-now");
+const startTimestamp = new Date(2016, 4, 10).getTime();
+
+const updateTimeStr = () => {
+  let offset = parseInt(
+      (new Date().getTime() - startTimestamp) / 1000,
+      10
+    ),
+    day = Math.floor(offset / 86400),
+    hour = Math.floor((offset % 86400) / 3600),
+    minute = Math.floor(((offset % 86400) % 3600) / 60),
+    second = Math.floor(((offset % 86400) % 3600) % 60);
+  timeToNowDOM.innerHTML =
+    day + "天" + hour + "小时" + minute + "分钟" + second + "秒";
+  setTimeout(updateTimeStr, 500);
+}
+
+setTimeout(updateTimeStr, 500);
+</script>
+
+
+      <div class="back-to-top hidden">
+  <span>
+    <i class="iconfont icon-60"></i><span></span>%
+  </span>
+</div>
+
+<script>
+const updateIconToTop = percent => {
+  let dom = document.querySelector(".back-to-top span span");
+  dom.innerText = percent;
+  if(percent < 1) {
+    document.querySelector(".back-to-top").className = "back-to-top hidden";
+  } else {
+    document.querySelector(".back-to-top").className = "back-to-top";
+  }
+}
+
+const handleScoll = () => {
+  let isRunning = false;
+  return () => {
+    if (isRunning) return;
+    isRunning = true;
+    window.requestAnimationFrame(timestamp => {
+      let scrollTop =
+          document.documentElement.scrollTop || document.body.scrollTop,
+        scrollHeight =
+          document.documentElement.scrollHeight ||
+          document.body.scrollHeight,
+        clientHeight =
+          document.documentElement.clientHeight ||
+          document.body.clientHeight;
+      isRunning = false;
+      if (scrollTop <= 1) {
+        updateIconToTop(0);
+        return;
+      }
+      if (scrollTop + clientHeight >= scrollHeight) {
+        updateIconToTop(100);
+      } else {
+        updateIconToTop(parseInt(
+          100 * scrollTop / (scrollHeight - clientHeight),
+          10
+        ));
+      }
+    });
+  };
+}
+
+const backToTop = () => {
+  let scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop,
+    delay = 10,
+    time = 200;
+  if (scrollTop <= 20) {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    return;
+  }
+  let step = Math.ceil(scrollTop * delay / time);
+  let timer = setInterval(() => {
+    scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop;
+    if (scrollTop - step <= 0) {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      clearInterval(timer);
+    } else {
+      document.documentElement.scrollTop = scrollTop - step;
+      document.body.scrollTop = scrollTop - step;
+    }
+  }, delay);
+}
+
+document.addEventListener("scroll", handleScoll(), false);
+
+document.querySelector(".back-to-top").addEventListener("click", backToTop, false);
+
+</script>
+
+    </div>
+
+    
+      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  (() => {
+    const mathjaxConfig = {
+      showProcessingMessages: false, //关闭js加载过程信息
+      messageStyle: "none", //不显示信息
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]], //行内公式选择符
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]], //段内公式选择符
+        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"] //避开某些标签
+      },
+      "HTML-CSS": {
+        availableFonts: ["STIX", "TeX"], //可选字体
+        showMathMenu: false //关闭右击菜单显示
+      }
+    }
+
+    let mathjaxInterval = setInterval(() => {
+      if(!window.MathJax){
+        return;
+      }
+      window.MathJax.Hub.Config(mathjaxConfig)
+      window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')])
+
+      clearInterval(mathjaxInterval)
+    }, 10)    
+  })()
+</script>
+    
+
+    <script src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script>
+<script async>
+  let fancyTimer = setInterval(function(){
+    if(!window.$){
+      return;
+    }
+    $(document).ready(function() {
+      $(".post img").each(function () {
+        if($(this).parent().get(0).tagName.toLowerCase() === "a") {
+          return;
+        }
+        // $(this).attr("data-fancybox", "gallery"); // if you add 'data-fancybox', img will display after showed
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "gallery");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      });
+      
+      clearInterval(fancyTimer);
+    });
+  }, 10);
+</script>
+
+    
+  </body>
+
+</html>

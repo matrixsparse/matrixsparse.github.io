@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta name="author" content="董沅鑫, yuanxin.me@gmail.com">
+  
+  
+  
+  <title>基于Nginx+Lua+Java完成多级缓存架构的核心业务逻辑 | 每天遇到更好的你</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="大数据,大数据,Redis,">
+  
+
+  <script>
+    console.log('\n%c Hexo-theme-bmw v4.0 ' + '%c 🎉 https://github.com/dongyuanxin/theme-bmw 🎉\n' + '\n%c View demo online ' + '%c 🔍 https://godbmw.com/ 🔍  \n' , 'color: #fadfa3; background: #030307; padding:3px 0;', '', 'color: #fadfa3; background: #030307; padding:3px 0;', '');
+  </script>
+
+  
+
+  
+
+  
+    <link rel="icon" href="/images/favicon.png">
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+  
+
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/icon/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+  <script src="/js/util.js"></script>
+<script src="/js/valine.min.js"></script>
+
+  
+
+  
+    <link href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js" async></script>
+  
+
+  
+    <link href="https://cdn.bootcss.com/social-share.js/1.0.16/css/share.min.css" rel="stylesheet">
+  
+  
+  <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js" async></script>
+  
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.0/dist/av-min.js"></script>
+  
+
+</head>
+
+  <body>
+
+    
+
+    <div id="app">
+
+      <div class="header-wrap">
+  <header>
+    <div class="site-brand">
+      <div class="site-title">
+        <!-- <a href="/">MatrixSparse</a> -->
+        <img alt="logo" class="antd-pro-layouts-user-layout-logo" src="/images/favicon.png" style="width: 40px;height: 40px;margin-top: 10px;margin-left: 5px;">
+      </div>
+    </div>
+    <nav class="site-navigation">
+      <ul class="nav-menu">
+      
+        <li class="nav-item" data-path="/">
+          
+            <a href="/" target="_self">
+              主页
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          
+            <a href="/archives/" target="_self">
+              归档
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          
+            <a href="/categories/" target="_self">
+              分类
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          
+            <a href="/tags/" target="_self">
+              标签
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="">
+          
+            <a href="javascript:void(0);" v-else="">博客地址</a>
+            <ul class="nav-menu--dropdown">
+              
+                <li>
+                  <a href="https://blog.csdn.net/qq_25371579" target="_blank">
+                    CSDN
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://github.com/matrixsparse" target="_blank">
+                    Github
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://matrixsparse.github.io/" target="_blank">
+                    Github Page
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+      </ul>
+    </nav>
+    <i class="iconfont icon-menu"></i>
+  </header>
+</div>
+
+<script>
+  let links = document.querySelectorAll('.nav-item');
+  for(let link of links){
+    let childrenLink = link.querySelector('ul');
+    link.addEventListener('mouseenter', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown active";
+      }
+    })
+    link.addEventListener('mouseleave', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown";
+      }
+    })
+  }
+  let rootRealPath = getRealPath(window.location.pathname, true);
+  for(let link of links) {
+    let linkPath = link.getAttribute("data-path");
+    if(linkPath && getRealPath(linkPath, true) === rootRealPath) {
+      link.className = "nav-item hover";
+    }
+  }
+
+  let iconMenu = document.querySelector("i.iconfont.icon-menu"),
+    iconMenuClicked = false;
+  let navDOM = document.querySelector("nav.site-navigation");
+  iconMenu.addEventListener("click", () => {
+    iconMenuClicked
+      ? navDOM.className = "site-navigation active"
+      : navDOM.className = "site-navigation";
+    iconMenuClicked = !iconMenuClicked;
+  })
+</script>
+
+
+      
+
+
+
+
+
+
+
+
+<div class="container post-index">
+
+  
+
+<div class="post">
+  <h1 class="article-title">
+    <span>基于Nginx+Lua+Java完成多级缓存架构的核心业务逻辑</span>
+  </h1>
+  <div class="article-top-meta">
+    <span>
+      发布 : 
+      2017-07-10
+    </span>
+    
+      <span>
+        分类 : 
+          <a href="/categories/大数据/">
+            大数据
+          </a>
+      </span>
+    
+    
+      <span>
+        浏览 : <span class="article-timer" data-identity="基于Nginx+Lua+Java完成多级缓存架构的核心业务逻辑"></span>
+      </span>
+    
+  </div>
+
+  
+
+  <div class="article-content">
+    <div class="markdown-body">
+      <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">分发层nginx，lua应用，会将商品id，商品店铺id，都转发到后端的应用nginx</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>应用nginx的lua脚本接收到请求</p>
+</li>
+<li><p>获取请求参数中的商品id，以及商品店铺id</p>
+</li>
+<li><p>根据商品id和商品店铺id，在nginx本地缓存中尝试获取数据</p>
+</li>
+<li><p>如果在nginx本地缓存中没有获取到数据，那么就到redis分布式缓存中获取数据，如果获取到了数据，还要设置到nginx本地缓存中</p>
+</li>
+<li><p>如果缓存数据生产服务没有在redis分布式缓存中没有获取到数据，那么就在自己本地ehcache中获取数据，返回数据给nginx，也要设置到nginx本地缓存中</p>
+</li>
+<li><p>如果ehcache本地缓存都没有数据，那么就需要去原始的服务中拉去数据，该服务会从mysql中查询，拉去到数据之后，返回给nginx，并重新设置到ehcache和redis中</p>
+</li>
+<li><p>nginx最终利用获取到的数据，动态渲染网页模板</p>
+</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">[root@matrix-cache03 ~]<span class="comment"># vi /usr/hello/hello.conf</span></span><br><span class="line">server &#123;</span><br><span class="line">    listen       80;</span><br><span class="line">    server_name  _;</span><br><span class="line"></span><br><span class="line">    location /hello &#123;</span><br><span class="line">        default_type <span class="string">'text/html'</span>;</span><br><span class="line">        content_by_lua_file /usr/hello/lua/hello.lua;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    location /product &#123;</span><br><span class="line">        default_type <span class="string">'text/html'</span>;</span><br><span class="line">        content_by_lua_file /usr/hello/lua/distribute.lua;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@matrix-cache03 ~]<span class="comment"># cd /usr/hello/lua</span></span><br><span class="line">[root@matrix-cache03 lua]<span class="comment"># cp hello.lua distribute.lua</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">[root@matrix-cache03 ~]<span class="comment"># vi /usr/hello/lua/distribute.lua</span></span><br><span class="line"><span class="built_in">local</span> uri_args = ngx.req.get_uri_args()</span><br><span class="line"><span class="built_in">local</span> productId = uri_args[<span class="string">"productId"</span>]</span><br><span class="line"><span class="built_in">local</span> shopId = uri_args[<span class="string">"shopId"</span>]</span><br><span class="line"></span><br><span class="line"><span class="built_in">local</span> hosts = &#123;<span class="string">"192.168.31.231"</span>,<span class="string">"192.168.31.232"</span>&#125;</span><br><span class="line"><span class="built_in">local</span> <span class="built_in">hash</span> = ngx.crc32_long(productId)</span><br><span class="line"><span class="built_in">local</span> index = (<span class="built_in">hash</span> % 1) + 1</span><br><span class="line">backend = <span class="string">"http://"</span>..hosts[index]</span><br><span class="line"></span><br><span class="line"><span class="built_in">local</span> requestPath = uri_args[<span class="string">"requestPath"</span>]</span><br><span class="line">requestPath = <span class="string">"/"</span>..requestPath..<span class="string">"?productId="</span>..productId..<span class="string">"&amp;shopId="</span>..shopId</span><br><span class="line"></span><br><span class="line"><span class="built_in">local</span> http = require(<span class="string">"resty.http"</span>)</span><br><span class="line"><span class="built_in">local</span> httpc = http.new()</span><br><span class="line"></span><br><span class="line"><span class="built_in">local</span> resp,err = httpc:request_uri(backend,&#123;</span><br><span class="line">  method = <span class="string">"GET"</span>,</span><br><span class="line">  path = requestPath</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> not resp <span class="keyword">then</span></span><br><span class="line">  ngx.say(<span class="string">"Request error:"</span>,err)</span><br><span class="line">  <span class="built_in">return</span></span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">ngx.say(resp.body)</span><br><span class="line"></span><br><span class="line">httpc:close()</span><br></pre></td></tr></table></figure>
+<h2 id="重新加载Nginx服务"><a href="#重新加载Nginx服务" class="headerlink" title="重新加载Nginx服务"></a>重新加载Nginx服务</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@matrix-cache03 ~]<span class="comment"># /usr/servers/nginx/sbin/nginx -s reload</span></span><br></pre></td></tr></table></figure>
+<h2 id="在浏览器地址栏中访问"><a href="#在浏览器地址栏中访问" class="headerlink" title="在浏览器地址栏中访问"></a>在浏览器地址栏中访问</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://192.168.31.233/hello?requestPath=hello&amp;productId=1</span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fhgr0bu1r2j21bk08aq5c.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">建议不要用nginx+lua直接去获取redis数据</span><br><span class="line"></span><br><span class="line">因为openresty没有太好的redis cluster的支持包，所以建议是发送http请求到缓存数据生产服务，由该服务提供一个http接口</span><br><span class="line"></span><br><span class="line">缓存数生产服务可以基于redis cluster api从redis中直接获取数据，并返回给nginx</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@matrix-cache01 ~]<span class="comment"># cd /usr/hello/lualib/resty/</span></span><br><span class="line">[root@matrix-cache01 resty]<span class="comment"># wget https://raw.githubusercontent.com/pintsized/lua-resty-http/master/lib/resty/http_headers.lua</span></span><br><span class="line">[root@matrix-cache01 resty]<span class="comment"># wget https://raw.githubusercontent.com/pintsized/lua-resty-http/master/lib/resty/http.lua</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@matrix-cache02 ~]<span class="comment"># cd /usr/hello/lualib/resty/</span></span><br><span class="line">[root@matrix-cache02 resty]<span class="comment"># wget https://raw.githubusercontent.com/pintsized/lua-resty-http/master/lib/resty/http_headers.lua</span></span><br><span class="line">[root@matrix-cache02 resty]<span class="comment"># wget https://raw.githubusercontent.com/pintsized/lua-resty-http/master/lib/resty/http.lua</span></span><br></pre></td></tr></table></figure>
+<h2 id="渲染模板"><a href="#渲染模板" class="headerlink" title="渲染模板"></a>渲染模板</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[root@matrix-cache01 ~]<span class="comment"># cd /usr/hello/lualib/resty/</span></span><br><span class="line">[root@matrix-cache01 resty]<span class="comment"># wget https://raw.githubusercontent.com/bungle/lua-resty-template/master/lib/resty/template.lua</span></span><br><span class="line">[root@matrix-cache01 resty]<span class="comment"># mkdir /usr/hello/lualib/resty/html</span></span><br><span class="line">[root@matrix-cache01 resty]<span class="comment"># cd /usr/hello/lualib/resty/html</span></span><br><span class="line">[root@matrix-cache01 html]<span class="comment"># wget https://raw.githubusercontent.com/bungle/lua-resty-template/master/lib/resty/template/html.lua</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[root@matrix-cache02 ~]<span class="comment"># cd /usr/hello/lualib/resty/</span></span><br><span class="line">[root@matrix-cache02 resty]<span class="comment"># wget https://raw.githubusercontent.com/bungle/lua-resty-template/master/lib/resty/template.lua</span></span><br><span class="line">[root@matrix-cache02 resty]<span class="comment"># mkdir /usr/hello/lualib/resty/html</span></span><br><span class="line">[root@matrix-cache02 resty]<span class="comment"># cd /usr/hello/lualib/resty/html</span></span><br><span class="line">[root@matrix-cache02 html]<span class="comment"># wget https://raw.githubusercontent.com/bungle/lua-resty-template/master/lib/resty/template/html.lua</span></span><br></pre></td></tr></table></figure>
+<h2 id="在hello-conf的server中配置模板位置"><a href="#在hello-conf的server中配置模板位置" class="headerlink" title="在hello.conf的server中配置模板位置"></a>在hello.conf的server中配置模板位置</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@matrix-cache01 ~]<span class="comment"># vi /usr/hello/hello.conf</span></span><br><span class="line">[root@matrix-cache02 ~]<span class="comment"># vi /usr/hello/hello.conf</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">    listen       80;</span><br><span class="line">    server_name  _;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">set</span> <span class="variable">$template_location</span> <span class="string">"/templates"</span>;</span><br><span class="line">    <span class="built_in">set</span> <span class="variable">$template_root</span> <span class="string">"/usr/hello/templates"</span>;</span><br><span class="line"></span><br><span class="line">    location /hello &#123;</span><br><span class="line">        default_type <span class="string">'text/html'</span>;</span><br><span class="line">        content_by_lua_file /usr/hello/lua/hello.lua;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    location /product &#123;</span><br><span class="line">        default_type <span class="string">'text/html'</span>;</span><br><span class="line">        content_by_lua_file /usr/hello/lua/product.lua;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line">[root@matrix-cache01 ~]<span class="comment"># vi /usr/hello/lua/product.lua</span></span><br><span class="line">[root@matrix-cache02 ~]<span class="comment"># vi /usr/hello/lua/product.lua</span></span><br><span class="line"><span class="built_in">local</span> uri_args = ngx.req.get_uri_args()</span><br><span class="line"><span class="built_in">local</span> productId = uri_args[<span class="string">"productId"</span>]</span><br><span class="line"><span class="built_in">local</span> shopId = uri_args[<span class="string">"shopId"</span>]</span><br><span class="line"></span><br><span class="line"><span class="built_in">local</span> cache_ngx = ngx.shared.my_cache</span><br><span class="line"></span><br><span class="line"><span class="built_in">local</span> productCacheKey = <span class="string">"product_info_"</span>..productId</span><br><span class="line"><span class="built_in">local</span> shopCacheKey = <span class="string">"shop_info_"</span>..shopId</span><br><span class="line"></span><br><span class="line"><span class="built_in">local</span> productCache = cache_ngx:get(productCacheKey)</span><br><span class="line"><span class="built_in">local</span> shopCache = cache_ngx:get(shopCacheKey)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> productCache == <span class="string">""</span> or productCache == nil <span class="keyword">then</span></span><br><span class="line">	<span class="built_in">local</span> http = require(<span class="string">"resty.http"</span>)</span><br><span class="line">	<span class="built_in">local</span> httpc = http.new()</span><br><span class="line"></span><br><span class="line">	<span class="built_in">local</span> resp, err = httpc:request_uri(<span class="string">"http://192.168.31.178:8080"</span>,&#123;</span><br><span class="line">  		method = <span class="string">"GET"</span>,</span><br><span class="line">  		path = <span class="string">"/getProductInfo?productId="</span>..productId</span><br><span class="line">	&#125;)</span><br><span class="line"></span><br><span class="line">	productCache = resp.body</span><br><span class="line">	cache_ngx:<span class="built_in">set</span>(productCacheKey, productCache, 10 * 60)</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> shopCache == <span class="string">""</span> or shopCache == nil <span class="keyword">then</span></span><br><span class="line">	<span class="built_in">local</span> http = require(<span class="string">"resty.http"</span>)</span><br><span class="line">	<span class="built_in">local</span> httpc = http.new()</span><br><span class="line"></span><br><span class="line">	<span class="built_in">local</span> resp, err = httpc:request_uri(<span class="string">"http://192.168.31.178:8080"</span>,&#123;</span><br><span class="line">  		method = <span class="string">"GET"</span>,</span><br><span class="line">  		path = <span class="string">"/getShopInfo?shopId="</span>..shopId</span><br><span class="line">	&#125;)</span><br><span class="line"></span><br><span class="line">	shopCache = resp.body</span><br><span class="line">	cache_ngx:<span class="built_in">set</span>(shopCacheKey, shopCache, 10 * 60)</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line"><span class="built_in">local</span> cjson = require(<span class="string">"cjson"</span>)</span><br><span class="line"><span class="built_in">local</span> productCacheJSON = cjson.decode(productCache)</span><br><span class="line"><span class="built_in">local</span> shopCacheJSON = cjson.decode(shopCache)</span><br><span class="line"></span><br><span class="line"><span class="built_in">local</span> context = &#123;</span><br><span class="line">	productId = productCacheJSON.id,</span><br><span class="line">	productName = productCacheJSON.name,</span><br><span class="line">	productPrice = productCacheJSON.price,</span><br><span class="line">	productPictureList = productCacheJSON.pictureList,</span><br><span class="line">	productSpecification = productCacheJSON.specification,</span><br><span class="line">	productService = productCacheJSON.service,</span><br><span class="line">	productColor = productCacheJSON.color,</span><br><span class="line">	productSize = productCacheJSON.size,</span><br><span class="line">	shopId = shopCacheJSON.id,</span><br><span class="line">	shopName = shopCacheJSON.name,</span><br><span class="line">	shopLevel = shopCacheJSON.level,</span><br><span class="line">	shopGoodCommentRate = shopCacheJSON.goodCommentRate</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">local</span> template = require(<span class="string">"resty.template"</span>)</span><br><span class="line">template.render(<span class="string">"product.html"</span>, context)</span><br></pre></td></tr></table></figure>
+<h2 id="编辑nginx配置文件"><a href="#编辑nginx配置文件" class="headerlink" title="编辑nginx配置文件"></a>编辑nginx配置文件</h2><blockquote>
+<p>在配置文件中添加</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[root@matrix-cache01 ~]<span class="comment"># vi /usr/servers/nginx/conf/nginx.conf</span></span><br><span class="line">[root@matrix-cache02 ~]<span class="comment"># vi /usr/servers/nginx/conf/nginx.conf</span></span><br><span class="line">http &#123;</span><br><span class="line">    lua_shared_dict my_cache 128m;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fhgqp3w26gj21qi14gqhr.jpg" alt=""></p>
+<h2 id="编辑product模板"><a href="#编辑product模板" class="headerlink" title="编辑product模板"></a>编辑product模板</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@matrix-cache01 ~]<span class="comment"># mkdir /usr/hello/templates</span></span><br><span class="line">[root@matrix-cache02 ~]<span class="comment"># mkdir /usr/hello/templates</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@matrix-cache01 ~]<span class="comment"># cd /usr/hello/templates</span></span><br><span class="line">[root@matrix-cache02 ~]<span class="comment"># cd /usr/hello/templates</span></span><br><span class="line">[root@matrix-cache01 templates]<span class="comment"># vi product.html</span></span><br><span class="line">[root@matrix-cache02 templates]<span class="comment"># vi product.html</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">product id: &#123;* productId *&#125;&lt;br/&gt;</span><br><span class="line">product name: &#123;* productName *&#125;&lt;br/&gt;</span><br><span class="line">product picture list: &#123;* productPictureList *&#125;&lt;br/&gt;</span><br><span class="line">product specification: &#123;* productSpecification *&#125;&lt;br/&gt;</span><br><span class="line">product service: &#123;* productService *&#125;&lt;br/&gt;</span><br><span class="line">product color: &#123;* productColor *&#125;&lt;br/&gt;</span><br><span class="line">product size: &#123;* productSize *&#125;&lt;br/&gt;</span><br><span class="line">shop id: &#123;* shopId *&#125;&lt;br/&gt;</span><br><span class="line">shop name: &#123;* shopName *&#125;&lt;br/&gt;</span><br><span class="line">shop level: &#123;* shopLevel *&#125;&lt;br/&gt;</span><br><span class="line">shop good cooment rate: &#123;* shopGoodCommentRate *&#125;&lt;br/&gt;</span><br></pre></td></tr></table></figure>
+<h2 id="将渲染后的网页模板作为http响应，返回给分发层nginx"><a href="#将渲染后的网页模板作为http响应，返回给分发层nginx" class="headerlink" title="将渲染后的网页模板作为http响应，返回给分发层nginx"></a>将渲染后的网页模板作为http响应，返回给分发层nginx</h2><h3 id="重新加载Nginx服务-1"><a href="#重新加载Nginx服务-1" class="headerlink" title="重新加载Nginx服务"></a>重新加载Nginx服务</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@matrix-cache01 ~]<span class="comment"># /usr/servers/nginx/sbin/nginx -s reload</span></span><br><span class="line">[root@matrix-cache02 ~]<span class="comment"># /usr/servers/nginx/sbin/nginx -s reload</span></span><br></pre></td></tr></table></figure>
+<h3 id="在浏览器地址栏中输入"><a href="#在浏览器地址栏中输入" class="headerlink" title="在浏览器地址栏中输入"></a>在浏览器地址栏中输入</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://192.168.31.233/product?requestPath=product&amp;productId=1&amp;shopId=1</span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fhgr30e8clj21pk0cw0vy.jpg" alt=""></p>
+<h3 id="查看Nginx日志"><a href="#查看Nginx日志" class="headerlink" title="查看Nginx日志"></a>查看Nginx日志</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@matrix-cache01 ~]<span class="comment"># tail -f /usr/servers/nginx/logs/error.log</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fhgr7r26gmj21qs0p4x34.jpg" alt=""></p>
+<h2 id="编写代码"><a href="#编写代码" class="headerlink" title="编写代码"></a>编写代码</h2><h3 id="缓存Controller"><a href="#缓存Controller" class="headerlink" title="缓存Controller"></a>缓存Controller</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br></pre></td><td class="code"><pre><span class="line">package com.matrix.eshop.cache.controller;</span><br><span class="line"></span><br><span class="line">import javax.annotation.Resource;</span><br><span class="line"></span><br><span class="line">import org.springframework.stereotype.Controller;</span><br><span class="line">import org.springframework.web.bind.annotation.RequestMapping;</span><br><span class="line">import org.springframework.web.bind.annotation.ResponseBody;</span><br><span class="line"></span><br><span class="line">import com.matrix.eshop.cache.model.ProductInfo;</span><br><span class="line">import com.matrix.eshop.cache.model.ShopInfo;</span><br><span class="line">import com.matrix.eshop.cache.service.CacheService;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * 缓存Controller</span><br><span class="line"> *</span><br><span class="line"> * @author matrix</span><br><span class="line"> *</span><br><span class="line"> */</span><br><span class="line">@Controller</span><br><span class="line">public class CacheController &#123;</span><br><span class="line"></span><br><span class="line">	@Resource</span><br><span class="line">	private CacheService cacheService;</span><br><span class="line"></span><br><span class="line">	@RequestMapping(<span class="string">"/testPutCache"</span>)</span><br><span class="line">	@ResponseBody</span><br><span class="line">	public String testPutCache(ProductInfo productInfo) &#123;</span><br><span class="line">		cacheService.saveLocalCache(productInfo);</span><br><span class="line">		<span class="built_in">return</span> <span class="string">"success"</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	@RequestMapping(<span class="string">"/testGetCache"</span>)</span><br><span class="line">	@ResponseBody</span><br><span class="line">	public ProductInfo testGetCache(Long id) &#123;</span><br><span class="line">		<span class="built_in">return</span> cacheService.getLocalCache(id);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	@RequestMapping(<span class="string">"/getProductInfo"</span>)</span><br><span class="line">	@ResponseBody</span><br><span class="line">	public ProductInfo getProductInfo(Long productId) &#123;</span><br><span class="line">		ProductInfo productInfo = null;</span><br><span class="line">		// 先从Redis中获取数据</span><br><span class="line">		productInfo = cacheService.getProductInfoFromReidsCache(productId);</span><br><span class="line">		System.out.println(<span class="string">"=================从redis中获取缓存，商品信息="</span> + productInfo);   </span><br><span class="line"></span><br><span class="line">		<span class="keyword">if</span> (productInfo == null) &#123;</span><br><span class="line">			productInfo = cacheService.getProductInfoFromLocalCache(productId);</span><br><span class="line">			System.out.println(<span class="string">"=================从ehcache中获取缓存，商品信息="</span> + productInfo);   </span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="keyword">if</span> (productInfo == null) &#123;</span><br><span class="line">			// 需要从数据源重新拉取数据，重建缓存</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="built_in">return</span> productInfo;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	@RequestMapping(<span class="string">"/getShopInfo"</span>)</span><br><span class="line">	@ResponseBody</span><br><span class="line">	public ShopInfo getShopInfo(Long shopId) &#123;</span><br><span class="line">		ShopInfo shopInfo = null;</span><br><span class="line">		// 先从Redis中获取数据</span><br><span class="line">		shopInfo = cacheService.getShopInfoFromReidsCache(shopId);</span><br><span class="line">		System.out.println(<span class="string">"=================从redis中获取缓存，店铺信息="</span> + shopInfo);   </span><br><span class="line"></span><br><span class="line">		<span class="keyword">if</span> (shopInfo == null) &#123;</span><br><span class="line">			shopInfo = cacheService.getShopInfoFromLocalCache(shopId);</span><br><span class="line">			System.out.println(<span class="string">"=================从ehcache中获取缓存，店铺信息="</span> + shopInfo);   </span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="keyword">if</span> (shopInfo == null) &#123;</span><br><span class="line">			// 需要从数据源重新拉取数据，重建缓存</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="built_in">return</span> shopInfo;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="缓存service接口"><a href="#缓存service接口" class="headerlink" title="缓存service接口"></a>缓存service接口</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br></pre></td><td class="code"><pre><span class="line">package com.matrix.eshop.cache.service;</span><br><span class="line"></span><br><span class="line">import com.matrix.eshop.cache.model.ProductInfo;</span><br><span class="line">import com.matrix.eshop.cache.model.ShopInfo;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * 缓存service接口</span><br><span class="line"> * @author matrix</span><br><span class="line"> *</span><br><span class="line"> */</span><br><span class="line">public interface CacheService &#123;</span><br><span class="line"></span><br><span class="line">	/**</span><br><span class="line">	 * 将商品信息保存到本地缓存中</span><br><span class="line">	 * @param productInfo</span><br><span class="line">	 * @<span class="built_in">return</span></span><br><span class="line">	 */</span><br><span class="line">	public ProductInfo saveLocalCache(ProductInfo productInfo);</span><br><span class="line"></span><br><span class="line">	/**</span><br><span class="line">	 * 从本地缓存中获取商品信息</span><br><span class="line">	 * @param id</span><br><span class="line">	 * @<span class="built_in">return</span></span><br><span class="line">	 */</span><br><span class="line">	public ProductInfo getLocalCache(Long id);</span><br><span class="line"></span><br><span class="line">	/**</span><br><span class="line">	 * 将商品信息保存到本地的ehcache缓存中</span><br><span class="line">	 * @param productInfo</span><br><span class="line">	 */</span><br><span class="line">	public ProductInfo saveProductInfo2LocalCache(ProductInfo productInfo);</span><br><span class="line"></span><br><span class="line">	/**</span><br><span class="line">	 * 从本地ehcache缓存中获取商品信息</span><br><span class="line">	 * @param productId</span><br><span class="line">	 * @<span class="built_in">return</span></span><br><span class="line">	 */</span><br><span class="line">	public ProductInfo getProductInfoFromLocalCache(Long productId);</span><br><span class="line"></span><br><span class="line">	/**</span><br><span class="line">	 * 将店铺信息保存到本地的ehcache缓存中</span><br><span class="line">	 * @param productInfo</span><br><span class="line">	 */</span><br><span class="line">	public ShopInfo saveShopInfo2LocalCache(ShopInfo shopInfo);</span><br><span class="line"></span><br><span class="line">	/**</span><br><span class="line">	 * 从本地ehcache缓存中获取店铺信息</span><br><span class="line">	 * @param productId</span><br><span class="line">	 * @<span class="built_in">return</span></span><br><span class="line">	 */</span><br><span class="line">	public ShopInfo getShopInfoFromLocalCache(Long shopId);</span><br><span class="line"></span><br><span class="line">	/**</span><br><span class="line">	 * 将商品信息保存到redis中</span><br><span class="line">	 * @param productInfo</span><br><span class="line">	 */</span><br><span class="line">	public void saveProductInfo2ReidsCache(ProductInfo productInfo);</span><br><span class="line"></span><br><span class="line">	/**</span><br><span class="line">	 * 将店铺信息保存到redis中</span><br><span class="line">	 * @param productInfo</span><br><span class="line">	 */</span><br><span class="line">	public void saveShopInfo2ReidsCache(ShopInfo shopInfo);</span><br><span class="line"></span><br><span class="line">	/**</span><br><span class="line">	 * 从Redis中获取商品信息</span><br><span class="line">	 * @param productInfo</span><br><span class="line">	 */</span><br><span class="line">	public ProductInfo getProductInfoFromReidsCache(Long productId);</span><br><span class="line"></span><br><span class="line">	/**</span><br><span class="line">	 * 从Redis中获取商品店铺的信息</span><br><span class="line">	 * @param productInfo</span><br><span class="line">	 */</span><br><span class="line">	public ShopInfo getShopInfoFromReidsCache(Long shopId);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="缓存Service实现类"><a href="#缓存Service实现类" class="headerlink" title="缓存Service实现类"></a>缓存Service实现类</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br></pre></td><td class="code"><pre><span class="line">package com.matrix.eshop.cache.service.impl;</span><br><span class="line"></span><br><span class="line">import javax.annotation.Resource;</span><br><span class="line"></span><br><span class="line">import org.springframework.cache.annotation.CachePut;</span><br><span class="line">import org.springframework.cache.annotation.Cacheable;</span><br><span class="line">import org.springframework.stereotype.Service;</span><br><span class="line"></span><br><span class="line">import com.alibaba.fastjson.JSONObject;</span><br><span class="line">import com.matrix.eshop.cache.model.ProductInfo;</span><br><span class="line">import com.matrix.eshop.cache.model.ShopInfo;</span><br><span class="line">import com.matrix.eshop.cache.service.CacheService;</span><br><span class="line"></span><br><span class="line">import redis.clients.jedis.JedisCluster;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * 缓存Service实现类</span><br><span class="line"> *</span><br><span class="line"> * @author matrix</span><br><span class="line"> *</span><br><span class="line"> */</span><br><span class="line">@Service(<span class="string">"cacheService"</span>)</span><br><span class="line">public class CacheServiceImpl implements CacheService &#123;</span><br><span class="line"></span><br><span class="line">	public static final String CACHE_NAME = <span class="string">"local"</span>;</span><br><span class="line"></span><br><span class="line">	@Resource</span><br><span class="line">	private JedisCluster jedisCluster;</span><br><span class="line"></span><br><span class="line">	/**</span><br><span class="line">	 * 将商品信息保存到本地缓存中</span><br><span class="line">	 *</span><br><span class="line">	 * @param productInfo</span><br><span class="line">	 * @<span class="built_in">return</span></span><br><span class="line">	 */</span><br><span class="line">	@CachePut(value = CACHE_NAME, key = <span class="string">"'key_'+#productInfo.getId()"</span>)</span><br><span class="line">	public ProductInfo saveLocalCache(ProductInfo productInfo) &#123;</span><br><span class="line">		<span class="built_in">return</span> productInfo;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	/**</span><br><span class="line">	 * 从本地缓存中获取商品信息</span><br><span class="line">	 *</span><br><span class="line">	 * @param id</span><br><span class="line">	 * @<span class="built_in">return</span></span><br><span class="line">	 */</span><br><span class="line">	@Cacheable(value = CACHE_NAME, key = <span class="string">"'key_'+#id"</span>)</span><br><span class="line">	public ProductInfo getLocalCache(Long id) &#123;</span><br><span class="line">		<span class="built_in">return</span> null;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	/**</span><br><span class="line">	 * 将商品信息保存到本地的ehcache缓存中</span><br><span class="line">	 *</span><br><span class="line">	 * @param productInfo</span><br><span class="line">	 */</span><br><span class="line">	@CachePut(value = CACHE_NAME, key = <span class="string">"'product_info_'+#productInfo.getId()"</span>)</span><br><span class="line">	public ProductInfo saveProductInfo2LocalCache(ProductInfo productInfo) &#123;</span><br><span class="line">		<span class="built_in">return</span> productInfo;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	/**</span><br><span class="line">	 * 从本地ehcache缓存中获取商品信息</span><br><span class="line">	 *</span><br><span class="line">	 * @param productId</span><br><span class="line">	 * @<span class="built_in">return</span></span><br><span class="line">	 */</span><br><span class="line">	@Cacheable(value = CACHE_NAME, key = <span class="string">"'product_info_'+#productId"</span>)</span><br><span class="line">	public ProductInfo getProductInfoFromLocalCache(Long productId) &#123;</span><br><span class="line">		<span class="built_in">return</span> null;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	/**</span><br><span class="line">	 * 将店铺信息保存到本地的ehcache缓存中</span><br><span class="line">	 *</span><br><span class="line">	 * @param productInfo</span><br><span class="line">	 */</span><br><span class="line">	@CachePut(value = CACHE_NAME, key = <span class="string">"'shop_info_'+#shopInfo.getId()"</span>)</span><br><span class="line">	public ShopInfo saveShopInfo2LocalCache(ShopInfo shopInfo) &#123;</span><br><span class="line">		<span class="built_in">return</span> shopInfo;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	/**</span><br><span class="line">	 * 从本地ehcache缓存中获取店铺信息</span><br><span class="line">	 *</span><br><span class="line">	 * @param productId</span><br><span class="line">	 * @<span class="built_in">return</span></span><br><span class="line">	 */</span><br><span class="line">	@Cacheable(value = CACHE_NAME, key = <span class="string">"'shop_info_'+#shopId"</span>)</span><br><span class="line">	public ShopInfo getShopInfoFromLocalCache(Long shopId) &#123;</span><br><span class="line">		<span class="built_in">return</span> null;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	/**</span><br><span class="line">	 * 将商品信息保存到redis中</span><br><span class="line">	 *</span><br><span class="line">	 * @param productInfo</span><br><span class="line">	 */</span><br><span class="line">	public void saveProductInfo2ReidsCache(ProductInfo productInfo) &#123;</span><br><span class="line">		String key = <span class="string">"product_info_"</span> + productInfo.getId();</span><br><span class="line">		jedisCluster.set(key, JSONObject.toJSONString(productInfo));</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	/**</span><br><span class="line">	 * 将店铺信息保存到redis中</span><br><span class="line">	 *</span><br><span class="line">	 * @param productInfo</span><br><span class="line">	 */</span><br><span class="line">	public void saveShopInfo2ReidsCache(ShopInfo shopInfo) &#123;</span><br><span class="line">		String key = <span class="string">"shop_info_"</span> + shopInfo.getId();</span><br><span class="line">		jedisCluster.set(key, JSONObject.toJSONString(shopInfo));</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	@Override</span><br><span class="line">	public ProductInfo getProductInfoFromReidsCache(Long productId) &#123;</span><br><span class="line">		String key = <span class="string">"product_info_"</span> + productId;</span><br><span class="line">		String json = jedisCluster.get(key);</span><br><span class="line">		<span class="built_in">return</span> JSONObject.parseObject(json, ProductInfo.class);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	@Override</span><br><span class="line">	public ShopInfo getShopInfoFromReidsCache(Long shopId) &#123;</span><br><span class="line">		String key = <span class="string">"shop_info_"</span> + shopId;</span><br><span class="line">		String json = jedisCluster.get(key);</span><br><span class="line">		<span class="built_in">return</span> JSONObject.parseObject(json, ShopInfo.class);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="查看本地服务"><a href="#查看本地服务" class="headerlink" title="查看本地服务"></a>查看本地服务</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://192.168.31.178:8080/getProductInfo?productId=1</span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fhgsdkm06xj228s0a6q6m.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://192.168.31.178:8080/getShopInfo?shopId=1</span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fhgsdk3up2j21cg09idie.jpg" alt=""></p>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fhhioq93qsj21j00gkdko.jpg" alt=""></p>
+
+    </div>
+  </div>
+  
+    <div class="copy-right">
+      <div class="markdown-body">
+        <blockquote>
+        
+        
+          本文作者 : Matrix <br>
+        
+        原文链接 : <a href="">http://yoursite.com/2017/07/10/基于Nginx+Lua+Java完成多级缓存架构的核心业务逻辑/</a><br>
+        版权声明 : 本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+        </blockquote>
+      </div>
+    </div>
+  
+  
+  
+    <div class="social-share" style="margin-top: -2rem" data-wechat-qrcode-title="<p>微信扫一扫</p>" data-wechat-qrcode-helper="<p>微信右上角, 扫一扫分享</p>" data-sites="qzone, qq, weibo, wechat, douban, google, facebook, twitter">
+  <span style="color: #6b7487; font-size: 1.4rem;">分享到: </span>
+</div>
+<script src="https://cdn.bootcss.com/social-share.js/1.0.16/js/social-share.min.js" async></script>
+  
+
+  
+    <div id="reward">
+  
+    <p id="reward-meta">知识 & 情怀 | 二者兼得</p>
+  
+  <button id="reward-btn">
+    
+    <span>投食</span>
+  </button>
+  <div id="reward-qrcode">
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/wechatpay.jpg" alt="微信扫一扫, 向我投食">
+        <p class="qrcode-meta">微信扫一扫, 向我投食</p>
+      </div>
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/alipaypay.jpg" alt="支付宝扫一扫, 向我投食">
+        <p class="qrcode-meta">支付宝扫一扫, 向我投食</p>
+      </div>
+    
+  </div>
+
+</div>
+
+<script>
+  (() => {
+    let button = document.querySelector('#reward-btn'),
+      qrcode = document.querySelector('#reward-qrcode'),
+      display = false;
+    
+    button.addEventListener('click', () => {
+      qrcode.style.display = display ? 'none' : 'block'
+      display = !display
+    }, false)
+  })()
+</script>
+  
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+      <span>
+        
+          <i class="iconfont icon-06tags"></i>标签: 
+          
+          <span class="span--tag">
+            <a href="/tags/大数据/">
+              #大数据
+            </a>
+          </span>
+          
+          <span class="span--tag">
+            <a href="/tags/Redis/">
+              #Redis
+            </a>
+          </span>
+          
+        
+      </span>
+    </div>
+    <div class="article-meta pull-right">
+    </div>
+  </div>
+</div>
+
+
+  <aside id="sidebar">
+    <p id="sidebar-header"></p>
+    <ol id="sidebar-toc"></ol>
+  </aside>
+  <script async>setTimeout(generateToc, 10);</script>
+
+
+  <nav class="post-navigation">
+    
+      <div class="nav-pre">
+        <i class="iconfont icon-prev"></i>
+        上一篇:
+        <a href="/2017/07/09/Nginx分发层部署以及基于lua完成基于商品id的定向流量分发策略/" target="_self">Nginx分发层部署以及基于lua完成基于商品id的定向流量分发策略</a>
+      </div>
+    
+    
+      <div class="nav-next">
+        下一篇:
+        <a href="/2017/07/11/Python实现将微信公众号用户基本信息数据导出到csv文件/" target="_self">Python实现将微信公众号用户基本信息数据导出到csv文件</a>
+        <i class="iconfont icon-next"></i>
+      </div>
+    
+  </nav>
+
+  
+    <a href="#comment" class="comment-anchor"></a>
+<div class="comment-title"><i class="iconfont icon-footprint"></i> 留下足迹 <i class="iconfont icon-footprint"></i></div>
+<div id="vcomments"></div>
+
+<script defer>
+  if( true ) {
+    let path = getRealPath()
+    new Valine({
+      el: "#vcomments",
+      appId: "Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz",
+      appKey: "WaR7nrzhliHj9aVwdQzkdlGd",
+      notify: false,
+      verify: false,
+      avatar: "robohash",
+      placeholder: "正确填写邮箱, 才能及时收到回复哦♪(^∇^*)",
+      path
+    });
+  }
+</script>
+   
+
+  
+    <script defer>
+const valineAPI = (() => {
+  try {
+    AV.init("Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz", "WaR7nrzhliHj9aVwdQzkdlGd");
+  } catch(error) {}
+  const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+      query.equalTo("identity", identity);
+      query.find().then(results => {
+        resolve(results.length > 0);
+      }, error => reject(error));
+    })
+  }
+
+  const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+      let querys = [];
+      for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+      }
+      query = AV.Query.or.apply(null ,querys);
+    } else {
+      identity = identity || getRealPath();
+      query = new AV.Query("Timer");
+      query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+      query.find()
+      .then(results => resolve(results))
+      .catch(error => reject(error))
+    })
+  }
+
+  const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let Todo = AV.Object.extend('Timer');
+      let todo = new Todo();
+      todo.set("times", 1);
+      todo.set("identity", identity);
+      todo.save().then(res => resolve(true), error => reject(error));
+    })
+  }
+
+  const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let query = new AV.Query('Timer');
+      query.equalTo("identity", identity);
+      query.find().then(todos => {
+        todos.forEach(todo => {
+          todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+      }).then(todos => resolve(true), error => reject(error));
+    })
+  }
+
+  return {
+    isExist,
+    _get,
+    update,
+    create
+  }
+})()
+
+const calcAndWriteTimes = () => {
+  let isPost = true;
+
+  let timerAllDOM = document.querySelectorAll(".article-timer");
+
+  if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+      if(exist) {
+        return valineAPI.update(identity);
+      }
+      return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+  }
+
+  let timerDOMCache = {};
+
+  for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+      timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+      timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+      };
+    }
+  }
+
+  let identities = Object.keys(timerDOMCache);
+  valineAPI._get(identities).then(results => {
+    for(let result of results) {
+      let {identity, times} = result.attributes;
+      timerDOMCache[identity].times = times;
+      timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+      if(timerDOMCache[identity].times){
+        continue;
+      }
+      timerDOMCache[identity].dom.map(item => item.innerText = 1);
+      valineAPI.create(identity);
+    }
+  }).catch(error => console.log(error.message))
+}
+
+if(true){
+  calcAndWriteTimes();
+}
+</script>
+   
+
+</div>
+
+
+      <footer>
+  <p class="site-info">
+    博客已萌萌哒运行<span id="time-to-now"></span><span class="my-face">(●'◡'●)ﾉ♥</span>
+    <br>
+    Theme - <a href="https://github.com/dongyuanxin/theme-bmw">BMW</a> | Powered by <a href="https://godbmw.com/">GodBMW</a>
+    <br>
+    
+      Copyright © 2019 Matrix
+    
+  </p>
+</footer>
+
+
+
+<script>
+const timeToNowDOM = document.querySelector("#time-to-now");
+const startTimestamp = new Date(2016, 4, 10).getTime();
+
+const updateTimeStr = () => {
+  let offset = parseInt(
+      (new Date().getTime() - startTimestamp) / 1000,
+      10
+    ),
+    day = Math.floor(offset / 86400),
+    hour = Math.floor((offset % 86400) / 3600),
+    minute = Math.floor(((offset % 86400) % 3600) / 60),
+    second = Math.floor(((offset % 86400) % 3600) % 60);
+  timeToNowDOM.innerHTML =
+    day + "天" + hour + "小时" + minute + "分钟" + second + "秒";
+  setTimeout(updateTimeStr, 500);
+}
+
+setTimeout(updateTimeStr, 500);
+</script>
+
+
+      <div class="back-to-top hidden">
+  <span>
+    <i class="iconfont icon-60"></i><span></span>%
+  </span>
+</div>
+
+<script>
+const updateIconToTop = percent => {
+  let dom = document.querySelector(".back-to-top span span");
+  dom.innerText = percent;
+  if(percent < 1) {
+    document.querySelector(".back-to-top").className = "back-to-top hidden";
+  } else {
+    document.querySelector(".back-to-top").className = "back-to-top";
+  }
+}
+
+const handleScoll = () => {
+  let isRunning = false;
+  return () => {
+    if (isRunning) return;
+    isRunning = true;
+    window.requestAnimationFrame(timestamp => {
+      let scrollTop =
+          document.documentElement.scrollTop || document.body.scrollTop,
+        scrollHeight =
+          document.documentElement.scrollHeight ||
+          document.body.scrollHeight,
+        clientHeight =
+          document.documentElement.clientHeight ||
+          document.body.clientHeight;
+      isRunning = false;
+      if (scrollTop <= 1) {
+        updateIconToTop(0);
+        return;
+      }
+      if (scrollTop + clientHeight >= scrollHeight) {
+        updateIconToTop(100);
+      } else {
+        updateIconToTop(parseInt(
+          100 * scrollTop / (scrollHeight - clientHeight),
+          10
+        ));
+      }
+    });
+  };
+}
+
+const backToTop = () => {
+  let scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop,
+    delay = 10,
+    time = 200;
+  if (scrollTop <= 20) {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    return;
+  }
+  let step = Math.ceil(scrollTop * delay / time);
+  let timer = setInterval(() => {
+    scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop;
+    if (scrollTop - step <= 0) {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      clearInterval(timer);
+    } else {
+      document.documentElement.scrollTop = scrollTop - step;
+      document.body.scrollTop = scrollTop - step;
+    }
+  }, delay);
+}
+
+document.addEventListener("scroll", handleScoll(), false);
+
+document.querySelector(".back-to-top").addEventListener("click", backToTop, false);
+
+</script>
+
+    </div>
+
+    
+      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  (() => {
+    const mathjaxConfig = {
+      showProcessingMessages: false, //关闭js加载过程信息
+      messageStyle: "none", //不显示信息
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]], //行内公式选择符
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]], //段内公式选择符
+        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"] //避开某些标签
+      },
+      "HTML-CSS": {
+        availableFonts: ["STIX", "TeX"], //可选字体
+        showMathMenu: false //关闭右击菜单显示
+      }
+    }
+
+    let mathjaxInterval = setInterval(() => {
+      if(!window.MathJax){
+        return;
+      }
+      window.MathJax.Hub.Config(mathjaxConfig)
+      window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')])
+
+      clearInterval(mathjaxInterval)
+    }, 10)    
+  })()
+</script>
+    
+
+    <script src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script>
+<script async>
+  let fancyTimer = setInterval(function(){
+    if(!window.$){
+      return;
+    }
+    $(document).ready(function() {
+      $(".post img").each(function () {
+        if($(this).parent().get(0).tagName.toLowerCase() === "a") {
+          return;
+        }
+        // $(this).attr("data-fancybox", "gallery"); // if you add 'data-fancybox', img will display after showed
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "gallery");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      });
+      
+      clearInterval(fancyTimer);
+    });
+  }, 10);
+</script>
+
+    
+  </body>
+
+</html>

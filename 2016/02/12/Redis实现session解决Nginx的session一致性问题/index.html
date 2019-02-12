@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta name="author" content="董沅鑫, yuanxin.me@gmail.com">
+  
+  
+  
+  <title>Redis实现session解决Nginx的session一致性问题 | 每天遇到更好的你</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="大数据,大数据,">
+  
+
+  <script>
+    console.log('\n%c Hexo-theme-bmw v4.0 ' + '%c 🎉 https://github.com/dongyuanxin/theme-bmw 🎉\n' + '\n%c View demo online ' + '%c 🔍 https://godbmw.com/ 🔍  \n' , 'color: #fadfa3; background: #030307; padding:3px 0;', '', 'color: #fadfa3; background: #030307; padding:3px 0;', '');
+  </script>
+
+  
+
+  
+
+  
+    <link rel="icon" href="/images/favicon.png">
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+  
+
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/icon/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+  <script src="/js/util.js"></script>
+<script src="/js/valine.min.js"></script>
+
+  
+
+  
+    <link href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js" async></script>
+  
+
+  
+    <link href="https://cdn.bootcss.com/social-share.js/1.0.16/css/share.min.css" rel="stylesheet">
+  
+  
+  <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js" async></script>
+  
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.0/dist/av-min.js"></script>
+  
+
+</head>
+
+  <body>
+
+    
+
+    <div id="app">
+
+      <div class="header-wrap">
+  <header>
+    <div class="site-brand">
+      <div class="site-title">
+        <!-- <a href="/">MatrixSparse</a> -->
+        <img alt="logo" class="antd-pro-layouts-user-layout-logo" src="/images/favicon.png" style="width: 40px;height: 40px;margin-top: 10px;margin-left: 5px;">
+      </div>
+    </div>
+    <nav class="site-navigation">
+      <ul class="nav-menu">
+      
+        <li class="nav-item" data-path="/">
+          
+            <a href="/" target="_self">
+              主页
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          
+            <a href="/archives/" target="_self">
+              归档
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          
+            <a href="/categories/" target="_self">
+              分类
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          
+            <a href="/tags/" target="_self">
+              标签
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="">
+          
+            <a href="javascript:void(0);" v-else="">博客地址</a>
+            <ul class="nav-menu--dropdown">
+              
+                <li>
+                  <a href="https://blog.csdn.net/qq_25371579" target="_blank">
+                    CSDN
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://github.com/matrixsparse" target="_blank">
+                    Github
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://matrixsparse.github.io/" target="_blank">
+                    Github Page
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+      </ul>
+    </nav>
+    <i class="iconfont icon-menu"></i>
+  </header>
+</div>
+
+<script>
+  let links = document.querySelectorAll('.nav-item');
+  for(let link of links){
+    let childrenLink = link.querySelector('ul');
+    link.addEventListener('mouseenter', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown active";
+      }
+    })
+    link.addEventListener('mouseleave', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown";
+      }
+    })
+  }
+  let rootRealPath = getRealPath(window.location.pathname, true);
+  for(let link of links) {
+    let linkPath = link.getAttribute("data-path");
+    if(linkPath && getRealPath(linkPath, true) === rootRealPath) {
+      link.className = "nav-item hover";
+    }
+  }
+
+  let iconMenu = document.querySelector("i.iconfont.icon-menu"),
+    iconMenuClicked = false;
+  let navDOM = document.querySelector("nav.site-navigation");
+  iconMenu.addEventListener("click", () => {
+    iconMenuClicked
+      ? navDOM.className = "site-navigation active"
+      : navDOM.className = "site-navigation";
+    iconMenuClicked = !iconMenuClicked;
+  })
+</script>
+
+
+      
+
+
+
+
+
+
+
+
+<div class="container post-index">
+
+  
+
+<div class="post">
+  <h1 class="article-title">
+    <span>Redis实现session解决Nginx的session一致性问题</span>
+  </h1>
+  <div class="article-top-meta">
+    <span>
+      发布 : 
+      2016-02-12
+    </span>
+    
+      <span>
+        分类 : 
+          <a href="/categories/大数据/">
+            大数据
+          </a>
+      </span>
+    
+    
+      <span>
+        浏览 : <span class="article-timer" data-identity="Redis实现session解决Nginx的session一致性问题"></span>
+      </span>
+    
+  </div>
+
+  
+
+  <div class="article-content">
+    <div class="markdown-body">
+      <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">http协议是无状态的，即你连续访问某个网页100次和访问1次对服务器来说是没有区别对待的，</span><br><span class="line">因为它记不住你。</span><br><span class="line"></span><br><span class="line">那么，在一些场合，确实需要服务器记住当前用户怎么办？</span><br><span class="line">比如用户登录邮箱后，接下来要收邮件.写邮件，总不能每次操作都让用户输入用户名和密码吧，</span><br><span class="line">为了解决这个问题，session的方案就被提了出来，</span><br><span class="line">事实上它并不是什么新技术，而且也不能脱离http协议以及任何现有的web技术</span><br></pre></td></tr></table></figure>
+<h2 id="关于Session："><a href="#关于Session：" class="headerlink" title="关于Session："></a>关于Session：</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">session的常见实现形式是会话cookie（session cookie），</span><br><span class="line"></span><br><span class="line">即未设置过期时间的cookie，</span><br><span class="line"></span><br><span class="line">这个cookie的默认生命周期为浏览器会话期间，</span><br><span class="line"></span><br><span class="line">只要关闭浏览器窗口，cookie就消失了。</span><br><span class="line"></span><br><span class="line">实现机制是当用户发起一个请求的时候，</span><br><span class="line"></span><br><span class="line">服务器会检查该请求中是否包含sessionid，如果未包含，</span><br><span class="line"></span><br><span class="line">则系统会创造一个名为JSESSIONID的输出 cookie返回给浏览器(只放入内存，并不存在硬盘中)，</span><br><span class="line"></span><br><span class="line">并将其以HashTable的形式写到服务器的内存里面；</span><br><span class="line"></span><br><span class="line">当已经包含sessionid时，服务端会检查找到与该session相匹配的信息，</span><br><span class="line"></span><br><span class="line">如果存在则直接使用该sessionid，</span><br><span class="line"></span><br><span class="line">若不存在则重新生成新的session。</span><br><span class="line"></span><br><span class="line">这里需要注意的是session始终是有服务端创建的，并非浏览器自己生成的。 </span><br><span class="line"></span><br><span class="line">但是浏览器的cookie被禁止后session就需要用get方法的URL重写的机制</span><br><span class="line"></span><br><span class="line">或使用POST方法提交隐藏表单的形式来实现</span><br></pre></td></tr></table></figure>
+<h2 id="Session共享"><a href="#Session共享" class="headerlink" title="Session共享"></a>Session共享</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">首先我们应该明白，为什么要实现共享，如果你的网站是存放在一个机器上，</span><br><span class="line"></span><br><span class="line">那么是不存在这个问题的，因为会话数据就在这台机器，</span><br><span class="line"></span><br><span class="line">但是如果你使用了负载均衡把请求分发到不同的机器呢？</span><br><span class="line"></span><br><span class="line">这个时候会话id在客户端是没有问题的，但是如果用户的两次请求到了两台不同的机器，</span><br><span class="line"></span><br><span class="line">而它的session数据可能存在其中一台机器，</span><br><span class="line"></span><br><span class="line">这个时候就会出现取不到session数据的情况，于是session的共享就成了一个问题</span><br></pre></td></tr></table></figure>
+<h2 id="Session一致性解决方案"><a href="#Session一致性解决方案" class="headerlink" title="Session一致性解决方案"></a>Session一致性解决方案</h2><h3 id="session复制"><a href="#session复制" class="headerlink" title="session复制"></a>session复制</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tomcat 本身带有复制session的功能。（不选择这种方案）</span><br></pre></td></tr></table></figure>
+<h3 id="共享session"><a href="#共享session" class="headerlink" title="共享session"></a>共享session</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">需要专门管理session的软件，</span><br><span class="line"></span><br><span class="line">redis 缓存服务，可以和tomcat整合，帮助tomcat</span><br><span class="line"></span><br><span class="line">共享管理session。</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">怎么解决？准备两台Linux主机分别是192.168.230.10以及192.168.230.11</span><br></pre></td></tr></table></figure>
+<h1 id="在192-168-230-10进行如下操作："><a href="#在192-168-230-10进行如下操作：" class="headerlink" title="在192.168.230.10进行如下操作："></a>在192.168.230.10进行如下操作：</h1><h2 id="1-安装redis缓存数据库"><a href="#1-安装redis缓存数据库" class="headerlink" title="1.安装redis缓存数据库"></a>1.安装redis缓存数据库</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@node1 ~]<span class="comment"># yum -y install redis</span></span><br><span class="line"></span><br><span class="line">如果不能使用yum进行网络安装，可以下载到Apache官网上下载redis压缩文件上传到Linux主机上进行安装</span><br></pre></td></tr></table></figure>
+<h3 id="1-1-上传redis压缩文件"><a href="#1-1-上传redis压缩文件" class="headerlink" title="1.1.上传redis压缩文件"></a>1.1.上传redis压缩文件</h3><p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-3/70594127.jpg" alt=""></p>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-3/94787494.jpg" alt=""></p>
+<h3 id="1-2-解压redis压缩文件"><a href="#1-2-解压redis压缩文件" class="headerlink" title="1.2.解压redis压缩文件"></a>1.2.解压redis压缩文件</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@node1 software]<span class="comment"># tar -zxf redis-3.0.5.tar.gz -C /opt/modules</span></span><br><span class="line"></span><br><span class="line">安装redis缓存数据库，修改配置文件vi /etc/redis.conf</span><br><span class="line">将<span class="built_in">bind</span>的127.0.0.1修改为本机地址，否则只能本机</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-3/55780003.jpg" alt=""></p>
+<h2 id="2-tomcat配置名称和session一致性配置"><a href="#2-tomcat配置名称和session一致性配置" class="headerlink" title="2.tomcat配置名称和session一致性配置"></a>2.tomcat配置名称和session一致性配置</h2><h3 id="2-1-导入redislib中三个jar包到tomcat中"><a href="#2-1-导入redislib中三个jar包到tomcat中" class="headerlink" title="2.1.导入redislib中三个jar包到tomcat中"></a>2.1.导入redislib中三个jar包到tomcat中</h3><p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-3/55780003.jpg" alt=""></p>
+<h3 id="2-2-在两台Linux主机中的tomcat的conf目录中配置"><a href="#2-2-在两台Linux主机中的tomcat的conf目录中配置" class="headerlink" title="2.2.在两台Linux主机中的tomcat的conf目录中配置"></a>2.2.在两台Linux主机中的tomcat的conf目录中配置</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">进入tomcat的conf目录找到server.xml文件，并编辑</span><br></pre></td></tr></table></figure>
+<h3 id="2-4-在context-xml的Context配置-Manager"><a href="#2-4-在context-xml的Context配置-Manager" class="headerlink" title="2.4.在context.xml的Context配置 Manager"></a>2.4.在context.xml的Context配置 Manager</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">在server.xml文件中：</span><br><span class="line">&lt;Valve className=<span class="string">"com.orangefunction.tomcat.redissessions.RedisSessionHandlerValve"</span> /&gt;</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-3/49372454.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">在context.xml文件中：</span><br><span class="line"></span><br><span class="line">&lt;Manager className=<span class="string">"com.orangefunction.tomcat.redissessions.RedisSessionManager"</span></span><br><span class="line">host=<span class="string">"192.168.230.10"</span></span><br><span class="line">port=<span class="string">"6379"</span></span><br><span class="line">database=<span class="string">"0"</span></span><br><span class="line">maxInactiveInterval=<span class="string">"60"</span> /&gt;</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-3/70592640.jpg" alt=""></p>
+<h2 id="3-配置nginx负载均衡"><a href="#3-配置nginx负载均衡" class="headerlink" title="3.配置nginx负载均衡"></a>3.配置nginx负载均衡</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">因为session一致性问题是在nginx负载均衡下出现的</span><br></pre></td></tr></table></figure>
+<h3 id="3-1-进入tengine的conf目录"><a href="#3-1-进入tengine的conf目录" class="headerlink" title="3.1.进入tengine的conf目录"></a>3.1.进入tengine的conf目录</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node1 ~]<span class="comment"># cd /opt/modules/tengine-2.1.0/conf</span></span><br></pre></td></tr></table></figure>
+<h2 id="3-2-编辑nginx-conf文件"><a href="#3-2-编辑nginx-conf文件" class="headerlink" title="3.2.编辑nginx.conf文件"></a>3.2.编辑nginx.conf文件</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">[root@node1 conf]<span class="comment"># vi nginx.conf</span></span><br><span class="line"></span><br><span class="line">   upstream sparsematrix &#123;</span><br><span class="line">     server 192.168.230.10:8080 weight=1;</span><br><span class="line">server 192.168.230.11:8080 weight=1;</span><br><span class="line">&#125; </span><br><span class="line"></span><br><span class="line">    server &#123;</span><br><span class="line">        listen       80;</span><br><span class="line">        server_name  www.sparsematrix.com;</span><br><span class="line">     </span><br><span class="line">        location / &#123;</span><br><span class="line">proxy_pass http://sparsematrix;</span><br><span class="line">        &#125;</span><br><span class="line">  </span><br><span class="line">       </span><br><span class="line">&#125;</span><br><span class="line">``` </span><br><span class="line"> </span><br><span class="line">![](http://7xqkk1.com1.z0.glb.clouddn.com/16-3-2/84583251.jpg)</span><br><span class="line"></span><br><span class="line"><span class="comment">### 3.3.重新启动nginx服务</span></span><br><span class="line"></span><br><span class="line">```bash</span><br><span class="line">[root@node1 init.d]<span class="comment"># service nginx stop</span></span><br><span class="line">Stopping nginx:                                            [  OK  ]</span><br><span class="line">[root@node1 init.d]<span class="comment"># service nginx start</span></span><br><span class="line">Starting nginx:                                            [  OK  ]</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-2/84583251.jpg" alt=""></p>
+<h3 id="在地址行输入检查页面是否能正常显示：http-www-sparsematrix-com"><a href="#在地址行输入检查页面是否能正常显示：http-www-sparsematrix-com" class="headerlink" title="在地址行输入检查页面是否能正常显示：http://www.sparsematrix.com/"></a>在地址行输入检查页面是否能正常显示：<a href="http://www.sparsematrix.com/" target="_blank" rel="noopener">http://www.sparsematrix.com/</a></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">访问一次显示：</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-2/32795843.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">在访问一次显示：</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-2/40896494.jpg" alt=""></p>
+<h2 id="4-配置-opt-modules-apache-tomcat-7-0-61-webapps-ROOT下的index-jsp文件"><a href="#4-配置-opt-modules-apache-tomcat-7-0-61-webapps-ROOT下的index-jsp文件" class="headerlink" title="4.配置/opt/modules/apache-tomcat-7.0.61/webapps/ROOT下的index.jsp文件"></a>4.配置/opt/modules/apache-tomcat-7.0.61/webapps/ROOT下的index.jsp文件</h2><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">%@</span> <span class="attr">page</span> <span class="attr">language</span>= <span class="string">"java"</span> <span class="attr">contentType</span>= <span class="string">"text/html; charset=UTF-8"</span> <span class="attr">pageEncoding</span>= <span class="string">"UTF-8"</span> %&gt;</span></span><br><span class="line">SessionID:<span class="tag">&lt;<span class="name">%=session.getId()%</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">br</span>/&gt;</span></span><br><span class="line">SessionIP:<span class="tag">&lt;<span class="name">%=request.getServerName()%</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">br</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">h1</span>&gt;</span>matrix1 page<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://i4.tietuku.com/8c986f38b641b2a9.jpg" alt=""></p>
+<h3 id="4-1-重新192-168-230-10主机的tomcat服务"><a href="#4-1-重新192-168-230-10主机的tomcat服务" class="headerlink" title="4.1.重新192.168.230.10主机的tomcat服务"></a>4.1.重新192.168.230.10主机的tomcat服务</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@node2 bin]<span class="comment"># ./shutdown.sh</span></span><br><span class="line">[root@node2 bin]<span class="comment"># ./startup.sh</span></span><br></pre></td></tr></table></figure>
+<h1 id="在192-168-230-11进行如下操作："><a href="#在192-168-230-11进行如下操作：" class="headerlink" title="在192.168.230.11进行如下操作："></a>在192.168.230.11进行如下操作：</h1><h2 id="5-tomcat配置名称和session一致性配置"><a href="#5-tomcat配置名称和session一致性配置" class="headerlink" title="5.tomcat配置名称和session一致性配置"></a>5.tomcat配置名称和session一致性配置</h2><h3 id="5-1-将jar包上传到tomcat的lib包中"><a href="#5-1-将jar包上传到tomcat的lib包中" class="headerlink" title="5.1.将jar包上传到tomcat的lib包中"></a>5.1.将jar包上传到tomcat的lib包中</h3><p><img src="http://i12.tietuku.com/14c2f334fa2d9ada.jpg" alt=""></p>
+<h3 id="5-2-在tomcat的server-xml中配置jvmRoute"><a href="#5-2-在tomcat的server-xml中配置jvmRoute" class="headerlink" title="5.2.在tomcat的server.xml中配置jvmRoute"></a>5.2.在tomcat的server.xml中配置jvmRoute</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">进入tomcat的conf目录找到server.xml文件，并编辑</span><br><span class="line">&lt;Engine name=<span class="string">"Catalina"</span> defaultHost=<span class="string">"localhost"</span> jvmRoute=<span class="string">"tomcat2"</span>&gt;</span><br></pre></td></tr></table></figure>
+<p><img src="http://i4.tietuku.com/b7342f981e26886e.jpg" alt=""></p>
+<h3 id="5-3-在context-xml的Context配置-Manager"><a href="#5-3-在context-xml的Context配置-Manager" class="headerlink" title="5.3.在context.xml的Context配置 Manager"></a>5.3.在context.xml的Context配置 Manager</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">Manager</span> <span class="attr">className</span>=<span class="string">"de.javakaffee.web.msm.MemcachedBackupSessionManager"</span></span></span><br><span class="line"><span class="tag"><span class="attr">memcachedNodes</span>=<span class="string">"n1:192.168.230.10:11211"</span></span></span><br><span class="line"><span class="tag"><span class="attr">sticky</span>=<span class="string">"false"</span></span></span><br><span class="line"><span class="tag"><span class="attr">lockingMode</span>=<span class="string">"auto"</span></span></span><br><span class="line"><span class="tag"><span class="attr">sessionBackupAsync</span>=<span class="string">"false"</span></span></span><br><span class="line"><span class="tag"><span class="attr">requestUriIgnorePattern</span>=<span class="string">".*\.(ico|png|gif|jpg|css|js)$"</span></span></span><br><span class="line"><span class="tag"><span class="attr">sessionBackupTimeout</span>=<span class="string">"1000"</span></span></span><br><span class="line"><span class="tag"><span class="attr">transcoderFactoryClass</span>=<span class="string">"de.javakaffee.web.msm.serializer.kryo.KryoTranscoderFactory"</span></span></span><br><span class="line"><span class="tag">/&gt;</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://i4.tietuku.com/da31477ea33892cc.jpg" alt=""></p>
+<h3 id="5-4-配置-opt-modules-apache-tomcat-7-0-61-webapps-ROOT下的index-jsp文件"><a href="#5-4-配置-opt-modules-apache-tomcat-7-0-61-webapps-ROOT下的index-jsp文件" class="headerlink" title="5.4.配置/opt/modules/apache-tomcat-7.0.61/webapps/ROOT下的index.jsp文件"></a>5.4.配置/opt/modules/apache-tomcat-7.0.61/webapps/ROOT下的index.jsp文件</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">%@</span> <span class="attr">page</span> <span class="attr">language</span>= <span class="string">"java"</span> <span class="attr">contentType</span>= <span class="string">"text/html; charset=UTF-8"</span> <span class="attr">pageEncoding</span>= <span class="string">"UTF-8"</span> %&gt;</span></span><br><span class="line">SessionID:<span class="tag">&lt;<span class="name">%=session.getId()%</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">br</span>/&gt;</span></span><br><span class="line">SessionIP:<span class="tag">&lt;<span class="name">%=request.getServerName()%</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">br</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">h1</span>&gt;</span>matrix2 page<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://i4.tietuku.com/256b626803288df8.jpg" alt=""></p>
+<h3 id="5-5-重新192-168-230-11主机的tomcat服务"><a href="#5-5-重新192-168-230-11主机的tomcat服务" class="headerlink" title="5.5.重新192.168.230.11主机的tomcat服务"></a>5.5.重新192.168.230.11主机的tomcat服务</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@node2 bin]<span class="comment"># ./shutdown.sh</span></span><br><span class="line">[root@node2 bin]<span class="comment"># ./startup.sh</span></span><br></pre></td></tr></table></figure>
+<h2 id="6-重新加载nginx服务"><a href="#6-重新加载nginx服务" class="headerlink" title="6.重新加载nginx服务"></a>6.重新加载nginx服务</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node1 html]<span class="comment"># service nginx restart</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-2/99320237.jpg" alt=""></p>
+<h3 id="6-1-查看配置是否成功"><a href="#6-1-查看配置是否成功" class="headerlink" title="6.1.查看配置是否成功"></a>6.1.查看配置是否成功</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">在地址栏输入：http://www.sparsematrix.com/</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-3/92371127.jpg" alt=""></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">刷新http://www.sparsematrix.com/地址</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-3/34492457.jpg" alt=""></p>
+
+    </div>
+  </div>
+  
+    <div class="copy-right">
+      <div class="markdown-body">
+        <blockquote>
+        
+        
+          本文作者 : Matrix <br>
+        
+        原文链接 : <a href="">http://yoursite.com/2016/02/12/Redis实现session解决Nginx的session一致性问题/</a><br>
+        版权声明 : 本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+        </blockquote>
+      </div>
+    </div>
+  
+  
+  
+    <div class="social-share" style="margin-top: -2rem" data-wechat-qrcode-title="<p>微信扫一扫</p>" data-wechat-qrcode-helper="<p>微信右上角, 扫一扫分享</p>" data-sites="qzone, qq, weibo, wechat, douban, google, facebook, twitter">
+  <span style="color: #6b7487; font-size: 1.4rem;">分享到: </span>
+</div>
+<script src="https://cdn.bootcss.com/social-share.js/1.0.16/js/social-share.min.js" async></script>
+  
+
+  
+    <div id="reward">
+  
+    <p id="reward-meta">知识 & 情怀 | 二者兼得</p>
+  
+  <button id="reward-btn">
+    
+    <span>投食</span>
+  </button>
+  <div id="reward-qrcode">
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/wechatpay.jpg" alt="微信扫一扫, 向我投食">
+        <p class="qrcode-meta">微信扫一扫, 向我投食</p>
+      </div>
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/alipaypay.jpg" alt="支付宝扫一扫, 向我投食">
+        <p class="qrcode-meta">支付宝扫一扫, 向我投食</p>
+      </div>
+    
+  </div>
+
+</div>
+
+<script>
+  (() => {
+    let button = document.querySelector('#reward-btn'),
+      qrcode = document.querySelector('#reward-qrcode'),
+      display = false;
+    
+    button.addEventListener('click', () => {
+      qrcode.style.display = display ? 'none' : 'block'
+      display = !display
+    }, false)
+  })()
+</script>
+  
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+      <span>
+        
+          <i class="iconfont icon-06tags"></i>标签: 
+          
+          <span class="span--tag">
+            <a href="/tags/大数据/">
+              #大数据
+            </a>
+          </span>
+          
+        
+      </span>
+    </div>
+    <div class="article-meta pull-right">
+    </div>
+  </div>
+</div>
+
+
+  <aside id="sidebar">
+    <p id="sidebar-header"></p>
+    <ol id="sidebar-toc"></ol>
+  </aside>
+  <script async>setTimeout(generateToc, 10);</script>
+
+
+  <nav class="post-navigation">
+    
+      <div class="nav-pre">
+        <i class="iconfont icon-prev"></i>
+        上一篇:
+        <a href="/2016/02/12/ActiveMQ安装运行/" target="_self">ActiveMQ安装运行</a>
+      </div>
+    
+    
+      <div class="nav-next">
+        下一篇:
+        <a href="/2016/02/12/Kafka开源消息系统分布式集群搭建/" target="_self">Kafka开源消息系统分布式集群搭建</a>
+        <i class="iconfont icon-next"></i>
+      </div>
+    
+  </nav>
+
+  
+    <a href="#comment" class="comment-anchor"></a>
+<div class="comment-title"><i class="iconfont icon-footprint"></i> 留下足迹 <i class="iconfont icon-footprint"></i></div>
+<div id="vcomments"></div>
+
+<script defer>
+  if( true ) {
+    let path = getRealPath()
+    new Valine({
+      el: "#vcomments",
+      appId: "Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz",
+      appKey: "WaR7nrzhliHj9aVwdQzkdlGd",
+      notify: false,
+      verify: false,
+      avatar: "robohash",
+      placeholder: "正确填写邮箱, 才能及时收到回复哦♪(^∇^*)",
+      path
+    });
+  }
+</script>
+   
+
+  
+    <script defer>
+const valineAPI = (() => {
+  try {
+    AV.init("Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz", "WaR7nrzhliHj9aVwdQzkdlGd");
+  } catch(error) {}
+  const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+      query.equalTo("identity", identity);
+      query.find().then(results => {
+        resolve(results.length > 0);
+      }, error => reject(error));
+    })
+  }
+
+  const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+      let querys = [];
+      for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+      }
+      query = AV.Query.or.apply(null ,querys);
+    } else {
+      identity = identity || getRealPath();
+      query = new AV.Query("Timer");
+      query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+      query.find()
+      .then(results => resolve(results))
+      .catch(error => reject(error))
+    })
+  }
+
+  const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let Todo = AV.Object.extend('Timer');
+      let todo = new Todo();
+      todo.set("times", 1);
+      todo.set("identity", identity);
+      todo.save().then(res => resolve(true), error => reject(error));
+    })
+  }
+
+  const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let query = new AV.Query('Timer');
+      query.equalTo("identity", identity);
+      query.find().then(todos => {
+        todos.forEach(todo => {
+          todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+      }).then(todos => resolve(true), error => reject(error));
+    })
+  }
+
+  return {
+    isExist,
+    _get,
+    update,
+    create
+  }
+})()
+
+const calcAndWriteTimes = () => {
+  let isPost = true;
+
+  let timerAllDOM = document.querySelectorAll(".article-timer");
+
+  if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+      if(exist) {
+        return valineAPI.update(identity);
+      }
+      return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+  }
+
+  let timerDOMCache = {};
+
+  for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+      timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+      timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+      };
+    }
+  }
+
+  let identities = Object.keys(timerDOMCache);
+  valineAPI._get(identities).then(results => {
+    for(let result of results) {
+      let {identity, times} = result.attributes;
+      timerDOMCache[identity].times = times;
+      timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+      if(timerDOMCache[identity].times){
+        continue;
+      }
+      timerDOMCache[identity].dom.map(item => item.innerText = 1);
+      valineAPI.create(identity);
+    }
+  }).catch(error => console.log(error.message))
+}
+
+if(true){
+  calcAndWriteTimes();
+}
+</script>
+   
+
+</div>
+
+
+      <footer>
+  <p class="site-info">
+    博客已萌萌哒运行<span id="time-to-now"></span><span class="my-face">(●'◡'●)ﾉ♥</span>
+    <br>
+    Theme - <a href="https://github.com/dongyuanxin/theme-bmw">BMW</a> | Powered by <a href="https://godbmw.com/">GodBMW</a>
+    <br>
+    
+      Copyright © 2019 Matrix
+    
+  </p>
+</footer>
+
+
+
+<script>
+const timeToNowDOM = document.querySelector("#time-to-now");
+const startTimestamp = new Date(2016, 4, 10).getTime();
+
+const updateTimeStr = () => {
+  let offset = parseInt(
+      (new Date().getTime() - startTimestamp) / 1000,
+      10
+    ),
+    day = Math.floor(offset / 86400),
+    hour = Math.floor((offset % 86400) / 3600),
+    minute = Math.floor(((offset % 86400) % 3600) / 60),
+    second = Math.floor(((offset % 86400) % 3600) % 60);
+  timeToNowDOM.innerHTML =
+    day + "天" + hour + "小时" + minute + "分钟" + second + "秒";
+  setTimeout(updateTimeStr, 500);
+}
+
+setTimeout(updateTimeStr, 500);
+</script>
+
+
+      <div class="back-to-top hidden">
+  <span>
+    <i class="iconfont icon-60"></i><span></span>%
+  </span>
+</div>
+
+<script>
+const updateIconToTop = percent => {
+  let dom = document.querySelector(".back-to-top span span");
+  dom.innerText = percent;
+  if(percent < 1) {
+    document.querySelector(".back-to-top").className = "back-to-top hidden";
+  } else {
+    document.querySelector(".back-to-top").className = "back-to-top";
+  }
+}
+
+const handleScoll = () => {
+  let isRunning = false;
+  return () => {
+    if (isRunning) return;
+    isRunning = true;
+    window.requestAnimationFrame(timestamp => {
+      let scrollTop =
+          document.documentElement.scrollTop || document.body.scrollTop,
+        scrollHeight =
+          document.documentElement.scrollHeight ||
+          document.body.scrollHeight,
+        clientHeight =
+          document.documentElement.clientHeight ||
+          document.body.clientHeight;
+      isRunning = false;
+      if (scrollTop <= 1) {
+        updateIconToTop(0);
+        return;
+      }
+      if (scrollTop + clientHeight >= scrollHeight) {
+        updateIconToTop(100);
+      } else {
+        updateIconToTop(parseInt(
+          100 * scrollTop / (scrollHeight - clientHeight),
+          10
+        ));
+      }
+    });
+  };
+}
+
+const backToTop = () => {
+  let scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop,
+    delay = 10,
+    time = 200;
+  if (scrollTop <= 20) {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    return;
+  }
+  let step = Math.ceil(scrollTop * delay / time);
+  let timer = setInterval(() => {
+    scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop;
+    if (scrollTop - step <= 0) {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      clearInterval(timer);
+    } else {
+      document.documentElement.scrollTop = scrollTop - step;
+      document.body.scrollTop = scrollTop - step;
+    }
+  }, delay);
+}
+
+document.addEventListener("scroll", handleScoll(), false);
+
+document.querySelector(".back-to-top").addEventListener("click", backToTop, false);
+
+</script>
+
+    </div>
+
+    
+      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  (() => {
+    const mathjaxConfig = {
+      showProcessingMessages: false, //关闭js加载过程信息
+      messageStyle: "none", //不显示信息
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]], //行内公式选择符
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]], //段内公式选择符
+        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"] //避开某些标签
+      },
+      "HTML-CSS": {
+        availableFonts: ["STIX", "TeX"], //可选字体
+        showMathMenu: false //关闭右击菜单显示
+      }
+    }
+
+    let mathjaxInterval = setInterval(() => {
+      if(!window.MathJax){
+        return;
+      }
+      window.MathJax.Hub.Config(mathjaxConfig)
+      window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')])
+
+      clearInterval(mathjaxInterval)
+    }, 10)    
+  })()
+</script>
+    
+
+    <script src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script>
+<script async>
+  let fancyTimer = setInterval(function(){
+    if(!window.$){
+      return;
+    }
+    $(document).ready(function() {
+      $(".post img").each(function () {
+        if($(this).parent().get(0).tagName.toLowerCase() === "a") {
+          return;
+        }
+        // $(this).attr("data-fancybox", "gallery"); // if you add 'data-fancybox', img will display after showed
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "gallery");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      });
+      
+      clearInterval(fancyTimer);
+    });
+  }, 10);
+</script>
+
+    
+  </body>
+
+</html>

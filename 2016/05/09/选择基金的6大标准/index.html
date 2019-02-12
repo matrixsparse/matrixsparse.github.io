@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta name="author" content="董沅鑫, yuanxin.me@gmail.com">
+  
+  
+  
+  <title>选择基金的6大标准 | 每天遇到更好的你</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="金融,金融,">
+  
+
+  <script>
+    console.log('\n%c Hexo-theme-bmw v4.0 ' + '%c 🎉 https://github.com/dongyuanxin/theme-bmw 🎉\n' + '\n%c View demo online ' + '%c 🔍 https://godbmw.com/ 🔍  \n' , 'color: #fadfa3; background: #030307; padding:3px 0;', '', 'color: #fadfa3; background: #030307; padding:3px 0;', '');
+  </script>
+
+  
+
+  
+
+  
+    <link rel="icon" href="/images/favicon.png">
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+  
+
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/icon/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+  <script src="/js/util.js"></script>
+<script src="/js/valine.min.js"></script>
+
+  
+
+  
+    <link href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js" async></script>
+  
+
+  
+    <link href="https://cdn.bootcss.com/social-share.js/1.0.16/css/share.min.css" rel="stylesheet">
+  
+  
+  <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js" async></script>
+  
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.0/dist/av-min.js"></script>
+  
+
+</head>
+
+  <body>
+
+    
+
+    <div id="app">
+
+      <div class="header-wrap">
+  <header>
+    <div class="site-brand">
+      <div class="site-title">
+        <!-- <a href="/">MatrixSparse</a> -->
+        <img alt="logo" class="antd-pro-layouts-user-layout-logo" src="/images/favicon.png" style="width: 40px;height: 40px;margin-top: 10px;margin-left: 5px;">
+      </div>
+    </div>
+    <nav class="site-navigation">
+      <ul class="nav-menu">
+      
+        <li class="nav-item" data-path="/">
+          
+            <a href="/" target="_self">
+              主页
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          
+            <a href="/archives/" target="_self">
+              归档
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          
+            <a href="/categories/" target="_self">
+              分类
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          
+            <a href="/tags/" target="_self">
+              标签
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="">
+          
+            <a href="javascript:void(0);" v-else="">博客地址</a>
+            <ul class="nav-menu--dropdown">
+              
+                <li>
+                  <a href="https://blog.csdn.net/qq_25371579" target="_blank">
+                    CSDN
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://github.com/matrixsparse" target="_blank">
+                    Github
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://matrixsparse.github.io/" target="_blank">
+                    Github Page
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+      </ul>
+    </nav>
+    <i class="iconfont icon-menu"></i>
+  </header>
+</div>
+
+<script>
+  let links = document.querySelectorAll('.nav-item');
+  for(let link of links){
+    let childrenLink = link.querySelector('ul');
+    link.addEventListener('mouseenter', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown active";
+      }
+    })
+    link.addEventListener('mouseleave', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown";
+      }
+    })
+  }
+  let rootRealPath = getRealPath(window.location.pathname, true);
+  for(let link of links) {
+    let linkPath = link.getAttribute("data-path");
+    if(linkPath && getRealPath(linkPath, true) === rootRealPath) {
+      link.className = "nav-item hover";
+    }
+  }
+
+  let iconMenu = document.querySelector("i.iconfont.icon-menu"),
+    iconMenuClicked = false;
+  let navDOM = document.querySelector("nav.site-navigation");
+  iconMenu.addEventListener("click", () => {
+    iconMenuClicked
+      ? navDOM.className = "site-navigation active"
+      : navDOM.className = "site-navigation";
+    iconMenuClicked = !iconMenuClicked;
+  })
+</script>
+
+
+      
+
+
+
+
+
+
+
+
+<div class="container post-index">
+
+  
+
+<div class="post">
+  <h1 class="article-title">
+    <span>选择基金的6大标准</span>
+  </h1>
+  <div class="article-top-meta">
+    <span>
+      发布 : 
+      2016-05-09
+    </span>
+    
+      <span>
+        分类 : 
+          <a href="/categories/金融/">
+            金融
+          </a>
+      </span>
+    
+    
+      <span>
+        浏览 : <span class="article-timer" data-identity="选择基金的6大标准"></span>
+      </span>
+    
+  </div>
+
+  
+
+  <div class="article-content">
+    <div class="markdown-body">
+      <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">白领：定期定投基金</span><br></pre></td></tr></table></figure>
+<h2 id="1-基金的概念与常识"><a href="#1-基金的概念与常识" class="headerlink" title="1.基金的概念与常识"></a>1.基金的概念与常识</h2><h3 id="1-1-什么是基金"><a href="#1-1-什么是基金" class="headerlink" title="1.1.什么是基金"></a>1.1.什么是基金</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">由证券公司发行，通过汇集众多投资者资金，交给银行保管，由专业的基金管理公司负责投资于股票和债券等证券，以实现保证增值的目的</span><br><span class="line">的一种投资工具</span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bpimg.com/581590/0db1694086710f6a.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">一般基金都是2/8分成(盈利的前提下)</span><br><span class="line">20%基金管理者</span><br><span class="line">80%资金所有着</span><br><span class="line"></span><br><span class="line">保本基金有可能是5/5分成、4/6分成</span><br><span class="line"></span><br><span class="line">基金每年都有2%的管理费要交给基金管理者(不管盈利或亏损)</span><br><span class="line"></span><br><span class="line">过去十年基金公司收的手续费多还是分红多？</span><br></pre></td></tr></table></figure>
+<h2 id="2-基金的分类、配置与选择"><a href="#2-基金的分类、配置与选择" class="headerlink" title="2.基金的分类、配置与选择"></a>2.基金的分类、配置与选择</h2><h3 id="2-1-货币型基金-余额宝等各种宝宝类-不推荐"><a href="#2-1-货币型基金-余额宝等各种宝宝类-不推荐" class="headerlink" title="2.1.货币型基金(余额宝等各种宝宝类)/不推荐"></a>2.1.货币型基金(余额宝等各种宝宝类)/不推荐</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">特点：仅投资于货币市场工具，收益稳定，风险极低，但比银行存款高，可作为银行存款的良好替代品和现金管理的工具</span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/581590/d8073cac8b430f06.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">PS：货币基金手续费通常为0，基金单位净值为1元，赎回到账日一般为T+1，少数可即时到账</span><br><span class="line"></span><br><span class="line">作用：活期存款的替代品</span><br><span class="line"></span><br><span class="line">货币基金满足条件：</span><br><span class="line">1、手续费为0</span><br><span class="line">2、赎回到账时间短，最好能即时到账</span><br><span class="line">3、收益不会大起大落</span><br><span class="line">4、天天支付为宜</span><br><span class="line"></span><br><span class="line">选择指标：</span><br><span class="line">1、购买信息中了解</span><br><span class="line">2、购买信息中申购赎回期限：T+?</span><br><span class="line">3、认清投资组合很重要(持有的股票、债券、现金)</span><br><span class="line">4、分红策略告诉你</span><br></pre></td></tr></table></figure>
+<h3 id="2-2-债券型基金-重点"><a href="#2-2-债券型基金-重点" class="headerlink" title="2.2.债券型基金(重点)"></a>2.2.债券型基金(重点)</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">特点：主要投资于国债、央行票据、政策性金融债券、企业债，以获取较固定的收益为目的。风险和收益都较小</span><br><span class="line"></span><br><span class="line">分类(看周期)：长期纯债、短期纯债、混合债基、定期开放债券、可转债/满足一定条件下债券可以转成股份</span><br><span class="line"></span><br><span class="line">风险：长期纯债(可以碰)&lt;短期纯债&lt;混合债基&lt;定期开放债券&lt;可转债</span><br><span class="line"></span><br><span class="line">债券基金作用：小风险，小回报</span><br><span class="line">613只发行1年上，563只实现盈利，173只年收益超12%,30%的可以挑到！</span><br><span class="line">50只跑不过货基(年化5个点以下)，8%的可能挑到这50只上......</span><br><span class="line"></span><br><span class="line">债券基金满足条件：</span><br><span class="line">1、手续费尽量低</span><br><span class="line">2、躲避风险高</span><br><span class="line">3、分红对比</span><br><span class="line">4、资产匹配</span><br><span class="line"></span><br><span class="line">选择指标：</span><br><span class="line">1、基金概况中的3个<span class="string">"费"</span>-申购、赎回、托管</span><br><span class="line">2、避开可转债，看投资组合与基金经理的经验</span><br><span class="line">3、看期末可供分配利润</span><br><span class="line">4、可承受小风险的资产</span><br><span class="line"></span><br><span class="line">发达国家：中产股票、土豪买债券</span><br><span class="line">中产：不创业、必投资</span><br><span class="line">土豪：保值为主，投资获益为辅</span><br></pre></td></tr></table></figure>
+<h3 id="2-3-混合型基金"><a href="#2-3-混合型基金" class="headerlink" title="2.3.混合型基金"></a>2.3.混合型基金</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">特点：分散投资于股票、债券和货币市场工具，风险和收益水平都适中</span><br><span class="line"></span><br><span class="line">分类：根据股票、债券投资比例以及投资策略的不同，</span><br><span class="line">混合型基金又可分为偏股型基金、偏债型基金、配置型基金等多种类型</span><br><span class="line"></span><br><span class="line">风险：偏股型基金&gt;配置型基金&gt;偏债型基金</span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bpimg.com/581590/f56a63b4a8a0020c.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">混合基金的作用：中等风险，回报可观</span><br><span class="line">702只基金，有123只1年内亏损，249只半年内实现盈利，36%可以选中</span><br><span class="line">511只发行3年以上的基金，410只年收益36%以上，选中概率为80%</span><br><span class="line">有34只年收益在12%以下，选中概率为6%</span><br><span class="line"></span><br><span class="line">混合基金满足条件：</span><br><span class="line">1、股债比例尽量持平</span><br><span class="line">2、经验丰富的经理人</span><br><span class="line">3、基金排名靠前</span><br><span class="line">4、配置类型</span><br><span class="line"></span><br><span class="line">混合基金选择指标：</span><br><span class="line">1、资产配置告诉你</span><br><span class="line">2、用人不疑，了解基金经理较为重要</span><br><span class="line">3、看同类排名走势图</span><br><span class="line">4、投资3~5年可承受风险的资产</span><br></pre></td></tr></table></figure>
+<h3 id="2-4-股票型基金"><a href="#2-4-股票型基金" class="headerlink" title="2.4.股票型基金"></a>2.4.股票型基金</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">特点：主要投资于股票、高风险高收益，于股票大盘密切相关</span><br><span class="line"></span><br><span class="line">分类：行业指数型基金、基金经理个人特色基金等</span><br><span class="line"></span><br><span class="line">股票型基金的作用：进入股票市场的新手模式</span><br><span class="line"></span><br><span class="line">股票基金满足条件：</span><br><span class="line">1、特定行业指数基金</span><br><span class="line">2、基金经理经验丰富，有个人特色的基金</span><br><span class="line">3、基金规模</span><br><span class="line">4、基金排名靠前</span><br><span class="line">5、规避风险</span><br><span class="line"></span><br><span class="line">股票基金选择指标：</span><br><span class="line">1、筛选后看持仓</span><br><span class="line">2、推理基金经理投资思路，修炼自己的股票思路</span><br><span class="line">3、规模越大，风险越低</span><br><span class="line">4、基金导购</span><br><span class="line">5、躲开风险过高的分级B</span><br></pre></td></tr></table></figure>
+<h3 id="2-5-指数型基金"><a href="#2-5-指数型基金" class="headerlink" title="2.5.指数型基金"></a>2.5.指数型基金</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">指数型基金分为行业指数型基金以及板块指数型基金。</span><br><span class="line">行业指数型基金侧重于行业分析，板块指数型基金侧重于对板块指数的分析</span><br><span class="line"></span><br><span class="line">基金经理选股会直接影响基金跟踪行业标的的准确度，一般选择匹配相关行业股票的基金，跳过货不对板</span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bpimg.com/581590/a77ab7d029a7271b.png" alt="Markdown"></p>
+<h2 id="3-基金的概念与常识"><a href="#3-基金的概念与常识" class="headerlink" title="3.基金的概念与常识"></a>3.基金的概念与常识</h2><h3 id="3-1-关于基金的费用"><a href="#3-1-关于基金的费用" class="headerlink" title="3.1.关于基金的费用"></a>3.1.关于基金的费用</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">申购费(前端、后端)</span><br><span class="line">赎回费</span><br><span class="line">托管费</span><br><span class="line"></span><br><span class="line">加起来差不多2%</span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bpimg.com/581590/e5ae475156c36970.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PS：所以基金的费率由基金公司决定，每个基金不同，后端比前端划算</span><br></pre></td></tr></table></figure>
+<h3 id="3-2-净值、分红与拆分"><a href="#3-2-净值、分红与拆分" class="headerlink" title="3.2.净值、分红与拆分"></a>3.2.净值、分红与拆分</h3><p>基金净值：当天买入1份基金的价格<br>PS：基金净值会受当天申购、赎回数量影响</p>
+<p><img src="http://p1.bpimg.com/581590/cfff2dec62ad40b2.png" alt="Markdown"></p>
+<h3 id="3-3-基金分红与拆分"><a href="#3-3-基金分红与拆分" class="headerlink" title="3.3.基金分红与拆分"></a>3.3.基金分红与拆分</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">基金的分红及拆分，其目的是降低净值。给基民1个价格低适合买进的感觉。同时说明该基金希望扩大。</span><br><span class="line"></span><br><span class="line">基金的分红及拆分，在之分红及拆分前或后买入的效果是一样的，分红及拆分后，基金净值会降低，降低</span><br><span class="line"></span><br><span class="line">多少要看分红及拆分比例，这时(分红及拆分前后)盈亏不变</span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bpimg.com/581590/6f589c323adc8e3c.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PS：现金可转换成基金份额</span><br></pre></td></tr></table></figure>
+<h3 id="3-4-申购、赎回的时间"><a href="#3-4-申购、赎回的时间" class="headerlink" title="3.4.申购、赎回的时间"></a>3.4.申购、赎回的时间</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">基金买卖是以下午3:00为分界线，3:00前下单是当天3:00的价格。3:00之后下单是下一个工作日3:00时的价格</span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bpimg.com/581590/ffd302f9a13e9261.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">表达形式为T+n：T是今天3点前，n是数字</span><br><span class="line">举个例子：T+1意思是今天3点前买入，今天确认，明天到账，后天显示；赎回同理</span><br><span class="line"></span><br><span class="line">买入：T+1</span><br><span class="line">卖出：T+3</span><br></pre></td></tr></table></figure>
+<h2 id="4-基金投资方法"><a href="#4-基金投资方法" class="headerlink" title="4.基金投资方法"></a>4.基金投资方法</h2><h3 id="4-1-定投-适合小中产"><a href="#4-1-定投-适合小中产" class="headerlink" title="4.1.定投(适合小中产)"></a>4.1.定投(适合小中产)</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">特点：</span><br><span class="line">1、能平均成本、分散风险</span><br><span class="line">2、适用范围广，不管是基金类型还是家庭配置方面</span><br><span class="line">3、适合没有任何基础知识的新手、忙于工作没空理财的上班族等，专治剁手族、月光族</span><br><span class="line">4、自动扣款，手续简单</span><br></pre></td></tr></table></figure>
+<h2 id="东方财务网"><a href="#东方财务网" class="headerlink" title="东方财务网"></a>东方财务网</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://www.eastmoney.com/</span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bpimg.com/581590/bd48775490cd2e68.png" alt="Markdown"></p>
+
+    </div>
+  </div>
+  
+    <div class="copy-right">
+      <div class="markdown-body">
+        <blockquote>
+        
+        
+          本文作者 : Matrix <br>
+        
+        原文链接 : <a href="">http://yoursite.com/2016/05/09/选择基金的6大标准/</a><br>
+        版权声明 : 本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+        </blockquote>
+      </div>
+    </div>
+  
+  
+  
+    <div class="social-share" style="margin-top: -2rem" data-wechat-qrcode-title="<p>微信扫一扫</p>" data-wechat-qrcode-helper="<p>微信右上角, 扫一扫分享</p>" data-sites="qzone, qq, weibo, wechat, douban, google, facebook, twitter">
+  <span style="color: #6b7487; font-size: 1.4rem;">分享到: </span>
+</div>
+<script src="https://cdn.bootcss.com/social-share.js/1.0.16/js/social-share.min.js" async></script>
+  
+
+  
+    <div id="reward">
+  
+    <p id="reward-meta">知识 & 情怀 | 二者兼得</p>
+  
+  <button id="reward-btn">
+    
+    <span>投食</span>
+  </button>
+  <div id="reward-qrcode">
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/wechatpay.jpg" alt="微信扫一扫, 向我投食">
+        <p class="qrcode-meta">微信扫一扫, 向我投食</p>
+      </div>
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/alipaypay.jpg" alt="支付宝扫一扫, 向我投食">
+        <p class="qrcode-meta">支付宝扫一扫, 向我投食</p>
+      </div>
+    
+  </div>
+
+</div>
+
+<script>
+  (() => {
+    let button = document.querySelector('#reward-btn'),
+      qrcode = document.querySelector('#reward-qrcode'),
+      display = false;
+    
+    button.addEventListener('click', () => {
+      qrcode.style.display = display ? 'none' : 'block'
+      display = !display
+    }, false)
+  })()
+</script>
+  
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+      <span>
+        
+          <i class="iconfont icon-06tags"></i>标签: 
+          
+          <span class="span--tag">
+            <a href="/tags/金融/">
+              #金融
+            </a>
+          </span>
+          
+        
+      </span>
+    </div>
+    <div class="article-meta pull-right">
+    </div>
+  </div>
+</div>
+
+
+  <aside id="sidebar">
+    <p id="sidebar-header"></p>
+    <ol id="sidebar-toc"></ol>
+  </aside>
+  <script async>setTimeout(generateToc, 10);</script>
+
+
+  <nav class="post-navigation">
+    
+      <div class="nav-pre">
+        <i class="iconfont icon-prev"></i>
+        上一篇:
+        <a href="/2016/03/27/Tengine源码编译安装/" target="_self">Tengine源码编译安装</a>
+      </div>
+    
+    
+      <div class="nav-next">
+        下一篇:
+        <a href="/2016/05/22/单机hbase/" target="_self">单击Hbase</a>
+        <i class="iconfont icon-next"></i>
+      </div>
+    
+  </nav>
+
+  
+    <a href="#comment" class="comment-anchor"></a>
+<div class="comment-title"><i class="iconfont icon-footprint"></i> 留下足迹 <i class="iconfont icon-footprint"></i></div>
+<div id="vcomments"></div>
+
+<script defer>
+  if( true ) {
+    let path = getRealPath()
+    new Valine({
+      el: "#vcomments",
+      appId: "Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz",
+      appKey: "WaR7nrzhliHj9aVwdQzkdlGd",
+      notify: false,
+      verify: false,
+      avatar: "robohash",
+      placeholder: "正确填写邮箱, 才能及时收到回复哦♪(^∇^*)",
+      path
+    });
+  }
+</script>
+   
+
+  
+    <script defer>
+const valineAPI = (() => {
+  try {
+    AV.init("Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz", "WaR7nrzhliHj9aVwdQzkdlGd");
+  } catch(error) {}
+  const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+      query.equalTo("identity", identity);
+      query.find().then(results => {
+        resolve(results.length > 0);
+      }, error => reject(error));
+    })
+  }
+
+  const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+      let querys = [];
+      for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+      }
+      query = AV.Query.or.apply(null ,querys);
+    } else {
+      identity = identity || getRealPath();
+      query = new AV.Query("Timer");
+      query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+      query.find()
+      .then(results => resolve(results))
+      .catch(error => reject(error))
+    })
+  }
+
+  const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let Todo = AV.Object.extend('Timer');
+      let todo = new Todo();
+      todo.set("times", 1);
+      todo.set("identity", identity);
+      todo.save().then(res => resolve(true), error => reject(error));
+    })
+  }
+
+  const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let query = new AV.Query('Timer');
+      query.equalTo("identity", identity);
+      query.find().then(todos => {
+        todos.forEach(todo => {
+          todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+      }).then(todos => resolve(true), error => reject(error));
+    })
+  }
+
+  return {
+    isExist,
+    _get,
+    update,
+    create
+  }
+})()
+
+const calcAndWriteTimes = () => {
+  let isPost = true;
+
+  let timerAllDOM = document.querySelectorAll(".article-timer");
+
+  if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+      if(exist) {
+        return valineAPI.update(identity);
+      }
+      return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+  }
+
+  let timerDOMCache = {};
+
+  for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+      timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+      timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+      };
+    }
+  }
+
+  let identities = Object.keys(timerDOMCache);
+  valineAPI._get(identities).then(results => {
+    for(let result of results) {
+      let {identity, times} = result.attributes;
+      timerDOMCache[identity].times = times;
+      timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+      if(timerDOMCache[identity].times){
+        continue;
+      }
+      timerDOMCache[identity].dom.map(item => item.innerText = 1);
+      valineAPI.create(identity);
+    }
+  }).catch(error => console.log(error.message))
+}
+
+if(true){
+  calcAndWriteTimes();
+}
+</script>
+   
+
+</div>
+
+
+      <footer>
+  <p class="site-info">
+    博客已萌萌哒运行<span id="time-to-now"></span><span class="my-face">(●'◡'●)ﾉ♥</span>
+    <br>
+    Theme - <a href="https://github.com/dongyuanxin/theme-bmw">BMW</a> | Powered by <a href="https://godbmw.com/">GodBMW</a>
+    <br>
+    
+      Copyright © 2019 Matrix
+    
+  </p>
+</footer>
+
+
+
+<script>
+const timeToNowDOM = document.querySelector("#time-to-now");
+const startTimestamp = new Date(2016, 4, 10).getTime();
+
+const updateTimeStr = () => {
+  let offset = parseInt(
+      (new Date().getTime() - startTimestamp) / 1000,
+      10
+    ),
+    day = Math.floor(offset / 86400),
+    hour = Math.floor((offset % 86400) / 3600),
+    minute = Math.floor(((offset % 86400) % 3600) / 60),
+    second = Math.floor(((offset % 86400) % 3600) % 60);
+  timeToNowDOM.innerHTML =
+    day + "天" + hour + "小时" + minute + "分钟" + second + "秒";
+  setTimeout(updateTimeStr, 500);
+}
+
+setTimeout(updateTimeStr, 500);
+</script>
+
+
+      <div class="back-to-top hidden">
+  <span>
+    <i class="iconfont icon-60"></i><span></span>%
+  </span>
+</div>
+
+<script>
+const updateIconToTop = percent => {
+  let dom = document.querySelector(".back-to-top span span");
+  dom.innerText = percent;
+  if(percent < 1) {
+    document.querySelector(".back-to-top").className = "back-to-top hidden";
+  } else {
+    document.querySelector(".back-to-top").className = "back-to-top";
+  }
+}
+
+const handleScoll = () => {
+  let isRunning = false;
+  return () => {
+    if (isRunning) return;
+    isRunning = true;
+    window.requestAnimationFrame(timestamp => {
+      let scrollTop =
+          document.documentElement.scrollTop || document.body.scrollTop,
+        scrollHeight =
+          document.documentElement.scrollHeight ||
+          document.body.scrollHeight,
+        clientHeight =
+          document.documentElement.clientHeight ||
+          document.body.clientHeight;
+      isRunning = false;
+      if (scrollTop <= 1) {
+        updateIconToTop(0);
+        return;
+      }
+      if (scrollTop + clientHeight >= scrollHeight) {
+        updateIconToTop(100);
+      } else {
+        updateIconToTop(parseInt(
+          100 * scrollTop / (scrollHeight - clientHeight),
+          10
+        ));
+      }
+    });
+  };
+}
+
+const backToTop = () => {
+  let scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop,
+    delay = 10,
+    time = 200;
+  if (scrollTop <= 20) {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    return;
+  }
+  let step = Math.ceil(scrollTop * delay / time);
+  let timer = setInterval(() => {
+    scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop;
+    if (scrollTop - step <= 0) {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      clearInterval(timer);
+    } else {
+      document.documentElement.scrollTop = scrollTop - step;
+      document.body.scrollTop = scrollTop - step;
+    }
+  }, delay);
+}
+
+document.addEventListener("scroll", handleScoll(), false);
+
+document.querySelector(".back-to-top").addEventListener("click", backToTop, false);
+
+</script>
+
+    </div>
+
+    
+      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  (() => {
+    const mathjaxConfig = {
+      showProcessingMessages: false, //关闭js加载过程信息
+      messageStyle: "none", //不显示信息
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]], //行内公式选择符
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]], //段内公式选择符
+        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"] //避开某些标签
+      },
+      "HTML-CSS": {
+        availableFonts: ["STIX", "TeX"], //可选字体
+        showMathMenu: false //关闭右击菜单显示
+      }
+    }
+
+    let mathjaxInterval = setInterval(() => {
+      if(!window.MathJax){
+        return;
+      }
+      window.MathJax.Hub.Config(mathjaxConfig)
+      window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')])
+
+      clearInterval(mathjaxInterval)
+    }, 10)    
+  })()
+</script>
+    
+
+    <script src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script>
+<script async>
+  let fancyTimer = setInterval(function(){
+    if(!window.$){
+      return;
+    }
+    $(document).ready(function() {
+      $(".post img").each(function () {
+        if($(this).parent().get(0).tagName.toLowerCase() === "a") {
+          return;
+        }
+        // $(this).attr("data-fancybox", "gallery"); // if you add 'data-fancybox', img will display after showed
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "gallery");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      });
+      
+      clearInterval(fancyTimer);
+    });
+  }, 10);
+</script>
+
+    
+  </body>
+
+</html>

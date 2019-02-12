@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta name="author" content="董沅鑫, yuanxin.me@gmail.com">
+  
+  
+  
+  <title>Redis哨兵节点管理以及高可用redis集群的容灾演练 | 每天遇到更好的你</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="大数据,大数据,Redis,">
+  
+
+  <script>
+    console.log('\n%c Hexo-theme-bmw v4.0 ' + '%c 🎉 https://github.com/dongyuanxin/theme-bmw 🎉\n' + '\n%c View demo online ' + '%c 🔍 https://godbmw.com/ 🔍  \n' , 'color: #fadfa3; background: #030307; padding:3px 0;', '', 'color: #fadfa3; background: #030307; padding:3px 0;', '');
+  </script>
+
+  
+
+  
+
+  
+    <link rel="icon" href="/images/favicon.png">
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+  
+
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/icon/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+  <script src="/js/util.js"></script>
+<script src="/js/valine.min.js"></script>
+
+  
+
+  
+    <link href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js" async></script>
+  
+
+  
+    <link href="https://cdn.bootcss.com/social-share.js/1.0.16/css/share.min.css" rel="stylesheet">
+  
+  
+  <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js" async></script>
+  
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.0/dist/av-min.js"></script>
+  
+
+</head>
+
+  <body>
+
+    
+
+    <div id="app">
+
+      <div class="header-wrap">
+  <header>
+    <div class="site-brand">
+      <div class="site-title">
+        <!-- <a href="/">MatrixSparse</a> -->
+        <img alt="logo" class="antd-pro-layouts-user-layout-logo" src="/images/favicon.png" style="width: 40px;height: 40px;margin-top: 10px;margin-left: 5px;">
+      </div>
+    </div>
+    <nav class="site-navigation">
+      <ul class="nav-menu">
+      
+        <li class="nav-item" data-path="/">
+          
+            <a href="/" target="_self">
+              主页
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          
+            <a href="/archives/" target="_self">
+              归档
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          
+            <a href="/categories/" target="_self">
+              分类
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          
+            <a href="/tags/" target="_self">
+              标签
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="">
+          
+            <a href="javascript:void(0);" v-else="">博客地址</a>
+            <ul class="nav-menu--dropdown">
+              
+                <li>
+                  <a href="https://blog.csdn.net/qq_25371579" target="_blank">
+                    CSDN
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://github.com/matrixsparse" target="_blank">
+                    Github
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://matrixsparse.github.io/" target="_blank">
+                    Github Page
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+      </ul>
+    </nav>
+    <i class="iconfont icon-menu"></i>
+  </header>
+</div>
+
+<script>
+  let links = document.querySelectorAll('.nav-item');
+  for(let link of links){
+    let childrenLink = link.querySelector('ul');
+    link.addEventListener('mouseenter', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown active";
+      }
+    })
+    link.addEventListener('mouseleave', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown";
+      }
+    })
+  }
+  let rootRealPath = getRealPath(window.location.pathname, true);
+  for(let link of links) {
+    let linkPath = link.getAttribute("data-path");
+    if(linkPath && getRealPath(linkPath, true) === rootRealPath) {
+      link.className = "nav-item hover";
+    }
+  }
+
+  let iconMenu = document.querySelector("i.iconfont.icon-menu"),
+    iconMenuClicked = false;
+  let navDOM = document.querySelector("nav.site-navigation");
+  iconMenu.addEventListener("click", () => {
+    iconMenuClicked
+      ? navDOM.className = "site-navigation active"
+      : navDOM.className = "site-navigation";
+    iconMenuClicked = !iconMenuClicked;
+  })
+</script>
+
+
+      
+
+
+
+
+
+
+
+
+<div class="container post-index">
+
+  
+
+<div class="post">
+  <h1 class="article-title">
+    <span>Redis哨兵节点管理以及高可用redis集群的容灾演练</span>
+  </h1>
+  <div class="article-top-meta">
+    <span>
+      发布 : 
+      2017-06-15
+    </span>
+    
+      <span>
+        分类 : 
+          <a href="/categories/大数据/">
+            大数据
+          </a>
+      </span>
+    
+    
+      <span>
+        浏览 : <span class="article-timer" data-identity="Redis哨兵节点管理以及高可用redis集群的容灾演练"></span>
+      </span>
+    
+  </div>
+
+  
+
+  <div class="article-content">
+    <div class="markdown-body">
+      <h2 id="容灾演练"><a href="#容灾演练" class="headerlink" title="容灾演练"></a>容灾演练</h2><blockquote>
+<p>演练环境准备</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">(1).Redis集群服务已启动</span><br><span class="line">(2).Redis哨兵集群服务已启动</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p><code>进入哨兵命令行</code></p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@matrix-cache01 ~]<span class="comment"># redis-cli -h 192.168.31.231 -p 5000</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p><code>通过哨兵查看当前的master</code></p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">192.168.31.231:5000&gt; SENTINEL get-master-addr-by-name mymaster</span><br><span class="line">1) <span class="string">"192.168.31.231"</span></span><br><span class="line">2) <span class="string">"6379"</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p><code>查看哨兵集群</code></p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line">192.168.31.231:5000&gt; sentinel sentinels mymaster</span><br><span class="line">1)  1) <span class="string">"name"</span></span><br><span class="line">    2) <span class="string">"707fb3721cfa9fd1edd4059da134614a41840745"</span></span><br><span class="line">    3) <span class="string">"ip"</span></span><br><span class="line">    4) <span class="string">"192.168.31.233"</span></span><br><span class="line">    5) <span class="string">"port"</span></span><br><span class="line">    6) <span class="string">"5000"</span></span><br><span class="line">    7) <span class="string">"runid"</span></span><br><span class="line">    8) <span class="string">"707fb3721cfa9fd1edd4059da134614a41840745"</span></span><br><span class="line">    9) <span class="string">"flags"</span></span><br><span class="line">   10) <span class="string">"sentinel"</span></span><br><span class="line">   11) <span class="string">"link-pending-commands"</span></span><br><span class="line">   12) <span class="string">"0"</span></span><br><span class="line">   13) <span class="string">"link-refcount"</span></span><br><span class="line">   14) <span class="string">"1"</span></span><br><span class="line">   15) <span class="string">"last-ping-sent"</span></span><br><span class="line">   16) <span class="string">"0"</span></span><br><span class="line">   17) <span class="string">"last-ok-ping-reply"</span></span><br><span class="line">   18) <span class="string">"555"</span></span><br><span class="line">   19) <span class="string">"last-ping-reply"</span></span><br><span class="line">   20) <span class="string">"555"</span></span><br><span class="line">   21) <span class="string">"down-after-milliseconds"</span></span><br><span class="line">   22) <span class="string">"1000"</span></span><br><span class="line">   23) <span class="string">"last-hello-message"</span></span><br><span class="line">   24) <span class="string">"220"</span></span><br><span class="line">   25) <span class="string">"voted-leader"</span></span><br><span class="line">   26) <span class="string">"?"</span></span><br><span class="line">   27) <span class="string">"voted-leader-epoch"</span></span><br><span class="line">   28) <span class="string">"0"</span></span><br><span class="line">2)  1) <span class="string">"name"</span></span><br><span class="line">    2) <span class="string">"61e7c8a7ba924ee22fab0d611f928139e4c9dbbf"</span></span><br><span class="line">    3) <span class="string">"ip"</span></span><br><span class="line">    4) <span class="string">"192.168.31.232"</span></span><br><span class="line">    5) <span class="string">"port"</span></span><br><span class="line">    6) <span class="string">"5000"</span></span><br><span class="line">    7) <span class="string">"runid"</span></span><br><span class="line">    8) <span class="string">"61e7c8a7ba924ee22fab0d611f928139e4c9dbbf"</span></span><br><span class="line">    9) <span class="string">"flags"</span></span><br><span class="line">   10) <span class="string">"sentinel"</span></span><br><span class="line">   11) <span class="string">"link-pending-commands"</span></span><br><span class="line">   12) <span class="string">"0"</span></span><br><span class="line">   13) <span class="string">"link-refcount"</span></span><br><span class="line">   14) <span class="string">"1"</span></span><br><span class="line">   15) <span class="string">"last-ping-sent"</span></span><br><span class="line">   16) <span class="string">"0"</span></span><br><span class="line">   17) <span class="string">"last-ok-ping-reply"</span></span><br><span class="line">   18) <span class="string">"555"</span></span><br><span class="line">   19) <span class="string">"last-ping-reply"</span></span><br><span class="line">   20) <span class="string">"555"</span></span><br><span class="line">   21) <span class="string">"down-after-milliseconds"</span></span><br><span class="line">   22) <span class="string">"1000"</span></span><br><span class="line">   23) <span class="string">"last-hello-message"</span></span><br><span class="line">   24) <span class="string">"483"</span></span><br><span class="line">   25) <span class="string">"voted-leader"</span></span><br><span class="line">   26) <span class="string">"?"</span></span><br><span class="line">   27) <span class="string">"voted-leader-epoch"</span></span><br><span class="line">   28) <span class="string">"0"</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>kill -9掉Redis master，同时删除pid文件</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@matrix-cache01 ~]<span class="comment"># ps aux | grep redis</span></span><br><span class="line">root       880  0.1  0.2  33192  2152 ?        Ssl  11:23   0:01 /usr/<span class="built_in">local</span>/bin/redis-server 192.168.31.231:6379</span><br><span class="line">root       952  0.2  0.2  31608  2268 pts/0    Sl+  11:31   0:01 redis-sentinel 192.168.31.231:5000 [sentinel]</span><br><span class="line">root       973  0.0  0.0   5976   764 pts/1    S+   11:38   0:00 grep redis</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[root@matrix-cache01 ~]<span class="comment"># kill -9 880</span></span><br><span class="line">[root@matrix-cache01 ~]<span class="comment"># ps aux | grep redis</span></span><br><span class="line">root       952  0.2  0.2  31608  2280 pts/0    Sl+  11:31   0:01 redis-sentinel 192.168.31.231:5000 [sentinel]</span><br><span class="line">root       975  0.0  0.0   5976   768 pts/1    S+   11:39   0:00 grep redis</span><br><span class="line">[root@matrix-cache01 ~]<span class="comment"># rm -rf /var/run/redis_6379.pid</span></span><br></pre></td></tr></table></figure>
+<h2 id="查看sentinal的日志"><a href="#查看sentinal的日志" class="headerlink" title="查看sentinal的日志"></a><code>查看sentinal的日志</code></h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">出现+sdown字样,识别出了master的宕机问题</span><br><span class="line">然后出现+odown字样，就是指定的quorum哨兵数量，都认为master宕机了</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>matrix-cache01</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">952:X 24 Jun 11:39:17.430 <span class="comment"># +sdown master mymaster 192.168.31.231 6379</span></span><br><span class="line">952:X 24 Jun 11:39:17.483 <span class="comment"># +odown master mymaster 192.168.31.231 6379 #quorum 2/2</span></span><br><span class="line">952:X 24 Jun 11:39:17.483 <span class="comment"># +new-epoch 1</span></span><br><span class="line">952:X 24 Jun 11:39:17.483 <span class="comment"># +try-failover master mymaster 192.168.31.231 6379</span></span><br><span class="line">952:X 24 Jun 11:39:17.498 <span class="comment"># +vote-for-leader 398099b3bd68a6ac6d264d6d7c651e9d3b25a61c 1</span></span><br><span class="line">952:X 24 Jun 11:39:17.512 <span class="comment"># 707fb3721cfa9fd1edd4059da134614a41840745 voted for 398099b3bd68a6ac6d264d6d7c651e9d3b25a61c 1</span></span><br><span class="line">952:X 24 Jun 11:39:17.512 <span class="comment"># 61e7c8a7ba924ee22fab0d611f928139e4c9dbbf voted for 398099b3bd68a6ac6d264d6d7c651e9d3b25a61c 1</span></span><br><span class="line">952:X 24 Jun 11:39:17.599 <span class="comment"># +elected-leader master mymaster 192.168.31.231 6379</span></span><br><span class="line">952:X 24 Jun 11:39:17.599 <span class="comment"># +failover-state-select-slave master mymaster 192.168.31.231 6379</span></span><br><span class="line">952:X 24 Jun 11:39:17.666 <span class="comment"># +selected-slave slave 192.168.31.233:6379 192.168.31.233 6379 @ mymaster 192.168.31.231 6379</span></span><br><span class="line">952:X 24 Jun 11:39:17.666 * +failover-state-send-slaveof-noone slave 192.168.31.233:6379 192.168.31.233 6379 @ mymaster 192.168.31.231 6379</span><br><span class="line">952:X 24 Jun 11:39:17.721 * +failover-state-wait-promotion slave 192.168.31.233:6379 192.168.31.233 6379 @ mymaster 192.168.31.231 6379</span><br><span class="line">952:X 24 Jun 11:39:18.544 <span class="comment"># +promoted-slave slave 192.168.31.233:6379 192.168.31.233 6379 @ mymaster 192.168.31.231 6379</span></span><br><span class="line">952:X 24 Jun 11:39:18.544 <span class="comment"># +failover-state-reconf-slaves master mymaster 192.168.31.231 6379</span></span><br><span class="line">952:X 24 Jun 11:39:18.618 * +slave-reconf-sent slave 192.168.31.232:6379 192.168.31.232 6379 @ mymaster 192.168.31.231 6379</span><br><span class="line">952:X 24 Jun 11:39:19.589 * +slave-reconf-inprog slave 192.168.31.232:6379 192.168.31.232 6379 @ mymaster 192.168.31.231 6379</span><br><span class="line">952:X 24 Jun 11:39:19.589 * +slave-reconf-done slave 192.168.31.232:6379 192.168.31.232 6379 @ mymaster 192.168.31.231 6379</span><br><span class="line">952:X 24 Jun 11:39:19.672 <span class="comment"># -odown master mymaster 192.168.31.231 6379</span></span><br><span class="line">952:X 24 Jun 11:39:19.672 <span class="comment"># +failover-end master mymaster 192.168.31.231 6379</span></span><br><span class="line">952:X 24 Jun 11:39:19.672 <span class="comment"># +switch-master mymaster 192.168.31.231 6379 192.168.31.233 6379</span></span><br><span class="line">952:X 24 Jun 11:39:19.672 * +slave slave 192.168.31.232:6379 192.168.31.232 6379 @ mymaster 192.168.31.233 6379</span><br><span class="line">952:X 24 Jun 11:39:19.672 * +slave slave 192.168.31.231:6379 192.168.31.231 6379 @ mymaster 192.168.31.233 6379</span><br><span class="line">952:X 24 Jun 11:39:20.739 <span class="comment"># +sdown slave 192.168.31.231:6379 192.168.31.231 6379 @ mymaster 192.168.31.233 6379</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>matrix-cache02</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">953:X 24 Jun 11:31:22.280 <span class="comment"># WARNING: The TCP backlog setting of 511 cannot be enforced because /proc/sys/net/core/somaxconn is set to the lower value of 128.</span></span><br><span class="line">953:X 24 Jun 11:31:22.280 <span class="comment"># Sentinel ID is 61e7c8a7ba924ee22fab0d611f928139e4c9dbbf</span></span><br><span class="line">953:X 24 Jun 11:31:22.280 <span class="comment"># +monitor master mymaster 192.168.31.231 6379 quorum 2</span></span><br><span class="line">953:X 24 Jun 11:31:23.286 <span class="comment"># +sdown sentinel 707fb3721cfa9fd1edd4059da134614a41840745 192.168.31.233 5000 @ mymaster 192.168.31.231 6379</span></span><br><span class="line">953:X 24 Jun 11:31:25.486 <span class="comment"># -sdown sentinel 707fb3721cfa9fd1edd4059da134614a41840745 192.168.31.233 5000 @ mymaster 192.168.31.231 6379</span></span><br><span class="line">953:X 24 Jun 11:39:17.417 <span class="comment"># +sdown master mymaster 192.168.31.231 6379</span></span><br><span class="line">953:X 24 Jun 11:39:17.511 <span class="comment"># +new-epoch 1</span></span><br><span class="line">953:X 24 Jun 11:39:17.513 <span class="comment"># +vote-for-leader 398099b3bd68a6ac6d264d6d7c651e9d3b25a61c 1</span></span><br><span class="line">953:X 24 Jun 11:39:18.528 <span class="comment"># +odown master mymaster 192.168.31.231 6379 #quorum 3/2</span></span><br><span class="line">953:X 24 Jun 11:39:18.528 <span class="comment"># Next failover delay: I will not start a failover before Sat Jun 24 11:39:27 2017</span></span><br><span class="line">953:X 24 Jun 11:39:18.621 <span class="comment"># +config-update-from sentinel 398099b3bd68a6ac6d264d6d7c651e9d3b25a61c 192.168.31.231 5000 @ mymaster 192.168.31.231 6379</span></span><br><span class="line">953:X 24 Jun 11:39:18.621 <span class="comment"># +switch-master mymaster 192.168.31.231 6379 192.168.31.233 6379</span></span><br><span class="line">953:X 24 Jun 11:39:18.621 * +slave slave 192.168.31.232:6379 192.168.31.232 6379 @ mymaster 192.168.31.233 6379</span><br><span class="line">953:X 24 Jun 11:39:18.621 * +slave slave 192.168.31.231:6379 192.168.31.231 6379 @ mymaster 192.168.31.233 6379</span><br><span class="line">953:X 24 Jun 11:39:19.622 <span class="comment"># +sdown slave 192.168.31.231:6379 192.168.31.231 6379 @ mymaster 192.168.31.233 6379</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>matrix-cache03</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">937:X 24 Jun 11:31:22.965 <span class="comment"># WARNING: The TCP backlog setting of 511 cannot be enforced because /proc/sys/net/core/somaxconn is set to the lower value of 128.</span></span><br><span class="line">937:X 24 Jun 11:31:22.966 <span class="comment"># Sentinel ID is 707fb3721cfa9fd1edd4059da134614a41840745</span></span><br><span class="line">937:X 24 Jun 11:31:22.966 <span class="comment"># +monitor master mymaster 192.168.31.231 6379 quorum 2</span></span><br><span class="line">937:X 24 Jun 11:39:16.141 <span class="comment"># +sdown master mymaster 192.168.31.231 6379</span></span><br><span class="line">937:X 24 Jun 11:39:16.180 <span class="comment"># +new-epoch 1</span></span><br><span class="line">937:X 24 Jun 11:39:16.182 <span class="comment"># +vote-for-leader 398099b3bd68a6ac6d264d6d7c651e9d3b25a61c 1</span></span><br><span class="line">937:X 24 Jun 11:39:16.217 <span class="comment"># +odown master mymaster 192.168.31.231 6379 #quorum 3/2</span></span><br><span class="line">937:X 24 Jun 11:39:16.217 <span class="comment"># Next failover delay: I will not start a failover before Sat Jun 24 11:39:26 2017</span></span><br><span class="line">937:X 24 Jun 11:39:17.289 <span class="comment"># +config-update-from sentinel 398099b3bd68a6ac6d264d6d7c651e9d3b25a61c 192.168.31.231 5000 @ mymaster 192.168.31.231 6379</span></span><br><span class="line">937:X 24 Jun 11:39:17.289 <span class="comment"># +switch-master mymaster 192.168.31.231 6379 192.168.31.233 6379</span></span><br><span class="line">937:X 24 Jun 11:39:17.290 * +slave slave 192.168.31.232:6379 192.168.31.232 6379 @ mymaster 192.168.31.233 6379</span><br><span class="line">937:X 24 Jun 11:39:17.290 * +slave slave 192.168.31.231:6379 192.168.31.231 6379 @ mymaster 192.168.31.233 6379</span><br><span class="line">937:X 24 Jun 11:39:18.326 <span class="comment"># +sdown slave 192.168.31.231:6379 192.168.31.231 6379 @ mymaster 192.168.31.233 6379</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p><code>通过哨兵查看现在的master</code></p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@matrix-cache01 ~]<span class="comment"># redis-cli -h 192.168.31.231 -p 5000</span></span><br><span class="line">192.168.31.231:5000&gt; SENTINEL get-master-addr-by-name mymaster</span><br><span class="line">1) <span class="string">"192.168.31.233"</span></span><br><span class="line">2) <span class="string">"6379"</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">可以发现当192.168.31.231宕机后，哨兵集群选举了192.168.31.233为master</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p><code>查看新master</code></p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line">[root@matrix-cache03 ~]<span class="comment"># redis-cli -h 192.168.31.233 -p 5000</span></span><br><span class="line">192.168.31.233:5000&gt; sentinel master mymaster</span><br><span class="line"> 1) <span class="string">"name"</span></span><br><span class="line"> 2) <span class="string">"mymaster"</span></span><br><span class="line"> 3) <span class="string">"ip"</span></span><br><span class="line"> 4) <span class="string">"192.168.31.233"</span></span><br><span class="line"> 5) <span class="string">"port"</span></span><br><span class="line"> 6) <span class="string">"6379"</span></span><br><span class="line"> 7) <span class="string">"runid"</span></span><br><span class="line"> 8) <span class="string">"7945069d6501eeaeaa59a15c6de658f16a9d8f65"</span></span><br><span class="line"> 9) <span class="string">"flags"</span></span><br><span class="line">10) <span class="string">"master"</span></span><br><span class="line">11) <span class="string">"link-pending-commands"</span></span><br><span class="line">12) <span class="string">"0"</span></span><br><span class="line">13) <span class="string">"link-refcount"</span></span><br><span class="line">14) <span class="string">"1"</span></span><br><span class="line">15) <span class="string">"last-ping-sent"</span></span><br><span class="line">16) <span class="string">"0"</span></span><br><span class="line">17) <span class="string">"last-ok-ping-reply"</span></span><br><span class="line">18) <span class="string">"972"</span></span><br><span class="line">19) <span class="string">"last-ping-reply"</span></span><br><span class="line">20) <span class="string">"972"</span></span><br><span class="line">21) <span class="string">"down-after-milliseconds"</span></span><br><span class="line">22) <span class="string">"1000"</span></span><br><span class="line">23) <span class="string">"info-refresh"</span></span><br><span class="line">24) <span class="string">"88"</span></span><br><span class="line">25) <span class="string">"role-reported"</span></span><br><span class="line">26) <span class="string">"master"</span></span><br><span class="line">27) <span class="string">"role-reported-time"</span></span><br><span class="line">28) <span class="string">"539597"</span></span><br><span class="line">29) <span class="string">"config-epoch"</span></span><br><span class="line">30) <span class="string">"1"</span></span><br><span class="line">31) <span class="string">"num-slaves"</span></span><br><span class="line">32) <span class="string">"2"</span></span><br><span class="line">33) <span class="string">"num-other-sentinels"</span></span><br><span class="line">34) <span class="string">"2"</span></span><br><span class="line">35) <span class="string">"quorum"</span></span><br><span class="line">36) <span class="string">"2"</span></span><br><span class="line">37) <span class="string">"failover-timeout"</span></span><br><span class="line">38) <span class="string">"5000"</span></span><br><span class="line">39) <span class="string">"parallel-syncs"</span></span><br><span class="line">40) <span class="string">"1"</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p><code>将旧的master重新启动</code>，查看是否被哨兵自动切换成slave节点</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@matrix-cache01 ~]<span class="comment"># cd /etc/init.d</span></span><br><span class="line">[root@matrix-cache01 init.d]<span class="comment"># ./redis_6379 start</span></span><br><span class="line">Starting Redis server...</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@matrix-cache01 ~]<span class="comment"># redis-cli -h 192.168.31.231 -p 5000</span></span><br><span class="line">192.168.31.231:5000&gt; SENTINEL get-master-addr-by-name mymaster</span><br><span class="line">1) <span class="string">"192.168.31.233"</span></span><br><span class="line">2) <span class="string">"6379"</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">(1).三个哨兵进程都认为master是sdown了</span><br><span class="line">(2).超过quorum指定的哨兵进程都认为sdown之后，就变为odown</span><br><span class="line">(3).哨兵1是被选举为要执行后续的主备切换的那个哨兵</span><br><span class="line">(4).哨兵1去新的master（slave）获取了一个新的config version</span><br><span class="line">(5).尝试执行failover</span><br><span class="line">(6).投票选举出一个slave区切换成master，每隔哨兵都会执行一次投票</span><br><span class="line">(7).让salve，slaveof noone，不让它去做任何节点的slave了; 把slave提拔成master; 旧的master认为不再是master了</span><br><span class="line">(8).哨兵就自动认为之前的187:6379变成了slave了，19:6379变成了master了</span><br><span class="line">(9).哨兵去探查了一下187:6379这个salve的状态，认为它sdown了</span><br></pre></td></tr></table></figure>
+
+    </div>
+  </div>
+  
+    <div class="copy-right">
+      <div class="markdown-body">
+        <blockquote>
+        
+        
+          本文作者 : Matrix <br>
+        
+        原文链接 : <a href="">http://yoursite.com/2017/06/15/Redis哨兵节点管理以及高可用redis集群的容灾演练/</a><br>
+        版权声明 : 本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+        </blockquote>
+      </div>
+    </div>
+  
+  
+  
+    <div class="social-share" style="margin-top: -2rem" data-wechat-qrcode-title="<p>微信扫一扫</p>" data-wechat-qrcode-helper="<p>微信右上角, 扫一扫分享</p>" data-sites="qzone, qq, weibo, wechat, douban, google, facebook, twitter">
+  <span style="color: #6b7487; font-size: 1.4rem;">分享到: </span>
+</div>
+<script src="https://cdn.bootcss.com/social-share.js/1.0.16/js/social-share.min.js" async></script>
+  
+
+  
+    <div id="reward">
+  
+    <p id="reward-meta">知识 & 情怀 | 二者兼得</p>
+  
+  <button id="reward-btn">
+    
+    <span>投食</span>
+  </button>
+  <div id="reward-qrcode">
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/wechatpay.jpg" alt="微信扫一扫, 向我投食">
+        <p class="qrcode-meta">微信扫一扫, 向我投食</p>
+      </div>
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/alipaypay.jpg" alt="支付宝扫一扫, 向我投食">
+        <p class="qrcode-meta">支付宝扫一扫, 向我投食</p>
+      </div>
+    
+  </div>
+
+</div>
+
+<script>
+  (() => {
+    let button = document.querySelector('#reward-btn'),
+      qrcode = document.querySelector('#reward-qrcode'),
+      display = false;
+    
+    button.addEventListener('click', () => {
+      qrcode.style.display = display ? 'none' : 'block'
+      display = !display
+    }, false)
+  })()
+</script>
+  
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+      <span>
+        
+          <i class="iconfont icon-06tags"></i>标签: 
+          
+          <span class="span--tag">
+            <a href="/tags/大数据/">
+              #大数据
+            </a>
+          </span>
+          
+          <span class="span--tag">
+            <a href="/tags/Redis/">
+              #Redis
+            </a>
+          </span>
+          
+        
+      </span>
+    </div>
+    <div class="article-meta pull-right">
+    </div>
+  </div>
+</div>
+
+
+  <aside id="sidebar">
+    <p id="sidebar-header"></p>
+    <ol id="sidebar-toc"></ol>
+  </aside>
+  <script async>setTimeout(generateToc, 10);</script>
+
+
+  <nav class="post-navigation">
+    
+      <div class="nav-pre">
+        <i class="iconfont icon-prev"></i>
+        上一篇:
+        <a href="/2017/06/15/理财/" target="_self">理财知识点</a>
+      </div>
+    
+    
+      <div class="nav-next">
+        下一篇:
+        <a href="/2017/06/19/微信第三方开放平台开发攻略/" target="_self">微信第三方开放平台开发攻略</a>
+        <i class="iconfont icon-next"></i>
+      </div>
+    
+  </nav>
+
+  
+    <a href="#comment" class="comment-anchor"></a>
+<div class="comment-title"><i class="iconfont icon-footprint"></i> 留下足迹 <i class="iconfont icon-footprint"></i></div>
+<div id="vcomments"></div>
+
+<script defer>
+  if( true ) {
+    let path = getRealPath()
+    new Valine({
+      el: "#vcomments",
+      appId: "Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz",
+      appKey: "WaR7nrzhliHj9aVwdQzkdlGd",
+      notify: false,
+      verify: false,
+      avatar: "robohash",
+      placeholder: "正确填写邮箱, 才能及时收到回复哦♪(^∇^*)",
+      path
+    });
+  }
+</script>
+   
+
+  
+    <script defer>
+const valineAPI = (() => {
+  try {
+    AV.init("Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz", "WaR7nrzhliHj9aVwdQzkdlGd");
+  } catch(error) {}
+  const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+      query.equalTo("identity", identity);
+      query.find().then(results => {
+        resolve(results.length > 0);
+      }, error => reject(error));
+    })
+  }
+
+  const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+      let querys = [];
+      for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+      }
+      query = AV.Query.or.apply(null ,querys);
+    } else {
+      identity = identity || getRealPath();
+      query = new AV.Query("Timer");
+      query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+      query.find()
+      .then(results => resolve(results))
+      .catch(error => reject(error))
+    })
+  }
+
+  const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let Todo = AV.Object.extend('Timer');
+      let todo = new Todo();
+      todo.set("times", 1);
+      todo.set("identity", identity);
+      todo.save().then(res => resolve(true), error => reject(error));
+    })
+  }
+
+  const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let query = new AV.Query('Timer');
+      query.equalTo("identity", identity);
+      query.find().then(todos => {
+        todos.forEach(todo => {
+          todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+      }).then(todos => resolve(true), error => reject(error));
+    })
+  }
+
+  return {
+    isExist,
+    _get,
+    update,
+    create
+  }
+})()
+
+const calcAndWriteTimes = () => {
+  let isPost = true;
+
+  let timerAllDOM = document.querySelectorAll(".article-timer");
+
+  if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+      if(exist) {
+        return valineAPI.update(identity);
+      }
+      return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+  }
+
+  let timerDOMCache = {};
+
+  for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+      timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+      timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+      };
+    }
+  }
+
+  let identities = Object.keys(timerDOMCache);
+  valineAPI._get(identities).then(results => {
+    for(let result of results) {
+      let {identity, times} = result.attributes;
+      timerDOMCache[identity].times = times;
+      timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+      if(timerDOMCache[identity].times){
+        continue;
+      }
+      timerDOMCache[identity].dom.map(item => item.innerText = 1);
+      valineAPI.create(identity);
+    }
+  }).catch(error => console.log(error.message))
+}
+
+if(true){
+  calcAndWriteTimes();
+}
+</script>
+   
+
+</div>
+
+
+      <footer>
+  <p class="site-info">
+    博客已萌萌哒运行<span id="time-to-now"></span><span class="my-face">(●'◡'●)ﾉ♥</span>
+    <br>
+    Theme - <a href="https://github.com/dongyuanxin/theme-bmw">BMW</a> | Powered by <a href="https://godbmw.com/">GodBMW</a>
+    <br>
+    
+      Copyright © 2019 Matrix
+    
+  </p>
+</footer>
+
+
+
+<script>
+const timeToNowDOM = document.querySelector("#time-to-now");
+const startTimestamp = new Date(2016, 4, 10).getTime();
+
+const updateTimeStr = () => {
+  let offset = parseInt(
+      (new Date().getTime() - startTimestamp) / 1000,
+      10
+    ),
+    day = Math.floor(offset / 86400),
+    hour = Math.floor((offset % 86400) / 3600),
+    minute = Math.floor(((offset % 86400) % 3600) / 60),
+    second = Math.floor(((offset % 86400) % 3600) % 60);
+  timeToNowDOM.innerHTML =
+    day + "天" + hour + "小时" + minute + "分钟" + second + "秒";
+  setTimeout(updateTimeStr, 500);
+}
+
+setTimeout(updateTimeStr, 500);
+</script>
+
+
+      <div class="back-to-top hidden">
+  <span>
+    <i class="iconfont icon-60"></i><span></span>%
+  </span>
+</div>
+
+<script>
+const updateIconToTop = percent => {
+  let dom = document.querySelector(".back-to-top span span");
+  dom.innerText = percent;
+  if(percent < 1) {
+    document.querySelector(".back-to-top").className = "back-to-top hidden";
+  } else {
+    document.querySelector(".back-to-top").className = "back-to-top";
+  }
+}
+
+const handleScoll = () => {
+  let isRunning = false;
+  return () => {
+    if (isRunning) return;
+    isRunning = true;
+    window.requestAnimationFrame(timestamp => {
+      let scrollTop =
+          document.documentElement.scrollTop || document.body.scrollTop,
+        scrollHeight =
+          document.documentElement.scrollHeight ||
+          document.body.scrollHeight,
+        clientHeight =
+          document.documentElement.clientHeight ||
+          document.body.clientHeight;
+      isRunning = false;
+      if (scrollTop <= 1) {
+        updateIconToTop(0);
+        return;
+      }
+      if (scrollTop + clientHeight >= scrollHeight) {
+        updateIconToTop(100);
+      } else {
+        updateIconToTop(parseInt(
+          100 * scrollTop / (scrollHeight - clientHeight),
+          10
+        ));
+      }
+    });
+  };
+}
+
+const backToTop = () => {
+  let scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop,
+    delay = 10,
+    time = 200;
+  if (scrollTop <= 20) {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    return;
+  }
+  let step = Math.ceil(scrollTop * delay / time);
+  let timer = setInterval(() => {
+    scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop;
+    if (scrollTop - step <= 0) {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      clearInterval(timer);
+    } else {
+      document.documentElement.scrollTop = scrollTop - step;
+      document.body.scrollTop = scrollTop - step;
+    }
+  }, delay);
+}
+
+document.addEventListener("scroll", handleScoll(), false);
+
+document.querySelector(".back-to-top").addEventListener("click", backToTop, false);
+
+</script>
+
+    </div>
+
+    
+      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  (() => {
+    const mathjaxConfig = {
+      showProcessingMessages: false, //关闭js加载过程信息
+      messageStyle: "none", //不显示信息
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]], //行内公式选择符
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]], //段内公式选择符
+        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"] //避开某些标签
+      },
+      "HTML-CSS": {
+        availableFonts: ["STIX", "TeX"], //可选字体
+        showMathMenu: false //关闭右击菜单显示
+      }
+    }
+
+    let mathjaxInterval = setInterval(() => {
+      if(!window.MathJax){
+        return;
+      }
+      window.MathJax.Hub.Config(mathjaxConfig)
+      window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')])
+
+      clearInterval(mathjaxInterval)
+    }, 10)    
+  })()
+</script>
+    
+
+    <script src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script>
+<script async>
+  let fancyTimer = setInterval(function(){
+    if(!window.$){
+      return;
+    }
+    $(document).ready(function() {
+      $(".post img").each(function () {
+        if($(this).parent().get(0).tagName.toLowerCase() === "a") {
+          return;
+        }
+        // $(this).attr("data-fancybox", "gallery"); // if you add 'data-fancybox', img will display after showed
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "gallery");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      });
+      
+      clearInterval(fancyTimer);
+    });
+  }, 10);
+</script>
+
+    
+  </body>
+
+</html>

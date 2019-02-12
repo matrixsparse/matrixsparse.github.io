@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta name="author" content="董沅鑫, yuanxin.me@gmail.com">
+  
+  
+  
+  <title>Strom集群部署的基本流程 | 每天遇到更好的你</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="大数据,大数据,Storm,">
+  
+
+  <script>
+    console.log('\n%c Hexo-theme-bmw v4.0 ' + '%c 🎉 https://github.com/dongyuanxin/theme-bmw 🎉\n' + '\n%c View demo online ' + '%c 🔍 https://godbmw.com/ 🔍  \n' , 'color: #fadfa3; background: #030307; padding:3px 0;', '', 'color: #fadfa3; background: #030307; padding:3px 0;', '');
+  </script>
+
+  
+
+  
+
+  
+    <link rel="icon" href="/images/favicon.png">
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+  
+
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/icon/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+  <script src="/js/util.js"></script>
+<script src="/js/valine.min.js"></script>
+
+  
+
+  
+    <link href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js" async></script>
+  
+
+  
+    <link href="https://cdn.bootcss.com/social-share.js/1.0.16/css/share.min.css" rel="stylesheet">
+  
+  
+  <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js" async></script>
+  
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.0/dist/av-min.js"></script>
+  
+
+</head>
+
+  <body>
+
+    
+
+    <div id="app">
+
+      <div class="header-wrap">
+  <header>
+    <div class="site-brand">
+      <div class="site-title">
+        <!-- <a href="/">MatrixSparse</a> -->
+        <img alt="logo" class="antd-pro-layouts-user-layout-logo" src="/images/favicon.png" style="width: 40px;height: 40px;margin-top: 10px;margin-left: 5px;">
+      </div>
+    </div>
+    <nav class="site-navigation">
+      <ul class="nav-menu">
+      
+        <li class="nav-item" data-path="/">
+          
+            <a href="/" target="_self">
+              主页
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          
+            <a href="/archives/" target="_self">
+              归档
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          
+            <a href="/categories/" target="_self">
+              分类
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          
+            <a href="/tags/" target="_self">
+              标签
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="">
+          
+            <a href="javascript:void(0);" v-else="">博客地址</a>
+            <ul class="nav-menu--dropdown">
+              
+                <li>
+                  <a href="https://blog.csdn.net/qq_25371579" target="_blank">
+                    CSDN
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://github.com/matrixsparse" target="_blank">
+                    Github
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://matrixsparse.github.io/" target="_blank">
+                    Github Page
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+      </ul>
+    </nav>
+    <i class="iconfont icon-menu"></i>
+  </header>
+</div>
+
+<script>
+  let links = document.querySelectorAll('.nav-item');
+  for(let link of links){
+    let childrenLink = link.querySelector('ul');
+    link.addEventListener('mouseenter', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown active";
+      }
+    })
+    link.addEventListener('mouseleave', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown";
+      }
+    })
+  }
+  let rootRealPath = getRealPath(window.location.pathname, true);
+  for(let link of links) {
+    let linkPath = link.getAttribute("data-path");
+    if(linkPath && getRealPath(linkPath, true) === rootRealPath) {
+      link.className = "nav-item hover";
+    }
+  }
+
+  let iconMenu = document.querySelector("i.iconfont.icon-menu"),
+    iconMenuClicked = false;
+  let navDOM = document.querySelector("nav.site-navigation");
+  iconMenu.addEventListener("click", () => {
+    iconMenuClicked
+      ? navDOM.className = "site-navigation active"
+      : navDOM.className = "site-navigation";
+    iconMenuClicked = !iconMenuClicked;
+  })
+</script>
+
+
+      
+
+
+
+
+
+
+
+
+<div class="container post-index">
+
+  
+
+<div class="post">
+  <h1 class="article-title">
+    <span>Strom集群部署的基本流程</span>
+  </h1>
+  <div class="article-top-meta">
+    <span>
+      发布 : 
+      2016-02-08
+    </span>
+    
+      <span>
+        分类 : 
+          <a href="/categories/大数据/">
+            大数据
+          </a>
+      </span>
+    
+    
+      <span>
+        浏览 : <span class="article-timer" data-identity="Strom分布式集群部署"></span>
+      </span>
+    
+  </div>
+
+  
+
+  <div class="article-content">
+    <div class="markdown-body">
+      <h2 id="1-集群部署的基本流程"><a href="#1-集群部署的基本流程" class="headerlink" title="1.集群部署的基本流程"></a>1.集群部署的基本流程</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">集群部署的流程：下载安装包、解压安装包、修改配置文件、分发安装包、启动集群</span><br><span class="line"></span><br><span class="line">192.168.230.11(node02)、192.168.230.12(node03)、192.168.230.13(node04)</span><br></pre></td></tr></table></figure>
+<h2 id="2-Storm集群部署"><a href="#2-Storm集群部署" class="headerlink" title="2.Storm集群部署"></a>2.Storm集群部署</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">部署依赖环境</span><br><span class="line"></span><br><span class="line">Java 6+</span><br><span class="line">Python 2.6.6+</span><br></pre></td></tr></table></figure>
+<h3 id="2-1-下载安装包"><a href="#2-1-下载安装包" class="headerlink" title="2.1.下载安装包"></a>2.1.下载安装包</h3><h3 id="2-2-解压安装包"><a href="#2-2-解压安装包" class="headerlink" title="2.2.解压安装包"></a>2.2.解压安装包</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@node02 software]<span class="comment"># tar -zxvf apache-storm-0.10.0.tar.gz -C /opt/modules</span></span><br><span class="line">[root@node02 modules]<span class="comment"># mv apache-storm-0.10.0 storm-0.10.0</span></span><br></pre></td></tr></table></figure>
+<h3 id="2-3-修改配置文件"><a href="#2-3-修改配置文件" class="headerlink" title="2.3.修改配置文件"></a>2.3.修改配置文件</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[root@node02 modules]<span class="comment"># cd storm-0.10.0/conf/</span></span><br><span class="line">[root@node02 conf]<span class="comment"># ll</span></span><br><span class="line">total 8</span><br><span class="line">-rw-r--r--. 1 502 games 1128 Oct 24  2015 storm_env.ini</span><br><span class="line">-rw-r--r--. 1 502 games 1613 Oct 24  2015 storm.yaml</span><br><span class="line">[root@node02 conf]<span class="comment"># cp storm.yaml storm.yaml.bak</span></span><br><span class="line">[root@node02 conf]<span class="comment"># vi storm.yaml</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">storm.zookeeper.servers:</span><br><span class="line">     - &quot;node02&quot;</span><br><span class="line">     - &quot;node03&quot;</span><br><span class="line">     - &quot;node04&quot;</span><br><span class="line"></span><br><span class="line">nimbus.host: &quot;node02&quot;</span><br></pre></td></tr></table></figure>
+<h3 id="2-4-分发安装包"><a href="#2-4-分发安装包" class="headerlink" title="2.4.分发安装包"></a>2.4.分发安装包</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@node02 ~]<span class="comment"># scp -r /opt/modules/storm-0.10.0/ root@node03:/opt/modules/storm-0.10.0</span></span><br><span class="line">[root@node02 ~]<span class="comment"># scp -r /opt/modules/storm-0.10.0/ root@node04:/opt/modules/storm-0.10.0</span></span><br></pre></td></tr></table></figure>
+<h3 id="2-5-启动集群"><a href="#2-5-启动集群" class="headerlink" title="2.5.启动集群"></a>2.5.启动集群</h3><h4 id="2-5-1-启动Zookeeper"><a href="#2-5-1-启动Zookeeper" class="headerlink" title="2.5.1.启动Zookeeper"></a>2.5.1.启动Zookeeper</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@node02 ~]<span class="comment"># /opt/modules/zookeeper/bin/zkServer.sh start</span></span><br><span class="line">[root@node03 ~]<span class="comment"># /opt/modules/zookeeper/bin/zkServer.sh start</span></span><br><span class="line">[root@node04 ~]<span class="comment"># /opt/modules/zookeeper/bin/zkServer.sh start</span></span><br></pre></td></tr></table></figure>
+<h4 id="2-5-2-启动niumbus"><a href="#2-5-2-启动niumbus" class="headerlink" title="2.5.2.启动niumbus"></a>2.5.2.启动niumbus</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@node02 ~]<span class="comment"># cd /opt/modules/storm-0.10.0/</span></span><br><span class="line">[root@node02 storm-0.10.0]<span class="comment"># ./bin/storm nimbus &gt;&gt; logs/nimbus.out 2&gt;&amp;1 &amp;</span></span><br><span class="line">[root@node02 storm-0.10.0]<span class="comment"># tail -f logs/nimbus.log</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/581590/cfe39cad7941409e.png" alt="Markdown"></p>
+<h4 id="2-5-3-启动Storm-Web-UI"><a href="#2-5-3-启动Storm-Web-UI" class="headerlink" title="2.5.3.启动Storm Web UI"></a>2.5.3.启动Storm Web UI</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node02 storm-0.10.0]<span class="comment"># ./bin/storm ui &gt;&gt; logs/ui.out 2&gt;&amp;1 &amp;</span></span><br></pre></td></tr></table></figure>
+<h4 id="2-5-4-启动supervisor"><a href="#2-5-4-启动supervisor" class="headerlink" title="2.5.4.启动supervisor"></a>2.5.4.启动supervisor</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@node02 storm-0.10.0]<span class="comment"># ./bin/storm supervisor &gt;&gt; logs/supervisor.out 2&gt;&amp;1 &amp;</span></span><br><span class="line">[root@node02 storm-0.10.0]<span class="comment"># tail -f logs/supervisor.log</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/581590/31f8e33205066268.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@node03 ~]<span class="comment"># cd /opt/modules/storm-0.10.0/</span></span><br><span class="line">[root@node03 storm-0.10.0]<span class="comment"># ./bin/storm supervisor &gt;&gt; logs/supervisor.out 2&gt;&amp;1 &amp;</span></span><br><span class="line">[root@node04 ~]<span class="comment"># cd /opt/modules/storm-0.10.0/</span></span><br><span class="line">[root@node04 storm-0.10.0]<span class="comment"># ./bin/storm supervisor &gt;&gt; logs/supervisor.out 2&gt;&amp;1 &amp;</span></span><br></pre></td></tr></table></figure>
+<h3 id="2-6-查看集群"><a href="#2-6-查看集群" class="headerlink" title="2.6.查看集群"></a>2.6.查看集群</h3><pre><code>访问nimbus.host:/8080，即可看到storm的ui界面。
+
+在浏览器地址栏中输入：http://192.168.230.11:8080/index.html
+</code></pre><p><img src="http://i1.piimg.com/581590/6cf907eb0c1bdfcb.png" alt="Markdown"></p>
+<h3 id="2-7-Storm单词技术案例-重点掌握"><a href="#2-7-Storm单词技术案例-重点掌握" class="headerlink" title="2.7.Storm单词技术案例(重点掌握)"></a>2.7.Storm单词技术案例(重点掌握)</h3><h4 id="2-7-1-功能说明"><a href="#2-7-1-功能说明" class="headerlink" title="2.7.1.功能说明"></a>2.7.1.功能说明</h4><pre><code>设计一个topology，来实现对文档里面的单词出现的频率进行统计。
+整个topology分为三个部分：
+    RandomSentenceSpout：数据源，在已知的英文句子中，随机发送一条句子出去。
+    SplitSentenceBolt：负责将单行文本记录（句子）切分成单词
+    WordCountBolt：负责对单词的频率进行累加
+</code></pre><h5 id="2-7-1-1-WordCountTopologMain-java"><a href="#2-7-1-1-WordCountTopologMain-java" class="headerlink" title="2.7.1.1.WordCountTopologMain.java"></a>2.7.1.1.WordCountTopologMain.java</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.matrix.storm;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> backtype.storm.Config;</span><br><span class="line"><span class="keyword">import</span> backtype.storm.LocalCluster;</span><br><span class="line"><span class="keyword">import</span> backtype.storm.StormSubmitter;</span><br><span class="line"><span class="keyword">import</span> backtype.storm.generated.AlreadyAliveException;</span><br><span class="line"><span class="keyword">import</span> backtype.storm.generated.InvalidTopologyException;</span><br><span class="line"><span class="keyword">import</span> backtype.storm.topology.TopologyBuilder;</span><br><span class="line"><span class="keyword">import</span> backtype.storm.tuple.Fields;</span><br><span class="line"><span class="keyword">import</span> clojure.main;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">WordCountTopologMain</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span></span>&#123;</span><br><span class="line">		<span class="comment">// 1.准备一个TopologyBuilder</span></span><br><span class="line">		TopologyBuilder topologyBuilder = <span class="keyword">new</span> TopologyBuilder();</span><br><span class="line">		topologyBuilder.setSpout(<span class="string">"mySpout"</span>,<span class="keyword">new</span> MySpout(),<span class="number">2</span>);</span><br><span class="line">		topologyBuilder.setBolt(<span class="string">"mybolt1"</span>,<span class="keyword">new</span> MySplitBolt(),<span class="number">2</span>).shuffleGrouping(<span class="string">"mySpout"</span>);</span><br><span class="line">		topologyBuilder.setBolt(<span class="string">"mybolt2"</span>,<span class="keyword">new</span> MyCountBolt(),<span class="number">4</span>).fieldsGrouping(<span class="string">"mybolt1"</span>, <span class="keyword">new</span> Fields(<span class="string">"word"</span>));</span><br><span class="line"></span><br><span class="line">		<span class="comment">// 2.创建一个configuration，用来指定当前topology需要的worker的数量</span></span><br><span class="line">		Config config = <span class="keyword">new</span> Config();</span><br><span class="line">		config.setNumWorkers(<span class="number">2</span>);</span><br><span class="line"></span><br><span class="line">		<span class="comment">// 3.提交任务 --两种模式 本地模式和集群模式</span></span><br><span class="line">		LocalCluster localCluster = <span class="keyword">new</span> LocalCluster();</span><br><span class="line">		localCluster.submitTopology(<span class="string">"mywordcount"</span>, config, topologyBuilder.createTopology());</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="2-7-1-2-MySpout-java"><a href="#2-7-1-2-MySpout-java" class="headerlink" title="2.7.1.2.MySpout.java"></a>2.7.1.2.MySpout.java</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.matrix.storm;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> backtype.storm.spout.SpoutOutputCollector;</span><br><span class="line"><span class="keyword">import</span> backtype.storm.task.TopologyContext;</span><br><span class="line"><span class="keyword">import</span> backtype.storm.topology.OutputFieldsDeclarer;</span><br><span class="line"><span class="keyword">import</span> backtype.storm.topology.base.BaseRichSpout;</span><br><span class="line"><span class="keyword">import</span> backtype.storm.tuple.Fields;</span><br><span class="line"><span class="keyword">import</span> backtype.storm.tuple.Values;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MySpout</span> <span class="keyword">extends</span> <span class="title">BaseRichSpout</span></span>&#123;</span><br><span class="line"></span><br><span class="line">	SpoutOutputCollector collector;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 初始化方法</span></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">open</span><span class="params">(Map conf, TopologyContext context, SpoutOutputCollector collector)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">this</span>.collector = collector;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// storm框架在while(true) 调用nextTuple方法</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">nextTuple</span><span class="params">()</span></span>&#123;</span><br><span class="line">		collector.emit(<span class="keyword">new</span> Values(<span class="string">"i am lilei love hanmeimei"</span>));</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">declareOutputFields</span><span class="params">(OutputFieldsDeclarer declarer)</span></span>&#123;</span><br><span class="line">		declarer.declare(<span class="keyword">new</span> Fields(<span class="string">"love"</span>));</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="2-7-1-3-MySplitBolt-java"><a href="#2-7-1-3-MySplitBolt-java" class="headerlink" title="2.7.1.3.MySplitBolt.java"></a>2.7.1.3.MySplitBolt.java</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.matrix.storm;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> backtype.storm.task.OutputCollector;</span><br><span class="line"><span class="keyword">import</span> backtype.storm.task.TopologyContext;</span><br><span class="line"><span class="keyword">import</span> backtype.storm.topology.OutputFieldsDeclarer;</span><br><span class="line"><span class="keyword">import</span> backtype.storm.topology.base.BaseRichBolt;</span><br><span class="line"><span class="keyword">import</span> backtype.storm.tuple.Fields;</span><br><span class="line"><span class="keyword">import</span> backtype.storm.tuple.Tuple;</span><br><span class="line"><span class="keyword">import</span> backtype.storm.tuple.Values;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MySplitBolt</span> <span class="keyword">extends</span> <span class="title">BaseRichBolt</span></span>&#123;</span><br><span class="line"></span><br><span class="line">	OutputCollector collector;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">prepare</span><span class="params">(Map stormConf, TopologyContext context, OutputCollector collector)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">this</span>.collector = collector;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 被storm框架 while(true) 循环调用 传入参数tuple</span></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">execute</span><span class="params">(Tuple input)</span> </span>&#123;</span><br><span class="line">		String line = input.getString(<span class="number">0</span>);</span><br><span class="line">		String[] arrWords = line.split(<span class="string">" "</span>);</span><br><span class="line">		<span class="keyword">for</span>(String word:arrWords)&#123;</span><br><span class="line">			collector.emit(<span class="keyword">new</span> Values(word,<span class="number">1</span>));</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">declareOutputFields</span><span class="params">(OutputFieldsDeclarer declarer)</span> </span>&#123;</span><br><span class="line">		declarer.declare(<span class="keyword">new</span> Fields(<span class="string">"word"</span>,<span class="string">"num"</span>));</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="2-7-1-4-MyCountBolt-java"><a href="#2-7-1-4-MyCountBolt-java" class="headerlink" title="2.7.1.4.MyCountBolt.java"></a>2.7.1.4.MyCountBolt.java</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.matrix.storm;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.HashMap;</span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> backtype.storm.task.OutputCollector;</span><br><span class="line"><span class="keyword">import</span> backtype.storm.task.TopologyContext;</span><br><span class="line"><span class="keyword">import</span> backtype.storm.topology.OutputFieldsDeclarer;</span><br><span class="line"><span class="keyword">import</span> backtype.storm.topology.base.BaseRichBolt;</span><br><span class="line"><span class="keyword">import</span> backtype.storm.tuple.Tuple;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyCountBolt</span> <span class="keyword">extends</span> <span class="title">BaseRichBolt</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	OutputCollector collector;</span><br><span class="line">	Map&lt;String, Integer&gt; map = <span class="keyword">new</span> HashMap&lt;String, Integer&gt;();</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 此方法和Spout中的open方法类似，为Bolt提供了OutputCollector，用来从Bolt中发送Tuple。执行在execute方法之前</span></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">prepare</span><span class="params">(Map stormConf, TopologyContext context, OutputCollector collector)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">this</span>.collector = collector;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//	这是Bolt中最关键的一个方法，对于Tuple的处理都可以放到此方法中进行。具体的发送也是通过emit方法来完成的。此时，有两种情况，一种是emit方法中有两个参数，另一个种是有一个参数。</span></span><br><span class="line"><span class="comment">//	(1)emit有一个参数：此唯一的参数是发送到下游Bolt的Tuple，此时，由上游发来的旧的Tuple在此隔断，新的Tuple和旧的Tuple不再属于同一棵Tuple树。新的Tuple另起一个新的Tuple树。</span></span><br><span class="line"><span class="comment">//	(2)emit有两个参数：第一个参数是旧的Tuple的输入流，第二个参数是发往下游Bolt的新的Tuple流。此时，新的Tuple和旧的Tuple是仍然属于同一棵Tuple树，即，如果下游的Bolt处理Tuple失败，则会向上传递到当前Bolt，当前Bolt根据旧的Tuple流继续往上游传递，申请重发失败的Tuple。保证Tuple处理的可靠性。</span></span><br><span class="line"></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">execute</span><span class="params">(Tuple input)</span> </span>&#123;</span><br><span class="line">		String word = input.getString(<span class="number">0</span>);</span><br><span class="line">		Integer num = input.getInteger(<span class="number">1</span>);</span><br><span class="line">		System.out.println(Thread.currentThread().getId() + <span class="string">" word:"</span> + word);</span><br><span class="line">		<span class="keyword">if</span> (map.containsKey(word)) &#123;</span><br><span class="line">			Integer count = map.get(word);</span><br><span class="line">			map.put(word, count + num);</span><br><span class="line">		&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">			map.put(word, num);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 用于声明当前Bolt发送的Tuple中包含的字段</span></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">declareOutputFields</span><span class="params">(OutputFieldsDeclarer declarer)</span> </span>&#123;</span><br><span class="line">		<span class="comment">// 不输出</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="2-7-2-Stream-Grouping详解"><a href="#2-7-2-Stream-Grouping详解" class="headerlink" title="2.7.2.Stream Grouping详解"></a>2.7.2.Stream Grouping详解</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">(<span class="number">1</span>)ShuffleGrouping:随机分组，随机分发Stream中的tuple，保证每个Bolt的Task接收Tuple数量大致一致；</span><br><span class="line">(<span class="number">2</span>)FieldsGrouping：按照字段分组，保证相同字段的Tuple分配到同一个Task中；</span><br><span class="line">(<span class="number">3</span>)AllGrouping：广播发送，每一个Task都会受到所有的Tuple；</span><br><span class="line">(<span class="number">4</span>)GlobalGrouping：全局分组，所有的Tuple都发送到同一个Task中，此时一般将当前Component的并发数目设置为<span class="number">1</span>；</span><br><span class="line">(<span class="number">5</span>)NonGrouping：不分组，和ShuffleGrouping类似，当前Task的执行会和它的被订阅者在同一个线程中执行；</span><br><span class="line">(<span class="number">6</span>)DirectGrouping：直接分组，直接指定由某个Task来执行Tuple的处理，而且，此时必须有emitDirect方法来发送；</span><br><span class="line">(<span class="number">7</span>)localOrShuffleGrouping：和ShuffleGrouping类似，若Bolt有多个Task在同一个进程中，Tuple会随机发给这些Task。</span><br></pre></td></tr></table></figure>
+
+    </div>
+  </div>
+  
+    <div class="copy-right">
+      <div class="markdown-body">
+        <blockquote>
+        
+        
+          本文作者 : Matrix <br>
+        
+        原文链接 : <a href="">http://yoursite.com/2016/02/08/Strom分布式集群部署/</a><br>
+        版权声明 : 本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+        </blockquote>
+      </div>
+    </div>
+  
+  
+  
+    <div class="social-share" style="margin-top: -2rem" data-wechat-qrcode-title="<p>微信扫一扫</p>" data-wechat-qrcode-helper="<p>微信右上角, 扫一扫分享</p>" data-sites="qzone, qq, weibo, wechat, douban, google, facebook, twitter">
+  <span style="color: #6b7487; font-size: 1.4rem;">分享到: </span>
+</div>
+<script src="https://cdn.bootcss.com/social-share.js/1.0.16/js/social-share.min.js" async></script>
+  
+
+  
+    <div id="reward">
+  
+    <p id="reward-meta">知识 & 情怀 | 二者兼得</p>
+  
+  <button id="reward-btn">
+    
+    <span>投食</span>
+  </button>
+  <div id="reward-qrcode">
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/wechatpay.jpg" alt="微信扫一扫, 向我投食">
+        <p class="qrcode-meta">微信扫一扫, 向我投食</p>
+      </div>
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/alipaypay.jpg" alt="支付宝扫一扫, 向我投食">
+        <p class="qrcode-meta">支付宝扫一扫, 向我投食</p>
+      </div>
+    
+  </div>
+
+</div>
+
+<script>
+  (() => {
+    let button = document.querySelector('#reward-btn'),
+      qrcode = document.querySelector('#reward-qrcode'),
+      display = false;
+    
+    button.addEventListener('click', () => {
+      qrcode.style.display = display ? 'none' : 'block'
+      display = !display
+    }, false)
+  })()
+</script>
+  
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+      <span>
+        
+          <i class="iconfont icon-06tags"></i>标签: 
+          
+          <span class="span--tag">
+            <a href="/tags/大数据/">
+              #大数据
+            </a>
+          </span>
+          
+          <span class="span--tag">
+            <a href="/tags/Storm/">
+              #Storm
+            </a>
+          </span>
+          
+        
+      </span>
+    </div>
+    <div class="article-meta pull-right">
+    </div>
+  </div>
+</div>
+
+
+  <aside id="sidebar">
+    <p id="sidebar-header"></p>
+    <ol id="sidebar-toc"></ol>
+  </aside>
+  <script async>setTimeout(generateToc, 10);</script>
+
+
+  <nav class="post-navigation">
+    
+      <div class="nav-pre">
+        <i class="iconfont icon-prev"></i>
+        上一篇:
+        <a href="/2016/01/22/Storm分布式实时流式计算框架/" target="_self">Storm分布式实时流式计算框架</a>
+      </div>
+    
+    
+      <div class="nav-next">
+        下一篇:
+        <a href="/2016/02/12/ActiveMQ安装运行/" target="_self">ActiveMQ安装运行</a>
+        <i class="iconfont icon-next"></i>
+      </div>
+    
+  </nav>
+
+  
+    <a href="#comment" class="comment-anchor"></a>
+<div class="comment-title"><i class="iconfont icon-footprint"></i> 留下足迹 <i class="iconfont icon-footprint"></i></div>
+<div id="vcomments"></div>
+
+<script defer>
+  if( true ) {
+    let path = getRealPath()
+    new Valine({
+      el: "#vcomments",
+      appId: "Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz",
+      appKey: "WaR7nrzhliHj9aVwdQzkdlGd",
+      notify: false,
+      verify: false,
+      avatar: "robohash",
+      placeholder: "正确填写邮箱, 才能及时收到回复哦♪(^∇^*)",
+      path
+    });
+  }
+</script>
+   
+
+  
+    <script defer>
+const valineAPI = (() => {
+  try {
+    AV.init("Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz", "WaR7nrzhliHj9aVwdQzkdlGd");
+  } catch(error) {}
+  const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+      query.equalTo("identity", identity);
+      query.find().then(results => {
+        resolve(results.length > 0);
+      }, error => reject(error));
+    })
+  }
+
+  const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+      let querys = [];
+      for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+      }
+      query = AV.Query.or.apply(null ,querys);
+    } else {
+      identity = identity || getRealPath();
+      query = new AV.Query("Timer");
+      query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+      query.find()
+      .then(results => resolve(results))
+      .catch(error => reject(error))
+    })
+  }
+
+  const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let Todo = AV.Object.extend('Timer');
+      let todo = new Todo();
+      todo.set("times", 1);
+      todo.set("identity", identity);
+      todo.save().then(res => resolve(true), error => reject(error));
+    })
+  }
+
+  const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let query = new AV.Query('Timer');
+      query.equalTo("identity", identity);
+      query.find().then(todos => {
+        todos.forEach(todo => {
+          todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+      }).then(todos => resolve(true), error => reject(error));
+    })
+  }
+
+  return {
+    isExist,
+    _get,
+    update,
+    create
+  }
+})()
+
+const calcAndWriteTimes = () => {
+  let isPost = true;
+
+  let timerAllDOM = document.querySelectorAll(".article-timer");
+
+  if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+      if(exist) {
+        return valineAPI.update(identity);
+      }
+      return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+  }
+
+  let timerDOMCache = {};
+
+  for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+      timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+      timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+      };
+    }
+  }
+
+  let identities = Object.keys(timerDOMCache);
+  valineAPI._get(identities).then(results => {
+    for(let result of results) {
+      let {identity, times} = result.attributes;
+      timerDOMCache[identity].times = times;
+      timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+      if(timerDOMCache[identity].times){
+        continue;
+      }
+      timerDOMCache[identity].dom.map(item => item.innerText = 1);
+      valineAPI.create(identity);
+    }
+  }).catch(error => console.log(error.message))
+}
+
+if(true){
+  calcAndWriteTimes();
+}
+</script>
+   
+
+</div>
+
+
+      <footer>
+  <p class="site-info">
+    博客已萌萌哒运行<span id="time-to-now"></span><span class="my-face">(●'◡'●)ﾉ♥</span>
+    <br>
+    Theme - <a href="https://github.com/dongyuanxin/theme-bmw">BMW</a> | Powered by <a href="https://godbmw.com/">GodBMW</a>
+    <br>
+    
+      Copyright © 2019 Matrix
+    
+  </p>
+</footer>
+
+
+
+<script>
+const timeToNowDOM = document.querySelector("#time-to-now");
+const startTimestamp = new Date(2016, 4, 10).getTime();
+
+const updateTimeStr = () => {
+  let offset = parseInt(
+      (new Date().getTime() - startTimestamp) / 1000,
+      10
+    ),
+    day = Math.floor(offset / 86400),
+    hour = Math.floor((offset % 86400) / 3600),
+    minute = Math.floor(((offset % 86400) % 3600) / 60),
+    second = Math.floor(((offset % 86400) % 3600) % 60);
+  timeToNowDOM.innerHTML =
+    day + "天" + hour + "小时" + minute + "分钟" + second + "秒";
+  setTimeout(updateTimeStr, 500);
+}
+
+setTimeout(updateTimeStr, 500);
+</script>
+
+
+      <div class="back-to-top hidden">
+  <span>
+    <i class="iconfont icon-60"></i><span></span>%
+  </span>
+</div>
+
+<script>
+const updateIconToTop = percent => {
+  let dom = document.querySelector(".back-to-top span span");
+  dom.innerText = percent;
+  if(percent < 1) {
+    document.querySelector(".back-to-top").className = "back-to-top hidden";
+  } else {
+    document.querySelector(".back-to-top").className = "back-to-top";
+  }
+}
+
+const handleScoll = () => {
+  let isRunning = false;
+  return () => {
+    if (isRunning) return;
+    isRunning = true;
+    window.requestAnimationFrame(timestamp => {
+      let scrollTop =
+          document.documentElement.scrollTop || document.body.scrollTop,
+        scrollHeight =
+          document.documentElement.scrollHeight ||
+          document.body.scrollHeight,
+        clientHeight =
+          document.documentElement.clientHeight ||
+          document.body.clientHeight;
+      isRunning = false;
+      if (scrollTop <= 1) {
+        updateIconToTop(0);
+        return;
+      }
+      if (scrollTop + clientHeight >= scrollHeight) {
+        updateIconToTop(100);
+      } else {
+        updateIconToTop(parseInt(
+          100 * scrollTop / (scrollHeight - clientHeight),
+          10
+        ));
+      }
+    });
+  };
+}
+
+const backToTop = () => {
+  let scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop,
+    delay = 10,
+    time = 200;
+  if (scrollTop <= 20) {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    return;
+  }
+  let step = Math.ceil(scrollTop * delay / time);
+  let timer = setInterval(() => {
+    scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop;
+    if (scrollTop - step <= 0) {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      clearInterval(timer);
+    } else {
+      document.documentElement.scrollTop = scrollTop - step;
+      document.body.scrollTop = scrollTop - step;
+    }
+  }, delay);
+}
+
+document.addEventListener("scroll", handleScoll(), false);
+
+document.querySelector(".back-to-top").addEventListener("click", backToTop, false);
+
+</script>
+
+    </div>
+
+    
+      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  (() => {
+    const mathjaxConfig = {
+      showProcessingMessages: false, //关闭js加载过程信息
+      messageStyle: "none", //不显示信息
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]], //行内公式选择符
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]], //段内公式选择符
+        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"] //避开某些标签
+      },
+      "HTML-CSS": {
+        availableFonts: ["STIX", "TeX"], //可选字体
+        showMathMenu: false //关闭右击菜单显示
+      }
+    }
+
+    let mathjaxInterval = setInterval(() => {
+      if(!window.MathJax){
+        return;
+      }
+      window.MathJax.Hub.Config(mathjaxConfig)
+      window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')])
+
+      clearInterval(mathjaxInterval)
+    }, 10)    
+  })()
+</script>
+    
+
+    <script src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script>
+<script async>
+  let fancyTimer = setInterval(function(){
+    if(!window.$){
+      return;
+    }
+    $(document).ready(function() {
+      $(".post img").each(function () {
+        if($(this).parent().get(0).tagName.toLowerCase() === "a") {
+          return;
+        }
+        // $(this).attr("data-fancybox", "gallery"); // if you add 'data-fancybox', img will display after showed
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "gallery");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      });
+      
+      clearInterval(fancyTimer);
+    });
+  }, 10);
+</script>
+
+    
+  </body>
+
+</html>

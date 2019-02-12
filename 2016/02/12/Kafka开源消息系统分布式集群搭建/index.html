@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta name="author" content="董沅鑫, yuanxin.me@gmail.com">
+  
+  
+  
+  <title>Kafka开源消息系统分布式集群搭建 | 每天遇到更好的你</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="大数据,大数据,">
+  
+
+  <script>
+    console.log('\n%c Hexo-theme-bmw v4.0 ' + '%c 🎉 https://github.com/dongyuanxin/theme-bmw 🎉\n' + '\n%c View demo online ' + '%c 🔍 https://godbmw.com/ 🔍  \n' , 'color: #fadfa3; background: #030307; padding:3px 0;', '', 'color: #fadfa3; background: #030307; padding:3px 0;', '');
+  </script>
+
+  
+
+  
+
+  
+    <link rel="icon" href="/images/favicon.png">
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+  
+
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/icon/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+  <script src="/js/util.js"></script>
+<script src="/js/valine.min.js"></script>
+
+  
+
+  
+    <link href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js" async></script>
+  
+
+  
+    <link href="https://cdn.bootcss.com/social-share.js/1.0.16/css/share.min.css" rel="stylesheet">
+  
+  
+  <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js" async></script>
+  
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.0/dist/av-min.js"></script>
+  
+
+</head>
+
+  <body>
+
+    
+
+    <div id="app">
+
+      <div class="header-wrap">
+  <header>
+    <div class="site-brand">
+      <div class="site-title">
+        <!-- <a href="/">MatrixSparse</a> -->
+        <img alt="logo" class="antd-pro-layouts-user-layout-logo" src="/images/favicon.png" style="width: 40px;height: 40px;margin-top: 10px;margin-left: 5px;">
+      </div>
+    </div>
+    <nav class="site-navigation">
+      <ul class="nav-menu">
+      
+        <li class="nav-item" data-path="/">
+          
+            <a href="/" target="_self">
+              主页
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          
+            <a href="/archives/" target="_self">
+              归档
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          
+            <a href="/categories/" target="_self">
+              分类
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          
+            <a href="/tags/" target="_self">
+              标签
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="">
+          
+            <a href="javascript:void(0);" v-else="">博客地址</a>
+            <ul class="nav-menu--dropdown">
+              
+                <li>
+                  <a href="https://blog.csdn.net/qq_25371579" target="_blank">
+                    CSDN
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://github.com/matrixsparse" target="_blank">
+                    Github
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://matrixsparse.github.io/" target="_blank">
+                    Github Page
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+      </ul>
+    </nav>
+    <i class="iconfont icon-menu"></i>
+  </header>
+</div>
+
+<script>
+  let links = document.querySelectorAll('.nav-item');
+  for(let link of links){
+    let childrenLink = link.querySelector('ul');
+    link.addEventListener('mouseenter', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown active";
+      }
+    })
+    link.addEventListener('mouseleave', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown";
+      }
+    })
+  }
+  let rootRealPath = getRealPath(window.location.pathname, true);
+  for(let link of links) {
+    let linkPath = link.getAttribute("data-path");
+    if(linkPath && getRealPath(linkPath, true) === rootRealPath) {
+      link.className = "nav-item hover";
+    }
+  }
+
+  let iconMenu = document.querySelector("i.iconfont.icon-menu"),
+    iconMenuClicked = false;
+  let navDOM = document.querySelector("nav.site-navigation");
+  iconMenu.addEventListener("click", () => {
+    iconMenuClicked
+      ? navDOM.className = "site-navigation active"
+      : navDOM.className = "site-navigation";
+    iconMenuClicked = !iconMenuClicked;
+  })
+</script>
+
+
+      
+
+
+
+
+
+
+
+
+<div class="container post-index">
+
+  
+
+<div class="post">
+  <h1 class="article-title">
+    <span>Kafka开源消息系统分布式集群搭建</span>
+  </h1>
+  <div class="article-top-meta">
+    <span>
+      发布 : 
+      2016-02-12
+    </span>
+    
+      <span>
+        分类 : 
+          <a href="/categories/大数据/">
+            大数据
+          </a>
+      </span>
+    
+    
+      <span>
+        浏览 : <span class="article-timer" data-identity="Kafka开源消息系统分布式集群搭建"></span>
+      </span>
+    
+  </div>
+
+  
+
+  <div class="article-content">
+    <div class="markdown-body">
+      <h2 id="1-KafKa是什么"><a href="#1-KafKa是什么" class="headerlink" title="1.KafKa是什么"></a>1.KafKa是什么</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">在流式计算中，KafKa一般用来缓存数据，Storm通过消费KafKa的数据进行计算</span><br><span class="line"></span><br><span class="line">KafKa + Storm + Redis</span><br><span class="line"></span><br><span class="line">a.Apache KafKa是一个开源消息系统，由Scala写成。</span><br><span class="line">是由Apache软件基金会开发的一个开源消息系统项目</span><br><span class="line"></span><br><span class="line">b.kafka最初是由LinkedIn开发，并与2011年初开源。2012年10月从Apache Incubator毕业。</span><br><span class="line">该项目的目标是为了处理实时数据提供一个统一.高通量.低等待的平台。</span><br><span class="line"></span><br><span class="line">c.KafKa是一个分布式消息队列：生产者.消费者的功能。它提供了类似于JMS的特性，但是在设计实现上完全不同，此外它并不是JMS规范的实现</span><br><span class="line"></span><br><span class="line">d.KafKa对消息保存时根据Topic进行归类，发送消息者称为Producer，消息接受者称为Consumer，此外KafKa集群有多个KafKa实例组成，每个实例(server)称为broker。</span><br><span class="line"></span><br><span class="line">e.无论是KafKa集群，还是producer和consumer都依赖于Zookeeper集群保存一些meta信息，来保证系统可用性。</span><br></pre></td></tr></table></figure>
+<h2 id="2-JMS是什么"><a href="#2-JMS是什么" class="headerlink" title="2.JMS是什么"></a>2.JMS是什么</h2><h3 id="2-1-JMS的基础"><a href="#2-1-JMS的基础" class="headerlink" title="2.1.JMS的基础"></a>2.1.JMS的基础</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">JMS是什么：JMS是Java提供的一套技术规范</span><br><span class="line">JMS干什么用：用来异构系统集成通信，缓解系统瓶颈，提高系统的伸缩性增强系统用户体验，使得系统模块化和组件化变得可行并更加灵活</span><br><span class="line">通过什么方式：生产消费者模式(生产者.服务器.消费者)</span><br></pre></td></tr></table></figure>
+<p><img src="http://i1.piimg.com/1949/60ad97cc2f7a9375.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jdk.kafka.activemq......</span><br></pre></td></tr></table></figure>
+<h3 id="2-2-JMS消息传输模型"><a href="#2-2-JMS消息传输模型" class="headerlink" title="2.2.JMS消息传输模型"></a>2.2.JMS消息传输模型</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">点对点模式(一对一，消费者主动拉取数据，消息收到后消息清除)</span><br><span class="line">点对点模型通常是一个基于拉取或者轮循的消息传送模型，这种模型从队列中请求信息，而不是将消息推送到客户端。</span><br><span class="line">这个模型的特点是发送到队列的消息被一个且只有一个接收者接收处理，即使有多个消息监听者也是如此</span><br><span class="line"></span><br><span class="line">发布/订阅模式(一对多，数据生产后，推送给所有订阅者)</span><br><span class="line">发布订阅模型则是一个基于推送的消息传送模型。发布订阅模型可以有多种不同的订阅者，临时订阅者只在监听主题时才接收消息，</span><br><span class="line">而持久订阅者则监听主题的所有消息，即使当前订阅者不可用，处于离线状态</span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bpimg.com/1949/f316ddd759a353f5.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">queue.put(object)  数据生产</span><br><span class="line">queue.take(object) 数据消费</span><br></pre></td></tr></table></figure>
+<h3 id="2-3-JMS核心组件"><a href="#2-3-JMS核心组件" class="headerlink" title="2.3.JMS核心组件"></a>2.3.JMS核心组件</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Destination：消息发送的目的地，也就是前面说的Queue和Topic</span><br><span class="line">Message：从字面上就可以看出是被发送的消息</span><br><span class="line">Producer：消息的生产者，要发送一个消息，必须通过这个生产者来发送</span><br><span class="line">MessageConsumer：与生产者相对应，这是消息的消费者或接收者，通过它来接收一个消息</span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bpimg.com/1949/667d77a951136942.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">StreamMessage：Java 数据流消息，用标准流操作来顺序的填充和读取。</span><br><span class="line">MapMessage：一个Map类型的消息；名称为 string 类型，而值为 Java 的基本类型。</span><br><span class="line">TextMessage：普通字符串消息，包含一个String。</span><br><span class="line">ObjectMessage：对象消息，包含一个可序列化的Java 对象</span><br><span class="line">BytesMessage：二进制数组消息，包含一个byte[]。</span><br><span class="line">XMLMessage:  一个XML类型的消息。</span><br><span class="line">最常用的是TextMessage和ObjectMessage。</span><br><span class="line"></span><br><span class="line">通过与ConnectionFactory可以获得一个connection</span><br><span class="line">通过connection可以获得一个session会话</span><br></pre></td></tr></table></figure>
+<h3 id="2-4常见的类JMS消息服务器"><a href="#2-4常见的类JMS消息服务器" class="headerlink" title="2.4常见的类JMS消息服务器"></a>2.4常见的类JMS消息服务器</h3><h4 id="2-4-1-JMS消息服务器ActiveMQ"><a href="#2-4-1-JMS消息服务器ActiveMQ" class="headerlink" title="2.4.1.JMS消息服务器ActiveMQ"></a>2.4.1.JMS消息服务器ActiveMQ</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">ActiveMQ是Apache出品，最流行的，能力强劲的开源消息总线。</span><br><span class="line">ActiveMQ是一个完全支持JMS1.1和J2EE1.4规范的。</span><br><span class="line"></span><br><span class="line">主要特点：</span><br><span class="line">多种语言和协议编写客户端。语言：Java.C.C++.C<span class="comment">#.Ruby.Perl.Python.PHP。</span></span><br><span class="line">应用协议：OpenWire，Stomp REST，WS Notification，XMPP，AMQP</span><br><span class="line">完全支持JMS1.1和J2EE1.4规范(持久化，XA消息，事务)</span><br><span class="line">对Spring的支持，ActiveMQ可以很容易内嵌到使用Spring的系统里面去，而且也支持Spring2.0的特性</span><br><span class="line">通过了常见J2EE服务器(如Geronimo，JBoss 4，GlassFish，WebLogic)的测试，其中通过JCA1.5 resource adaptors的配置，</span><br><span class="line">可以让ActiveMQ可以自动的部署到任何兼容J2EE 1.4商业服务器上</span><br><span class="line">支持多种传送协议：<span class="keyword">in</span>=VM，TCP，SSL，NIO，UDP，JGroups，JXTA</span><br><span class="line">支持通过JDBC和journal提供高速的消息持久化</span><br><span class="line">从设计上保证了高性能的集群，客户端-服务器，点对点</span><br><span class="line">支持Ajax</span><br><span class="line">支持与Axis的整合</span><br><span class="line">可以很容易得调用内嵌JMS provider，进行测试</span><br></pre></td></tr></table></figure>
+<h4 id="2-4-2-分布式消息中间件-Metamorphosis"><a href="#2-4-2-分布式消息中间件-Metamorphosis" class="headerlink" title="2.4.2.分布式消息中间件 Metamorphosis"></a>2.4.2.分布式消息中间件 Metamorphosis</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">Metamorphosis(MetaQ)是一个高性能.高可用.可拓展的分布式消息中间件，</span><br><span class="line">类似于LinkedIn的Kafka，具有消息存储顺序写.吞吐量大和支持本地和XA事务等特性，</span><br><span class="line">适用于大吞吐量.顺序消息.广播和日志数据传输场景，在淘宝和支付宝有着广泛的应用，</span><br><span class="line">现已开源。</span><br><span class="line"></span><br><span class="line">主要特点：</span><br><span class="line">1.生产者.服务器和消费者都可分布</span><br><span class="line">2.消息存储顺序写</span><br><span class="line">3.性能极高，吞吐量大</span><br><span class="line">4.支持消息顺序</span><br><span class="line">5.支持本地和XA事务</span><br><span class="line">6.客户端pull，随机读，利用sendfile系统调用，zero-copy，批量拉数据</span><br><span class="line">7.支持消费端事务</span><br><span class="line">8.支持消息广播模式</span><br><span class="line">9.支持异步发送消息</span><br><span class="line">10.支持http协议</span><br><span class="line">11.支持消息重试和recover</span><br><span class="line">12.数据迁移.扩容对用户透明</span><br><span class="line">13.消费状态保存在客户端</span><br><span class="line">14.支持同步和异步复制两种HA</span><br><span class="line">15.支持group commit</span><br></pre></td></tr></table></figure>
+<h4 id="2-4-3-分布式消息中间件-RocketMQ"><a href="#2-4-3-分布式消息中间件-RocketMQ" class="headerlink" title="2.4.3.分布式消息中间件 RocketMQ"></a>2.4.3.分布式消息中间件 RocketMQ</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">RockeMQ是一款分布式.队列模型的消息中间件，具有以下特点：</span><br><span class="line">能够保证严格的消息顺序</span><br><span class="line">提供丰富的消息拉取模式</span><br><span class="line">高效的订阅者水平拓展能力</span><br><span class="line">实时的消息订阅机制</span><br><span class="line">亿级消息堆积能力</span><br><span class="line">Metaq3.0版本改名，产品名称改为RocketMQ</span><br></pre></td></tr></table></figure>
+<h4 id="2-4-4-其他MQ"><a href="#2-4-4-其他MQ" class="headerlink" title="2.4.4.其他MQ"></a>2.4.4.其他MQ</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">.NET消息中间件DotNetMQ</span><br><span class="line">基于Hbase的消息队列 HQueue</span><br><span class="line">Go的MQ框架 KiteQ</span><br><span class="line">AMQP消息服务器 RabbitMQ</span><br><span class="line">MemcacheQ是一个基于MemcacheDB的消息队列服务器</span><br></pre></td></tr></table></figure>
+<h2 id="3-为什么需要消息队列-重要"><a href="#3-为什么需要消息队列-重要" class="headerlink" title="3.为什么需要消息队列(重要)"></a>3.为什么需要消息队列(重要)</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">消息系统的核心作用就是三点：解耦，异步和并行</span><br><span class="line">以用户注册的案例来说明消息系统的作用</span><br></pre></td></tr></table></figure>
+<h3 id="3-1-用户注册的一般流程"><a href="#3-1-用户注册的一般流程" class="headerlink" title="3.1.用户注册的一般流程"></a>3.1.用户注册的一般流程</h3><p><img src="http://p1.bqimg.com/1949/5992ee73bb9abad8.jpg" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">问题：随着后端流程越来越多，每步流程都需要额外的耗费很多时间，从而会导致用户更长的等待延迟</span><br></pre></td></tr></table></figure>
+<h3 id="3-2-用户注册的并行执行"><a href="#3-2-用户注册的并行执行" class="headerlink" title="3.2.用户注册的并行执行"></a>3.2.用户注册的并行执行</h3><p><img src="http://p1.bqimg.com/1949/9d207a03ce607cc5.jpg" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">问题：系统并行的发起了4个请求，4个请求中，如果某一个环节执行1分钟，其他环节再快，用户也需要等待1分钟。</span><br><span class="line">如果其中一个环节异常之后，整个服务挂掉了。</span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/1949/5a52b50564cb5884.png" alt="Markdown"></p>
+<h3 id="3-3-用户注册的最终一致"><a href="#3-3-用户注册的最终一致" class="headerlink" title="3.3.用户注册的最终一致"></a>3.3.用户注册的最终一致</h3><p><img src="http://p1.bqimg.com/1949/98cc57f1bc8c17d9.jpg" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">1.保证主流程的正常执行.执行成功之后，发送MQ消息出去</span><br><span class="line">2.需要这个destincation的其他系统通过消费数据再执行，最终一致</span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/1949/9d207a03ce607cc5.jpg" alt="Markdown"></p>
+<h2 id="4-Kafka核心组件"><a href="#4-Kafka核心组件" class="headerlink" title="4.Kafka核心组件"></a>4.Kafka核心组件</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Topic：消息根据Topic进行分类</span><br><span class="line">Producer：发送消息者</span><br><span class="line">Consumer：消息接受者</span><br><span class="line">broker：每个Kafka实例(server)</span><br><span class="line">Zookeeper：依赖集群保存meta信息</span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/1949/2ebf3b9235cffb56.png" alt="Markdown"></p>
+<h2 id="5-Kafka集群搭建"><a href="#5-Kafka集群搭建" class="headerlink" title="5.Kafka集群搭建"></a>5.Kafka集群搭建</h2><h3 id="5-1-下载解压"><a href="#5-1-下载解压" class="headerlink" title="5.1.下载解压"></a>5.1.下载解压</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">从官网下载Kafka，下载地址http://kafka.apache.org/downloads.html</span><br><span class="line">注意这里最好下载scala2.10版本的kafka，因为scala2.10版本的兼容性比较好和2.11版本差别太大</span><br></pre></td></tr></table></figure>
+<p><img src="http://i1.piimg.com/581590/26c541f6058127b8.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">通过命令解压</span><br><span class="line">[root@node02 software]<span class="comment"># tar -zxvf kafka_2.10-0.9.0.1.tgz -C /opt/modules</span></span><br></pre></td></tr></table></figure>
+<h3 id="5-2-重命名"><a href="#5-2-重命名" class="headerlink" title="5.2.重命名"></a>5.2.重命名</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node02 modules]<span class="comment"># mv kafka_2.10-0.9.0.1 kafka</span></span><br></pre></td></tr></table></figure>
+<h3 id="5-3-配置启动"><a href="#5-3-配置启动" class="headerlink" title="5.3.配置启动"></a>5.3.配置启动</h3><h4 id="5-4-1-配置config-server-properties"><a href="#5-4-1-配置config-server-properties" class="headerlink" title="5.4.1.配置config/server.properties"></a>5.4.1.配置config/server.properties</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@node02 ~]<span class="comment"># cd /opt/modules/kafka/</span></span><br><span class="line">[root@node02 kafka]<span class="comment"># vi config/server.properties</span></span><br></pre></td></tr></table></figure>
+<h4 id="5-4-2-配置broker-id从0开始，后面其他节点配置1-2-3-4等等"><a href="#5-4-2-配置broker-id从0开始，后面其他节点配置1-2-3-4等等" class="headerlink" title="5.4.2.配置broker.id从0开始，后面其他节点配置1,2,3,4等等"></a>5.4.2.配置broker.id从0开始，后面其他节点配置1,2,3,4等等</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">broker.id=0</span><br><span class="line">host.name=node02</span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/581590/b59cdcae0b1e3eb4.png" alt="Markdown"></p>
+<h4 id="5-4-3-事先启动zookeeper集群，这里配置zookeeper集群的地址"><a href="#5-4-3-事先启动zookeeper集群，这里配置zookeeper集群的地址" class="headerlink" title="5.4.3.事先启动zookeeper集群，这里配置zookeeper集群的地址"></a>5.4.3.事先启动zookeeper集群，这里配置zookeeper集群的地址</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">zookeeper.connect=node02:2181,node03:2181,node04:2181</span><br></pre></td></tr></table></figure>
+<p><img src="http://i1.piimg.com/581590/9dd16ee3e9f1b48b.png" alt="Markdown"></p>
+<h4 id="5-4-4-将集群分发到其他机器，比如"><a href="#5-4-4-将集群分发到其他机器，比如" class="headerlink" title="5.4.4.将集群分发到其他机器，比如"></a>5.4.4.将集群分发到其他机器，比如</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@node02 ~]<span class="comment"># scp -r /opt/modules/kafka/ root@node03:/opt/modules/kakfa</span></span><br><span class="line">[root@node02 ~]<span class="comment"># scp -r /opt/modules/kafka/ root@node04:/opt/modules/kakfa</span></span><br></pre></td></tr></table></figure>
+<h4 id="5-4-5-这里注意修改broker-id-host-name"><a href="#5-4-5-这里注意修改broker-id-host-name" class="headerlink" title="5.4.5.这里注意修改broker.id.host.name"></a>5.4.5.这里注意修改broker.id.host.name</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@node03 ~]<span class="comment"># cd /opt/modules/kafka/</span></span><br><span class="line">[root@node03 kafka]<span class="comment"># vi config/server.properties</span></span><br><span class="line">broker.id=1</span><br><span class="line">host.name=node03</span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/581590/12b33a0feb7053e1.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@node04 ~]<span class="comment"># cd /opt/modules/kafka</span></span><br><span class="line">[root@node04 kafka]<span class="comment"># vi config/server.properties</span></span><br><span class="line">broker.id=2</span><br><span class="line">host.name=node04</span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/581590/be4bec656b2d02df.png" alt="Markdown"></p>
+<h4 id="5-4-6-修改完配置以后在每个节点启动kafka的broker"><a href="#5-4-6-修改完配置以后在每个节点启动kafka的broker" class="headerlink" title="5.4.6.修改完配置以后在每个节点启动kafka的broker"></a>5.4.6.修改完配置以后在每个节点启动kafka的broker</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@node02 kafka]<span class="comment"># ./bin/kafka-server-start.sh config/server.properties</span></span><br><span class="line">[root@node03 kafka]<span class="comment"># ./bin/kafka-server-start.sh config/server.properties</span></span><br><span class="line">[root@node04 kafka]<span class="comment"># ./bin/kafka-server-start.sh config/server.properties</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/581590/e375c3adcda0880f.png" alt="Markdown"></p>
+<h4 id="5-4-7-测试"><a href="#5-4-7-测试" class="headerlink" title="5.4.7.测试"></a>5.4.7.测试</h4><h5 id="5-4-7-1-新建一个topic"><a href="#5-4-7-1-新建一个topic" class="headerlink" title="5.4.7.1.新建一个topic"></a>5.4.7.1.新建一个topic</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@node02 kafka]<span class="comment"># ./bin/kafka-topics.sh -zookeeper node02:2181,node03:2181,node04:2181 -topic test -replication-factor 2 -partitions 5 -create</span></span><br><span class="line">Created topic <span class="string">"test"</span>.</span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/581590/de70cde2342436b3.png" alt="Markdown"></p>
+<h5 id="5-4-7-2-查看当前的topic"><a href="#5-4-7-2-查看当前的topic" class="headerlink" title="5.4.7.2.查看当前的topic"></a>5.4.7.2.查看当前的topic</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@node02 kafka]<span class="comment"># ./bin/kafka-topics.sh -zookeeper node02:2181,node03:2181,node04:2181 -list</span></span><br><span class="line"><span class="built_in">test</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/581590/cfb803bd628b673c.png" alt="Markdown"></p>
+<h5 id="5-4-7-3-查看一个topic的分区及副本状态信息"><a href="#5-4-7-3-查看一个topic的分区及副本状态信息" class="headerlink" title="5.4.7.3.查看一个topic的分区及副本状态信息"></a>5.4.7.3.查看一个topic的分区及副本状态信息</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node03 kafka]<span class="comment"># ./bin/kafka-topics.sh --describe --zookeeper node02:2181,node03:2181,node04:2181 --topic test</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/581590/0a2d73dd901e1554.png" alt="Markdown"></p>
+<h5 id="5-4-7-4-在一个节点创建一个provider"><a href="#5-4-7-4-在一个节点创建一个provider" class="headerlink" title="5.4.7.4.在一个节点创建一个provider"></a>5.4.7.4.在一个节点创建一个provider</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">在provider输入信息，在consumer能接收到信息</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node03 kafka]<span class="comment"># ./bin/kafka-console-producer.sh --broker-list node02:9092,node03:9092,node04:9092 --topic test</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bpimg.com/581590/1870db9a8b52a0eb.png" alt="Markdown"></p>
+<h5 id="5-4-7-5-在另一个节点创建一个consumer"><a href="#5-4-7-5-在另一个节点创建一个consumer" class="headerlink" title="5.4.7.5.在另一个节点创建一个consumer"></a>5.4.7.5.在另一个节点创建一个consumer</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node04 kafka]<span class="comment"># ./bin/kafka-console-consumer.sh --zookeeper node02:2181,node03:2181,node04:2181 --from-beginning -topic test</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bpimg.com/581590/d1593b558ef59a9d.png" alt="Markdown"></p>
+<h3 id="5-5-Kafka生产者Java-API"><a href="#5-5-Kafka生产者Java-API" class="headerlink" title="5.5.Kafka生产者Java API"></a>5.5.Kafka生产者Java API</h3><p><img src="http://p1.bqimg.com/581590/e992f92a4424b535.png" alt="Markdown"></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.matrix.kafka;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> kafka.javaapi.producer.Producer;</span><br><span class="line"><span class="keyword">import</span> kafka.producer.KeyedMessage;</span><br><span class="line"><span class="keyword">import</span> kafka.producer.ProducerConfig;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.Properties;</span><br><span class="line"><span class="keyword">import</span> java.util.UUID;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 这是一个简单的Kafka producer代码 包含两个功能: 1.数据发送 2.数据按照自定义的partition策略进行发送</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * KafkaSpout的类</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">KafakProducerSimple</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * 1.指定当前kafka producer生产的数据的目的地 创建topic可以输入以下命令，在kafka集群的任一节点进行创建。</span></span><br><span class="line"><span class="comment">	 * bin/kafka-topics.sh --create --zookeeper zk01:2181 --replication-factor 1</span></span><br><span class="line"><span class="comment">	 * --partitions 1 --topic test</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> String TOPIC = <span class="string">"test"</span>;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">		<span class="comment">/**</span></span><br><span class="line"><span class="comment">		 * 2.读取配置文件</span></span><br><span class="line"><span class="comment">		 */</span></span><br><span class="line">		Properties props = <span class="keyword">new</span> Properties();</span><br><span class="line">		<span class="comment">/*</span></span><br><span class="line"><span class="comment">		 * key.serializer.class默认为serializer.class</span></span><br><span class="line"><span class="comment">		 */</span></span><br><span class="line">		props.put(<span class="string">"serializer.class"</span>, <span class="string">"kafka.serializer.StringEncoder"</span>);</span><br><span class="line">		<span class="comment">/*</span></span><br><span class="line"><span class="comment">		 * kafka broker对应的主机，格式为host1:port1,host2:port2</span></span><br><span class="line"><span class="comment">		 */</span></span><br><span class="line">		props.put(<span class="string">"zk.connect"</span>, <span class="string">"node02:2181,node03:2181,node04:2181"</span>);</span><br><span class="line">		props.put(<span class="string">"metadata.broker.list"</span>, <span class="string">"node02:9092,node03:9092,node04:9092"</span>);</span><br><span class="line">		<span class="comment">/*</span></span><br><span class="line"><span class="comment">		 * request.required.acks,设置发送数据是否需要服务端的反馈,有三个值0,1,-1</span></span><br><span class="line"><span class="comment">		 * 0，意味着producer永远不会等待一个来自broker的ack，这就是0.7版本的行为。</span></span><br><span class="line"><span class="comment">		 * 这个选项提供了最低的延迟，但是持久化的保证是最弱的，当server挂掉的时候会丢失一些数据。 1，意味着在leader</span></span><br><span class="line"><span class="comment">		 * replica已经接收到数据后，producer会得到一个ack。</span></span><br><span class="line"><span class="comment">		 * 这个选项提供了更好的持久性，因为在server确认请求成功处理后，client才会返回。</span></span><br><span class="line"><span class="comment">		 * 如果刚写到leader上，还没来得及复制leader就挂了，那么消息才可能会丢失。</span></span><br><span class="line"><span class="comment">		 * -1，意味着在所有的ISR都接收到数据后，producer才得到一个ack。</span></span><br><span class="line"><span class="comment">		 * 这个选项提供了最好的持久性，只要还有一个replica存活，那么数据就不会丢失</span></span><br><span class="line"><span class="comment">		 */</span></span><br><span class="line">		props.put(<span class="string">"request.required.acks"</span>, <span class="string">"1"</span>);</span><br><span class="line">		<span class="comment">/*</span></span><br><span class="line"><span class="comment">		 * 可选配置，如果不配置，则使用默认的partitioner partitioner.class</span></span><br><span class="line"><span class="comment">		 * 默认值：kafka.producer.DefaultPartitioner</span></span><br><span class="line"><span class="comment">		 * 用来把消息分到各个partition中，默认行为是对key进行hash。</span></span><br><span class="line"><span class="comment">		 */</span></span><br><span class="line">		<span class="comment">// props.put("partitioner.class", "com.matrix.kafka.MyLogPartitioner");</span></span><br><span class="line">		<span class="comment">/**</span></span><br><span class="line"><span class="comment">		 * 3.通过配置文件，创建生产者</span></span><br><span class="line"><span class="comment">		 */</span></span><br><span class="line">		Producer&lt;String, String&gt; producer = <span class="keyword">new</span> Producer&lt;String, String&gt;(<span class="keyword">new</span> ProducerConfig(props));</span><br><span class="line">		<span class="comment">// 发送数据</span></span><br><span class="line">		<span class="keyword">for</span> (<span class="keyword">int</span> messageNo = <span class="number">1</span>; messageNo &lt; <span class="number">100000</span>; messageNo++) &#123;</span><br><span class="line">			<span class="comment">/**</span></span><br><span class="line"><span class="comment">			 * 5.调用producer的send方法发送数据 注意：这里需要指定</span></span><br><span class="line"><span class="comment">			 * partitionKey，用来配合自定义的MyLogPartitioner进行数据分发</span></span><br><span class="line"><span class="comment">			 */</span></span><br><span class="line">			producer.send(</span><br><span class="line">					<span class="keyword">new</span> KeyedMessage&lt;String, String&gt;(TOPIC, messageNo + <span class="string">""</span>, <span class="string">"appid"</span> + UUID.randomUUID() + <span class="string">"matrix"</span>));</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/581590/02ec6290f9c20b9c.png" alt="Markdown"></p>
+<h4 id="5-5-1-用一个comsumer从某一个topic中读取信息"><a href="#5-5-1-用一个comsumer从某一个topic中读取信息" class="headerlink" title="5.5.1.用一个comsumer从某一个topic中读取信息"></a>5.5.1.用一个comsumer从某一个topic中读取信息</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node04 kafka]<span class="comment"># ./bin/kafka-console-consumer.sh --zookeeper node02:2181,node03:2181,node04:2181 --from-beginning -topic test</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/581590/3d741a2f783f9c1b.png" alt="Markdown"></p>
+<h3 id="5-6-Kafka消费者Java-API"><a href="#5-6-Kafka消费者Java-API" class="headerlink" title="5.6.Kafka消费者Java API"></a>5.6.Kafka消费者Java API</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.matrix.kafka;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.HashMap;</span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"><span class="keyword">import</span> java.util.Properties;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> kafka.consumer.Consumer;</span><br><span class="line"><span class="keyword">import</span> kafka.consumer.ConsumerConfig;</span><br><span class="line"><span class="keyword">import</span> kafka.consumer.KafkaStream;</span><br><span class="line"><span class="keyword">import</span> kafka.javaapi.consumer.ConsumerConnector;</span><br><span class="line"><span class="keyword">import</span> kafka.message.MessageAndMetadata;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">KafkaConsumerSimple</span> </span>&#123;</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String topic = <span class="string">"test"</span>;</span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Integer threads = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">		Properties props = <span class="keyword">new</span> Properties();</span><br><span class="line">		props.put(<span class="string">"zookeeper.connect"</span>, <span class="string">"node02:2181,node03:2181,node04:2181"</span>);</span><br><span class="line">		props.put(<span class="string">"group.id"</span>, <span class="string">"1111"</span>);</span><br><span class="line">		props.put(<span class="string">"auto.offset.reset"</span>, <span class="string">"smallest"</span>);</span><br><span class="line"></span><br><span class="line">		ConsumerConfig config = <span class="keyword">new</span> ConsumerConfig(props);</span><br><span class="line">		ConsumerConnector consumer = Consumer.createJavaConsumerConnector(config);</span><br><span class="line">		Map&lt;String, Integer&gt; topicCountMap = <span class="keyword">new</span> HashMap&lt;String, Integer&gt;();</span><br><span class="line">		topicCountMap.put(topic, <span class="number">1</span>);</span><br><span class="line">		<span class="comment">// topicCountMap.put("mygirls", 1);</span></span><br><span class="line">		<span class="comment">// topicCountMap.put("myboys", 1);</span></span><br><span class="line">		Map&lt;String, List&lt;KafkaStream&lt;<span class="keyword">byte</span>[], <span class="keyword">byte</span>[]&gt;&gt;&gt; consumerMap = consumer.createMessageStreams(topicCountMap);</span><br><span class="line">		List&lt;KafkaStream&lt;<span class="keyword">byte</span>[], <span class="keyword">byte</span>[]&gt;&gt; streams = consumerMap.get(topic);</span><br><span class="line"></span><br><span class="line">		<span class="keyword">for</span> (<span class="keyword">final</span> KafkaStream&lt;<span class="keyword">byte</span>[], <span class="keyword">byte</span>[]&gt; kafkaStream : streams) &#123;</span><br><span class="line">			<span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">				<span class="meta">@Override</span></span><br><span class="line">				<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">					<span class="keyword">for</span> (MessageAndMetadata&lt;<span class="keyword">byte</span>[], <span class="keyword">byte</span>[]&gt; mm : kafkaStream) &#123;</span><br><span class="line">						String msg = <span class="keyword">new</span> String(mm.message());</span><br><span class="line">						System.out.println(msg);</span><br><span class="line">					&#125;</span><br><span class="line">				&#125;</span><br><span class="line"></span><br><span class="line">			&#125;).start();</span><br><span class="line"></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/581590/9d58fe18c54db202.png" alt="Markdown"></p>
+<h3 id="5-7-关闭Kafka服务"><a href="#5-7-关闭Kafka服务" class="headerlink" title="5.7.关闭Kafka服务"></a>5.7.关闭Kafka服务</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@node02 kafka]<span class="comment"># ./bin/kafka-server-stop.sh</span></span><br><span class="line">[root@node03 kafka]<span class="comment"># ./bin/kafka-server-stop.sh</span></span><br><span class="line">[root@node04 kafka]<span class="comment"># ./bin/kafka-server-stop.sh</span></span><br></pre></td></tr></table></figure>
+    </div>
+  </div>
+  
+    <div class="copy-right">
+      <div class="markdown-body">
+        <blockquote>
+        
+        
+          本文作者 : Matrix <br>
+        
+        原文链接 : <a href="">http://yoursite.com/2016/02/12/Kafka开源消息系统分布式集群搭建/</a><br>
+        版权声明 : 本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+        </blockquote>
+      </div>
+    </div>
+  
+  
+  
+    <div class="social-share" style="margin-top: -2rem" data-wechat-qrcode-title="<p>微信扫一扫</p>" data-wechat-qrcode-helper="<p>微信右上角, 扫一扫分享</p>" data-sites="qzone, qq, weibo, wechat, douban, google, facebook, twitter">
+  <span style="color: #6b7487; font-size: 1.4rem;">分享到: </span>
+</div>
+<script src="https://cdn.bootcss.com/social-share.js/1.0.16/js/social-share.min.js" async></script>
+  
+
+  
+    <div id="reward">
+  
+    <p id="reward-meta">知识 & 情怀 | 二者兼得</p>
+  
+  <button id="reward-btn">
+    
+    <span>投食</span>
+  </button>
+  <div id="reward-qrcode">
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/wechatpay.jpg" alt="微信扫一扫, 向我投食">
+        <p class="qrcode-meta">微信扫一扫, 向我投食</p>
+      </div>
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/alipaypay.jpg" alt="支付宝扫一扫, 向我投食">
+        <p class="qrcode-meta">支付宝扫一扫, 向我投食</p>
+      </div>
+    
+  </div>
+
+</div>
+
+<script>
+  (() => {
+    let button = document.querySelector('#reward-btn'),
+      qrcode = document.querySelector('#reward-qrcode'),
+      display = false;
+    
+    button.addEventListener('click', () => {
+      qrcode.style.display = display ? 'none' : 'block'
+      display = !display
+    }, false)
+  })()
+</script>
+  
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+      <span>
+        
+          <i class="iconfont icon-06tags"></i>标签: 
+          
+          <span class="span--tag">
+            <a href="/tags/大数据/">
+              #大数据
+            </a>
+          </span>
+          
+        
+      </span>
+    </div>
+    <div class="article-meta pull-right">
+    </div>
+  </div>
+</div>
+
+
+  <aside id="sidebar">
+    <p id="sidebar-header"></p>
+    <ol id="sidebar-toc"></ol>
+  </aside>
+  <script async>setTimeout(generateToc, 10);</script>
+
+
+  <nav class="post-navigation">
+    
+      <div class="nav-pre">
+        <i class="iconfont icon-prev"></i>
+        上一篇:
+        <a href="/2016/02/12/Redis实现session解决Nginx的session一致性问题/" target="_self">Redis实现session解决Nginx的session一致性问题</a>
+      </div>
+    
+    
+      <div class="nav-next">
+        下一篇:
+        <a href="/2016/02/12/Hbase基本shell运用/" target="_self">Hbase基本shell运用</a>
+        <i class="iconfont icon-next"></i>
+      </div>
+    
+  </nav>
+
+  
+    <a href="#comment" class="comment-anchor"></a>
+<div class="comment-title"><i class="iconfont icon-footprint"></i> 留下足迹 <i class="iconfont icon-footprint"></i></div>
+<div id="vcomments"></div>
+
+<script defer>
+  if( true ) {
+    let path = getRealPath()
+    new Valine({
+      el: "#vcomments",
+      appId: "Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz",
+      appKey: "WaR7nrzhliHj9aVwdQzkdlGd",
+      notify: false,
+      verify: false,
+      avatar: "robohash",
+      placeholder: "正确填写邮箱, 才能及时收到回复哦♪(^∇^*)",
+      path
+    });
+  }
+</script>
+   
+
+  
+    <script defer>
+const valineAPI = (() => {
+  try {
+    AV.init("Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz", "WaR7nrzhliHj9aVwdQzkdlGd");
+  } catch(error) {}
+  const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+      query.equalTo("identity", identity);
+      query.find().then(results => {
+        resolve(results.length > 0);
+      }, error => reject(error));
+    })
+  }
+
+  const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+      let querys = [];
+      for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+      }
+      query = AV.Query.or.apply(null ,querys);
+    } else {
+      identity = identity || getRealPath();
+      query = new AV.Query("Timer");
+      query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+      query.find()
+      .then(results => resolve(results))
+      .catch(error => reject(error))
+    })
+  }
+
+  const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let Todo = AV.Object.extend('Timer');
+      let todo = new Todo();
+      todo.set("times", 1);
+      todo.set("identity", identity);
+      todo.save().then(res => resolve(true), error => reject(error));
+    })
+  }
+
+  const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let query = new AV.Query('Timer');
+      query.equalTo("identity", identity);
+      query.find().then(todos => {
+        todos.forEach(todo => {
+          todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+      }).then(todos => resolve(true), error => reject(error));
+    })
+  }
+
+  return {
+    isExist,
+    _get,
+    update,
+    create
+  }
+})()
+
+const calcAndWriteTimes = () => {
+  let isPost = true;
+
+  let timerAllDOM = document.querySelectorAll(".article-timer");
+
+  if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+      if(exist) {
+        return valineAPI.update(identity);
+      }
+      return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+  }
+
+  let timerDOMCache = {};
+
+  for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+      timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+      timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+      };
+    }
+  }
+
+  let identities = Object.keys(timerDOMCache);
+  valineAPI._get(identities).then(results => {
+    for(let result of results) {
+      let {identity, times} = result.attributes;
+      timerDOMCache[identity].times = times;
+      timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+      if(timerDOMCache[identity].times){
+        continue;
+      }
+      timerDOMCache[identity].dom.map(item => item.innerText = 1);
+      valineAPI.create(identity);
+    }
+  }).catch(error => console.log(error.message))
+}
+
+if(true){
+  calcAndWriteTimes();
+}
+</script>
+   
+
+</div>
+
+
+      <footer>
+  <p class="site-info">
+    博客已萌萌哒运行<span id="time-to-now"></span><span class="my-face">(●'◡'●)ﾉ♥</span>
+    <br>
+    Theme - <a href="https://github.com/dongyuanxin/theme-bmw">BMW</a> | Powered by <a href="https://godbmw.com/">GodBMW</a>
+    <br>
+    
+      Copyright © 2019 Matrix
+    
+  </p>
+</footer>
+
+
+
+<script>
+const timeToNowDOM = document.querySelector("#time-to-now");
+const startTimestamp = new Date(2016, 4, 10).getTime();
+
+const updateTimeStr = () => {
+  let offset = parseInt(
+      (new Date().getTime() - startTimestamp) / 1000,
+      10
+    ),
+    day = Math.floor(offset / 86400),
+    hour = Math.floor((offset % 86400) / 3600),
+    minute = Math.floor(((offset % 86400) % 3600) / 60),
+    second = Math.floor(((offset % 86400) % 3600) % 60);
+  timeToNowDOM.innerHTML =
+    day + "天" + hour + "小时" + minute + "分钟" + second + "秒";
+  setTimeout(updateTimeStr, 500);
+}
+
+setTimeout(updateTimeStr, 500);
+</script>
+
+
+      <div class="back-to-top hidden">
+  <span>
+    <i class="iconfont icon-60"></i><span></span>%
+  </span>
+</div>
+
+<script>
+const updateIconToTop = percent => {
+  let dom = document.querySelector(".back-to-top span span");
+  dom.innerText = percent;
+  if(percent < 1) {
+    document.querySelector(".back-to-top").className = "back-to-top hidden";
+  } else {
+    document.querySelector(".back-to-top").className = "back-to-top";
+  }
+}
+
+const handleScoll = () => {
+  let isRunning = false;
+  return () => {
+    if (isRunning) return;
+    isRunning = true;
+    window.requestAnimationFrame(timestamp => {
+      let scrollTop =
+          document.documentElement.scrollTop || document.body.scrollTop,
+        scrollHeight =
+          document.documentElement.scrollHeight ||
+          document.body.scrollHeight,
+        clientHeight =
+          document.documentElement.clientHeight ||
+          document.body.clientHeight;
+      isRunning = false;
+      if (scrollTop <= 1) {
+        updateIconToTop(0);
+        return;
+      }
+      if (scrollTop + clientHeight >= scrollHeight) {
+        updateIconToTop(100);
+      } else {
+        updateIconToTop(parseInt(
+          100 * scrollTop / (scrollHeight - clientHeight),
+          10
+        ));
+      }
+    });
+  };
+}
+
+const backToTop = () => {
+  let scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop,
+    delay = 10,
+    time = 200;
+  if (scrollTop <= 20) {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    return;
+  }
+  let step = Math.ceil(scrollTop * delay / time);
+  let timer = setInterval(() => {
+    scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop;
+    if (scrollTop - step <= 0) {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      clearInterval(timer);
+    } else {
+      document.documentElement.scrollTop = scrollTop - step;
+      document.body.scrollTop = scrollTop - step;
+    }
+  }, delay);
+}
+
+document.addEventListener("scroll", handleScoll(), false);
+
+document.querySelector(".back-to-top").addEventListener("click", backToTop, false);
+
+</script>
+
+    </div>
+
+    
+      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  (() => {
+    const mathjaxConfig = {
+      showProcessingMessages: false, //关闭js加载过程信息
+      messageStyle: "none", //不显示信息
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]], //行内公式选择符
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]], //段内公式选择符
+        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"] //避开某些标签
+      },
+      "HTML-CSS": {
+        availableFonts: ["STIX", "TeX"], //可选字体
+        showMathMenu: false //关闭右击菜单显示
+      }
+    }
+
+    let mathjaxInterval = setInterval(() => {
+      if(!window.MathJax){
+        return;
+      }
+      window.MathJax.Hub.Config(mathjaxConfig)
+      window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')])
+
+      clearInterval(mathjaxInterval)
+    }, 10)    
+  })()
+</script>
+    
+
+    <script src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script>
+<script async>
+  let fancyTimer = setInterval(function(){
+    if(!window.$){
+      return;
+    }
+    $(document).ready(function() {
+      $(".post img").each(function () {
+        if($(this).parent().get(0).tagName.toLowerCase() === "a") {
+          return;
+        }
+        // $(this).attr("data-fancybox", "gallery"); // if you add 'data-fancybox', img will display after showed
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "gallery");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      });
+      
+      clearInterval(fancyTimer);
+    });
+  }, 10);
+</script>
+
+    
+  </body>
+
+</html>

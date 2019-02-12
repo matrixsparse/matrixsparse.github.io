@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta name="author" content="董沅鑫, yuanxin.me@gmail.com">
+  
+  
+  
+  <title>ChatScript初始化机器人 | 每天遇到更好的你</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="ChatScript,ChatScript,">
+  
+
+  <script>
+    console.log('\n%c Hexo-theme-bmw v4.0 ' + '%c 🎉 https://github.com/dongyuanxin/theme-bmw 🎉\n' + '\n%c View demo online ' + '%c 🔍 https://godbmw.com/ 🔍  \n' , 'color: #fadfa3; background: #030307; padding:3px 0;', '', 'color: #fadfa3; background: #030307; padding:3px 0;', '');
+  </script>
+
+  
+
+  
+
+  
+    <link rel="icon" href="/images/favicon.png">
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+  
+
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/icon/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+  <script src="/js/util.js"></script>
+<script src="/js/valine.min.js"></script>
+
+  
+
+  
+    <link href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js" async></script>
+  
+
+  
+    <link href="https://cdn.bootcss.com/social-share.js/1.0.16/css/share.min.css" rel="stylesheet">
+  
+  
+  <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js" async></script>
+  
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.0/dist/av-min.js"></script>
+  
+
+</head>
+
+  <body>
+
+    
+
+    <div id="app">
+
+      <div class="header-wrap">
+  <header>
+    <div class="site-brand">
+      <div class="site-title">
+        <!-- <a href="/">MatrixSparse</a> -->
+        <img alt="logo" class="antd-pro-layouts-user-layout-logo" src="/images/favicon.png" style="width: 40px;height: 40px;margin-top: 10px;margin-left: 5px;">
+      </div>
+    </div>
+    <nav class="site-navigation">
+      <ul class="nav-menu">
+      
+        <li class="nav-item" data-path="/">
+          
+            <a href="/" target="_self">
+              主页
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          
+            <a href="/archives/" target="_self">
+              归档
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          
+            <a href="/categories/" target="_self">
+              分类
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          
+            <a href="/tags/" target="_self">
+              标签
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="">
+          
+            <a href="javascript:void(0);" v-else="">博客地址</a>
+            <ul class="nav-menu--dropdown">
+              
+                <li>
+                  <a href="https://blog.csdn.net/qq_25371579" target="_blank">
+                    CSDN
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://github.com/matrixsparse" target="_blank">
+                    Github
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://matrixsparse.github.io/" target="_blank">
+                    Github Page
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+      </ul>
+    </nav>
+    <i class="iconfont icon-menu"></i>
+  </header>
+</div>
+
+<script>
+  let links = document.querySelectorAll('.nav-item');
+  for(let link of links){
+    let childrenLink = link.querySelector('ul');
+    link.addEventListener('mouseenter', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown active";
+      }
+    })
+    link.addEventListener('mouseleave', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown";
+      }
+    })
+  }
+  let rootRealPath = getRealPath(window.location.pathname, true);
+  for(let link of links) {
+    let linkPath = link.getAttribute("data-path");
+    if(linkPath && getRealPath(linkPath, true) === rootRealPath) {
+      link.className = "nav-item hover";
+    }
+  }
+
+  let iconMenu = document.querySelector("i.iconfont.icon-menu"),
+    iconMenuClicked = false;
+  let navDOM = document.querySelector("nav.site-navigation");
+  iconMenu.addEventListener("click", () => {
+    iconMenuClicked
+      ? navDOM.className = "site-navigation active"
+      : navDOM.className = "site-navigation";
+    iconMenuClicked = !iconMenuClicked;
+  })
+</script>
+
+
+      
+
+
+
+
+
+
+
+
+<div class="container post-index">
+
+  
+
+<div class="post">
+  <h1 class="article-title">
+    <span>ChatScript初始化机器人</span>
+  </h1>
+  <div class="article-top-meta">
+    <span>
+      发布 : 
+      2017-07-21
+    </span>
+    
+      <span>
+        分类 : 
+          <a href="/categories/ChatScript/">
+            ChatScript
+          </a>
+      </span>
+    
+    
+      <span>
+        浏览 : <span class="article-timer" data-identity="ChatScript初始化机器人"></span>
+      </span>
+    
+  </div>
+
+  
+
+  <div class="article-content">
+    <div class="markdown-body">
+      <h2 id="CS目录结构"><a href="#CS目录结构" class="headerlink" title="CS目录结构"></a>CS目录结构</h2><p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fikur8yjdyj21j80xk1ga.jpg" alt=""></p>
+<h2 id="准备"><a href="#准备" class="headerlink" title="准备"></a>准备</h2><ul>
+<li>filesxiaola.txt</li>
+<li>BOTDATA/XIAOLA/simplecontrol.top</li>
+<li>BOTDATA/XIAOLA/cmd.top</li>
+<li>BOTDATA/KWDL/kwdl.top</li>
+<li>bot_init.py</li>
+<li>pychatscript.py[工具文件]</li>
+</ul>
+<h2 id="filesxiaola-txt"><a href="#filesxiaola-txt" class="headerlink" title="filesxiaola.txt"></a>filesxiaola.txt</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">../BOTDATA/XIAOLA/</span><br><span class="line">../BOTDATA/KWDL/</span><br></pre></td></tr></table></figure>
+<h2 id="BOTDATA-XIAOLA-simplecontrol-top"><a href="#BOTDATA-XIAOLA-simplecontrol-top" class="headerlink" title="BOTDATA/XIAOLA/simplecontrol.top"></a>BOTDATA/XIAOLA/simplecontrol.top</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># refer to ChatScript-Control-Scripts.html (above 7.53) for more info</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># This is a BOT MACRO (bot definition scripts)</span></span><br><span class="line"><span class="comment"># the system must look for the outputmacro with botname</span></span><br><span class="line"><span class="comment"># this function is executed once for every new user chatting with xiaola</span></span><br><span class="line"><span class="comment"># inside the outputmacro, some basic $var is initialized. </span></span><br><span class="line">outputmacro: xiaola()</span><br><span class="line">    <span class="comment"># refer to doc and bot harry for more available cs_token</span></span><br><span class="line">    <span class="variable">$cs_token</span> = <span class="comment">#DO_NUMBER_MERGE | #DO_DATE_MERGE  | #DO_PROPERNAME_MERGE </span></span><br><span class="line">    <span class="variable">$cs_control_main</span> = ~xmain_control</span><br><span class="line">    <span class="variable">$cs_control_post</span> = ~xpost_control</span><br><span class="line">    <span class="variable">$userprompt</span> = ^<span class="string">"%user: &gt;"</span></span><br><span class="line">    <span class="variable">$botprompt</span> = ^<span class="string">"xiaola: "</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># table's name defaultbot is just for documentation convenience</span></span><br><span class="line"><span class="comment"># you can name the table whatever you want</span></span><br><span class="line"><span class="comment"># what make it special this the fact(defaultbot) it created inside</span></span><br><span class="line"><span class="comment"># defaultbot is a special fact CS looking when a bot is not given</span></span><br><span class="line"><span class="comment"># it find the defaultbot fact, and try to use its subject as defaultbot</span></span><br><span class="line"><span class="comment"># refer to https://www.chatbots.org/ai_zone/viewthread/2953/ post#3</span></span><br><span class="line"><span class="comment"># for a complete startup process. Other related discussion. </span></span><br><span class="line"><span class="comment"># https://www.chatbots.org/ai_zone/viewthread/2769/</span></span><br><span class="line"><span class="comment"># https://www.chatbots.org/ai_zone/viewthread/1708/</span></span><br><span class="line"><span class="comment"># when multibots are needed.</span></span><br><span class="line">table: defaultbot (^name)</span><br><span class="line">^createfact(^name defaultbot defaultbot)</span><br><span class="line">DATA:</span><br><span class="line">xiaola</span><br><span class="line"></span><br><span class="line">topic: ~xmain_control system ()</span><br><span class="line"></span><br><span class="line"><span class="comment"># on startup, do introduction</span></span><br><span class="line">u: ( %input&lt;%userfirstline ) </span><br><span class="line"><span class="comment"># gambit(~welcome)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># main per-sentence processing</span></span><br><span class="line">u: ( )</span><br><span class="line">   <span class="comment"># always pop ~plcmd if it is ever in the topic stack</span></span><br><span class="line">   <span class="comment"># since it's useless at main_control part</span></span><br><span class="line">   ^poptopic(~plcmd)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># get the current topic at start of volley </span></span><br><span class="line">    <span class="comment"># %topic is system defined variable: name of the current "real" topic.</span></span><br><span class="line">    <span class="comment"># refer to system defined variable doc for more info</span></span><br><span class="line">    $<span class="variable">$currenttopic</span> = %topic</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># process any cmd to CS from platform first</span></span><br><span class="line">    <span class="keyword">if</span> (%response == 0) &#123; nofail(TOPIC ^respond(~cscmd)) &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># Try for rejoinders. might generate an answer directly</span></span><br><span class="line">    <span class="comment"># Rejoinder is global, it does not matter which topic the input rejoinder</span></span><br><span class="line">    <span class="comment"># is in. There is no such thing as "current topic's rejoinder"</span></span><br><span class="line">    <span class="keyword">if</span> (%response == 0) &#123; nofail(TOPIC ^rejoinder()) &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment"># rejoinder previously cached rule to emulate interruption</span></span><br><span class="line">    <span class="comment"># if the rule tag does not have rejonders</span></span><br><span class="line">    <span class="comment"># it does not hurt to just try out. So it does not hurt if $tag var</span></span><br><span class="line">    <span class="comment"># is not reset when the selection process is done.</span></span><br><span class="line">    <span class="comment"># system rejoinder always takes priority as above.</span></span><br><span class="line">    <span class="keyword">if</span> (%response == 0 AND <span class="variable">$tag_rejoinder_sl</span> != null) &#123;</span><br><span class="line">        ^nofail(TOPIC ^rejoinder(<span class="variable">$tag_rejoinder_sl</span>))</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment"># try user defined topic right after rejoinder as it takes priority</span></span><br><span class="line">    <span class="comment"># the following two topics are bot specific restricted.</span></span><br><span class="line">    <span class="keyword">if</span> (%response == 0) &#123; nofail(TOPIC ^respond(~kwwechat)) &#125;</span><br><span class="line">    <span class="keyword">if</span> (%response == 0) &#123; nofail(TOPIC ^respond(~dluserdefined)) &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment"># current topic tries to respond to this input</span></span><br><span class="line">    <span class="keyword">if</span> (%response == 0) &#123; nofail(TOPIC ^respond($<span class="variable">$currenttopic</span>)) &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment"># gambit current topic since no input (usually start of conversation)</span></span><br><span class="line">    <span class="keyword">if</span> (%length == 0 AND %response == 0 ) </span><br><span class="line">        &#123; nofail(TOPIC ^gambit($<span class="variable">$currenttopic</span>)) &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment"># try some other topic with keywords matching input given no response yet</span></span><br><span class="line">    <span class="keyword">if</span> (%response == 0)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment"># list topics and priority values for matching keywords in input. </span></span><br><span class="line">        <span class="comment"># refer to manual for more details.</span></span><br><span class="line">        <span class="comment"># it returns a fact-set, which can be labeled @0, @1, etc. through @20.</span></span><br><span class="line">        <span class="comment"># we just pikc @8 to store this fact-set.</span></span><br><span class="line">        @8 = ^keywordtopics()</span><br><span class="line">        loop()</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment"># ^first not only return the first but also remove it from the set</span></span><br><span class="line">            $<span class="variable">$topic</span> = ^first(@8subject)</span><br><span class="line">            nofail(TOPIC ^respond($<span class="variable">$topic</span>))</span><br><span class="line">            <span class="keyword">if</span> (%response != 0) </span><br><span class="line">            &#123;</span><br><span class="line">                <span class="comment"># we are done, this terminates the loop (not the rule)</span></span><br><span class="line">                ^end(RULE)   </span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;    </span><br><span class="line"></span><br><span class="line">    <span class="comment"># if no topic reacts, loop keywordless topics in a carefully designed order</span></span><br><span class="line">    <span class="keyword">if</span> (%response == 0) &#123; nofail(TOPIC ^respond(~systemfixed)) &#125;</span><br><span class="line">        </span><br><span class="line">    <span class="keyword">if</span> (%response == 0) &#123; nofail(TOPIC ^respond(~introduction)) &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (%response == 0) &#123; nofail(TOPIC ^respond(~qababyformula)) &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (%response == 0) &#123; nofail(TOPIC ^respond(~qaguessbaby)) &#125;    </span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (%response == 0) &#123; nofail(TOPIC ^respond(~qababyfood)) &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment"># if we have rejoinders for what we said OR we asked a question, stop here</span></span><br><span class="line">    <span class="keyword">if</span> (%outputrejoinder OR %lastquestion) &#123; end(TOPIC) &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment"># gambit current topic since keywords match current topic</span></span><br><span class="line">    <span class="keyword">if</span> (%response == 0 AND ^marked($<span class="variable">$currenttopic</span>)) </span><br><span class="line">        &#123; nofail(TOPIC ^gambit($<span class="variable">$currenttopic</span>)) &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment"># gambit from ANY matching topic</span></span><br><span class="line">    <span class="keyword">if</span> (%response == 0) </span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment"># get topics referred in input</span></span><br><span class="line">        @8 = ^keywordtopics()    </span><br><span class="line">        loop()</span><br><span class="line">        &#123;</span><br><span class="line">             $<span class="variable">$topic</span> = first(@8subject)</span><br><span class="line">             nofail(TOPIC ^Gambit($<span class="variable">$topic</span>))    <span class="comment"># gambit in best matching topic</span></span><br><span class="line">             <span class="comment"># stop when we find something</span></span><br><span class="line">             <span class="keyword">if</span> (%response != 0) &#123; ^end(RULE) &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># gambit from current topic even though no keywords matched</span></span><br><span class="line">    <span class="keyword">if</span> (%response == 0) &#123; nofail(TOPIC ^gambit($<span class="variable">$currenttopic</span>)) &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (%response == 0) </span><br><span class="line">    &#123; </span><br><span class="line">        <span class="comment"># all topics with gambits (excluding system topics)</span></span><br><span class="line">        @8 = ^GambitTopics()</span><br><span class="line">        loop()</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment"># retrieve a topic at random, and also remove it from the set</span></span><br><span class="line">            $<span class="variable">$topic</span> = ^pick(@8subject)</span><br><span class="line">            nofail(TOPIC ^gambit($<span class="variable">$topic</span>))    </span><br><span class="line">            <span class="keyword">if</span> (%response != 0) &#123; ^end(RULE) &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># plcmd will definitely response.</span></span><br><span class="line">    <span class="comment"># put it to a seperate non-system topic so that it's in the pending topics</span></span><br><span class="line">    <span class="comment"># Then it could be correctly print before output by looking $currenttopic</span></span><br><span class="line">    <span class="keyword">if</span> (%response == 0) &#123; nofail(TOPIC ^respond(~plcmd)) &#125;</span><br><span class="line"></span><br><span class="line">topic: ~xpost_control system repeat keep()</span><br><span class="line"><span class="comment"># pre and post control scripts always invoked in gambit mode (hence t: rules)</span></span><br><span class="line">t: ()</span><br><span class="line">    <span class="keyword">if</span> (%topic == ~slbabyformula1) &#123;</span><br><span class="line">        <span class="comment">#(&#123;^responseruleid (-1)&#125;) return all why part in log</span></span><br><span class="line">        <span class="comment"># at this point ~slbabyformula is the first and only one output</span></span><br><span class="line">        <span class="comment"># so the id is always 1</span></span><br><span class="line">        <span class="variable">$tag_rejoinder_sl</span> = ^responseruleid(1)</span><br><span class="line">        $<span class="variable">$pos_end</span> = -1</span><br><span class="line">        <span class="comment"># this finds position right after .~, and we move forward 2 position</span></span><br><span class="line">        $<span class="variable">$pos_end</span> = ^nofail(RULE ^findtext(<span class="variable">$tag_rejoinder_sl</span> .~ 0))</span><br><span class="line">        <span class="comment"># not sure whether $$pos_end will be set to null when the rule fails</span></span><br><span class="line">        <span class="keyword">if</span> ($<span class="variable">$pos_end</span> == null) &#123;</span><br><span class="line">            <span class="comment"># 25 shall be long enough to get the end of the rule tag</span></span><br><span class="line">            <span class="variable">$tag_rejoinder_sl</span> = ^extract(<span class="variable">$tag_rejoinder_sl</span> 4 25)</span><br><span class="line">            ^postprintafter (null)</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> ($<span class="variable">$pos_end</span> == -1) &#123;</span><br><span class="line">            <span class="variable">$tag_rejoinder_sl</span> = ^extract(<span class="variable">$tag_rejoinder_sl</span> 4 25)</span><br><span class="line">            ^postprintafter (-1)</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment"># move back 2 pos so we find the end of the first rule tag </span></span><br><span class="line">            $<span class="variable">$pos_end</span> = $<span class="variable">$pos_end</span> - 2</span><br><span class="line">            <span class="comment"># because the string start with Why: </span></span><br><span class="line">            <span class="comment"># 4 is used to offset the string position</span></span><br><span class="line">            <span class="variable">$tag_rejoinder_sl</span> = ^extract(<span class="variable">$tag_rejoinder_sl</span> 4 $<span class="variable">$pos_end</span>)</span><br><span class="line">            <span class="comment"># ^postprintafter ($tag_rejoinder_sl)</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    ^postprintbefore (&#123;%topic&#125;)</span><br></pre></td></tr></table></figure>
+<h2 id="BOTDATA-KWDL-kwdl-top"><a href="#BOTDATA-KWDL-kwdl-top" class="headerlink" title="BOTDATA/KWDL/kwdl.top"></a>BOTDATA/KWDL/kwdl.top</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">outputmacro: kwdl()</span><br><span class="line">    <span class="variable">$cs_token</span> = <span class="comment">#DO_NUMBER_MERGE | #DO_DATE_MERGE  | #DO_PROPERNAME_MERGE</span></span><br><span class="line">    <span class="variable">$cs_control_main</span> = ~xmain_control</span><br><span class="line">    <span class="variable">$cs_control_post</span> = ~xpost_control</span><br><span class="line">    <span class="variable">$userprompt</span> = ^<span class="string">"%user: &gt;"</span></span><br><span class="line">    <span class="variable">$botprompt</span> = ^<span class="string">"kwdl: "</span></span><br><span class="line"></span><br><span class="line">topic: ~kwwechat bot=kwdl keep repeat ()</span><br><span class="line">u: (&lt; kw &gt;)</span><br><span class="line">    this is keyword.</span><br><span class="line"></span><br><span class="line">topic: ~dluserdefined bot=kwdl keep repeat ()</span><br><span class="line">u: (&lt; dl &gt;)</span><br><span class="line">    this is dialogue.</span><br></pre></td></tr></table></figure>
+<h2 id="BOTDATA-XIAOLA-cmd-top"><a href="#BOTDATA-XIAOLA-cmd-top" class="headerlink" title="BOTDATA/XIAOLA/cmd.top"></a>BOTDATA/XIAOLA/cmd.top</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">outputmacro: ^execute-print(^arg)</span><br><span class="line">^arg \n</span><br><span class="line"></span><br><span class="line"><span class="comment"># PLCMD is the command from CS to platform to carry control info</span></span><br><span class="line">topic: ~plcmd repeat keep ()</span><br><span class="line">u: ()</span><br><span class="line">    PLCMD-NO-ANSWER-CS</span><br><span class="line"></span><br><span class="line"><span class="comment"># CSCMD is the command from platform to CS to carry control info</span></span><br><span class="line">topic: ~cscmd repeat keep()</span><br><span class="line">u: (CSCMD-REJOINDER-CLEAR)</span><br><span class="line">    <span class="comment"># disable the system rejoinder only when it is the selection rejoinder</span></span><br><span class="line">    <span class="keyword">if</span> (%inputrejoinder == <span class="variable">$tag_rejoinder_sl</span>) &#123;</span><br><span class="line">        <span class="comment"># disable input rejoinder shall be enough </span></span><br><span class="line">        <span class="comment"># as result output rejoinder shall be gone as well</span></span><br><span class="line">        ^<span class="built_in">disable</span>(inputrejoinder)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="variable">$tag_rejoinder_sl</span> = null</span><br><span class="line">    <span class="comment"># the below response will cancle the system rejoinder as well</span></span><br><span class="line">    <span class="comment"># so do not need explictly disable any inputrejoinder or outputrejoinder </span></span><br><span class="line">    CSCMD-REJOINDER-CLEAR is <span class="keyword">done</span>.</span><br><span class="line"></span><br><span class="line">u: (CSCMD-BOT-INIT _*) </span><br><span class="line">    ^popen(^join(<span class="string">"python ../bot_init.py "</span><span class="string">'_0) '</span>^execute-print)</span><br><span class="line"></span><br><span class="line">u: (CSCMD-BOT-INIT-TEST _*) </span><br><span class="line">    ^popen(^join(<span class="string">"python ../bot_init_test.py "</span><span class="string">'_0) '</span>^execute-print)</span><br><span class="line"></span><br><span class="line">u: (CSCMD-TEST-BOT-INIT _*)</span><br><span class="line">    [ Test ^join(<span class="string">"python ../bot_init.py "</span><span class="string">'_0) ]</span></span><br></pre></td></tr></table></figure>
+<h2 id="bot-init-py"><a href="#bot-init-py" class="headerlink" title="bot_init.py"></a>bot_init.py</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br><span class="line">271</span><br><span class="line">272</span><br><span class="line">273</span><br><span class="line">274</span><br><span class="line">275</span><br><span class="line">276</span><br><span class="line">277</span><br><span class="line">278</span><br><span class="line">279</span><br><span class="line">280</span><br><span class="line">281</span><br><span class="line">282</span><br><span class="line">283</span><br><span class="line">284</span><br><span class="line">285</span><br><span class="line">286</span><br><span class="line">287</span><br><span class="line">288</span><br><span class="line">289</span><br><span class="line">290</span><br><span class="line">291</span><br><span class="line">292</span><br><span class="line">293</span><br><span class="line">294</span><br><span class="line">295</span><br><span class="line">296</span><br><span class="line">297</span><br><span class="line">298</span><br><span class="line">299</span><br><span class="line">300</span><br><span class="line">301</span><br><span class="line">302</span><br><span class="line">303</span><br><span class="line">304</span><br><span class="line">305</span><br><span class="line">306</span><br><span class="line">307</span><br><span class="line">308</span><br><span class="line">309</span><br><span class="line">310</span><br><span class="line">311</span><br><span class="line">312</span><br><span class="line">313</span><br><span class="line">314</span><br><span class="line">315</span><br><span class="line">316</span><br><span class="line">317</span><br><span class="line">318</span><br><span class="line">319</span><br><span class="line">320</span><br><span class="line">321</span><br><span class="line">322</span><br><span class="line">323</span><br><span class="line">324</span><br><span class="line">325</span><br><span class="line">326</span><br><span class="line">327</span><br><span class="line">328</span><br><span class="line">329</span><br><span class="line">330</span><br><span class="line">331</span><br><span class="line">332</span><br><span class="line">333</span><br><span class="line">334</span><br><span class="line">335</span><br><span class="line">336</span><br><span class="line">337</span><br><span class="line">338</span><br><span class="line">339</span><br><span class="line">340</span><br><span class="line">341</span><br><span class="line">342</span><br><span class="line">343</span><br><span class="line">344</span><br><span class="line">345</span><br><span class="line">346</span><br><span class="line">347</span><br><span class="line">348</span><br><span class="line">349</span><br><span class="line">350</span><br><span class="line">351</span><br><span class="line">352</span><br><span class="line">353</span><br><span class="line">354</span><br><span class="line">355</span><br><span class="line">356</span><br><span class="line">357</span><br><span class="line">358</span><br><span class="line">359</span><br><span class="line">360</span><br><span class="line">361</span><br><span class="line">362</span><br><span class="line">363</span><br><span class="line">364</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/python</span></span><br><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line">import os</span><br><span class="line">import re</span><br><span class="line">import sys</span><br><span class="line">import json</span><br><span class="line">import socket</span><br><span class="line">import requests</span><br><span class="line">import traceback</span><br><span class="line">import urllib</span><br><span class="line"></span><br><span class="line">argv = sys.argv</span><br><span class="line"></span><br><span class="line">timeout = 3</span><br><span class="line">socket.setdefaulttimeout(timeout)</span><br><span class="line"></span><br><span class="line">regex = re.compile(</span><br><span class="line">    u<span class="string">'([\u2014\u00b0\u2103\u201c\u2264\u201d\u2265\u00B7\u3400-\u4DB5\u4E00-\u9FA5\u9FA6-\u9FBB\uF900-\uFA2D\uFA30-\uFA6A\uFA70-\uFAD9\uFF00-\uFFEF\u2E80-\u2EFF\u3000-\u303F\u31C0-\u31EF\u2F00-\u2FDF\u2FF0-\u2FFF\u3100-\u312F\u31A0-\u31BF\u3040-\u309F\u30A0-\u30FF\u31F0-\u31FF\uAC00-\uD7AF\u1100-\u11FF\u3130-\u318F\u4DC0-\u4DFF\uA000-\uA48F\uA490-\uA4CF\u2800-\u28FF\u3200-\u32FF\u3300-\u33FF\u2700-\u27BF\u2600-\u26FF\uFE10-\uFE1F\uFE30-\uFE4F])'</span>)  <span class="comment"># 匹配中文</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">def quote(data):</span><br><span class="line">    <span class="string">""</span><span class="string">"</span></span><br><span class="line"><span class="string">    将中文转为url编码</span></span><br><span class="line"><span class="string">    :param data: 要转的数据。格式可以是：dict，list，tuple，set，str</span></span><br><span class="line"><span class="string">    :return: 转换后的数据</span></span><br><span class="line"><span class="string">    "</span><span class="string">""</span></span><br><span class="line">    <span class="keyword">if</span> isinstance(data, dict):</span><br><span class="line">        tmp_dict = &#123;&#125;</span><br><span class="line">        <span class="keyword">for</span> k, v <span class="keyword">in</span> data.items():</span><br><span class="line">            tmp_dict[k] = quote(v)</span><br><span class="line">        <span class="built_in">return</span> tmp_dict</span><br><span class="line">    <span class="keyword">elif</span> isinstance(data, list) or isinstance(data, tuple):</span><br><span class="line">        tmp_list = []</span><br><span class="line">        <span class="keyword">for</span> d <span class="keyword">in</span> data:</span><br><span class="line">            tmp_list.append(quote(d))</span><br><span class="line">        <span class="built_in">return</span> tmp_list</span><br><span class="line">    <span class="keyword">elif</span> isinstance(data, <span class="built_in">set</span>):</span><br><span class="line">        tmp_set = <span class="built_in">set</span>()</span><br><span class="line">        <span class="keyword">for</span> s <span class="keyword">in</span> data:</span><br><span class="line">            tmp_set.add(quote(s))</span><br><span class="line">        <span class="built_in">return</span> tmp_set</span><br><span class="line">    <span class="keyword">elif</span> isinstance(data, str):</span><br><span class="line">        lst = regex.findall(data)</span><br><span class="line">        <span class="keyword">for</span> s <span class="keyword">in</span> lst:</span><br><span class="line">            data = data.replace(s, urllib.parse.quote(s))</span><br><span class="line">        <span class="built_in">return</span> data</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="built_in">return</span> data</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">def rpc(func, data=&#123;&#125;):</span><br><span class="line">    <span class="string">""</span><span class="string">"</span></span><br><span class="line"><span class="string">    post方式请求数据</span></span><br><span class="line"><span class="string">    :param func: 远程调用的接口函数名</span></span><br><span class="line"><span class="string">    :param data: 远程调用传入的参数</span></span><br><span class="line"><span class="string">    :return:</span></span><br><span class="line"><span class="string">    "</span><span class="string">""</span></span><br><span class="line">    url = <span class="string">'http://beta.api.xiaolabot.com/service/%s?token=123456'</span> % func</span><br><span class="line">    try:</span><br><span class="line">        headers = &#123;<span class="string">'Content-Type'</span>: <span class="string">'application/json; encoding=utf-8'</span>&#125;</span><br><span class="line">        response = requests.post(</span><br><span class="line">            url,</span><br><span class="line">            data=json.dumps(data).encode(<span class="string">'utf8'</span>),</span><br><span class="line">            headers=headers,</span><br><span class="line">            timeout=timeout</span><br><span class="line">        )</span><br><span class="line">        response.encoding = <span class="string">'utf8'</span></span><br><span class="line">        result = response.json()</span><br><span class="line">        <span class="built_in">return</span> result</span><br><span class="line">    except socket.timeout:</span><br><span class="line">        <span class="built_in">return</span> &#123;<span class="string">'code'</span>: -3, <span class="string">'data'</span>: [], <span class="string">'msg'</span>: <span class="string">'请求接口超时:url=%s,data=%s'</span> % (url, data)&#125;</span><br><span class="line">    except:</span><br><span class="line">        <span class="built_in">return</span> &#123;<span class="string">'code'</span>: -1, <span class="string">'data'</span>: [], <span class="string">'msg'</span>: traceback.format_exc()&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">def get(url):</span><br><span class="line">    <span class="string">""</span><span class="string">"</span></span><br><span class="line"><span class="string">    get方式请求数据</span></span><br><span class="line"><span class="string">    :param url:</span></span><br><span class="line"><span class="string">    :return:</span></span><br><span class="line"><span class="string">    "</span><span class="string">""</span></span><br><span class="line">    try:</span><br><span class="line">        response = requests.get(url)</span><br><span class="line">        response.encoding = <span class="string">'utf8'</span></span><br><span class="line">        <span class="built_in">return</span> response.json()</span><br><span class="line">    except socket.timeout:</span><br><span class="line">        <span class="built_in">return</span> &#123;<span class="string">'code'</span>: -3, <span class="string">'data'</span>: [], <span class="string">'msg'</span>: <span class="string">'请求接口超时:url=%s'</span> % (url)&#125;</span><br><span class="line">    except:</span><br><span class="line">        <span class="built_in">print</span>(traceback.format_exc())</span><br><span class="line">        <span class="built_in">return</span> &#123;<span class="string">'code'</span>: -1, <span class="string">'data'</span>: [], <span class="string">'msg'</span>: traceback.format_exc()&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">def post(url, data, _type=<span class="string">'form'</span>):</span><br><span class="line">    <span class="string">""</span><span class="string">"</span></span><br><span class="line"><span class="string">    post方式请求数据</span></span><br><span class="line"><span class="string">    :param url:</span></span><br><span class="line"><span class="string">    :param data:</span></span><br><span class="line"><span class="string">    :param _type: post类型（form:提交表单,json:提交json body）</span></span><br><span class="line"><span class="string">    :return:</span></span><br><span class="line"><span class="string">    "</span><span class="string">""</span></span><br><span class="line">    try:</span><br><span class="line">        <span class="keyword">if</span> _type == <span class="string">'form'</span>:</span><br><span class="line">            <span class="comment"># 表单提交</span></span><br><span class="line">            req = urllib.request.Request(url, urllib.parse.urlencode(data).encode(<span class="string">'utf8'</span>))</span><br><span class="line">            response = urllib.request.urlopen(req)</span><br><span class="line">            response.encoding = <span class="string">'utf8'</span></span><br><span class="line">            content = response.read().decode(<span class="string">'utf8'</span>)</span><br><span class="line">            <span class="built_in">return</span> json.loads(content)</span><br><span class="line">        <span class="keyword">elif</span> _type == <span class="string">'json'</span>:</span><br><span class="line">            <span class="comment"># json body方式提交</span></span><br><span class="line">            headers = &#123;<span class="string">'Content-Type'</span>: <span class="string">'application/json; encoding=utf-8'</span>&#125;</span><br><span class="line">            response = requests.post(</span><br><span class="line">                url,</span><br><span class="line">                data=urllib.parse.unquote(json.dumps(quote(data))).encode(<span class="string">'utf8'</span>),</span><br><span class="line">                headers=headers,</span><br><span class="line">                timeout=timeout</span><br><span class="line">            )</span><br><span class="line">            response.encoding = <span class="string">'utf8'</span></span><br><span class="line">            <span class="built_in">return</span> response.json()</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="built_in">return</span> &#123;<span class="string">'code'</span>: -2, <span class="string">'data'</span>: [], <span class="string">'msg'</span>: <span class="string">'不支持%s方式提交'</span> % _type&#125;</span><br><span class="line">    except socket.timeout:</span><br><span class="line">        <span class="built_in">return</span> &#123;<span class="string">'code'</span>: -3, <span class="string">'data'</span>: [], <span class="string">'msg'</span>: <span class="string">'请求接口超时:url=%s,_type=%s,data=%s'</span> % (url, _type, data)&#125;</span><br><span class="line">    except:</span><br><span class="line">        <span class="built_in">print</span>(traceback.format_exc())</span><br><span class="line">        <span class="built_in">return</span> &#123;<span class="string">'code'</span>: -1, <span class="string">'data'</span>: [], <span class="string">'msg'</span>: traceback.format_exc()&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">class InitCS(object):</span><br><span class="line">    def __init__(self, appid):</span><br><span class="line">        self.bot_info = rpc(<span class="string">'get_bot_info'</span>, &#123;<span class="string">'appid'</span>: appid&#125;).get(<span class="string">'data'</span>, &#123;&#125;)</span><br><span class="line">        self.access_token = rpc(<span class="string">'get_access_token'</span>, &#123;<span class="string">'appid'</span>: appid&#125;).get(<span class="string">'access_token'</span>, <span class="string">''</span>)</span><br><span class="line"></span><br><span class="line">    def split_str(self, s=<span class="string">''</span>):</span><br><span class="line">        <span class="string">""</span><span class="string">"</span></span><br><span class="line"><span class="string">        分隔中文</span></span><br><span class="line"><span class="string">        :param s: </span></span><br><span class="line"><span class="string">        :return: </span></span><br><span class="line"><span class="string">        "</span><span class="string">""</span></span><br><span class="line">        <span class="built_in">return</span> re.sub(<span class="string">'\s+'</span>, <span class="string">' '</span>, regex.sub(r<span class="string">' \1 '</span>, s))</span><br><span class="line"></span><br><span class="line">    def get_current_autoreply_info(self):</span><br><span class="line">        <span class="string">""</span><span class="string">"</span></span><br><span class="line"><span class="string">        获取公众号的自动回复规则</span></span><br><span class="line"><span class="string">        :return: </span></span><br><span class="line"><span class="string">        "</span><span class="string">""</span></span><br><span class="line">        url = <span class="string">'https://api.weixin.qq.com/cgi-bin/get_current_autoreply_info?access_token=%s'</span> % self.access_token</span><br><span class="line">        response = get(url)</span><br><span class="line">        <span class="keyword">if</span> not response.get(<span class="string">'keyword_autoreply_info'</span>):</span><br><span class="line">            <span class="built_in">print</span>(response)</span><br><span class="line">        <span class="built_in">return</span> response.get(<span class="string">'keyword_autoreply_info'</span>, &#123;&#125;).get(<span class="string">'list'</span>, [])</span><br><span class="line"></span><br><span class="line">    def save_userdefine_to_cstopic(self):</span><br><span class="line">        <span class="string">""</span><span class="string">"</span></span><br><span class="line"><span class="string">        负责将数据库chat_user_ask、chat_robot_answer表中相同parent_id(会话列表)的ask、answer取出，并转换为cs Topic规则</span></span><br><span class="line"><span class="string">        :param bot_dir: 存储Topic的目录</span></span><br><span class="line"><span class="string">        :return: </span></span><br><span class="line"><span class="string">        "</span><span class="string">""</span></span><br><span class="line">        bid = self.bot_info.get(<span class="string">'bid'</span>, 0)</span><br><span class="line">        <span class="comment"># 会话类型：1：文本 2：图片 3：音频 4：视频</span></span><br><span class="line">        ask_type = 1</span><br><span class="line">        query_sql = <span class="string">""</span><span class="string">" SELECT a.bid,a.uid,a.ask_name,b.answer_name,a.parent_id FROM chatplus.chat_user_ask a JOIN chatplus.chat_robot_answer b </span></span><br><span class="line"><span class="string">                        ON a.parent_id = b.parent_id</span></span><br><span class="line"><span class="string">                        WHERE a.ask_type = %s </span></span><br><span class="line"><span class="string">                        AND a.bid = %s</span></span><br><span class="line"><span class="string">                        AND a.uid = b.uid;</span></span><br><span class="line"><span class="string">                        "</span><span class="string">""</span> % (ask_type, bid)</span><br><span class="line">        query_res = self.db_conn.execute(query_sql)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> not query_res:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">"%s 没有为 bid=%s 创建文本会话对"</span> % (self.bot_info.get(<span class="string">'nick_name'</span>, 0), bid))</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            ask_dict = &#123;&#125;</span><br><span class="line">            answer_dict = &#123;&#125;</span><br><span class="line">            data_list = []</span><br><span class="line">            <span class="keyword">for</span> data <span class="keyword">in</span> query_res:</span><br><span class="line">                parent_id = <span class="string">'parent_id:'</span> + str(data.get(<span class="string">'bid'</span>, <span class="string">''</span>)) + <span class="string">":"</span> + str(data.get(<span class="string">'uid'</span>, <span class="string">''</span>)) + <span class="string">":"</span> + str(</span><br><span class="line">                    data.get(<span class="string">'parent_id'</span>, <span class="string">''</span>))</span><br><span class="line">                data_list.append(parent_id)</span><br><span class="line">            keys = <span class="built_in">set</span>(data_list)</span><br><span class="line"></span><br><span class="line">            <span class="keyword">for</span> key <span class="keyword">in</span> keys:</span><br><span class="line">                ask_name_key = key + <span class="string">'|ask_name'</span></span><br><span class="line">                answer_name_key = key + <span class="string">'|answer_name'</span></span><br><span class="line">                ask_dict.update(&#123;ask_name_key: []&#125;)</span><br><span class="line">                answer_dict.update(&#123;answer_name_key: []&#125;)</span><br><span class="line">            <span class="comment"># print(ask_dict)</span></span><br><span class="line">            <span class="comment"># print(answer_dict)</span></span><br><span class="line"></span><br><span class="line">            <span class="keyword">for</span> data <span class="keyword">in</span> query_res:</span><br><span class="line">                <span class="keyword">for</span> key <span class="keyword">in</span> keys:</span><br><span class="line">                    parent_id = <span class="string">'parent_id:'</span> + str(data.get(<span class="string">'bid'</span>, <span class="string">''</span>)) + <span class="string">":"</span> + str(data.get(<span class="string">'uid'</span>, <span class="string">''</span>)) + <span class="string">":"</span> + str(</span><br><span class="line">                        data.get(<span class="string">'parent_id'</span>, <span class="string">''</span>))</span><br><span class="line">                    ask_name_key = key + <span class="string">'|ask_name'</span></span><br><span class="line">                    answer_name_key = key + <span class="string">'|answer_name'</span></span><br><span class="line">                    <span class="keyword">if</span> key == parent_id:</span><br><span class="line">                        ask_name = ask_dict[ask_name_key]</span><br><span class="line">                        ask_name.append(data.get(<span class="string">'ask_name'</span>, <span class="string">''</span>).strip())</span><br><span class="line"></span><br><span class="line">                        answer_name = answer_dict[answer_name_key]</span><br><span class="line">                        answer_name.append(data.get(<span class="string">'answer_name'</span>, <span class="string">''</span>))</span><br><span class="line">                        ask_dict.update(&#123;ask_name_key: ask_name&#125;)</span><br><span class="line">                        answer_dict.update(&#123;answer_name_key: answer_name&#125;)</span><br><span class="line">            <span class="comment"># print(ask_dict)</span></span><br><span class="line">            <span class="comment"># print(answer_dict)</span></span><br><span class="line"></span><br><span class="line">            topic_data = []</span><br><span class="line">            <span class="keyword">for</span> ask <span class="keyword">in</span> ask_dict:</span><br><span class="line">                <span class="keyword">for</span> answer <span class="keyword">in</span> answer_dict:</span><br><span class="line">                    <span class="keyword">if</span> ask.split(<span class="string">'|'</span>)[0] == answer.split(<span class="string">'|'</span>)[0]:</span><br><span class="line">                        ask_str_list = []</span><br><span class="line">                        <span class="keyword">for</span> ask_strs <span class="keyword">in</span> <span class="built_in">set</span>(ask_dict[ask]):</span><br><span class="line">                            <span class="keyword">if</span> len(ask_strs) &gt; 4:</span><br><span class="line">                                ask_str = <span class="string">'( %s )'</span> % self.split_str(ask_strs).strip()</span><br><span class="line">                                ask_str_list.append(ask_str)</span><br><span class="line">                            <span class="keyword">else</span>:</span><br><span class="line">                                ask_str = <span class="string">'"%s"'</span> % self.split_str(ask_strs).strip()</span><br><span class="line">                                ask_str_list.append(ask_str)</span><br><span class="line">                        answer_str = <span class="string">'[%s]'</span> % (<span class="string">']\n\t['</span>.join(<span class="built_in">set</span>(answer_dict[answer])))</span><br><span class="line">                        topic_str = <span class="string">'\n\nu: (['</span> + <span class="string">' '</span>.join(ask_str_list) + <span class="string">'])'</span> + <span class="string">'\r\n\t'</span> + answer_str + <span class="string">'\r\n\n'</span></span><br><span class="line">                        <span class="comment"># print("topic_str：", topic_str)</span></span><br><span class="line">                        topic_data.append(topic_str)</span><br><span class="line">            <span class="built_in">return</span> topic_data</span><br><span class="line"></span><br><span class="line">    def save_wechatkeyword_to_cstopic(self):</span><br><span class="line">        <span class="string">""</span><span class="string">"</span></span><br><span class="line"><span class="string">        微信自动回复规则转换为cs Topic规则</span></span><br><span class="line"><span class="string">        :param user_bot_dir: </span></span><br><span class="line"><span class="string">        :return: </span></span><br><span class="line"><span class="string">        "</span><span class="string">""</span></span><br><span class="line">        keyword_list_info = self.get_current_autoreply_info()</span><br><span class="line">        <span class="keyword">if</span> keyword_list_info:</span><br><span class="line">            str_list = []</span><br><span class="line">            <span class="keyword">for</span> info <span class="keyword">in</span> keyword_list_info:</span><br><span class="line">                rule_name = info.get(<span class="string">'rule_name'</span>, [])</span><br><span class="line">                reply_mode = info.get(<span class="string">'reply_mode'</span>, [])</span><br><span class="line">                keyword_list_info = info.get(<span class="string">'keyword_list_info'</span>, [])</span><br><span class="line">                reply_list_info = info.get(<span class="string">'reply_list_info'</span>, [])</span><br><span class="line"></span><br><span class="line">                keyword_list = []</span><br><span class="line">                <span class="keyword">for</span> keyword <span class="keyword">in</span> keyword_list_info:</span><br><span class="line">                    match_mode = keyword.get(<span class="string">'match_mode'</span>, <span class="string">''</span>)</span><br><span class="line">                    content = keyword.get(<span class="string">'content'</span>, <span class="string">''</span>)</span><br><span class="line">                    <span class="built_in">type</span> = keyword.get(<span class="string">'type'</span>, <span class="string">''</span>)</span><br><span class="line">                    <span class="keyword">if</span> <span class="built_in">type</span> == <span class="string">'text'</span>:</span><br><span class="line">                        keyword_list.append(content + <span class="string">"|"</span> + match_mode)</span><br><span class="line"></span><br><span class="line">                reply_list = []</span><br><span class="line">                news_list = []</span><br><span class="line">                <span class="keyword">for</span> reply <span class="keyword">in</span> reply_list_info:</span><br><span class="line">                    content = reply.get(<span class="string">'content'</span>, <span class="string">''</span>)</span><br><span class="line">                    <span class="built_in">type</span> = reply.get(<span class="string">'type'</span>, <span class="string">''</span>)</span><br><span class="line">                    <span class="keyword">if</span> <span class="built_in">type</span> == <span class="string">'news'</span>:</span><br><span class="line">                        news_info_list = reply.get(<span class="string">'news_info'</span>, &#123;&#125;).get(<span class="string">'list'</span>, [])</span><br><span class="line">                        <span class="keyword">if</span> news_info_list:</span><br><span class="line">                            <span class="keyword">for</span> news_info <span class="keyword">in</span> news_info_list:</span><br><span class="line">                                digest = news_info.get(<span class="string">'digest'</span>, <span class="string">''</span>)</span><br><span class="line">                                title = news_info.get(<span class="string">'title'</span>, <span class="string">''</span>)</span><br><span class="line">                                content_url = news_info.get(<span class="string">'content_url'</span>, <span class="string">''</span>)</span><br><span class="line">                                reply_str = digest + <span class="string">" "</span> + <span class="string">"&lt;a href="</span> + content_url + <span class="string">"&gt;"</span> + title + <span class="string">"&lt;/a&gt;"</span></span><br><span class="line">                                news_list.append(reply_str.strip())</span><br><span class="line">                        <span class="keyword">else</span>:</span><br><span class="line">                            news_list.append(content)</span><br><span class="line">                        reply_list.append(<span class="string">' '</span>.join(news_list))</span><br><span class="line">                    <span class="keyword">else</span>:</span><br><span class="line">                        reply_list.append(content)</span><br><span class="line"></span><br><span class="line">                contain_list = []</span><br><span class="line">                equal_list = []</span><br><span class="line">                <span class="keyword">if</span> reply_list:</span><br><span class="line">                    <span class="keyword">for</span> kw <span class="keyword">in</span> <span class="built_in">set</span>(keyword_list):</span><br><span class="line">                        <span class="keyword">if</span> not kw.split(<span class="string">"|"</span>)[0].isdigit():</span><br><span class="line">                            <span class="keyword">if</span> len(kw.split(<span class="string">"|"</span>)[0]) &gt; 4:</span><br><span class="line">                                match_keyword = <span class="string">'( %s )'</span> % self.split_str(kw.split(<span class="string">"|"</span>)[0]).strip()</span><br><span class="line">                                <span class="keyword">if</span> kw.split(<span class="string">"|"</span>)[1] == <span class="string">'contain'</span>:</span><br><span class="line">                                    contain_list.append(match_keyword)</span><br><span class="line">                                <span class="keyword">else</span>:</span><br><span class="line">                                    equal_list.append(match_keyword)</span><br><span class="line">                            <span class="keyword">else</span>:</span><br><span class="line">                                match_keyword = <span class="string">'"%s"'</span> % self.split_str(kw.split(<span class="string">"|"</span>)[0]).strip()</span><br><span class="line">                                <span class="keyword">if</span> kw.split(<span class="string">"|"</span>)[1] == <span class="string">'contain'</span>:</span><br><span class="line">                                    contain_list.append(match_keyword)</span><br><span class="line">                                <span class="keyword">else</span>:</span><br><span class="line">                                    equal_list.append(match_keyword)</span><br><span class="line">                        <span class="keyword">else</span>:</span><br><span class="line">                            <span class="keyword">if</span> kw.split(<span class="string">"|"</span>)[1] == <span class="string">'contain'</span>:</span><br><span class="line">                                contain_list.append(kw.split(<span class="string">"|"</span>)[0])</span><br><span class="line">                            <span class="keyword">else</span>:</span><br><span class="line">                                equal_list.append(kw.split(<span class="string">"|"</span>)[0])</span><br><span class="line"></span><br><span class="line">                rule_list = []</span><br><span class="line">                <span class="keyword">if</span> contain_list:</span><br><span class="line">                    rule = <span class="string">'u: ([ %s ])'</span> % (<span class="string">' '</span>.join(contain_list)).strip()</span><br><span class="line">                    rule_list.append(rule)</span><br><span class="line">                <span class="keyword">if</span> equal_list:</span><br><span class="line">                    rule = <span class="string">'u: (&lt;[ %s ]&gt;)'</span> % (<span class="string">' '</span>.join(equal_list)).strip()</span><br><span class="line">                    rule_list.append(rule)</span><br><span class="line"></span><br><span class="line">                <span class="keyword">for</span> rule <span class="keyword">in</span> rule_list:</span><br><span class="line">                    <span class="keyword">if</span> reply_mode == <span class="string">'random_one'</span>:</span><br><span class="line">                        <span class="keyword">if</span> len(reply_list) &gt;= 2:</span><br><span class="line">                            rule += <span class="string">''</span>.join([<span class="string">'|['</span> + reply + <span class="string">']'</span> <span class="keyword">for</span> reply <span class="keyword">in</span> reply_list])</span><br><span class="line">                            str_list.append(</span><br><span class="line">                                rule.replace(<span class="string">'“'</span>, <span class="string">'"'</span>).replace(<span class="string">'”'</span>, <span class="string">'"'</span>))</span><br><span class="line">                        <span class="keyword">else</span>:</span><br><span class="line">                            rule += <span class="string">''</span>.join([<span class="string">'|'</span> + reply + <span class="string">''</span> <span class="keyword">for</span> reply <span class="keyword">in</span> reply_list])</span><br><span class="line">                            str_list.append(</span><br><span class="line">                                rule.replace(<span class="string">'“'</span>, <span class="string">'"'</span>).replace(<span class="string">'”'</span>, <span class="string">'"'</span>))</span><br><span class="line">                    <span class="keyword">else</span>:</span><br><span class="line">                        rule += <span class="string">'\n\t%s'</span> % <span class="string">''</span>.join([reply + <span class="string">' PLCMD-MSG-SEP '</span> <span class="keyword">for</span> reply <span class="keyword">in</span> reply_list])</span><br><span class="line">                        str_list.append(</span><br><span class="line">                            rule.replace(<span class="string">'“'</span>, <span class="string">'"'</span>).replace(<span class="string">'”'</span>, <span class="string">'"'</span>))</span><br><span class="line">            <span class="built_in">return</span> str_list</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="built_in">return</span> None</span><br><span class="line"></span><br><span class="line">    def init_rule_to_cstopic(self):</span><br><span class="line">        <span class="string">""</span><span class="string">"</span></span><br><span class="line"><span class="string">        根据模板文件、微信关键词自动回复规则生成cs topic文件</span></span><br><span class="line"><span class="string">        :return: </span></span><br><span class="line"><span class="string">        "</span><span class="string">""</span></span><br><span class="line">        apikey = self.bot_info.get(<span class="string">'apikey'</span>, <span class="string">''</span>)</span><br><span class="line"></span><br><span class="line">        bot_name = <span class="string">'bot_&#123;&#125;'</span>.format(apikey)</span><br><span class="line">        bot_top = <span class="string">"&#123;&#125;/&#123;&#125;.top"</span>.format(<span class="string">'../BOTDATA/KWDL'</span>, bot_name)</span><br><span class="line">        absolutePath = <span class="string">"&#123;&#125;/&#123;&#125;"</span>.format(os.getcwd(), <span class="string">'../BOTDATA/KWDL'</span>)</span><br><span class="line"></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">"当前目录："</span>, os.getcwd())</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">"创建文件："</span>, bot_top)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">"绝对路径："</span>, absolutePath)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">"Bot：%s"</span> % bot_name)</span><br><span class="line"></span><br><span class="line">        kwdl_top = open(<span class="string">'../BOTDATA/KWDL/kwdl.top'</span>, <span class="string">'r'</span>, encoding=<span class="string">'utf-8'</span>)</span><br><span class="line">        f = open(bot_top, <span class="string">'w'</span>, encoding=<span class="string">'utf-8'</span>)</span><br><span class="line">        <span class="keyword">for</span> b <span class="keyword">in</span> kwdl_top.readlines():</span><br><span class="line">            b = b.replace(<span class="string">'kwdl'</span>, bot_name)</span><br><span class="line">            <span class="keyword">if</span> <span class="string">'topic'</span> <span class="keyword">in</span> b:</span><br><span class="line">                <span class="built_in">break</span></span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                f.write(b)</span><br><span class="line">        f.close()</span><br><span class="line">        kwdl_top.close()</span><br><span class="line"></span><br><span class="line">        wechatkeyword_list = self.save_wechatkeyword_to_cstopic()</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> wechatkeyword_list:</span><br><span class="line">            f = open(bot_top, <span class="string">'a+'</span>, encoding=<span class="string">'utf-8'</span>)</span><br><span class="line">            f.write(<span class="string">'topic: ~&#123;&#125; bot=&#123;&#125; keep repeat ()\n'</span>.format(<span class="string">'kwwechat'</span>, bot_name))</span><br><span class="line">            <span class="keyword">for</span> i <span class="keyword">in</span> wechatkeyword_list:</span><br><span class="line">                rule_arr = i.split(<span class="string">'|'</span>)</span><br><span class="line">                rule_name = <span class="string">"\n%s\r\n"</span> % rule_arr[0]</span><br><span class="line">                f.write(rule_name)</span><br><span class="line">                <span class="keyword">for</span> num <span class="keyword">in</span> range(1, len(rule_arr)):</span><br><span class="line">                    response = <span class="string">"\t%s\r\n"</span> % rule_arr[num]</span><br><span class="line">                    f.write(response)</span><br><span class="line">            f.close()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    <span class="keyword">if</span> argv[1]:</span><br><span class="line">        appid = argv[1]</span><br><span class="line">        <span class="comment"># appid = 'wx4834ee84edeed705'</span></span><br><span class="line">        c = InitCS(appid)</span><br><span class="line">        c.init_rule_to_cstopic()</span><br></pre></td></tr></table></figure>
+<h2 id="pychatscript-py"><a href="#pychatscript-py" class="headerlink" title="pychatscript.py"></a>pychatscript.py</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"></span><br><span class="line">import os</span><br><span class="line">import socket</span><br><span class="line">import re</span><br><span class="line"></span><br><span class="line">BUFSIZE = 1024</span><br><span class="line"></span><br><span class="line">regex = re.compile(</span><br><span class="line">    u<span class="string">'([\u2014\u00b0\u2103\u201c\u2264\u201d\u2265\u00B7\u3400-\u4DB5\u4E00-\u9FA5\u9FA6-\u9FBB\uF900-\uFA2D\uFA30-\uFA6A\uFA70-\uFAD9\uFF00-\uFFEF\u2E80-\u2EFF\u3000-\u303F\u31C0-\u31EF\u2F00-\u2FDF\u2FF0-\u2FFF\u3100-\u312F\u31A0-\u31BF\u3040-\u309F\u30A0-\u30FF\u31F0-\u31FF\uAC00-\uD7AF\u1100-\u11FF\u3130-\u318F\u4DC0-\u4DFF\uA000-\uA48F\uA490-\uA4CF\u2800-\u28FF\u3200-\u32FF\u3300-\u33FF\u2700-\u27BF\u2600-\u26FF\uFE10-\uFE1F\uFE30-\uFE4F])'</span>)  <span class="comment"># 匹配中文</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">def split_str(s=<span class="string">''</span>):</span><br><span class="line">    <span class="built_in">return</span> re.sub(<span class="string">'\s+'</span>, <span class="string">' '</span>, regex.sub(r<span class="string">' \1 '</span>, s))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">def send(query, user=<span class="string">''</span>, bot=<span class="string">''</span>):</span><br><span class="line">    env = os.getenv(<span class="string">'FLASK_CONFIG'</span>) or <span class="string">'default'</span></span><br><span class="line">    env = <span class="string">'beta'</span></span><br><span class="line">    <span class="keyword">if</span> env == <span class="string">'production'</span>:</span><br><span class="line">        CONNECT_HOST = <span class="string">'192.168.1.239'</span></span><br><span class="line">        CONNECT_PORT = 51025</span><br><span class="line">    <span class="keyword">elif</span> env == <span class="string">'beta'</span>:</span><br><span class="line">        CONNECT_HOST = <span class="string">'192.168.1.239'</span></span><br><span class="line">        CONNECT_PORT = 51024</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        CONNECT_HOST = <span class="string">'192.168.0.25'</span></span><br><span class="line">        CONNECT_PORT = 1024</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">'CSBots:host=%s,port=%s,bot=%s,user=%s,query=%s'</span> % (CONNECT_HOST, CONNECT_PORT, bot, user, query))</span><br><span class="line">    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)</span><br><span class="line">    s.connect((CONNECT_HOST, CONNECT_PORT))</span><br><span class="line">    query = split_str(query)</span><br><span class="line">    <span class="keyword">if</span> user == <span class="string">''</span>:</span><br><span class="line">        user = <span class="string">'xiaolaclient'</span></span><br><span class="line">    text = <span class="string">'%s\x00%s\x00%s\x00'</span> % (user, bot, query)</span><br><span class="line">    s.send(text.encode(<span class="string">'utf8'</span>))</span><br><span class="line"></span><br><span class="line">    data = b<span class="string">''</span></span><br><span class="line">    <span class="keyword">while</span> 1:</span><br><span class="line">        block = s.recv(BUFSIZE)</span><br><span class="line">        <span class="keyword">if</span> block:</span><br><span class="line">            data += block</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="built_in">break</span></span><br><span class="line">    try:</span><br><span class="line">        data = data.decode(<span class="string">'utf-8'</span>)</span><br><span class="line">    except UnicodeDecodeError:</span><br><span class="line">        try:</span><br><span class="line">            data.decode(<span class="string">'gb2312'</span>)</span><br><span class="line">        except  UnicodeDecodeError:</span><br><span class="line">            data.decode(<span class="string">'iso-8859-1'</span>)</span><br><span class="line">    <span class="built_in">return</span> data</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">def bot_init(user=None, query=None):</span><br><span class="line">    <span class="keyword">if</span> user:</span><br><span class="line">        build = send(<span class="string">':build xiaola'</span>, user, <span class="string">"xiaola"</span>)</span><br><span class="line">        <span class="built_in">print</span>(build)</span><br><span class="line">        bot = send(<span class="string">':bot xiaola'</span>, user, <span class="string">'xiaola'</span>)</span><br><span class="line">        <span class="built_in">print</span>(bot)</span><br><span class="line">        <span class="keyword">if</span> query:</span><br><span class="line">            cs_res = send(query, user, <span class="string">"xiaola"</span>)</span><br><span class="line">            <span class="built_in">print</span>(cs_res)</span><br><span class="line">            build = send(<span class="string">':build xiaola'</span>, user, <span class="string">"xiaola"</span>)</span><br><span class="line">            <span class="built_in">print</span>(build)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    <span class="keyword">while</span> 1:</span><br><span class="line">        query = input(<span class="string">'query&gt;'</span>)</span><br><span class="line">        <span class="built_in">print</span>(send(query.strip(), <span class="string">'user'</span>, <span class="string">'bot_e9fb5a38296043d7b972d303b3dd4f17'</span>))</span><br><span class="line">        <span class="keyword">if</span> query == <span class="string">':exit'</span>:</span><br><span class="line">            <span class="built_in">break</span></span><br></pre></td></tr></table></figure>
+<h2 id="启动stand-alone模式调试"><a href="#启动stand-alone模式调试" class="headerlink" title="启动stand-alone模式调试"></a>启动stand-alone模式调试</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@sparsematrix Bots-master]<span class="comment"># ./start_local_7.52.sh</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">[root@sparsematrix Bots-master]<span class="comment"># vi start_local_7.52.sh</span></span><br><span class="line"><span class="meta">#!/bin/sh</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用系统编译的版本</span></span><br><span class="line"><span class="comment"># chmod +x ./ChatScript/BINARIES/LinuxChatScript64</span></span><br><span class="line"><span class="comment"># cd ChatScript &amp;&amp; BINARIES/LinuxChatScript64 livedata=../LIVEDATA system=LIVEDATA/SYSTEM users=../USERS logs=../LOGS local</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用自己编译的版本</span></span><br><span class="line">chmod +x ./ChatScript-7.52/BINARIES/ChatScript</span><br><span class="line"><span class="built_in">cd</span> ChatScript-7.52 &amp;&amp; BINARIES/ChatScript \</span><br><span class="line">users=../USERS \</span><br><span class="line">logs=../LOGS \</span><br><span class="line">topic=../TOPIC \</span><br><span class="line">login=user \</span><br><span class="line"><span class="built_in">local</span></span><br></pre></td></tr></table></figure>
+<h2 id="启动Server模式调试"><a href="#启动Server模式调试" class="headerlink" title="启动Server模式调试"></a>启动Server模式调试</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@sparsematrix Bots-master]<span class="comment"># ./start_server_7.52.sh</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">[root@sparsematrix Bots-master]<span class="comment"># vi start_server_7.52.sh</span></span><br><span class="line"><span class="meta">#!/bin/sh</span></span><br><span class="line"><span class="comment"># 使用自己编译的版本</span></span><br><span class="line">chmod +x ./ChatScript-7.52/BINARIES/ChatScript</span><br><span class="line"><span class="built_in">cd</span> ChatScript-7.52 &amp;&amp; nohup BINARIES/ChatScript \</span><br><span class="line">users=../USERS \</span><br><span class="line">logs=../LOGS \</span><br><span class="line">topic=../TOPIC \</span><br><span class="line">port=51024 &amp;</span><br></pre></td></tr></table></figure>
+    </div>
+  </div>
+  
+    <div class="copy-right">
+      <div class="markdown-body">
+        <blockquote>
+        
+        
+          本文作者 : Matrix <br>
+        
+        原文链接 : <a href="">http://yoursite.com/2017/07/21/ChatScript初始化机器人/</a><br>
+        版权声明 : 本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+        </blockquote>
+      </div>
+    </div>
+  
+  
+  
+    <div class="social-share" style="margin-top: -2rem" data-wechat-qrcode-title="<p>微信扫一扫</p>" data-wechat-qrcode-helper="<p>微信右上角, 扫一扫分享</p>" data-sites="qzone, qq, weibo, wechat, douban, google, facebook, twitter">
+  <span style="color: #6b7487; font-size: 1.4rem;">分享到: </span>
+</div>
+<script src="https://cdn.bootcss.com/social-share.js/1.0.16/js/social-share.min.js" async></script>
+  
+
+  
+    <div id="reward">
+  
+    <p id="reward-meta">知识 & 情怀 | 二者兼得</p>
+  
+  <button id="reward-btn">
+    
+    <span>投食</span>
+  </button>
+  <div id="reward-qrcode">
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/wechatpay.jpg" alt="微信扫一扫, 向我投食">
+        <p class="qrcode-meta">微信扫一扫, 向我投食</p>
+      </div>
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/alipaypay.jpg" alt="支付宝扫一扫, 向我投食">
+        <p class="qrcode-meta">支付宝扫一扫, 向我投食</p>
+      </div>
+    
+  </div>
+
+</div>
+
+<script>
+  (() => {
+    let button = document.querySelector('#reward-btn'),
+      qrcode = document.querySelector('#reward-qrcode'),
+      display = false;
+    
+    button.addEventListener('click', () => {
+      qrcode.style.display = display ? 'none' : 'block'
+      display = !display
+    }, false)
+  })()
+</script>
+  
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+      <span>
+        
+          <i class="iconfont icon-06tags"></i>标签: 
+          
+          <span class="span--tag">
+            <a href="/tags/ChatScript/">
+              #ChatScript
+            </a>
+          </span>
+          
+        
+      </span>
+    </div>
+    <div class="article-meta pull-right">
+    </div>
+  </div>
+</div>
+
+
+  <aside id="sidebar">
+    <p id="sidebar-header"></p>
+    <ol id="sidebar-toc"></ol>
+  </aside>
+  <script async>setTimeout(generateToc, 10);</script>
+
+
+  <nav class="post-navigation">
+    
+      <div class="nav-pre">
+        <i class="iconfont icon-prev"></i>
+        上一篇:
+        <a href="/2017/07/21/Python网络编程/" target="_self">Python网络编程</a>
+      </div>
+    
+    
+      <div class="nav-next">
+        下一篇:
+        <a href="/2017/07/24/ElasticSearch集群部署/" target="_self">ElasticSearch集群部署</a>
+        <i class="iconfont icon-next"></i>
+      </div>
+    
+  </nav>
+
+  
+    <a href="#comment" class="comment-anchor"></a>
+<div class="comment-title"><i class="iconfont icon-footprint"></i> 留下足迹 <i class="iconfont icon-footprint"></i></div>
+<div id="vcomments"></div>
+
+<script defer>
+  if( true ) {
+    let path = getRealPath()
+    new Valine({
+      el: "#vcomments",
+      appId: "Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz",
+      appKey: "WaR7nrzhliHj9aVwdQzkdlGd",
+      notify: false,
+      verify: false,
+      avatar: "robohash",
+      placeholder: "正确填写邮箱, 才能及时收到回复哦♪(^∇^*)",
+      path
+    });
+  }
+</script>
+   
+
+  
+    <script defer>
+const valineAPI = (() => {
+  try {
+    AV.init("Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz", "WaR7nrzhliHj9aVwdQzkdlGd");
+  } catch(error) {}
+  const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+      query.equalTo("identity", identity);
+      query.find().then(results => {
+        resolve(results.length > 0);
+      }, error => reject(error));
+    })
+  }
+
+  const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+      let querys = [];
+      for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+      }
+      query = AV.Query.or.apply(null ,querys);
+    } else {
+      identity = identity || getRealPath();
+      query = new AV.Query("Timer");
+      query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+      query.find()
+      .then(results => resolve(results))
+      .catch(error => reject(error))
+    })
+  }
+
+  const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let Todo = AV.Object.extend('Timer');
+      let todo = new Todo();
+      todo.set("times", 1);
+      todo.set("identity", identity);
+      todo.save().then(res => resolve(true), error => reject(error));
+    })
+  }
+
+  const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let query = new AV.Query('Timer');
+      query.equalTo("identity", identity);
+      query.find().then(todos => {
+        todos.forEach(todo => {
+          todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+      }).then(todos => resolve(true), error => reject(error));
+    })
+  }
+
+  return {
+    isExist,
+    _get,
+    update,
+    create
+  }
+})()
+
+const calcAndWriteTimes = () => {
+  let isPost = true;
+
+  let timerAllDOM = document.querySelectorAll(".article-timer");
+
+  if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+      if(exist) {
+        return valineAPI.update(identity);
+      }
+      return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+  }
+
+  let timerDOMCache = {};
+
+  for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+      timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+      timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+      };
+    }
+  }
+
+  let identities = Object.keys(timerDOMCache);
+  valineAPI._get(identities).then(results => {
+    for(let result of results) {
+      let {identity, times} = result.attributes;
+      timerDOMCache[identity].times = times;
+      timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+      if(timerDOMCache[identity].times){
+        continue;
+      }
+      timerDOMCache[identity].dom.map(item => item.innerText = 1);
+      valineAPI.create(identity);
+    }
+  }).catch(error => console.log(error.message))
+}
+
+if(true){
+  calcAndWriteTimes();
+}
+</script>
+   
+
+</div>
+
+
+      <footer>
+  <p class="site-info">
+    博客已萌萌哒运行<span id="time-to-now"></span><span class="my-face">(●'◡'●)ﾉ♥</span>
+    <br>
+    Theme - <a href="https://github.com/dongyuanxin/theme-bmw">BMW</a> | Powered by <a href="https://godbmw.com/">GodBMW</a>
+    <br>
+    
+      Copyright © 2019 Matrix
+    
+  </p>
+</footer>
+
+
+
+<script>
+const timeToNowDOM = document.querySelector("#time-to-now");
+const startTimestamp = new Date(2016, 4, 10).getTime();
+
+const updateTimeStr = () => {
+  let offset = parseInt(
+      (new Date().getTime() - startTimestamp) / 1000,
+      10
+    ),
+    day = Math.floor(offset / 86400),
+    hour = Math.floor((offset % 86400) / 3600),
+    minute = Math.floor(((offset % 86400) % 3600) / 60),
+    second = Math.floor(((offset % 86400) % 3600) % 60);
+  timeToNowDOM.innerHTML =
+    day + "天" + hour + "小时" + minute + "分钟" + second + "秒";
+  setTimeout(updateTimeStr, 500);
+}
+
+setTimeout(updateTimeStr, 500);
+</script>
+
+
+      <div class="back-to-top hidden">
+  <span>
+    <i class="iconfont icon-60"></i><span></span>%
+  </span>
+</div>
+
+<script>
+const updateIconToTop = percent => {
+  let dom = document.querySelector(".back-to-top span span");
+  dom.innerText = percent;
+  if(percent < 1) {
+    document.querySelector(".back-to-top").className = "back-to-top hidden";
+  } else {
+    document.querySelector(".back-to-top").className = "back-to-top";
+  }
+}
+
+const handleScoll = () => {
+  let isRunning = false;
+  return () => {
+    if (isRunning) return;
+    isRunning = true;
+    window.requestAnimationFrame(timestamp => {
+      let scrollTop =
+          document.documentElement.scrollTop || document.body.scrollTop,
+        scrollHeight =
+          document.documentElement.scrollHeight ||
+          document.body.scrollHeight,
+        clientHeight =
+          document.documentElement.clientHeight ||
+          document.body.clientHeight;
+      isRunning = false;
+      if (scrollTop <= 1) {
+        updateIconToTop(0);
+        return;
+      }
+      if (scrollTop + clientHeight >= scrollHeight) {
+        updateIconToTop(100);
+      } else {
+        updateIconToTop(parseInt(
+          100 * scrollTop / (scrollHeight - clientHeight),
+          10
+        ));
+      }
+    });
+  };
+}
+
+const backToTop = () => {
+  let scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop,
+    delay = 10,
+    time = 200;
+  if (scrollTop <= 20) {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    return;
+  }
+  let step = Math.ceil(scrollTop * delay / time);
+  let timer = setInterval(() => {
+    scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop;
+    if (scrollTop - step <= 0) {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      clearInterval(timer);
+    } else {
+      document.documentElement.scrollTop = scrollTop - step;
+      document.body.scrollTop = scrollTop - step;
+    }
+  }, delay);
+}
+
+document.addEventListener("scroll", handleScoll(), false);
+
+document.querySelector(".back-to-top").addEventListener("click", backToTop, false);
+
+</script>
+
+    </div>
+
+    
+      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  (() => {
+    const mathjaxConfig = {
+      showProcessingMessages: false, //关闭js加载过程信息
+      messageStyle: "none", //不显示信息
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]], //行内公式选择符
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]], //段内公式选择符
+        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"] //避开某些标签
+      },
+      "HTML-CSS": {
+        availableFonts: ["STIX", "TeX"], //可选字体
+        showMathMenu: false //关闭右击菜单显示
+      }
+    }
+
+    let mathjaxInterval = setInterval(() => {
+      if(!window.MathJax){
+        return;
+      }
+      window.MathJax.Hub.Config(mathjaxConfig)
+      window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')])
+
+      clearInterval(mathjaxInterval)
+    }, 10)    
+  })()
+</script>
+    
+
+    <script src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script>
+<script async>
+  let fancyTimer = setInterval(function(){
+    if(!window.$){
+      return;
+    }
+    $(document).ready(function() {
+      $(".post img").each(function () {
+        if($(this).parent().get(0).tagName.toLowerCase() === "a") {
+          return;
+        }
+        // $(this).attr("data-fancybox", "gallery"); // if you add 'data-fancybox', img will display after showed
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "gallery");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      });
+      
+      clearInterval(fancyTimer);
+    });
+  }, 10);
+</script>
+
+    
+  </body>
+
+</html>

@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta name="author" content="董沅鑫, yuanxin.me@gmail.com">
+  
+  
+  
+  <title>ElasticSearch使用 | 每天遇到更好的你</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="elasticsearch,elasticsearch,">
+  
+
+  <script>
+    console.log('\n%c Hexo-theme-bmw v4.0 ' + '%c 🎉 https://github.com/dongyuanxin/theme-bmw 🎉\n' + '\n%c View demo online ' + '%c 🔍 https://godbmw.com/ 🔍  \n' , 'color: #fadfa3; background: #030307; padding:3px 0;', '', 'color: #fadfa3; background: #030307; padding:3px 0;', '');
+  </script>
+
+  
+
+  
+
+  
+    <link rel="icon" href="/images/favicon.png">
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+  
+
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/icon/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+  <script src="/js/util.js"></script>
+<script src="/js/valine.min.js"></script>
+
+  
+
+  
+    <link href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js" async></script>
+  
+
+  
+    <link href="https://cdn.bootcss.com/social-share.js/1.0.16/css/share.min.css" rel="stylesheet">
+  
+  
+  <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js" async></script>
+  
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.0/dist/av-min.js"></script>
+  
+
+</head>
+
+  <body>
+
+    
+
+    <div id="app">
+
+      <div class="header-wrap">
+  <header>
+    <div class="site-brand">
+      <div class="site-title">
+        <!-- <a href="/">MatrixSparse</a> -->
+        <img alt="logo" class="antd-pro-layouts-user-layout-logo" src="/images/favicon.png" style="width: 40px;height: 40px;margin-top: 10px;margin-left: 5px;">
+      </div>
+    </div>
+    <nav class="site-navigation">
+      <ul class="nav-menu">
+      
+        <li class="nav-item" data-path="/">
+          
+            <a href="/" target="_self">
+              主页
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          
+            <a href="/archives/" target="_self">
+              归档
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          
+            <a href="/categories/" target="_self">
+              分类
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          
+            <a href="/tags/" target="_self">
+              标签
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="">
+          
+            <a href="javascript:void(0);" v-else="">博客地址</a>
+            <ul class="nav-menu--dropdown">
+              
+                <li>
+                  <a href="https://blog.csdn.net/qq_25371579" target="_blank">
+                    CSDN
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://github.com/matrixsparse" target="_blank">
+                    Github
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://matrixsparse.github.io/" target="_blank">
+                    Github Page
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+      </ul>
+    </nav>
+    <i class="iconfont icon-menu"></i>
+  </header>
+</div>
+
+<script>
+  let links = document.querySelectorAll('.nav-item');
+  for(let link of links){
+    let childrenLink = link.querySelector('ul');
+    link.addEventListener('mouseenter', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown active";
+      }
+    })
+    link.addEventListener('mouseleave', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown";
+      }
+    })
+  }
+  let rootRealPath = getRealPath(window.location.pathname, true);
+  for(let link of links) {
+    let linkPath = link.getAttribute("data-path");
+    if(linkPath && getRealPath(linkPath, true) === rootRealPath) {
+      link.className = "nav-item hover";
+    }
+  }
+
+  let iconMenu = document.querySelector("i.iconfont.icon-menu"),
+    iconMenuClicked = false;
+  let navDOM = document.querySelector("nav.site-navigation");
+  iconMenu.addEventListener("click", () => {
+    iconMenuClicked
+      ? navDOM.className = "site-navigation active"
+      : navDOM.className = "site-navigation";
+    iconMenuClicked = !iconMenuClicked;
+  })
+</script>
+
+
+      
+
+
+
+
+
+
+
+
+<div class="container post-index">
+
+  
+
+<div class="post">
+  <h1 class="article-title">
+    <span>ElasticSearch使用</span>
+  </h1>
+  <div class="article-top-meta">
+    <span>
+      发布 : 
+      2016-02-12
+    </span>
+    
+      <span>
+        分类 : 
+          <a href="/categories/elasticsearch/">
+            elasticsearch
+          </a>
+      </span>
+    
+    
+      <span>
+        浏览 : <span class="article-timer" data-identity="ElasticSearch使用"></span>
+      </span>
+    
+  </div>
+
+  
+
+  <div class="article-content">
+    <div class="markdown-body">
+      <h2 id="1-CURL命令"><a href="#1-CURL命令" class="headerlink" title="1.CURL命令"></a>1.CURL命令</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">简单认为是可以在命令行下访问url的一个工具</span><br><span class="line">curl是利用URL语法在命令行方式下工作的开源文件传输工具，使用curl可以简单实现常见的get/post请求</span><br><span class="line">-x 指定http请求的方法</span><br><span class="line">head get post put delete</span><br><span class="line">-d 指定要传输的数据</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node01 kibana-4.6.1-linux-x86_64]<span class="comment"># curl --help</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/581590/88705441512ee037.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node01 kibana-4.6.1-linux-x86_64]<span class="comment"># curl -XHEAD "http://www.baidu.com"</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/581590/d55cf8395b3f711e.png" alt="Markdown"></p>
+<h3 id="1-1-创建索引库"><a href="#1-1-创建索引库" class="headerlink" title="1.1.创建索引库"></a>1.1.创建索引库</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">curl -XPUT <span class="string">"http://localhost:9200/index_name(索引库的名字)/"</span></span><br><span class="line">PUT/POST都可以</span><br><span class="line"></span><br><span class="line">[root@node01 kibana-4.6.1-linux-x86_64]<span class="comment"># curl -XPUT "http://192.168.230.10:9200/sparsematrix/"</span></span><br><span class="line">&#123;<span class="string">"acknowledged"</span>:<span class="literal">true</span>&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="1-1-1-在Marvel监控中查看刚才创建的索引库"><a href="#1-1-1-在Marvel监控中查看刚才创建的索引库" class="headerlink" title="1.1.1.在Marvel监控中查看刚才创建的索引库"></a>1.1.1.在Marvel监控中查看刚才创建的索引库</h4><p><img src="http://p1.bpimg.com/581590/93662b84b23f6406.png" alt="Markdown"></p>
+<h3 id="1-2-创建索引"><a href="#1-2-创建索引" class="headerlink" title="1.2.创建索引"></a>1.2.创建索引</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">示例：</span><br><span class="line"></span><br><span class="line">curl -XPOST http://192.168.230.10:9200/sparsematrix/employee/1 -d</span><br><span class="line"><span class="string">'&#123;</span></span><br><span class="line"><span class="string">"first_name":"John",</span></span><br><span class="line"><span class="string">"last_name":"Smith",</span></span><br><span class="line"><span class="string">"age":25,</span></span><br><span class="line"><span class="string">"about":"I love to go rock climbing",</span></span><br><span class="line"><span class="string">"interests":["sports","music"]</span></span><br><span class="line"><span class="string">&#125;'</span></span><br><span class="line"></span><br><span class="line">[root@node01 kibana-4.6.1-linux-x86_64]<span class="comment"># curl -XPOST http://192.168.230.10:9200/matrix/employee/1 -d '&#123;"first_name":"John","last_name":"Smith","age":25,"about":"I love to go rock climbing","interests":["sports","music"]&#125;'</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bpimg.com/581590/55549e0b4b8887fd.png" alt="Markdown"></p>
+<h4 id="1-2-1-创建索引注意事项"><a href="#1-2-1-创建索引注意事项" class="headerlink" title="1.2.1.创建索引注意事项"></a>1.2.1.创建索引注意事项</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">索引库名称必须全部小写，不能以下划线开头，也不能包含逗号</span><br><span class="line">如果没有明确指定索引数据的ID，那么es会自动生成一个随机的ID，需要使用POST参数</span><br><span class="line"></span><br><span class="line">curl -XPOST http://lcoalhost:9200/sparsematrix/emp/ -d<span class="string">'&#123;"first_name":"John"&#125;'</span></span><br><span class="line"></span><br><span class="line">如果想要确定我们创建的都是全新的内容</span><br><span class="line">- 1:使用自增ID</span><br><span class="line">- 2:在url后面添加参数</span><br><span class="line">curl -XPUT http://lcoalhost:9200/sparsematrix/emp/2?op_type=create -d</span><br><span class="line"><span class="string">'&#123;"name":"zs","age":25&#125;'</span></span><br><span class="line"></span><br><span class="line">curl -XPUT http://localhost:9200/sparsematrix/emp/2/_create -d</span><br><span class="line"><span class="string">'&#123;"name":"laoxiao","age":25&#125;'</span></span><br><span class="line"></span><br><span class="line">- 如果成功创建了新的文档，Elasticsearch将会返回常见的元数据以及201 Created的HTTP反馈码。</span><br><span class="line">而如果存在同名文件，Elasticsearch将会返回一个409 Commited</span><br></pre></td></tr></table></figure>
+<h2 id="2-PUT和POST用法"><a href="#2-PUT和POST用法" class="headerlink" title="2.PUT和POST用法"></a>2.PUT和POST用法</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">PUT是幂等方法，POST不是。所以PUT用于更新、POST用于新增比较合适</span><br><span class="line"></span><br><span class="line">- PUT，DELETE操作是幂等的。所谓幂等是指不管进行多少次操作，结果都一样。</span><br><span class="line">比如我用PUT修改一篇文章，然后在做同样的操作，每次操作后的记过并没有不同，DELETE也是一样。</span><br><span class="line"></span><br><span class="line">- POST操作不是幂等的，比如常见的POST重复加载问题；当我们多次发出同样的POST请求后，其结果是创建除了若干的资源。</span><br><span class="line"></span><br><span class="line">- 还有一点需要注意的就是，创建操作可以使用POST，也可以使用PUT，区别在于POST是作用在一个集合资源之上的(/articles),</span><br><span class="line">而PUT操作是作用在一个具体资源之上的(/articles/123)，比如说很多资源使用数据库自增主键作为标识信息，</span><br><span class="line">而创建的资源的标识信息到底是什么只能由服务端提供，这个时候就必须使用POST</span><br></pre></td></tr></table></figure>
+<h2 id="3-GET查询索引"><a href="#3-GET查询索引" class="headerlink" title="3.GET查询索引"></a>3.GET查询索引</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">根据员工id查询</span><br><span class="line"></span><br><span class="line">- curl -XGET http://localhost:9200/sparsematrix/employee/1?pretty</span><br><span class="line">- 在任意的查询字符串中添加pretty参数，es可以得到易于识别的json结果</span><br><span class="line">- curl后添加-i参数，这样你就能得到反馈头文件</span><br><span class="line">curl -i <span class="string">'http://192.168.230.10:9200/sparsematrix/emp/1?pretty'</span></span><br><span class="line"></span><br><span class="line">- 检索文档中的一部分，如果只需要显示指定字段</span><br><span class="line">curl -XGET http://192.168.230.10:9200/matrix/employee/1?_source=name,age</span><br><span class="line">- 如果只需要<span class="built_in">source</span>的数据</span><br><span class="line">curl -XGET http://192.168.230.10:9200/matrix/employee/1/_source</span><br><span class="line">- 查询所有</span><br><span class="line">curl -XGET http://192.168.230.10:9200/matrix/employee/_search</span><br><span class="line"></span><br><span class="line">你可以再返回的gts中发现我们录入的文档。搜索会默认返回最前的10个数值</span><br><span class="line"></span><br><span class="line">根据条件进行查询</span><br><span class="line"></span><br><span class="line">curl -XGET http://192.168.230.10:9200/elasticsearch/employee/_search?q=last_name:Smith</span><br></pre></td></tr></table></figure>
+<h3 id="3-1-查询索引"><a href="#3-1-查询索引" class="headerlink" title="3.1.查询索引"></a>3.1.查询索引</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node01 kibana-4.6.1-linux-x86_64]<span class="comment"># curl -XGET http://192.168.230.10:9200/matrix/employee/1?pretty</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/581590/5892fef4c4c4cc68.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node01 kibana-4.6.1-linux-x86_64]<span class="comment"># curl -i 'http://192.168.230.10:9200/matrix/employee/1?pretty'</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/581590/e08f6798749eff31.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node01 kibana-4.6.1-linux-x86_64]<span class="comment"># curl -XGET http://192.168.230.10:9200/matrix/employee/1?_source=name,age</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bpimg.com/581590/3cf7a436e060b08a.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node01 kibana-4.6.1-linux-x86_64]<span class="comment"># curl -XGET http://192.168.230.10:9200/matrix/employee/1/_source</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/581590/296f8e27720a8040.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node01 kibana-4.6.1-linux-x86_64]<span class="comment"># curl -XGET http://192.168.230.10:9200/matrix/employee/_search</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bqimg.com/581590/d5c81bfa5314b7f2.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node01 kibana-4.6.1-linux-x86_64]<span class="comment"># curl -XGET http://192.168.230.10:9200/elasticsearch/employee/_search?q=last_name:Smith</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bpimg.com/581590/22426fad64a2870d.png" alt="Markdown"></p>
+<h2 id="4-DSL查询"><a href="#4-DSL查询" class="headerlink" title="4.DSL查询"></a>4.DSL查询</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Domain Specific Language</span><br><span class="line">- 领域特定语言</span><br><span class="line">curl -XGET http://192.168.230.10:9200/matrix/employee/_search -d <span class="string">'&#123;"query":&#123;"match":&#123;"last_name":"Smith"&#125;&#125;&#125;'</span></span><br></pre></td></tr></table></figure>
+<h2 id="5-MGET查询"><a href="#5-MGET查询" class="headerlink" title="5.MGET查询"></a>5.MGET查询</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">使用mget API获取多个文档</span><br><span class="line">- curl -XGET http://192.168.230.10:9200/_mget?pretty -d <span class="string">'&#123;"docs":[&#123;"_index":"matrix","_type":"employee","_id":2,"_source":"name"&#125;,&#123;"_index":"website","_type":"blog","_id":2&#125;]&#125;'</span></span><br><span class="line"></span><br><span class="line">如果你需要的文档在同一个_index或者同一个_type中，你就可以在URL中指定一个默认的/_index或者/_index/_type</span><br><span class="line">- curl -XGET http://localhost:9200/matrix/emp/_mget?pretty -d <span class="string">'&#123;"doc":[&#123;"_id":1&#125;,&#123;"_type":"blog","_id":2&#125;]&#125;'</span></span><br><span class="line"></span><br><span class="line">如果所有的文档拥有相同的_index以及_type，直接在请求中添加ids的数组即可</span><br><span class="line">- curl -XGET http://lcoalhost:9200/matrix/emp/_megt?pretty -d <span class="string">'&#123;"ids":["1","2"]&#125;'</span></span><br><span class="line"></span><br><span class="line">注意：如果请求的某一个文档不存在，不会影响其他文档的获取结果</span><br><span class="line">HTTP返回状态码依然是200，这是因为mget这个请求本身已经成功完成</span><br><span class="line">要确定独立的文档是否被成功找到，需要检查found标识</span><br></pre></td></tr></table></figure>
+<h3 id="5-1使用mget-API获得多个文档"><a href="#5-1使用mget-API获得多个文档" class="headerlink" title="5.1使用mget API获得多个文档"></a>5.1使用mget API获得多个文档</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node01 kibana-4.6.1-linux-x86_64]<span class="comment"># curl -XPUT http://192.168.230.10:9200/website/blog/2 -d '&#123;"first_name":"John","last_name":"Smith"&#125;'</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bpimg.com/581590/cca0dead4ab56b9b.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node01 kibana-4.6.1-linux-x86_64]<span class="comment"># curl -XGET http://192.168.230.10:9200/_mget?pretty -d '&#123;"docs":[&#123;"_index":"matrix","_type":"employee","_id":2,"_source":"name"&#125;,&#123;"_index":"website","_type":"blog","_id":2&#125;]&#125;'</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bpimg.com/581590/8994810afcc1eb70.png" alt="Markdown"></p>
+<h2 id="6-HEAD使用"><a href="#6-HEAD使用" class="headerlink" title="6.HEAD使用"></a>6.HEAD使用</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">如果只想检查一下文档是否存在，你可以使用HEAD来替代GET方法，这样就只会返回HTTP头文件</span><br><span class="line"></span><br><span class="line">[root@node01 kibana-4.6.1-linux-x86_64]<span class="comment"># curl -i -XHEAD http://192.168.230.10:9200/matrix/employee/1</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://i1.piimg.com/581590/0f8dd91613ce34df.png" alt="Markdown"></p>
+<h2 id="7-Elasticsearch的更新"><a href="#7-Elasticsearch的更新" class="headerlink" title="7.Elasticsearch的更新"></a>7.Elasticsearch的更新</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">ES可以使用PUT或者POST对文档进行更新，如果指定ID的文档已经存在，则执行更新操作</span><br><span class="line"></span><br><span class="line">注意：执行更新操作的时候</span><br><span class="line">- ES首先将旧的文档标记为删除状态</span><br><span class="line">- 然后添加新的文档</span><br><span class="line">- 旧的文档不会立即消失，但是你也无法访问</span><br><span class="line">- ES会在你继续添加更多数据的时候在后台清理已经标记为删除状态的文档</span><br></pre></td></tr></table></figure>
+<h2 id="8-Elasticsearch删除"><a href="#8-Elasticsearch删除" class="headerlink" title="8.Elasticsearch删除"></a>8.Elasticsearch删除</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node01 kibana-4.6.1-linux-x86_64]<span class="comment"># curl -XDELETE http://192.168.230.10:9200/website/blog/2</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bpimg.com/581590/850a054c20510b2a.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node01 kibana-4.6.1-linux-x86_64]<span class="comment"># curl -XDELETE http://192.168.230.10:9200/website/blog/_search</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bpimg.com/581590/c7798605e300559f.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">如果文档存在，es会返回200 ok的状态吗，found属性值为<span class="literal">true</span>，_version属性的值+1</span><br><span class="line">found属性值为<span class="literal">false</span>，但是version属性的值依然会+1，这个就是内部管理的一部分，它保证了我们在多个节点间的不同操作的顺序都被正确标记了</span><br><span class="line"></span><br><span class="line">注意：删除一个文档也不会立即生效，它只是被标记成已删除。</span><br><span class="line">Elasticsearch将会在你之后添加更多索引的时候才会在后台进行删除内存的清理</span><br><span class="line"></span><br><span class="line">通过查询API删除指定索引库下指定类型下的数据</span><br><span class="line">curl -XDELETE <span class="string">'http://192.168.230.10:9200/matrix/employee/_query?q=last_name:Smith'</span></span><br><span class="line"></span><br><span class="line">curl -XDELETE <span class="string">'http://localhost:9200/matrix/emp/_query'</span> -d</span><br><span class="line"><span class="string">'&#123;</span></span><br><span class="line"><span class="string">"query" : &#123;</span></span><br><span class="line"><span class="string">"term" : &#123; "user" : "kimchy" &#125;</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"><span class="string">&#125;'</span></span><br><span class="line"></span><br><span class="line">通过查询API删除指定索引库下多种类型下的数据</span><br><span class="line">curl -XDELETE <span class="string">'http://localhost:9200/bjsxt/emp,user/_query?q=user:kimc</span></span><br><span class="line"><span class="string">hy‘</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">通过查询API删除多个索引库下多种类型下的数据</span></span><br><span class="line"><span class="string">curl -XDELETE '</span>http://localhost:9200/bjsxt,index/emp,user/_query?q=user</span><br><span class="line">:kimchy<span class="string">'</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">或者删除所有索引库中的匹配的数据</span></span><br><span class="line"><span class="string">curl -XDELETE '</span>http://localhost:9200/_all/_query?q=tag:wow<span class="string">'</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">Elasticsearch的删除</span></span><br><span class="line"><span class="string">• 通过查询API删除指定索引库下多种类型下的数据</span></span><br><span class="line"><span class="string">curl -XDELETE</span></span><br><span class="line"><span class="string">'</span>http://localhost:9200/bjsxt/emp,user/_query?q=user:kimc</span><br><span class="line">hy‘</span><br><span class="line">• 通过查询API删除多个索引库下多种类型下的数据</span><br><span class="line">curl -XDELETE</span><br><span class="line"><span class="string">'http://localhost:9200/bjsxt,index/emp,user/_query?q=user</span></span><br><span class="line"><span class="string">:kimchy'</span></span><br><span class="line">或者删除所有索引库中的匹配的数据</span><br><span class="line">curl -XDELETE</span><br><span class="line"><span class="string">'http://localhost:9200/_all/_query?q=tag:wow'</span></span><br></pre></td></tr></table></figure>
+<h2 id="Elasticsearch的批量操作bulk"><a href="#Elasticsearch的批量操作bulk" class="headerlink" title="Elasticsearch的批量操作bulk"></a>Elasticsearch的批量操作bulk</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">• 与mget类似，bulk API可以帮助我们同时执行多个请求</span><br><span class="line">• 格式：</span><br><span class="line">– action：index/create/update/delete</span><br><span class="line">– metadata：_index,_type,_id</span><br><span class="line">– request body：_source(删除操作不需要)</span><br><span class="line">&#123; action: &#123; metadata &#125;&#125;\n</span><br><span class="line">&#123; request body &#125;\n</span><br><span class="line">&#123; action: &#123; metadata &#125;&#125;\n</span><br><span class="line">&#123; request body &#125;\n</span><br><span class="line">• 使用curl -XPOST -d 时注意，不能直接在json字符串中添加\n字符，应该按回车</span><br><span class="line">• create 和index的区别</span><br><span class="line">– 如果数据存在，使用create操作失败，会提示文档已经存在，使用index则可以成功执行。</span><br><span class="line">• 使用文件的方式</span><br><span class="line">– vi requests</span><br><span class="line">– curl -XPOST/PUT localhost:9200/_bulk --data-binary @request;</span><br><span class="line">• bulk请求可以在URL中声明/_index 或者/_index/_type</span><br><span class="line">• bulk一次最大处理多少数据量</span><br><span class="line">– bulk会把将要处理的数据载入内存中，所以数据量是有限制的</span><br><span class="line">– 最佳的数据量不是一个确定的数值，它取决于你的硬件，你的文档大小以及复杂性，你的索引</span><br><span class="line">以及搜索的负载</span><br><span class="line">– 一般建议是1000-5000个文档，如果你的文档很大，可以适当减少队列，大小建议是5-15MB，</span><br><span class="line">默认不能超过100M，可以在es的配置文件中修改这个值http.max_content_length: 100mb</span><br></pre></td></tr></table></figure>
+<h2 id="Elasticsearch的版本控制"><a href="#Elasticsearch的版本控制" class="headerlink" title="Elasticsearch的版本控制"></a>Elasticsearch的版本控制</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line">• 普通关系型数据库使用的是（悲观并发控制（PCC））</span><br><span class="line">– 当我们在读取一个数据前先锁定这一行，然后确保只有读取到数据的这个线程</span><br><span class="line">可以修改这一行数据</span><br><span class="line">• ES使用的是（乐观并发控制（OCC））</span><br><span class="line">– ES不会阻止某一数据的访问，然而，如果基础数据在我们读取和写入的间隔中</span><br><span class="line">发生了变化，更新就会失败，这时候就由程序来决定如何处理这个冲突。它可</span><br><span class="line">以重新读取新数据来进行更新，又或者将这一情况直接反馈给用户。</span><br><span class="line">• ES如何实现版本控制(使用es内部版本号)</span><br><span class="line">– 1：首先得到需要修改的文档，获取版本(_version)号</span><br><span class="line">• curl -XGET http://localhost:9200/elasticsearch/emp/1</span><br><span class="line">– 2：在执行更新操作的时候把版本号传过去</span><br><span class="line">• curl -XPUT http://localhost:9200/elasticsearch/emp/1?version=1 -d</span><br><span class="line"><span class="string">'&#123;"name":“zs","age":25&#125;'</span>(覆盖)</span><br><span class="line">• curl -XPOST http://localhost:9200/elasticsearch/emp/1/_update?version=1 -d</span><br><span class="line"><span class="string">'&#123;"doc":&#123;"city":"beijing","car":"BMW"&#125;&#125;'</span>(部分更新)</span><br><span class="line">– 3：如果传递的版本号和待更新的文档的版本号不一致，则会更新失败</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">• ES如何实现版本控制(使用外部版本号)</span><br><span class="line">– 如果你的数据库已经存在了版本号，或者是可以代表版本</span><br><span class="line">的时间戳。这时就可以在es的查询url后面添加</span><br><span class="line">version_type=external来使用这些号码。</span><br><span class="line">– 注意：版本号码必须要是大于0小于</span><br><span class="line">9223372036854775807（Java中long的最大正值）的整</span><br><span class="line">数。</span><br><span class="line">– es在处理外部版本号的时候，它不再检查_version是否与</span><br><span class="line">请求中指定的数值是否相等，而是检查当前的_version是</span><br><span class="line">否比指定的数值小，如果小，则请求成功。</span><br><span class="line">– example：</span><br><span class="line">• curl -XPUT</span><br><span class="line">‘http://localhost:9200/bjsxt/emp/20?version=10&amp;version_t</span><br><span class="line">ype=external’ -d ‘&#123;“name”: “laoxiao<span class="string">"&#125;'</span></span><br><span class="line"><span class="string">• 注意：此处url前后的引号不能省略，否则执行的时候会报错</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">Elasticsearch的插件</span></span><br><span class="line"><span class="string">• 站点插件（以网页形式展现）</span></span><br><span class="line"><span class="string">– BigDesk Plugin (作者 Lukáš Vlček)</span></span><br><span class="line"><span class="string">– 简介：监控es状态的插件，推荐！</span></span><br><span class="line"><span class="string">– Elasticsearch Head Plugin (作者 Ben Birch)</span></span><br><span class="line"><span class="string">– 简介：很方便对es进行各种操作的客户端。</span></span><br><span class="line"><span class="string">– Paramedic Plugin (作者 Karel Minařík)</span></span><br><span class="line"><span class="string">– 简介：es监控插件</span></span><br><span class="line"><span class="string">– SegmentSpy Plugin (作者 Zachary Tong)</span></span><br><span class="line"><span class="string">– 简介：查看es索引segment状态的插件</span></span><br><span class="line"><span class="string">– Inquisitor Plugin (作者 Zachary Tong)</span></span><br><span class="line"><span class="string">– 简介：这个插件主要用来调试你的查询。</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">• 这个主要提供的是节点的实时状态监控，包括jvm的情况，</span></span><br><span class="line"><span class="string">linux的情况，elasticsearch的情况</span></span><br><span class="line"><span class="string">– 安装bin/plugin install lukas-vlcek/bigdesk</span></span><br><span class="line"><span class="string">– 删除bin/plugin remove bigdesk</span></span><br><span class="line"><span class="string">• http://192.168.57.4:9200/_plugin/bigdesk/</span></span><br><span class="line"><span class="string">• http://192.168.57.4:9200/_cluster/state?pretty</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">• 这个主要提供的是健康状态查询</span></span><br><span class="line"><span class="string">– 安装bin/plugin -install mobz/elasticsearch-head</span></span><br><span class="line"><span class="string">• http://192.168.57.4:9200/_plugin/head/</span></span><br><span class="line"><span class="string">• http://192.168.57.4:9200/_cluster/health?pretty</span></span><br></pre></td></tr></table></figure>
+    </div>
+  </div>
+  
+    <div class="copy-right">
+      <div class="markdown-body">
+        <blockquote>
+        
+        
+          本文作者 : Matrix <br>
+        
+        原文链接 : <a href="">http://yoursite.com/2016/02/12/ElasticSearch使用/</a><br>
+        版权声明 : 本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+        </blockquote>
+      </div>
+    </div>
+  
+  
+  
+    <div class="social-share" style="margin-top: -2rem" data-wechat-qrcode-title="<p>微信扫一扫</p>" data-wechat-qrcode-helper="<p>微信右上角, 扫一扫分享</p>" data-sites="qzone, qq, weibo, wechat, douban, google, facebook, twitter">
+  <span style="color: #6b7487; font-size: 1.4rem;">分享到: </span>
+</div>
+<script src="https://cdn.bootcss.com/social-share.js/1.0.16/js/social-share.min.js" async></script>
+  
+
+  
+    <div id="reward">
+  
+    <p id="reward-meta">知识 & 情怀 | 二者兼得</p>
+  
+  <button id="reward-btn">
+    
+    <span>投食</span>
+  </button>
+  <div id="reward-qrcode">
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/wechatpay.jpg" alt="微信扫一扫, 向我投食">
+        <p class="qrcode-meta">微信扫一扫, 向我投食</p>
+      </div>
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/alipaypay.jpg" alt="支付宝扫一扫, 向我投食">
+        <p class="qrcode-meta">支付宝扫一扫, 向我投食</p>
+      </div>
+    
+  </div>
+
+</div>
+
+<script>
+  (() => {
+    let button = document.querySelector('#reward-btn'),
+      qrcode = document.querySelector('#reward-qrcode'),
+      display = false;
+    
+    button.addEventListener('click', () => {
+      qrcode.style.display = display ? 'none' : 'block'
+      display = !display
+    }, false)
+  })()
+</script>
+  
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+      <span>
+        
+          <i class="iconfont icon-06tags"></i>标签: 
+          
+          <span class="span--tag">
+            <a href="/tags/elasticsearch/">
+              #elasticsearch
+            </a>
+          </span>
+          
+        
+      </span>
+    </div>
+    <div class="article-meta pull-right">
+    </div>
+  </div>
+</div>
+
+
+  <aside id="sidebar">
+    <p id="sidebar-header"></p>
+    <ol id="sidebar-toc"></ol>
+  </aside>
+  <script async>setTimeout(generateToc, 10);</script>
+
+
+  <nav class="post-navigation">
+    
+      <div class="nav-pre">
+        <i class="iconfont icon-prev"></i>
+        上一篇:
+        <a href="/2016/02/12/HBase应用场景、原理与基本架构/" target="_self">HBase</a>
+      </div>
+    
+    
+      <div class="nav-next">
+        下一篇:
+        <a href="/2016/02/12/Hive自定义函数和Transform/" target="_self">Hive自定义函数和Transform</a>
+        <i class="iconfont icon-next"></i>
+      </div>
+    
+  </nav>
+
+  
+    <a href="#comment" class="comment-anchor"></a>
+<div class="comment-title"><i class="iconfont icon-footprint"></i> 留下足迹 <i class="iconfont icon-footprint"></i></div>
+<div id="vcomments"></div>
+
+<script defer>
+  if( true ) {
+    let path = getRealPath()
+    new Valine({
+      el: "#vcomments",
+      appId: "Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz",
+      appKey: "WaR7nrzhliHj9aVwdQzkdlGd",
+      notify: false,
+      verify: false,
+      avatar: "robohash",
+      placeholder: "正确填写邮箱, 才能及时收到回复哦♪(^∇^*)",
+      path
+    });
+  }
+</script>
+   
+
+  
+    <script defer>
+const valineAPI = (() => {
+  try {
+    AV.init("Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz", "WaR7nrzhliHj9aVwdQzkdlGd");
+  } catch(error) {}
+  const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+      query.equalTo("identity", identity);
+      query.find().then(results => {
+        resolve(results.length > 0);
+      }, error => reject(error));
+    })
+  }
+
+  const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+      let querys = [];
+      for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+      }
+      query = AV.Query.or.apply(null ,querys);
+    } else {
+      identity = identity || getRealPath();
+      query = new AV.Query("Timer");
+      query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+      query.find()
+      .then(results => resolve(results))
+      .catch(error => reject(error))
+    })
+  }
+
+  const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let Todo = AV.Object.extend('Timer');
+      let todo = new Todo();
+      todo.set("times", 1);
+      todo.set("identity", identity);
+      todo.save().then(res => resolve(true), error => reject(error));
+    })
+  }
+
+  const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let query = new AV.Query('Timer');
+      query.equalTo("identity", identity);
+      query.find().then(todos => {
+        todos.forEach(todo => {
+          todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+      }).then(todos => resolve(true), error => reject(error));
+    })
+  }
+
+  return {
+    isExist,
+    _get,
+    update,
+    create
+  }
+})()
+
+const calcAndWriteTimes = () => {
+  let isPost = true;
+
+  let timerAllDOM = document.querySelectorAll(".article-timer");
+
+  if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+      if(exist) {
+        return valineAPI.update(identity);
+      }
+      return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+  }
+
+  let timerDOMCache = {};
+
+  for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+      timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+      timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+      };
+    }
+  }
+
+  let identities = Object.keys(timerDOMCache);
+  valineAPI._get(identities).then(results => {
+    for(let result of results) {
+      let {identity, times} = result.attributes;
+      timerDOMCache[identity].times = times;
+      timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+      if(timerDOMCache[identity].times){
+        continue;
+      }
+      timerDOMCache[identity].dom.map(item => item.innerText = 1);
+      valineAPI.create(identity);
+    }
+  }).catch(error => console.log(error.message))
+}
+
+if(true){
+  calcAndWriteTimes();
+}
+</script>
+   
+
+</div>
+
+
+      <footer>
+  <p class="site-info">
+    博客已萌萌哒运行<span id="time-to-now"></span><span class="my-face">(●'◡'●)ﾉ♥</span>
+    <br>
+    Theme - <a href="https://github.com/dongyuanxin/theme-bmw">BMW</a> | Powered by <a href="https://godbmw.com/">GodBMW</a>
+    <br>
+    
+      Copyright © 2019 Matrix
+    
+  </p>
+</footer>
+
+
+
+<script>
+const timeToNowDOM = document.querySelector("#time-to-now");
+const startTimestamp = new Date(2016, 4, 10).getTime();
+
+const updateTimeStr = () => {
+  let offset = parseInt(
+      (new Date().getTime() - startTimestamp) / 1000,
+      10
+    ),
+    day = Math.floor(offset / 86400),
+    hour = Math.floor((offset % 86400) / 3600),
+    minute = Math.floor(((offset % 86400) % 3600) / 60),
+    second = Math.floor(((offset % 86400) % 3600) % 60);
+  timeToNowDOM.innerHTML =
+    day + "天" + hour + "小时" + minute + "分钟" + second + "秒";
+  setTimeout(updateTimeStr, 500);
+}
+
+setTimeout(updateTimeStr, 500);
+</script>
+
+
+      <div class="back-to-top hidden">
+  <span>
+    <i class="iconfont icon-60"></i><span></span>%
+  </span>
+</div>
+
+<script>
+const updateIconToTop = percent => {
+  let dom = document.querySelector(".back-to-top span span");
+  dom.innerText = percent;
+  if(percent < 1) {
+    document.querySelector(".back-to-top").className = "back-to-top hidden";
+  } else {
+    document.querySelector(".back-to-top").className = "back-to-top";
+  }
+}
+
+const handleScoll = () => {
+  let isRunning = false;
+  return () => {
+    if (isRunning) return;
+    isRunning = true;
+    window.requestAnimationFrame(timestamp => {
+      let scrollTop =
+          document.documentElement.scrollTop || document.body.scrollTop,
+        scrollHeight =
+          document.documentElement.scrollHeight ||
+          document.body.scrollHeight,
+        clientHeight =
+          document.documentElement.clientHeight ||
+          document.body.clientHeight;
+      isRunning = false;
+      if (scrollTop <= 1) {
+        updateIconToTop(0);
+        return;
+      }
+      if (scrollTop + clientHeight >= scrollHeight) {
+        updateIconToTop(100);
+      } else {
+        updateIconToTop(parseInt(
+          100 * scrollTop / (scrollHeight - clientHeight),
+          10
+        ));
+      }
+    });
+  };
+}
+
+const backToTop = () => {
+  let scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop,
+    delay = 10,
+    time = 200;
+  if (scrollTop <= 20) {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    return;
+  }
+  let step = Math.ceil(scrollTop * delay / time);
+  let timer = setInterval(() => {
+    scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop;
+    if (scrollTop - step <= 0) {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      clearInterval(timer);
+    } else {
+      document.documentElement.scrollTop = scrollTop - step;
+      document.body.scrollTop = scrollTop - step;
+    }
+  }, delay);
+}
+
+document.addEventListener("scroll", handleScoll(), false);
+
+document.querySelector(".back-to-top").addEventListener("click", backToTop, false);
+
+</script>
+
+    </div>
+
+    
+      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  (() => {
+    const mathjaxConfig = {
+      showProcessingMessages: false, //关闭js加载过程信息
+      messageStyle: "none", //不显示信息
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]], //行内公式选择符
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]], //段内公式选择符
+        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"] //避开某些标签
+      },
+      "HTML-CSS": {
+        availableFonts: ["STIX", "TeX"], //可选字体
+        showMathMenu: false //关闭右击菜单显示
+      }
+    }
+
+    let mathjaxInterval = setInterval(() => {
+      if(!window.MathJax){
+        return;
+      }
+      window.MathJax.Hub.Config(mathjaxConfig)
+      window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')])
+
+      clearInterval(mathjaxInterval)
+    }, 10)    
+  })()
+</script>
+    
+
+    <script src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script>
+<script async>
+  let fancyTimer = setInterval(function(){
+    if(!window.$){
+      return;
+    }
+    $(document).ready(function() {
+      $(".post img").each(function () {
+        if($(this).parent().get(0).tagName.toLowerCase() === "a") {
+          return;
+        }
+        // $(this).attr("data-fancybox", "gallery"); // if you add 'data-fancybox', img will display after showed
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "gallery");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      });
+      
+      clearInterval(fancyTimer);
+    });
+  }, 10);
+</script>
+
+    
+  </body>
+
+</html>

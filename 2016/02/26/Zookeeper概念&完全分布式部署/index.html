@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta name="author" content="董沅鑫, yuanxin.me@gmail.com">
+  
+  
+  
+  <title>Zookeeper部署完全分布式 | 每天遇到更好的你</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="大数据,大数据,Zookeeper,">
+  
+
+  <script>
+    console.log('\n%c Hexo-theme-bmw v4.0 ' + '%c 🎉 https://github.com/dongyuanxin/theme-bmw 🎉\n' + '\n%c View demo online ' + '%c 🔍 https://godbmw.com/ 🔍  \n' , 'color: #fadfa3; background: #030307; padding:3px 0;', '', 'color: #fadfa3; background: #030307; padding:3px 0;', '');
+  </script>
+
+  
+
+  
+
+  
+    <link rel="icon" href="/images/favicon.png">
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+  
+
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/icon/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+  <script src="/js/util.js"></script>
+<script src="/js/valine.min.js"></script>
+
+  
+
+  
+    <link href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js" async></script>
+  
+
+  
+    <link href="https://cdn.bootcss.com/social-share.js/1.0.16/css/share.min.css" rel="stylesheet">
+  
+  
+  <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js" async></script>
+  
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.0/dist/av-min.js"></script>
+  
+
+</head>
+
+  <body>
+
+    
+
+    <div id="app">
+
+      <div class="header-wrap">
+  <header>
+    <div class="site-brand">
+      <div class="site-title">
+        <!-- <a href="/">MatrixSparse</a> -->
+        <img alt="logo" class="antd-pro-layouts-user-layout-logo" src="/images/favicon.png" style="width: 40px;height: 40px;margin-top: 10px;margin-left: 5px;">
+      </div>
+    </div>
+    <nav class="site-navigation">
+      <ul class="nav-menu">
+      
+        <li class="nav-item" data-path="/">
+          
+            <a href="/" target="_self">
+              主页
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          
+            <a href="/archives/" target="_self">
+              归档
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          
+            <a href="/categories/" target="_self">
+              分类
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          
+            <a href="/tags/" target="_self">
+              标签
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="">
+          
+            <a href="javascript:void(0);" v-else="">博客地址</a>
+            <ul class="nav-menu--dropdown">
+              
+                <li>
+                  <a href="https://blog.csdn.net/qq_25371579" target="_blank">
+                    CSDN
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://github.com/matrixsparse" target="_blank">
+                    Github
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://matrixsparse.github.io/" target="_blank">
+                    Github Page
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+      </ul>
+    </nav>
+    <i class="iconfont icon-menu"></i>
+  </header>
+</div>
+
+<script>
+  let links = document.querySelectorAll('.nav-item');
+  for(let link of links){
+    let childrenLink = link.querySelector('ul');
+    link.addEventListener('mouseenter', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown active";
+      }
+    })
+    link.addEventListener('mouseleave', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown";
+      }
+    })
+  }
+  let rootRealPath = getRealPath(window.location.pathname, true);
+  for(let link of links) {
+    let linkPath = link.getAttribute("data-path");
+    if(linkPath && getRealPath(linkPath, true) === rootRealPath) {
+      link.className = "nav-item hover";
+    }
+  }
+
+  let iconMenu = document.querySelector("i.iconfont.icon-menu"),
+    iconMenuClicked = false;
+  let navDOM = document.querySelector("nav.site-navigation");
+  iconMenu.addEventListener("click", () => {
+    iconMenuClicked
+      ? navDOM.className = "site-navigation active"
+      : navDOM.className = "site-navigation";
+    iconMenuClicked = !iconMenuClicked;
+  })
+</script>
+
+
+      
+
+
+
+
+
+
+
+
+<div class="container post-index">
+
+  
+
+<div class="post">
+  <h1 class="article-title">
+    <span>Zookeeper部署完全分布式</span>
+  </h1>
+  <div class="article-top-meta">
+    <span>
+      发布 : 
+      2016-02-26
+    </span>
+    
+      <span>
+        分类 : 
+          <a href="/categories/大数据/">
+            大数据
+          </a>
+      </span>
+    
+    
+      <span>
+        浏览 : <span class="article-timer" data-identity="Zookeeper概念&完全分布式部署"></span>
+      </span>
+    
+  </div>
+
+  
+
+  <div class="article-content">
+    <div class="markdown-body">
+      <h2 id="1-Zookeeper概念简介："><a href="#1-Zookeeper概念简介：" class="headerlink" title="1.Zookeeper概念简介："></a>1.Zookeeper概念简介：</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Zookeeper是一个分布式协调服务；就是为用户的分布式应用程序提供协调服务</span><br><span class="line">A、zookeeper是为别的分布式程序服务的</span><br><span class="line">B、Zookeeper本身就是一个分布式程序（只要有半数以上节点存活，zk就能正常服务）</span><br><span class="line">C、Zookeeper所提供的服务涵盖：主从协调、服务器节点动态上下线、统一配置管理、分布式共享锁、统一名称服务……</span><br></pre></td></tr></table></figure>
+<h3 id="zookeeper在底层其实只提供了两个功能"><a href="#zookeeper在底层其实只提供了两个功能" class="headerlink" title="zookeeper在底层其实只提供了两个功能"></a>zookeeper在底层其实只提供了两个功能</h3><ul>
+<li><code>管理(存储，读取)</code>用户程序提交的<code>数据</code></li>
+<li>用户程序提供数据节点<code>监听</code>服务</li>
+</ul>
+<h3 id="1-2-Zookeeper常用应用场景："><a href="#1-2-Zookeeper常用应用场景：" class="headerlink" title="1.2.Zookeeper常用应用场景："></a>1.2.Zookeeper常用应用场景：</h3><h4 id="1-2-1、服务器状态的动态感知"><a href="#1-2-1、服务器状态的动态感知" class="headerlink" title="1.2.1、服务器状态的动态感知"></a>1.2.1、服务器状态的动态感知</h4><p><img src="http://p1.bpimg.com/581590/5f9500d2734c32ef.png" alt="Markdown"></p>
+<h4 id="1-2-2、配置文件管理"><a href="#1-2-2、配置文件管理" class="headerlink" title="1.2.2、配置文件管理"></a>1.2.2、配置文件管理</h4><p><img src="http://p1.bpimg.com/581590/6ee0362e4dc7d6e9.png" alt="Markdown"></p>
+<h4 id="1-2-3、分布式共享锁"><a href="#1-2-3、分布式共享锁" class="headerlink" title="1.2.3、分布式共享锁"></a>1.2.3、分布式共享锁</h4><p><img src="http://p1.bpimg.com/581590/75d9dd81277d8130.png" alt="Markdown"></p>
+<h4 id="1-2-4、master选举"><a href="#1-2-4、master选举" class="headerlink" title="1.2.4、master选举"></a>1.2.4、master选举</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Zookeeper集群的角色：  Leader 和  follower  （Observer）</span><br><span class="line">只要集群中有半数以上节点存活，集群就能提供服务</span><br></pre></td></tr></table></figure>
+<h2 id="2-zookeeper集群机制"><a href="#2-zookeeper集群机制" class="headerlink" title="2.zookeeper集群机制"></a>2.zookeeper集群机制</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">半数机制：集群中半数以上机器存活，集群可用。</span><br><span class="line">zookeeper适合装在奇数台机器上！！！</span><br></pre></td></tr></table></figure>
+<h2 id="3-Zookeeper搭建规划"><a href="#3-Zookeeper搭建规划" class="headerlink" title="3.Zookeeper搭建规划"></a>3.Zookeeper搭建规划</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">192.168.230.11/node02   192.168.230.12/node03 	192.168.230.13/node04</span><br></pre></td></tr></table></figure>
+<h2 id="4-上传Zookeeper压缩文件到Linux主机的指定目录下"><a href="#4-上传Zookeeper压缩文件到Linux主机的指定目录下" class="headerlink" title="4.上传Zookeeper压缩文件到Linux主机的指定目录下"></a>4.上传Zookeeper压缩文件到Linux主机的指定目录下</h2><h2 id="5-解压Zookeeper压缩文件"><a href="#5-解压Zookeeper压缩文件" class="headerlink" title="5.解压Zookeeper压缩文件"></a>5.解压Zookeeper压缩文件</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node02 software]<span class="comment"># tar -zxf zookeeper-3.4.6.tar.gz -C /opt/modules</span></span><br></pre></td></tr></table></figure>
+<h2 id="6-进入-opt-modules目录下将zookeeper-3-4-6目录重命名为zookeeper"><a href="#6-进入-opt-modules目录下将zookeeper-3-4-6目录重命名为zookeeper" class="headerlink" title="6.进入/opt/modules目录下将zookeeper-3.4.6目录重命名为zookeeper"></a>6.进入/opt/modules目录下将zookeeper-3.4.6目录重命名为zookeeper</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node02 modules]<span class="comment"># mv zookeeper-3.4.6 zookeeper</span></span><br></pre></td></tr></table></figure>
+<h2 id="7-进入zookeeper文件夹-创建data和logs创建目录并赋于写权限，用于指定zookeeper的数据存放目录和日志目录"><a href="#7-进入zookeeper文件夹-创建data和logs创建目录并赋于写权限，用于指定zookeeper的数据存放目录和日志目录" class="headerlink" title="7.进入zookeeper文件夹,创建data和logs创建目录并赋于写权限，用于指定zookeeper的数据存放目录和日志目录"></a>7.进入zookeeper文件夹,创建data和logs创建目录并赋于写权限，用于指定zookeeper的数据存放目录和日志目录</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@node02 ~]<span class="comment"># cd /opt/modules/zookeeper</span></span><br><span class="line">[root@node02 zookeeper]<span class="comment"># mkdir data</span></span><br><span class="line">[root@node02 zookeeper]<span class="comment"># mkdir logs</span></span><br></pre></td></tr></table></figure>
+<h2 id="8-复制zoo-sample-cfg文件"><a href="#8-复制zoo-sample-cfg文件" class="headerlink" title="8.复制zoo_sample.cfg文件"></a>8.复制zoo_sample.cfg文件</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[root@node02 ~]<span class="comment"># cd /opt/modules/zookeeper/conf</span></span><br><span class="line">[root@node02 conf]<span class="comment"># cp zoo_sample.cfg zoo.cfg</span></span><br><span class="line">[root@node02 conf]<span class="comment"># ll</span></span><br><span class="line">total 16</span><br><span class="line">-rw-rw-r-- 1 1000 1000  535 Feb 20  2014 configuration.xsl</span><br><span class="line">-rw-rw-r-- 1 1000 1000 2161 Feb 20  2014 log4j.properties</span><br><span class="line">-rw-r--r-- 1 root root  922 Mar  7 13:46 zoo.cfg</span><br><span class="line">-rw-rw-r-- 1 1000 1000  922 Feb 20  2014 zoo_sample.cfg</span><br></pre></td></tr></table></figure>
+<h2 id="9-编辑zoo-cfg文件"><a href="#9-编辑zoo-cfg文件" class="headerlink" title="9.编辑zoo.cfg文件"></a>9.编辑zoo.cfg文件</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@node02 conf]<span class="comment"># vi zoo.cfg</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://i1.piimg.com/581590/698ad8107d75e98e.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">dataDir=/opt/modules/zookeeper/data</span><br><span class="line">dataLogDir=/opt/modules/zookeeper/logs</span><br></pre></td></tr></table></figure>
+<p><img src="http://i1.piimg.com/581590/6a5c586e5f63ca3f.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">server.1=192.168.230.11:2888:3888</span><br><span class="line">server.2=192.168.230.12:2888:3888</span><br><span class="line">server.3=192.168.230.13:2888:3888</span><br></pre></td></tr></table></figure>
+<p><img src="http://i1.piimg.com/581590/a01ed7506dfa5572.png" alt="Markdown"></p>
+<h2 id="10-进入data文件夹-建立对应的myid文件"><a href="#10-进入data文件夹-建立对应的myid文件" class="headerlink" title="10.进入data文件夹 建立对应的myid文件"></a>10.进入data文件夹 建立对应的myid文件</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@node02 ~]<span class="comment"># cd /opt/modules/zookeeper/data</span></span><br><span class="line">[root@node02 data]<span class="comment"># vi myid</span></span><br><span class="line">1</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xqkk1.com1.z0.glb.clouddn.com/16-3-7/55397120.jpg" alt=""></p>
+<h2 id="11-拷贝zookeeper文件夹到其他机器node03-192-168-230-12-、node04-192-168-230-13-上"><a href="#11-拷贝zookeeper文件夹到其他机器node03-192-168-230-12-、node04-192-168-230-13-上" class="headerlink" title="11.拷贝zookeeper文件夹到其他机器node03(192.168.230.12)、node04(192.168.230.13)上"></a>11.拷贝zookeeper文件夹到其他机器node03(192.168.230.12)、node04(192.168.230.13)上</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@node02 ~]<span class="comment"># scp -r /opt/modules/zookeeper root@node03:/opt/modules/zookeeper/</span></span><br><span class="line">[root@node02 ~]<span class="comment"># scp -r /opt/modules/zookeeper root@node04:/opt/modules/zookeeper/</span></span><br></pre></td></tr></table></figure>
+<h2 id="12-修改其他机器node03-192-168-230-12-、node04-192-168-230-13-上的myid文件"><a href="#12-修改其他机器node03-192-168-230-12-、node04-192-168-230-13-上的myid文件" class="headerlink" title="12.修改其他机器node03(192.168.230.12)、node04(192.168.230.13)上的myid文件"></a>12.修改其他机器node03(192.168.230.12)、node04(192.168.230.13)上的myid文件</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[root@node03 ~]<span class="comment"># cd /opt/modules/zookeeper/data</span></span><br><span class="line">[root@node03 data]<span class="comment"># vi myid</span></span><br><span class="line">2</span><br><span class="line"></span><br><span class="line">[root@node04 ~]<span class="comment"># cd /opt/modules/zookeeper/data</span></span><br><span class="line">[root@node04 data]<span class="comment"># vi myid</span></span><br><span class="line">3</span><br></pre></td></tr></table></figure>
+<h2 id="13-分别启动三台机器的zookeeper"><a href="#13-分别启动三台机器的zookeeper" class="headerlink" title="13.分别启动三台机器的zookeeper"></a>13.分别启动三台机器的zookeeper</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@node02 data]<span class="comment"># cd /opt/modules/zookeeper</span></span><br><span class="line">[root@node02 zookeeper]<span class="comment"># ./bin/zkServer.sh start</span></span><br><span class="line">查看zookeeper的状态</span><br><span class="line">[root@node02 zookeeper]<span class="comment"># ./bin/zkServer.sh status</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bpimg.com/581590/d79926c5a0a1d730.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@node03 data]<span class="comment"># cd /opt/modules/zookeeper</span></span><br><span class="line">[root@node03 zookeeper]<span class="comment"># ./bin/zkServer.sh start</span></span><br><span class="line">查看zookeeper的状态</span><br><span class="line">[root@node03 zookeeper]<span class="comment"># ./bin/zkServer.sh status</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bpimg.com/581590/25ee4e2a1448b566.png" alt="Markdown"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@node04 data]<span class="comment"># cd /opt/modules/zookeeper</span></span><br><span class="line">[root@node04 zookeeper]<span class="comment"># ./bin/zkServer.sh start</span></span><br><span class="line">查看zookeeper的状态</span><br><span class="line">[root@node04 zookeeper]<span class="comment"># ./bin/zkServer.sh status</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://p1.bpimg.com/581590/5b8b30ebfb5b6177.png" alt="Markdown"></p>
+<h2 id="14-开启zookeeper的端口"><a href="#14-开启zookeeper的端口" class="headerlink" title="14.开启zookeeper的端口"></a>14.开启zookeeper的端口</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">/sbin/iptables -I INPUT -p tcp --dport 2181 -j ACCEPT</span><br><span class="line">/sbin/iptables -I INPUT -p tcp --dport 2888 -j ACCEPT</span><br><span class="line">/sbin/iptables -I INPUT -p tcp --dport 3888 -j ACCEPT</span><br><span class="line">/sbin/iptables -I INPUT -p tcp --dport 8080 -j ACCEPT  --开启tomcat 8080端口</span><br><span class="line"></span><br><span class="line">/etc/rc.d/init.d/iptables save <span class="comment">#将更改进行保存</span></span><br><span class="line">/etc/init.d/iptables restart <span class="comment">#重启防火墙以便改动生效</span></span><br><span class="line"></span><br><span class="line">tail -100 xxx.log <span class="comment">#监控日志</span></span><br></pre></td></tr></table></figure>
+<h2 id="15-查看集群状态"><a href="#15-查看集群状态" class="headerlink" title="15.查看集群状态"></a>15.查看集群状态</h2><h3 id="15-1-jps-查看进程"><a href="#15-1-jps-查看进程" class="headerlink" title="15.1.jps(查看进程)"></a>15.1.jps(查看进程)</h3><p><img src="http://p1.bqimg.com/581590/1ada309382d4df10.png" alt="Markdown"></p>
+<h3 id="15-2-zkServer-sh-status-查看集群状态，主从信息"><a href="#15-2-zkServer-sh-status-查看集群状态，主从信息" class="headerlink" title="15.2.zkServer.sh status(查看集群状态，主从信息)"></a>15.2.zkServer.sh status(查看集群状态，主从信息)</h3>
+    </div>
+  </div>
+  
+    <div class="copy-right">
+      <div class="markdown-body">
+        <blockquote>
+        
+        
+          本文作者 : Matrix <br>
+        
+        原文链接 : <a href="">http://yoursite.com/2016/02/26/Zookeeper概念&完全分布式部署/</a><br>
+        版权声明 : 本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+        </blockquote>
+      </div>
+    </div>
+  
+  
+  
+    <div class="social-share" style="margin-top: -2rem" data-wechat-qrcode-title="<p>微信扫一扫</p>" data-wechat-qrcode-helper="<p>微信右上角, 扫一扫分享</p>" data-sites="qzone, qq, weibo, wechat, douban, google, facebook, twitter">
+  <span style="color: #6b7487; font-size: 1.4rem;">分享到: </span>
+</div>
+<script src="https://cdn.bootcss.com/social-share.js/1.0.16/js/social-share.min.js" async></script>
+  
+
+  
+    <div id="reward">
+  
+    <p id="reward-meta">知识 & 情怀 | 二者兼得</p>
+  
+  <button id="reward-btn">
+    
+    <span>投食</span>
+  </button>
+  <div id="reward-qrcode">
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/wechatpay.jpg" alt="微信扫一扫, 向我投食">
+        <p class="qrcode-meta">微信扫一扫, 向我投食</p>
+      </div>
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/alipaypay.jpg" alt="支付宝扫一扫, 向我投食">
+        <p class="qrcode-meta">支付宝扫一扫, 向我投食</p>
+      </div>
+    
+  </div>
+
+</div>
+
+<script>
+  (() => {
+    let button = document.querySelector('#reward-btn'),
+      qrcode = document.querySelector('#reward-qrcode'),
+      display = false;
+    
+    button.addEventListener('click', () => {
+      qrcode.style.display = display ? 'none' : 'block'
+      display = !display
+    }, false)
+  })()
+</script>
+  
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+      <span>
+        
+          <i class="iconfont icon-06tags"></i>标签: 
+          
+          <span class="span--tag">
+            <a href="/tags/大数据/">
+              #大数据
+            </a>
+          </span>
+          
+          <span class="span--tag">
+            <a href="/tags/Zookeeper/">
+              #Zookeeper
+            </a>
+          </span>
+          
+        
+      </span>
+    </div>
+    <div class="article-meta pull-right">
+    </div>
+  </div>
+</div>
+
+
+  <aside id="sidebar">
+    <p id="sidebar-header"></p>
+    <ol id="sidebar-toc"></ol>
+  </aside>
+  <script async>setTimeout(generateToc, 10);</script>
+
+
+  <nav class="post-navigation">
+    
+      <div class="nav-pre">
+        <i class="iconfont icon-prev"></i>
+        上一篇:
+        <a href="/2016/02/26/Zookeeper原理/" target="_self">Zookeeper原理</a>
+      </div>
+    
+    
+      <div class="nav-next">
+        下一篇:
+        <a href="/2016/03/05/云计算/" target="_self">云计算概念</a>
+        <i class="iconfont icon-next"></i>
+      </div>
+    
+  </nav>
+
+  
+    <a href="#comment" class="comment-anchor"></a>
+<div class="comment-title"><i class="iconfont icon-footprint"></i> 留下足迹 <i class="iconfont icon-footprint"></i></div>
+<div id="vcomments"></div>
+
+<script defer>
+  if( true ) {
+    let path = getRealPath()
+    new Valine({
+      el: "#vcomments",
+      appId: "Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz",
+      appKey: "WaR7nrzhliHj9aVwdQzkdlGd",
+      notify: false,
+      verify: false,
+      avatar: "robohash",
+      placeholder: "正确填写邮箱, 才能及时收到回复哦♪(^∇^*)",
+      path
+    });
+  }
+</script>
+   
+
+  
+    <script defer>
+const valineAPI = (() => {
+  try {
+    AV.init("Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz", "WaR7nrzhliHj9aVwdQzkdlGd");
+  } catch(error) {}
+  const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+      query.equalTo("identity", identity);
+      query.find().then(results => {
+        resolve(results.length > 0);
+      }, error => reject(error));
+    })
+  }
+
+  const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+      let querys = [];
+      for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+      }
+      query = AV.Query.or.apply(null ,querys);
+    } else {
+      identity = identity || getRealPath();
+      query = new AV.Query("Timer");
+      query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+      query.find()
+      .then(results => resolve(results))
+      .catch(error => reject(error))
+    })
+  }
+
+  const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let Todo = AV.Object.extend('Timer');
+      let todo = new Todo();
+      todo.set("times", 1);
+      todo.set("identity", identity);
+      todo.save().then(res => resolve(true), error => reject(error));
+    })
+  }
+
+  const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let query = new AV.Query('Timer');
+      query.equalTo("identity", identity);
+      query.find().then(todos => {
+        todos.forEach(todo => {
+          todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+      }).then(todos => resolve(true), error => reject(error));
+    })
+  }
+
+  return {
+    isExist,
+    _get,
+    update,
+    create
+  }
+})()
+
+const calcAndWriteTimes = () => {
+  let isPost = true;
+
+  let timerAllDOM = document.querySelectorAll(".article-timer");
+
+  if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+      if(exist) {
+        return valineAPI.update(identity);
+      }
+      return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+  }
+
+  let timerDOMCache = {};
+
+  for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+      timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+      timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+      };
+    }
+  }
+
+  let identities = Object.keys(timerDOMCache);
+  valineAPI._get(identities).then(results => {
+    for(let result of results) {
+      let {identity, times} = result.attributes;
+      timerDOMCache[identity].times = times;
+      timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+      if(timerDOMCache[identity].times){
+        continue;
+      }
+      timerDOMCache[identity].dom.map(item => item.innerText = 1);
+      valineAPI.create(identity);
+    }
+  }).catch(error => console.log(error.message))
+}
+
+if(true){
+  calcAndWriteTimes();
+}
+</script>
+   
+
+</div>
+
+
+      <footer>
+  <p class="site-info">
+    博客已萌萌哒运行<span id="time-to-now"></span><span class="my-face">(●'◡'●)ﾉ♥</span>
+    <br>
+    Theme - <a href="https://github.com/dongyuanxin/theme-bmw">BMW</a> | Powered by <a href="https://godbmw.com/">GodBMW</a>
+    <br>
+    
+      Copyright © 2019 Matrix
+    
+  </p>
+</footer>
+
+
+
+<script>
+const timeToNowDOM = document.querySelector("#time-to-now");
+const startTimestamp = new Date(2016, 4, 10).getTime();
+
+const updateTimeStr = () => {
+  let offset = parseInt(
+      (new Date().getTime() - startTimestamp) / 1000,
+      10
+    ),
+    day = Math.floor(offset / 86400),
+    hour = Math.floor((offset % 86400) / 3600),
+    minute = Math.floor(((offset % 86400) % 3600) / 60),
+    second = Math.floor(((offset % 86400) % 3600) % 60);
+  timeToNowDOM.innerHTML =
+    day + "天" + hour + "小时" + minute + "分钟" + second + "秒";
+  setTimeout(updateTimeStr, 500);
+}
+
+setTimeout(updateTimeStr, 500);
+</script>
+
+
+      <div class="back-to-top hidden">
+  <span>
+    <i class="iconfont icon-60"></i><span></span>%
+  </span>
+</div>
+
+<script>
+const updateIconToTop = percent => {
+  let dom = document.querySelector(".back-to-top span span");
+  dom.innerText = percent;
+  if(percent < 1) {
+    document.querySelector(".back-to-top").className = "back-to-top hidden";
+  } else {
+    document.querySelector(".back-to-top").className = "back-to-top";
+  }
+}
+
+const handleScoll = () => {
+  let isRunning = false;
+  return () => {
+    if (isRunning) return;
+    isRunning = true;
+    window.requestAnimationFrame(timestamp => {
+      let scrollTop =
+          document.documentElement.scrollTop || document.body.scrollTop,
+        scrollHeight =
+          document.documentElement.scrollHeight ||
+          document.body.scrollHeight,
+        clientHeight =
+          document.documentElement.clientHeight ||
+          document.body.clientHeight;
+      isRunning = false;
+      if (scrollTop <= 1) {
+        updateIconToTop(0);
+        return;
+      }
+      if (scrollTop + clientHeight >= scrollHeight) {
+        updateIconToTop(100);
+      } else {
+        updateIconToTop(parseInt(
+          100 * scrollTop / (scrollHeight - clientHeight),
+          10
+        ));
+      }
+    });
+  };
+}
+
+const backToTop = () => {
+  let scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop,
+    delay = 10,
+    time = 200;
+  if (scrollTop <= 20) {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    return;
+  }
+  let step = Math.ceil(scrollTop * delay / time);
+  let timer = setInterval(() => {
+    scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop;
+    if (scrollTop - step <= 0) {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      clearInterval(timer);
+    } else {
+      document.documentElement.scrollTop = scrollTop - step;
+      document.body.scrollTop = scrollTop - step;
+    }
+  }, delay);
+}
+
+document.addEventListener("scroll", handleScoll(), false);
+
+document.querySelector(".back-to-top").addEventListener("click", backToTop, false);
+
+</script>
+
+    </div>
+
+    
+      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  (() => {
+    const mathjaxConfig = {
+      showProcessingMessages: false, //关闭js加载过程信息
+      messageStyle: "none", //不显示信息
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]], //行内公式选择符
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]], //段内公式选择符
+        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"] //避开某些标签
+      },
+      "HTML-CSS": {
+        availableFonts: ["STIX", "TeX"], //可选字体
+        showMathMenu: false //关闭右击菜单显示
+      }
+    }
+
+    let mathjaxInterval = setInterval(() => {
+      if(!window.MathJax){
+        return;
+      }
+      window.MathJax.Hub.Config(mathjaxConfig)
+      window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')])
+
+      clearInterval(mathjaxInterval)
+    }, 10)    
+  })()
+</script>
+    
+
+    <script src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script>
+<script async>
+  let fancyTimer = setInterval(function(){
+    if(!window.$){
+      return;
+    }
+    $(document).ready(function() {
+      $(".post img").each(function () {
+        if($(this).parent().get(0).tagName.toLowerCase() === "a") {
+          return;
+        }
+        // $(this).attr("data-fancybox", "gallery"); // if you add 'data-fancybox', img will display after showed
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "gallery");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      });
+      
+      clearInterval(fancyTimer);
+    });
+  }, 10);
+</script>
+
+    
+  </body>
+
+</html>

@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta name="author" content="董沅鑫, yuanxin.me@gmail.com">
+  
+  
+  
+  <title>互联网运营杂谈 | 每天遇到更好的你</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="互联网运营,互联网运营,">
+  
+
+  <script>
+    console.log('\n%c Hexo-theme-bmw v4.0 ' + '%c 🎉 https://github.com/dongyuanxin/theme-bmw 🎉\n' + '\n%c View demo online ' + '%c 🔍 https://godbmw.com/ 🔍  \n' , 'color: #fadfa3; background: #030307; padding:3px 0;', '', 'color: #fadfa3; background: #030307; padding:3px 0;', '');
+  </script>
+
+  
+
+  
+
+  
+    <link rel="icon" href="/images/favicon.png">
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+  
+
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/icon/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+  <script src="/js/util.js"></script>
+<script src="/js/valine.min.js"></script>
+
+  
+
+  
+    <link href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js" async></script>
+  
+
+  
+    <link href="https://cdn.bootcss.com/social-share.js/1.0.16/css/share.min.css" rel="stylesheet">
+  
+  
+  <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js" async></script>
+  
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.0/dist/av-min.js"></script>
+  
+
+</head>
+
+  <body>
+
+    
+
+    <div id="app">
+
+      <div class="header-wrap">
+  <header>
+    <div class="site-brand">
+      <div class="site-title">
+        <!-- <a href="/">MatrixSparse</a> -->
+        <img alt="logo" class="antd-pro-layouts-user-layout-logo" src="/images/favicon.png" style="width: 40px;height: 40px;margin-top: 10px;margin-left: 5px;">
+      </div>
+    </div>
+    <nav class="site-navigation">
+      <ul class="nav-menu">
+      
+        <li class="nav-item" data-path="/">
+          
+            <a href="/" target="_self">
+              主页
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          
+            <a href="/archives/" target="_self">
+              归档
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          
+            <a href="/categories/" target="_self">
+              分类
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          
+            <a href="/tags/" target="_self">
+              标签
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="">
+          
+            <a href="javascript:void(0);" v-else="">博客地址</a>
+            <ul class="nav-menu--dropdown">
+              
+                <li>
+                  <a href="https://blog.csdn.net/qq_25371579" target="_blank">
+                    CSDN
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://github.com/matrixsparse" target="_blank">
+                    Github
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://matrixsparse.github.io/" target="_blank">
+                    Github Page
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+      </ul>
+    </nav>
+    <i class="iconfont icon-menu"></i>
+  </header>
+</div>
+
+<script>
+  let links = document.querySelectorAll('.nav-item');
+  for(let link of links){
+    let childrenLink = link.querySelector('ul');
+    link.addEventListener('mouseenter', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown active";
+      }
+    })
+    link.addEventListener('mouseleave', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown";
+      }
+    })
+  }
+  let rootRealPath = getRealPath(window.location.pathname, true);
+  for(let link of links) {
+    let linkPath = link.getAttribute("data-path");
+    if(linkPath && getRealPath(linkPath, true) === rootRealPath) {
+      link.className = "nav-item hover";
+    }
+  }
+
+  let iconMenu = document.querySelector("i.iconfont.icon-menu"),
+    iconMenuClicked = false;
+  let navDOM = document.querySelector("nav.site-navigation");
+  iconMenu.addEventListener("click", () => {
+    iconMenuClicked
+      ? navDOM.className = "site-navigation active"
+      : navDOM.className = "site-navigation";
+    iconMenuClicked = !iconMenuClicked;
+  })
+</script>
+
+
+      
+
+
+
+
+
+
+
+
+<div class="container post-index">
+
+  
+
+<div class="post">
+  <h1 class="article-title">
+    <span>互联网运营杂谈</span>
+  </h1>
+  <div class="article-top-meta">
+    <span>
+      发布 : 
+      2017-06-21
+    </span>
+    
+      <span>
+        分类 : 
+          <a href="/categories/互联网运营/">
+            互联网运营
+          </a>
+      </span>
+    
+    
+      <span>
+        浏览 : <span class="article-timer" data-identity="互联网运营杂谈"></span>
+      </span>
+    
+  </div>
+
+  
+
+  <div class="article-content">
+    <div class="markdown-body">
+      <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">互联网行业的岗位，可以分为几个大类：</span><br><span class="line"></span><br><span class="line">1.技术[程序猿]</span><br><span class="line"></span><br><span class="line">2.产品[产品经理、设计师]</span><br><span class="line"></span><br><span class="line">3.运营[推广、运营、销售]</span><br></pre></td></tr></table></figure>
+<h2 id="如何学习"><a href="#如何学习" class="headerlink" title="如何学习"></a>如何学习</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">经常回答别人的问题</span><br><span class="line">在回答问题的过程中，会不断修正自己对问题的认识和掌握程序</span><br><span class="line">在回答问题的过程中，可以补全自己针对这个问题的漏洞</span><br><span class="line"></span><br><span class="line">我的总工资=</span><br><span class="line">钱+能学到的知识+试错空间+时间</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>时长要总结自己的经历</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">从自己写的总结里面发现了很多没有意识到的问题</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">数据分析：</span><br><span class="line">    从数据分析的漏斗里面可以看出来哪个环节出现了问题</span><br><span class="line"></span><br><span class="line">    网站访问数字</span><br><span class="line">    网站注册</span><br><span class="line">    网站咨询</span><br><span class="line">    网站转化</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>建立目标和反馈做事方式的人</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">目标-你到底想成为一个什么样的人</span><br><span class="line">规则-你有没有一套做事的方法</span><br><span class="line">反馈-你会做什么事情都有反馈</span><br><span class="line">自愿-强烈的让自己变得更好的欲望</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>游戏玩家为什么能把几乎每一款游戏都越晚越好？</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">实时数据和定量基准就是原因所在。</span><br><span class="line">他们的绩效以进度条、点数、级别和成就的形式，持续的得到测量和反馈，</span><br><span class="line">玩家很容易看到自己什么时候得到了怎样的进展。</span><br><span class="line">瞬时的积极反馈让玩家更加努力，并成功完成更艰巨的任务。</span><br></pre></td></tr></table></figure>
+<h2 id="如何迅速写出好文案的捷径"><a href="#如何迅速写出好文案的捷径" class="headerlink" title="如何迅速写出好文案的捷径"></a>如何迅速写出好文案的捷径</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">人有感性体验的时候，文案写的最好</span><br><span class="line"></span><br><span class="line">如果你经历过目标用户遇到的困难把你的经历写出来就好</span><br><span class="line"></span><br><span class="line">如果你没经历过目标用户困难，直接把你和他们的聊天记录变成文案</span><br></pre></td></tr></table></figure>
+<h2 id="互联网广告行业成本和利润的黑知识"><a href="#互联网广告行业成本和利润的黑知识" class="headerlink" title="互联网广告行业成本和利润的黑知识"></a>互联网广告行业成本和利润的黑知识</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">某中大型公司、季度的宣传费用为100万人民币</span><br><span class="line"></span><br><span class="line">企业-&gt;[4A]策略公司-&gt;口碑广告公司-&gt;执行团队</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">企业     </span><br><span class="line">        策略公司A 回扣25%，老朋友了嘛</span><br><span class="line">        策略公司B 回扣30%，没合作过不放心</span><br><span class="line">        策略公司C 回扣35%，小项目先试试看</span><br><span class="line"></span><br><span class="line">策略公司</span><br><span class="line"></span><br><span class="line">        口碑广告公司A 回扣25%，老朋友了嘛</span><br><span class="line">        口碑广告公司B 回扣30%，没合作过不放心</span><br><span class="line">        口碑广告公司C 回扣35%，小项目先试试看</span><br><span class="line"></span><br><span class="line">口碑广告公司</span><br><span class="line"></span><br><span class="line">        执行团队A 使用资源的执行费用占到流水的15%-20%</span><br><span class="line">        执行团队B</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">100w-回扣25w=75w</span><br><span class="line">75w-回扣20w=55w</span><br><span class="line">55w-执行11w=44w</span><br><span class="line">44w-&gt;口碑广告公司赚取利润</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>现状</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">甲方从上到下都真心不懂营销</span><br><span class="line">比大自然还自然认为曝光=效果</span><br><span class="line"></span><br><span class="line">企业不是自己的，[营销总监]蛀虫及时行乐</span><br></pre></td></tr></table></figure>
+<h2 id="技能点满是怎么样一种体验"><a href="#技能点满是怎么样一种体验" class="headerlink" title="技能点满是怎么样一种体验"></a>技能点满是怎么样一种体验</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">在操场上打球时，和一个彪形大汉发生了口角</span><br><span class="line">他和他的两个朋友向你走过来，准备要跟你动手</span><br><span class="line">你要在怎么办？</span><br><span class="line"></span><br><span class="line">(1).认怂道歉</span><br><span class="line">(2).就挨打，死活不服</span><br><span class="line">(3).揪住一个使劲打</span><br><span class="line"></span><br><span class="line">你的一个女员工和别的部门的员工发生了冲突，</span><br><span class="line">她现在呜呜哭起来了</span><br><span class="line">你会怎么办？</span><br><span class="line"></span><br><span class="line">(1).责怪自己的员工</span><br><span class="line">(2).什么都不说息事宁人</span><br><span class="line">(3).找对方给自己员工报仇</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">周六晚上24:00之前</span><br><span class="line">你有一份工作报告要交</span><br><span class="line">现在已经20:00了，你还没写</span><br><span class="line">工作报告要写的内容很多</span><br><span class="line">你正在外面K歌，你肯定是写不完了</span><br><span class="line">你会怎么办？</span><br><span class="line"></span><br><span class="line">(1).给领导发信息说我错了</span><br><span class="line">(2).速度回家写</span><br><span class="line">(3).什么都不说</span><br></pre></td></tr></table></figure>
+<h2 id="《华杉讲透孙子兵法》读后感"><a href="#《华杉讲透孙子兵法》读后感" class="headerlink" title="《华杉讲透孙子兵法》读后感"></a>《华杉讲透孙子兵法》读后感</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">孙子的计，相当于现代管理的SWOT分析，比较敌我双方的优势、劣势、机会、威胁，</span><br><span class="line">计的目的是什么呢？是为了知胜，孙子的核心思想是先胜后战</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">"为什么诸葛亮那么有名，人人喜爱？"</span></span><br><span class="line">因为有故事，奇谋巧计就有精彩的故事，人民群众喜闻乐见，津津乐道</span><br><span class="line">而真正的战略、真正的胜战，看上去往往平淡无奇，是没有故事的</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">打了一百次胜仗，还没解决问题，还要接着打，那要胜仗来干什么呢？</span><br><span class="line">所以百战百胜，是兵法没入门，不会打仗</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">不要试图去解决自己所有的虚，要学会在有虚有实中战斗</span><br><span class="line">学会不是试图解决所有问题，而是永远在问题中前进，这就掌握了虚实的精髓</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">五战五胜，那是国家的灾祸</span><br><span class="line">四战四胜，那会出问题</span><br><span class="line">三战三胜，那是霸主</span><br><span class="line">两战两胜，可以称王</span><br><span class="line">一战而定，那才是天下之主</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">名将和名医一样，谁都打不了的仗，给他打赢了。</span><br><span class="line">而真正的善战者，从来没有打过可歌可泣的硬仗，全是摧枯拉朽的轻松活儿</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">最不重要的是战斗本身，一切都在之前就决定了，但是我们平时听到的，都是战斗故事</span><br><span class="line">部分行军故事，很少宿营故事，几乎没有训练故事</span><br><span class="line">因为训练没有故事，所以功夫都用在没故事的地方</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">不走弯路，就没有路，不花冤枉钱，就花不了对的钱</span><br></pre></td></tr></table></figure>
+<h2 id="《为什么是毛泽东》读后感"><a href="#《为什么是毛泽东》读后感" class="headerlink" title="《为什么是毛泽东》读后感"></a>《为什么是毛泽东》读后感</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">在学校最常见的就是低调，其实在读书期间低调是有害的，不要认为机会永远有</span><br><span class="line">实际上，上位的位置是非常有限的，你不争自然会有别人来坐</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">为什么毛泽东后来能为全党找出道路</span><br><span class="line">他之所以否定了别人的路线，就是因为他知道那些路走不通，因为在这之前，他已经试过了</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">无志之人常立志，有志之人立长志</span><br><span class="line">这句话的解释其实是浅薄的</span><br><span class="line">关键是坚持不是人们想象的那样，只是自己意志的因素</span><br><span class="line">而是各种因素综合的结果，坚持的先决条件是方向对，路线对，不断有成方能坚持</span><br><span class="line">如果外在条件不合适，当事人再怎么坚持也没用</span><br><span class="line">一颗种子要发芽需要土壤与水分，而不是在石板上坚持</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">在走上正确道路之前需要认真尝试许多不同的道路</span><br><span class="line">否定是得到真理的唯一途径，只有在找到了成功之路以后所有的失败才是有价值的</span><br><span class="line">失败是成功之母，没有错</span><br><span class="line">但是要找到成功之父才能孕育成功！</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">"语言的力量与实力是相辅相成的，没有实力，真理也会变成空话"</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">路子不同就换条路，这才是关键</span><br><span class="line">关键是不能硬拼，不能吃亏</span><br><span class="line">这次战斗打得不好，博古就幸灾乐祸的说：看起来，狭隘经验主义论者指挥也不成</span><br><span class="line">但我们知道这才是毛泽东最成功的地方</span><br><span class="line">人最不可能做到的就是掌握敌人的情况</span><br><span class="line">这样一旦实际情况与判断的不相符合，就要变动，这才是关键所在</span><br></pre></td></tr></table></figure>
+<h2 id="90-的营销人员都掉进了这些陷阱"><a href="#90-的营销人员都掉进了这些陷阱" class="headerlink" title="90%的营销人员都掉进了这些陷阱"></a>90%的营销人员都掉进了这些陷阱</h2><blockquote>
+<p>没有设置转化目标和转化流程</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">而绝大多数营销人员只有一个目标，就是访问网站、增加粉丝</span><br><span class="line"></span><br><span class="line">如：</span><br><span class="line">目标1 用户访问网站</span><br><span class="line">目标2 用户注册网站</span><br><span class="line">目标3 用户试用产品</span><br><span class="line">目标4 用户购买产品</span><br><span class="line">目标5 用户分享产品</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>不做用户反馈，自嗨</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">重点在哪？</span><br><span class="line">好处是什么？</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>找外包营销要谨慎</p>
+</blockquote>
+<blockquote>
+<p>不要盲目花钱</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">减少变量</span><br><span class="line">减少未知的维护成本</span><br><span class="line">知道自己的用户是什么人</span><br><span class="line"></span><br><span class="line">关键的问题不在花钱上，而是如果带来了无数的路人甲给你的产品支招，对你来说是一个恶性循环</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>不做没有数据的反馈结果的营销</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">有数据才能调整迭代</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>做营销不要贪多求大</p>
+</blockquote>
+<blockquote>
+<p>做事情不精益，把事情做复杂</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">1.想到一个内容--&gt;1~2天给用户做测试</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">真实案例：</span><br><span class="line">xx产品，从2015你那4月开始做，在没有投入市场的情况下进行了4次改版，</span><br><span class="line">除了做网站，还做了移动端，包括安卓和IOS</span><br></pre></td></tr></table></figure>
+<h2 id="产品的不同阶段，做品牌广告还是效果广告"><a href="#产品的不同阶段，做品牌广告还是效果广告" class="headerlink" title="产品的不同阶段，做品牌广告还是效果广告"></a>产品的不同阶段，做品牌广告还是效果广告</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">有些营销工作者，就是每天在研究<span class="string">"big idea"</span>?</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>什么是品牌广告，什么是效果广告？</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">地铁列车车厢内广告 -&gt; 无法评估 [品牌广告] 618 双11 [占领心智阶梯]</span><br><span class="line"></span><br><span class="line">百度竞价广告 -&gt; 可以评估 [效果广告]</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>品牌广告没用吗？</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">双11淘宝购物街，某IT男做电梯的时候看到了购物节的广告，下班的时候看到了购物节的广告，</span><br><span class="line">回家之后想到了购物节，在百度搜索<span class="string">"双11"</span>购物节，给自己买了一台新的mac电脑，</span><br><span class="line">从购物来源看，是百度带来了这次购买，那你能说DM广告和地铁广告没用么？</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>产品的不同阶段，做不同的事情</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">每一个阶段的推广工作，首先得有一个产品目标</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>什么时候做效果广告，什么时候做品牌广告</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">所有的营销问题，到最后都是一道数学函数题</span><br><span class="line"></span><br><span class="line">每个渠道针对你的业务总量是有限的，投入的资金到一定时间点，效果总会下降，</span><br><span class="line">所以要找好平衡点</span><br><span class="line"></span><br><span class="line">在我们业务早已顺利活下来，利润还很不错的时候，</span><br><span class="line">我们发现品牌广告可以让整体利润更上一层楼的时候</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>产品的不同阶段</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">萌芽期[做有效流量] -&gt; 起步期[做有效流量] -&gt; 发展期[做有效流量和品牌流量] -&gt; 成熟期[做有效流量和品牌流量]</span><br></pre></td></tr></table></figure>
+<h2 id="了解怎么选公司和职位"><a href="#了解怎么选公司和职位" class="headerlink" title="了解怎么选公司和职位"></a>了解怎么选公司和职位</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">营销行业职位和薪资</span><br><span class="line">职位切入点</span><br><span class="line">怎么选择靠谱公司</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">正确的营销思路</span><br><span class="line">写一份HR爱看的简历</span><br><span class="line">了解HR的工作方式</span><br><span class="line">制作自己的面试作品</span><br><span class="line">现场和HR沟通的方式</span><br><span class="line">--&gt; 成功进入互联网公司</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>让你快速涨薪</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">如何强化自己的核心技能</span><br><span class="line">怎么和老板谈加薪</span><br><span class="line">什么样的人会被老板加薪</span><br><span class="line">换公司，凭什么薪资翻番</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>年薪xxW的过程</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">年薪xxW的人有什么技能</span><br><span class="line">怎么制作整体营销方案</span><br><span class="line">媒介排期表和数据分析表</span><br><span class="line">合格的市场经理/总监工作报告</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>目标？</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">小灰(六个月薪水翻番)</span><br></pre></td></tr></table></figure>
+<h3 id="选择什么类型的公司对你来说更有前途"><a href="#选择什么类型的公司对你来说更有前途" class="headerlink" title="选择什么类型的公司对你来说更有前途"></a>选择什么类型的公司对你来说更有前途</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">运营岗位建议：</span><br><span class="line">建议        (1).最好加入20人以下的互联网公司</span><br><span class="line">      |    (2).本地企业</span><br><span class="line">      |    (3).小型网络口碑公司</span><br><span class="line">      |    (4).大型互联网公司的市场部门</span><br><span class="line">      |    (5).4A公司</span><br><span class="line">      |    (6).技术驱动的广告投放公司</span><br><span class="line">不建议      (7).硬广代理公司</span><br></pre></td></tr></table></figure>
+<h3 id="20人以下互联网公司的优点"><a href="#20人以下互联网公司的优点" class="headerlink" title="20人以下互联网公司的优点"></a>20人以下互联网公司的优点</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">人少活儿多，你能揽到手里的工作多，进步快</span><br><span class="line">个人发展空间大，互联网公司往往没有那么多限制(法无禁忌即可为)</span><br><span class="line">更重视实际效果，没人限制你，这样才能学到真本事</span><br><span class="line">公司发展的好，你很快就变成经理或者总监级别的人物</span><br><span class="line">人脉资源圈子更好</span><br></pre></td></tr></table></figure>
+<h3 id="实体企业的优点"><a href="#实体企业的优点" class="headerlink" title="实体企业的优点"></a>实体企业的优点</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1.大部分传统企业都面临转型，非常有意向学习互联网</span><br><span class="line">2.地方企业互联网人才少，机会更多更大</span><br><span class="line">3.地方企业应用，维度打击</span><br></pre></td></tr></table></figure>
+<h3 id="市场策划职位要求"><a href="#市场策划职位要求" class="headerlink" title="市场策划职位要求"></a>市场策划职位要求</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">(1).什么叫各平台？</span><br><span class="line">网站内、微博、微信、社区</span><br><span class="line">(2).创意、选题、执行</span><br><span class="line">文案、内容制作</span><br><span class="line">(3).调研</span><br><span class="line">用户反馈，初级数据分析</span><br></pre></td></tr></table></figure>
+<h3 id="活动策划岗位要求"><a href="#活动策划岗位要求" class="headerlink" title="活动策划岗位要求"></a>活动策划岗位要求</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">(1).创意、选题、执行、文案、内容制作</span><br><span class="line">(2).数据分析</span><br><span class="line">注意：很多公司还停留在转发数据</span><br><span class="line">(3).用户反馈</span><br><span class="line">通过反馈调整产品</span><br></pre></td></tr></table></figure>
+<h3 id="市场营销岗位要求"><a href="#市场营销岗位要求" class="headerlink" title="市场营销岗位要求"></a>市场营销岗位要求</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">(1).创意、选题、执行、文案、内容制作、EDM</span><br><span class="line">(2).数据分析、SEM、竞价排名、网盟</span><br><span class="line">(3).用户反馈</span><br><span class="line">得到用户信息</span><br></pre></td></tr></table></figure>
+<h3 id="想转行的人如何善用自己的职场优势"><a href="#想转行的人如何善用自己的职场优势" class="headerlink" title="想转行的人如何善用自己的职场优势"></a>想转行的人如何善用自己的职场优势</h3><blockquote>
+<p>传统企业和互联网公司分别的痛点是什么？</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">传统公司不懂互联网，互联网公司没有落地的经验</span><br><span class="line"><span class="string">"饿了么"</span>做的是订餐的互联网化</span><br><span class="line"><span class="string">"滴滴打车"</span>做的是打车的互联网化</span><br><span class="line">对你反而是一个非常有优势的机会，不要把经验浪费</span><br></pre></td></tr></table></figure>
+<h3 id="你的职场经验在三个地方有用"><a href="#你的职场经验在三个地方有用" class="headerlink" title="你的职场经验在三个地方有用"></a>你的职场经验在三个地方有用</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(1).简历</span><br><span class="line">(2).面试</span><br><span class="line">(3).工作</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>简历</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">重点不是你在上一家公司做了什么</span><br><span class="line">而是你的经验对现在这家公司有什么帮助</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>面试</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">不要陷入陈述上一家工作的怪圈</span><br><span class="line">把你的经验价值说出来</span><br><span class="line">你面试的是新媒体工作</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>工作</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">你在具体的行业干过</span><br><span class="line">你接触过很多目标用户</span><br><span class="line">你知道他们的需求</span><br><span class="line">你甚至有资源</span><br></pre></td></tr></table></figure>
+<h3 id="怎么判断找到了一家有发展潜力的公司"><a href="#怎么判断找到了一家有发展潜力的公司" class="headerlink" title="怎么判断找到了一家有发展潜力的公司"></a>怎么判断找到了一家有发展潜力的公司</h3><blockquote>
+<p>互联网公司(初创型)</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">公司规模20人以下</span><br><span class="line">已成型的互联网产品(APP或网站)</span><br><span class="line">岗位职责涉及：文案、渠道、数据</span><br><span class="line">天使轮(A轮)以上，会更有保障</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>互联网公司(成熟型)</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">知名的公司(滴滴打车、3巨头)</span><br><span class="line">500~2000人规模</span><br><span class="line">岗位职责涉及：文案、渠道、数据</span><br><span class="line">C轮以上</span><br></pre></td></tr></table></figure>
+<h3 id="找工作最重要的思维方式"><a href="#找工作最重要的思维方式" class="headerlink" title="找工作最重要的思维方式"></a>找工作最重要的思维方式</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">(1).做营销要的是有效流量，找工作要得是有效入职</span><br><span class="line">(2).把时间用在选公司上，而不是用在发简历上</span><br><span class="line">(3).找工作正确时间分配</span><br><span class="line">        40%的时间筛选公司</span><br><span class="line">        40%的时间研究公司并写出对公司建议</span><br><span class="line">        5%的时间在发简历</span><br><span class="line">        15%的时间制作简历</span><br><span class="line">(4).做好充足准备去面试，一促而定</span><br><span class="line">(5).找出50家公司 -&gt; 筛选出8家 -&gt; 投8家 -&gt; 拿6个offer</span><br><span class="line">(6).80%的时间找姑娘，20%的时间搞定姑娘</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1.竞争对手是怎么做的</span><br><span class="line">2.现在公司做事的方式有</span><br><span class="line">3.我的解决方法是</span><br></pre></td></tr></table></figure>
+<h3 id="30-的学习速度和300-的学习速度"><a href="#30-的学习速度和300-的学习速度" class="headerlink" title="30%的学习速度和300%的学习速度"></a>30%的学习速度和300%的学习速度</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">同学A：</span><br><span class="line">        我非常非常认可公司的产品，我就是公司产品的目标用户</span><br><span class="line">        我有很多建议，然后开始滔滔不绝</span><br></pre></td></tr></table></figure>
+<h3 id="做营销要的是有效流量，找工作要的是有效入职"><a href="#做营销要的是有效流量，找工作要的是有效入职" class="headerlink" title="做营销要的是有效流量，找工作要的是有效入职"></a>做营销要的是有效流量，找工作要的是有效入职</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">如果你为了找工作找工作</span><br><span class="line">即使1个月就入职了</span><br><span class="line">你也要用未来很长时间来弥补草率入职埋下的坑</span><br><span class="line"></span><br><span class="line">找一个自己愿意付出全部精力的产品</span><br><span class="line">你的薪资和能力都会迅速增长</span><br></pre></td></tr></table></figure>
+<h3 id="尽可能多的找到靠谱公司"><a href="#尽可能多的找到靠谱公司" class="headerlink" title="尽可能多的找到靠谱公司"></a>尽可能多的找到靠谱公司</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">(1).找到符合生计条件的公司</span><br><span class="line">        去哪找公司？拉勾网、boss直聘、周伯通(针对移动互联网)、内推网(开发岗位相对多)、内聘网</span><br><span class="line">        符合生计要求？</span><br><span class="line">                能接受这家公司给到的最低工资</span><br><span class="line">                是一家正规公司，会给你上社会保险</span><br><span class="line">                已经有一个在运行的产品</span><br><span class="line">                工作要求并不是偏离xx岗位的职责</span><br><span class="line">                工作地点是你能接受的</span><br><span class="line">(2).找到感兴趣的业务，查看职位需求</span><br><span class="line">(3).仔细调查公司的SEO、业务类型、宣传模式</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>找到你感兴趣的产品和职位</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">干掉你不感兴趣和抵触的产品</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>查看职位描述</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">这个职位是否有发展前景</span><br><span class="line">这个职位能给你多大的权限</span><br><span class="line">是不是和你想学的知识匹配</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">你至少对目标产品不抵触</span><br><span class="line">最好是你是这个产品的超级粉丝</span><br><span class="line">这个产品注重<span class="string">"效果"</span>而不是转发数、粉丝数</span><br><span class="line">这个产品是不是在抓路人甲<span class="string">"壮丁"</span></span><br><span class="line">有必要再深入了解这个公司的业务模式</span><br></pre></td></tr></table></figure>
+<h2 id="传统行业与互联网行业的博弈"><a href="#传统行业与互联网行业的博弈" class="headerlink" title="传统行业与互联网行业的博弈"></a>传统行业与互联网行业的博弈</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">传统行业：实体经济玩的很溜，学习互联网</span><br><span class="line">互联网行业：做产品做网站很擅长，实体跟不上</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">要认识到：不是谁取代谁的问题</span><br><span class="line"></span><br><span class="line">互联网的机会，是由于基础设施的铺设，让用户效率提高，成本降低，一路演变而来的，</span><br><span class="line">不是谁取代谁的问题</span><br><span class="line"></span><br><span class="line">不管是传统生意，还是互联网生意，都是<span class="string">"生意"</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">(1).有了一个商品，变成一个生意</span><br><span class="line">(2).展示商品的方式</span><br><span class="line">(3).吸引关注</span><br><span class="line">(4).售卖产品</span><br><span class="line">(5).造成口碑</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>有了一个商品，变成一个生意</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th style="text-align:center"></th>
+<th style="text-align:center">传统行业</th>
+<th style="text-align:center">互联网行业</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">展示商品的方式</td>
+<td style="text-align:center">实体店</td>
+<td style="text-align:center">自己网站、渠道网站</td>
+</tr>
+<tr>
+<td style="text-align:center">吸引关注</td>
+<td style="text-align:center">发传单、实体店推荐、央广、SEM</td>
+<td style="text-align:center">媒体渠道、口碑传播、硬广</td>
+</tr>
+<tr>
+<td style="text-align:center">售卖产品</td>
+<td style="text-align:center">实体店、线下</td>
+<td style="text-align:center">在线交易(线上&amp;线下)</td>
+</tr>
+<tr>
+<td style="text-align:center">造成口碑</td>
+<td style="text-align:center">1v1的口碑</td>
+<td style="text-align:center">1v1、1v多的口碑、评价</td>
+</tr>
+</tbody>
+</table>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">传统公司和互联网公司，看谁更快打通所有环节</span><br></pre></td></tr></table></figure>
+<h3 id="细节1"><a href="#细节1" class="headerlink" title="细节1:"></a>细节1:</h3><blockquote>
+<p>第一天</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">李总：小君，我们公司要新增个子公司，你想几个名字</span><br><span class="line">至少仨，这两天啥时候写好了就告诉我</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">少年张君：李总，新公司的业务类型是什么？</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>第二天</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">少年张君：李总，新公司的名字我想了6个，我已经整理好发到你的邮箱了</span><br><span class="line">跟您一句话简述一下，其实我一共找了12个，这里面有6个百度可以搜到，</span><br><span class="line">所以有可能已经被别人注册了，然后每个名字的寓意我都写到邮件里面了</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>重点：让Boss做选择题</p>
+</blockquote>
+
+    </div>
+  </div>
+  
+    <div class="copy-right">
+      <div class="markdown-body">
+        <blockquote>
+        
+        
+          本文作者 : Matrix <br>
+        
+        原文链接 : <a href="">http://yoursite.com/2017/06/21/互联网运营杂谈/</a><br>
+        版权声明 : 本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+        </blockquote>
+      </div>
+    </div>
+  
+  
+  
+    <div class="social-share" style="margin-top: -2rem" data-wechat-qrcode-title="<p>微信扫一扫</p>" data-wechat-qrcode-helper="<p>微信右上角, 扫一扫分享</p>" data-sites="qzone, qq, weibo, wechat, douban, google, facebook, twitter">
+  <span style="color: #6b7487; font-size: 1.4rem;">分享到: </span>
+</div>
+<script src="https://cdn.bootcss.com/social-share.js/1.0.16/js/social-share.min.js" async></script>
+  
+
+  
+    <div id="reward">
+  
+    <p id="reward-meta">知识 & 情怀 | 二者兼得</p>
+  
+  <button id="reward-btn">
+    
+    <span>投食</span>
+  </button>
+  <div id="reward-qrcode">
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/wechatpay.jpg" alt="微信扫一扫, 向我投食">
+        <p class="qrcode-meta">微信扫一扫, 向我投食</p>
+      </div>
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/alipaypay.jpg" alt="支付宝扫一扫, 向我投食">
+        <p class="qrcode-meta">支付宝扫一扫, 向我投食</p>
+      </div>
+    
+  </div>
+
+</div>
+
+<script>
+  (() => {
+    let button = document.querySelector('#reward-btn'),
+      qrcode = document.querySelector('#reward-qrcode'),
+      display = false;
+    
+    button.addEventListener('click', () => {
+      qrcode.style.display = display ? 'none' : 'block'
+      display = !display
+    }, false)
+  })()
+</script>
+  
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+      <span>
+        
+          <i class="iconfont icon-06tags"></i>标签: 
+          
+          <span class="span--tag">
+            <a href="/tags/互联网运营/">
+              #互联网运营
+            </a>
+          </span>
+          
+        
+      </span>
+    </div>
+    <div class="article-meta pull-right">
+    </div>
+  </div>
+</div>
+
+
+  <aside id="sidebar">
+    <p id="sidebar-header"></p>
+    <ol id="sidebar-toc"></ol>
+  </aside>
+  <script async>setTimeout(generateToc, 10);</script>
+
+
+  <nav class="post-navigation">
+    
+      <div class="nav-pre">
+        <i class="iconfont icon-prev"></i>
+        上一篇:
+        <a href="/2017/06/20/Python实现神经网络NN(neural network)/" target="_self">Python实现神经网络NN(netural network)</a>
+      </div>
+    
+    
+      <div class="nav-next">
+        下一篇:
+        <a href="/2017/06/21/互联网创业案例/" target="_self">互联网创业案例</a>
+        <i class="iconfont icon-next"></i>
+      </div>
+    
+  </nav>
+
+  
+    <a href="#comment" class="comment-anchor"></a>
+<div class="comment-title"><i class="iconfont icon-footprint"></i> 留下足迹 <i class="iconfont icon-footprint"></i></div>
+<div id="vcomments"></div>
+
+<script defer>
+  if( true ) {
+    let path = getRealPath()
+    new Valine({
+      el: "#vcomments",
+      appId: "Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz",
+      appKey: "WaR7nrzhliHj9aVwdQzkdlGd",
+      notify: false,
+      verify: false,
+      avatar: "robohash",
+      placeholder: "正确填写邮箱, 才能及时收到回复哦♪(^∇^*)",
+      path
+    });
+  }
+</script>
+   
+
+  
+    <script defer>
+const valineAPI = (() => {
+  try {
+    AV.init("Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz", "WaR7nrzhliHj9aVwdQzkdlGd");
+  } catch(error) {}
+  const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+      query.equalTo("identity", identity);
+      query.find().then(results => {
+        resolve(results.length > 0);
+      }, error => reject(error));
+    })
+  }
+
+  const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+      let querys = [];
+      for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+      }
+      query = AV.Query.or.apply(null ,querys);
+    } else {
+      identity = identity || getRealPath();
+      query = new AV.Query("Timer");
+      query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+      query.find()
+      .then(results => resolve(results))
+      .catch(error => reject(error))
+    })
+  }
+
+  const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let Todo = AV.Object.extend('Timer');
+      let todo = new Todo();
+      todo.set("times", 1);
+      todo.set("identity", identity);
+      todo.save().then(res => resolve(true), error => reject(error));
+    })
+  }
+
+  const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let query = new AV.Query('Timer');
+      query.equalTo("identity", identity);
+      query.find().then(todos => {
+        todos.forEach(todo => {
+          todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+      }).then(todos => resolve(true), error => reject(error));
+    })
+  }
+
+  return {
+    isExist,
+    _get,
+    update,
+    create
+  }
+})()
+
+const calcAndWriteTimes = () => {
+  let isPost = true;
+
+  let timerAllDOM = document.querySelectorAll(".article-timer");
+
+  if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+      if(exist) {
+        return valineAPI.update(identity);
+      }
+      return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+  }
+
+  let timerDOMCache = {};
+
+  for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+      timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+      timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+      };
+    }
+  }
+
+  let identities = Object.keys(timerDOMCache);
+  valineAPI._get(identities).then(results => {
+    for(let result of results) {
+      let {identity, times} = result.attributes;
+      timerDOMCache[identity].times = times;
+      timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+      if(timerDOMCache[identity].times){
+        continue;
+      }
+      timerDOMCache[identity].dom.map(item => item.innerText = 1);
+      valineAPI.create(identity);
+    }
+  }).catch(error => console.log(error.message))
+}
+
+if(true){
+  calcAndWriteTimes();
+}
+</script>
+   
+
+</div>
+
+
+      <footer>
+  <p class="site-info">
+    博客已萌萌哒运行<span id="time-to-now"></span><span class="my-face">(●'◡'●)ﾉ♥</span>
+    <br>
+    Theme - <a href="https://github.com/dongyuanxin/theme-bmw">BMW</a> | Powered by <a href="https://godbmw.com/">GodBMW</a>
+    <br>
+    
+      Copyright © 2019 Matrix
+    
+  </p>
+</footer>
+
+
+
+<script>
+const timeToNowDOM = document.querySelector("#time-to-now");
+const startTimestamp = new Date(2016, 4, 10).getTime();
+
+const updateTimeStr = () => {
+  let offset = parseInt(
+      (new Date().getTime() - startTimestamp) / 1000,
+      10
+    ),
+    day = Math.floor(offset / 86400),
+    hour = Math.floor((offset % 86400) / 3600),
+    minute = Math.floor(((offset % 86400) % 3600) / 60),
+    second = Math.floor(((offset % 86400) % 3600) % 60);
+  timeToNowDOM.innerHTML =
+    day + "天" + hour + "小时" + minute + "分钟" + second + "秒";
+  setTimeout(updateTimeStr, 500);
+}
+
+setTimeout(updateTimeStr, 500);
+</script>
+
+
+      <div class="back-to-top hidden">
+  <span>
+    <i class="iconfont icon-60"></i><span></span>%
+  </span>
+</div>
+
+<script>
+const updateIconToTop = percent => {
+  let dom = document.querySelector(".back-to-top span span");
+  dom.innerText = percent;
+  if(percent < 1) {
+    document.querySelector(".back-to-top").className = "back-to-top hidden";
+  } else {
+    document.querySelector(".back-to-top").className = "back-to-top";
+  }
+}
+
+const handleScoll = () => {
+  let isRunning = false;
+  return () => {
+    if (isRunning) return;
+    isRunning = true;
+    window.requestAnimationFrame(timestamp => {
+      let scrollTop =
+          document.documentElement.scrollTop || document.body.scrollTop,
+        scrollHeight =
+          document.documentElement.scrollHeight ||
+          document.body.scrollHeight,
+        clientHeight =
+          document.documentElement.clientHeight ||
+          document.body.clientHeight;
+      isRunning = false;
+      if (scrollTop <= 1) {
+        updateIconToTop(0);
+        return;
+      }
+      if (scrollTop + clientHeight >= scrollHeight) {
+        updateIconToTop(100);
+      } else {
+        updateIconToTop(parseInt(
+          100 * scrollTop / (scrollHeight - clientHeight),
+          10
+        ));
+      }
+    });
+  };
+}
+
+const backToTop = () => {
+  let scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop,
+    delay = 10,
+    time = 200;
+  if (scrollTop <= 20) {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    return;
+  }
+  let step = Math.ceil(scrollTop * delay / time);
+  let timer = setInterval(() => {
+    scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop;
+    if (scrollTop - step <= 0) {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      clearInterval(timer);
+    } else {
+      document.documentElement.scrollTop = scrollTop - step;
+      document.body.scrollTop = scrollTop - step;
+    }
+  }, delay);
+}
+
+document.addEventListener("scroll", handleScoll(), false);
+
+document.querySelector(".back-to-top").addEventListener("click", backToTop, false);
+
+</script>
+
+    </div>
+
+    
+      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  (() => {
+    const mathjaxConfig = {
+      showProcessingMessages: false, //关闭js加载过程信息
+      messageStyle: "none", //不显示信息
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]], //行内公式选择符
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]], //段内公式选择符
+        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"] //避开某些标签
+      },
+      "HTML-CSS": {
+        availableFonts: ["STIX", "TeX"], //可选字体
+        showMathMenu: false //关闭右击菜单显示
+      }
+    }
+
+    let mathjaxInterval = setInterval(() => {
+      if(!window.MathJax){
+        return;
+      }
+      window.MathJax.Hub.Config(mathjaxConfig)
+      window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')])
+
+      clearInterval(mathjaxInterval)
+    }, 10)    
+  })()
+</script>
+    
+
+    <script src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script>
+<script async>
+  let fancyTimer = setInterval(function(){
+    if(!window.$){
+      return;
+    }
+    $(document).ready(function() {
+      $(".post img").each(function () {
+        if($(this).parent().get(0).tagName.toLowerCase() === "a") {
+          return;
+        }
+        // $(this).attr("data-fancybox", "gallery"); // if you add 'data-fancybox', img will display after showed
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "gallery");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      });
+      
+      clearInterval(fancyTimer);
+    });
+  }, 10);
+</script>
+
+    
+  </body>
+
+</html>

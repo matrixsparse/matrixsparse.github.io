@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta name="author" content="董沅鑫, yuanxin.me@gmail.com">
+  
+  
+  
+  <title>Python实现爬取赶集网10万二手商品数据 | 每天遇到更好的你</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="Python,大数据,Python,">
+  
+
+  <script>
+    console.log('\n%c Hexo-theme-bmw v4.0 ' + '%c 🎉 https://github.com/dongyuanxin/theme-bmw 🎉\n' + '\n%c View demo online ' + '%c 🔍 https://godbmw.com/ 🔍  \n' , 'color: #fadfa3; background: #030307; padding:3px 0;', '', 'color: #fadfa3; background: #030307; padding:3px 0;', '');
+  </script>
+
+  
+
+  
+
+  
+    <link rel="icon" href="/images/favicon.png">
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+  
+
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/icon/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+  <script src="/js/util.js"></script>
+<script src="/js/valine.min.js"></script>
+
+  
+
+  
+    <link href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js" async></script>
+  
+
+  
+    <link href="https://cdn.bootcss.com/social-share.js/1.0.16/css/share.min.css" rel="stylesheet">
+  
+  
+  <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js" async></script>
+  
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.0/dist/av-min.js"></script>
+  
+
+</head>
+
+  <body>
+
+    
+
+    <div id="app">
+
+      <div class="header-wrap">
+  <header>
+    <div class="site-brand">
+      <div class="site-title">
+        <!-- <a href="/">MatrixSparse</a> -->
+        <img alt="logo" class="antd-pro-layouts-user-layout-logo" src="/images/favicon.png" style="width: 40px;height: 40px;margin-top: 10px;margin-left: 5px;">
+      </div>
+    </div>
+    <nav class="site-navigation">
+      <ul class="nav-menu">
+      
+        <li class="nav-item" data-path="/">
+          
+            <a href="/" target="_self">
+              主页
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          
+            <a href="/archives/" target="_self">
+              归档
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          
+            <a href="/categories/" target="_self">
+              分类
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          
+            <a href="/tags/" target="_self">
+              标签
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="">
+          
+            <a href="javascript:void(0);" v-else="">博客地址</a>
+            <ul class="nav-menu--dropdown">
+              
+                <li>
+                  <a href="https://blog.csdn.net/qq_25371579" target="_blank">
+                    CSDN
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://github.com/matrixsparse" target="_blank">
+                    Github
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://matrixsparse.github.io/" target="_blank">
+                    Github Page
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+      </ul>
+    </nav>
+    <i class="iconfont icon-menu"></i>
+  </header>
+</div>
+
+<script>
+  let links = document.querySelectorAll('.nav-item');
+  for(let link of links){
+    let childrenLink = link.querySelector('ul');
+    link.addEventListener('mouseenter', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown active";
+      }
+    })
+    link.addEventListener('mouseleave', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown";
+      }
+    })
+  }
+  let rootRealPath = getRealPath(window.location.pathname, true);
+  for(let link of links) {
+    let linkPath = link.getAttribute("data-path");
+    if(linkPath && getRealPath(linkPath, true) === rootRealPath) {
+      link.className = "nav-item hover";
+    }
+  }
+
+  let iconMenu = document.querySelector("i.iconfont.icon-menu"),
+    iconMenuClicked = false;
+  let navDOM = document.querySelector("nav.site-navigation");
+  iconMenu.addEventListener("click", () => {
+    iconMenuClicked
+      ? navDOM.className = "site-navigation active"
+      : navDOM.className = "site-navigation";
+    iconMenuClicked = !iconMenuClicked;
+  })
+</script>
+
+
+      
+
+
+
+
+
+
+
+
+<div class="container post-index">
+
+  
+
+<div class="post">
+  <h1 class="article-title">
+    <span>Python实现爬取赶集网10万二手商品数据</span>
+  </h1>
+  <div class="article-top-meta">
+    <span>
+      发布 : 
+      2017-04-22
+    </span>
+    
+      <span>
+        分类 : 
+          <a href="/categories/Python/">
+            Python
+          </a>
+      </span>
+    
+    
+      <span>
+        浏览 : <span class="article-timer" data-identity="Python实现爬取赶集网10万二手商品数据"></span>
+      </span>
+    
+  </div>
+
+  
+
+  <div class="article-content">
+    <div class="markdown-body">
+      <h2 id="1-启动MongoDB"><a href="#1-启动MongoDB" class="headerlink" title="1.启动MongoDB"></a>1.启动MongoDB</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mongod</span><br></pre></td></tr></table></figure>
+<p><img src="http://i1.piimg.com/581590/517d1b4570900915.png" alt="Markdown"></p>
+<h2 id="2-生成数据"><a href="#2-生成数据" class="headerlink" title="2.生成数据"></a>2.生成数据</h2><blockquote>
+<p>ganjiSpider.py</p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 三个方法</span></span><br><span class="line"><span class="comment"># 一个获取赶集二手交易网下的二级链接，并保存至MongoDB中</span></span><br><span class="line"><span class="comment"># 一个获取赶集二手交易网二级页面下的所有子页面链接，并保存至MongoDB中</span></span><br><span class="line"><span class="comment"># 一个获取详情页面信息，并保存至MongoDB中</span></span><br><span class="line"><span class="comment"># 一个运行入口</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 为了操作MongoDB数据库，需要引入pymongo库</span></span><br><span class="line"><span class="keyword">import</span> pymongo</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">import</span> urllib.request</span><br><span class="line"><span class="keyword">from</span> bs4 <span class="keyword">import</span> BeautifulSoup</span><br><span class="line"><span class="keyword">from</span> multiprocessing <span class="keyword">import</span> Pool</span><br><span class="line"></span><br><span class="line"><span class="comment"># 连接MongoDB，数据库地址为：localhost，端口号为：27017</span></span><br><span class="line">client = pymongo.MongoClient(<span class="string">'localhost'</span>, <span class="number">27017</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 从MongoDB中选择名称为ganji的数据库</span></span><br><span class="line">ganji = client[<span class="string">'ganji'</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 从ganji数据库选择名称为url_list的表</span></span><br><span class="line">url_list = ganji[<span class="string">'url_list'</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 从ganji数据库选择名称为item_info的表</span></span><br><span class="line">item_info = ganji[<span class="string">'item_info'</span>]</span><br><span class="line"></span><br><span class="line">start_url = <span class="string">'http://bj.ganji.com/wu</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">'</span></span><br><span class="line">url_host = <span class="string">'http://bj.ganji.com/</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">'</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 1.获取赶集二手交易网下的二级链接</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_index_url</span><span class="params">(url)</span>:</span></span><br><span class="line">    <span class="comment"># wb_data = requests.get(url)</span></span><br><span class="line">    <span class="comment"># soup = BeautifulSoup(wb_data.text, 'lxml')</span></span><br><span class="line">    <span class="comment"># print(soup.original_encoding)</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 设置from_encoding='utf8'以解决在python3下BeautifulSoup的中文乱码问题</span></span><br><span class="line">    wb_data = urllib.request.urlopen(url)</span><br><span class="line">    soup = BeautifulSoup(wb_data, <span class="string">'lxml'</span>, from_encoding=<span class="string">"utf8"</span>)</span><br><span class="line"></span><br><span class="line">    links = soup.select(<span class="string">'.fenlei &gt; dt &gt; a'</span>)</span><br><span class="line">    <span class="keyword">for</span> link <span class="keyword">in</span> links:</span><br><span class="line">        page_url = url_host + link.get(<span class="string">'href'</span>)[<span class="number">1</span>:]</span><br><span class="line">        print(page_url)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># get_index_url(start_url)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 赶集二手交易网下二级链接</span></span><br><span class="line">channel_list = <span class="string">'''http://bj.ganji.com/jiaju/</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">http://bj.ganji.com/rirongbaihuo/</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">http://bj.ganji.com/shouji/</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">http://bj.ganji.com/shoujihaoma/</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">http://bj.ganji.com/bangong/</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">http://bj.ganji.com/nongyongpin/</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">http://bj.ganji.com/jiadian/</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">http://bj.ganji.com/ershoubijibendiannao/</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">http://bj.ganji.com/ruanjiantushu/</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">http://bj.ganji.com/yingyouyunfu/</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">http://bj.ganji.com/diannao/</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">http://bj.ganji.com/xianzhilipin/</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">http://bj.ganji.com/fushixiaobaxuemao/</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">http://bj.ganji.com/meironghuazhuang/</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">http://bj.ganji.com/shuma/</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">http://bj.ganji.com/laonianyongpin/</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">http://bj.ganji.com/xuniwupin/</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">http://bj.ganji.com/qitawupin/</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">http://bj.ganji.com/ershoufree/</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">http://bj.ganji.com/wupinjiaohuan/</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># spider1</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_links_from</span><span class="params">(channel, pages)</span>:</span></span><br><span class="line">    list_view = <span class="string">'&#123;&#125;o&#123;&#125;/'</span>.format(channel, str(pages))</span><br><span class="line">    print(list_view)</span><br><span class="line">    wb_data = urllib.request.urlopen(list_view)</span><br><span class="line">    <span class="comment"># 设置时间延迟</span></span><br><span class="line">    time.sleep(<span class="number">1</span>)</span><br><span class="line">    soup = BeautifulSoup(wb_data, <span class="string">'lxml'</span>, from_encoding=<span class="string">'utf8'</span>)</span><br><span class="line">    <span class="keyword">if</span> soup.find(<span class="string">'td'</span>):</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> soup.select(<span class="string">'.zzinfo td.t a'</span>):</span><br><span class="line">            data = &#123;</span><br><span class="line">                <span class="string">"topic"</span>: channel[<span class="number">20</span>:<span class="number">-1</span>],</span><br><span class="line">                <span class="string">"url"</span>: i.get(<span class="string">'href'</span>)</span><br><span class="line">            &#125;</span><br><span class="line">            url_list.insert_one(data)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="comment"># It's the last page !</span></span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># spider2</span></span><br><span class="line"><span class="comment"># 爬取子页面中的详情信息</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_items_info</span><span class="params">(topic,url)</span>:</span></span><br><span class="line">    wb_data = urllib.request.urlopen(url)</span><br><span class="line">    <span class="comment"># 设置时间延迟</span></span><br><span class="line">    time.sleep(<span class="number">1</span>)</span><br><span class="line">    soup = BeautifulSoup(wb_data, <span class="string">'lxml'</span>, from_encoding=<span class="string">'utf8'</span>)</span><br><span class="line">    <span class="keyword">if</span> soup.find(<span class="string">'h1'</span>):</span><br><span class="line">        title = soup.select(<span class="string">'.info_titile'</span>)[<span class="number">0</span>].text</span><br><span class="line">        price = soup.select(<span class="string">'body &gt; div.content &gt; div &gt; div.box_left &gt; div.info_lubotu.clearfix &gt; div.info_massege.left &gt; div.price_li &gt; span &gt; i'</span>)[<span class="number">0</span>].text</span><br><span class="line">        watch = soup.select(<span class="string">'body &gt; div.content &gt; div &gt; div.box_left &gt; div.info_lubotu.clearfix &gt; div.box_left_top &gt; p &gt; span.look_time'</span>)[<span class="number">0</span>].text</span><br><span class="line">        localtion = soup.select(<span class="string">'body &gt; div.content &gt; div &gt; div.box_left &gt; div.info_lubotu.clearfix &gt; div.info_massege.left &gt; div.palce_li &gt; span &gt; i'</span>)[<span class="number">0</span>].text</span><br><span class="line">        desc = soup.select(<span class="string">'.baby_kuang  p'</span>)[<span class="number">0</span>].text</span><br><span class="line">        data = &#123;</span><br><span class="line">            <span class="string">"topic"</span>:topic,</span><br><span class="line">            <span class="string">"title"</span>: title,</span><br><span class="line">            <span class="string">"url"</span>:url,</span><br><span class="line">            <span class="string">"price"</span>:price,</span><br><span class="line">            <span class="string">"watch"</span>:watch,</span><br><span class="line">            <span class="string">"localtion"</span>:localtion,</span><br><span class="line">            <span class="string">"desc"</span>:desc</span><br><span class="line">        &#125;</span><br><span class="line">        print(data)</span><br><span class="line">        item_info.insert_one(data)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># get_items_info("jiaju","http://zhuanzhuan.ganji.com/detail/864382127585951752z.shtml?from=pc&amp;source=ganji&amp;cate=%E5%8C%97%E4%BA%AC%E8%B5%B6%E9%9B%86%7C%E5%8C%97%E4%BA%AC%E4%BA%8C%E6%89%8B%7C%E5%8C%97%E4%BA%AC%E4%BA%8C%E6%89%8B%E7%AC%94%E8%AE%B0%E6%9C%AC&amp;cateurl=bj|wu|ershoubijibendiannao&amp;gj_other_ifid=from_ganji&amp;gj_other_city_id=12&amp;gj_other_gc_1=wu&amp;gj_other_uuid=&amp;gj_other_ca_s=&amp;gj_other_ca_kw=&amp;gj_other_ca_n=&amp;gj_other_ca_i=&amp;gj_other_sid=</span></span><br><span class="line"></span><br><span class="line"><span class="string">")</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"># 获取赶集二手交易网二级页面下的所有子页面链接，并保存至MongoDB中</span></span><br><span class="line"><span class="string">def get_all_links_from(channel):</span></span><br><span class="line"><span class="string">    for num in range(1, 1000):</span></span><br><span class="line"><span class="string">        get_links_from(channel, num)</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">def To_get_items_info():</span></span><br><span class="line"><span class="string">    for i in url_list.find():</span></span><br><span class="line"><span class="string">        topic = i['topic']</span></span><br><span class="line"><span class="string">        url = i['url']</span></span><br><span class="line"><span class="string">        get_items_info(topic,url)</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"># if __name__ == '__main__':</span></span><br><span class="line"><span class="string">#     # 启动多线程爬取数据</span></span><br><span class="line"><span class="string">#     # print(channel_list.split("</span>\n<span class="string">"))</span></span><br><span class="line"><span class="string">#     pool = Pool()</span></span><br><span class="line"><span class="string">#     pool.map(get_all_links_from, channel_list.split("</span>\n<span class="string">"))</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"># To_get_items_info()</span></span><br></pre></td></tr></table></figure>
+<h2 id="3-进入MongoDB命令行"><a href="#3-进入MongoDB命令行" class="headerlink" title="3.进入MongoDB命令行"></a>3.进入MongoDB命令行</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mongo</span><br></pre></td></tr></table></figure>
+<p><img src="http://i4.buimg.com/581590/f453d98b47433f93.png" alt="Markdown"></p>
+<h2 id="4-统计ganji数据库中表的数据条数"><a href="#4-统计ganji数据库中表的数据条数" class="headerlink" title="4.统计ganji数据库中表的数据条数"></a>4.统计ganji数据库中表的数据条数</h2><p><img src="http://i4.buimg.com/581590/b3ea564e8fe42956.png" alt="Markdown"></p>
+
+    </div>
+  </div>
+  
+    <div class="copy-right">
+      <div class="markdown-body">
+        <blockquote>
+        
+        
+          本文作者 : Matrix <br>
+        
+        原文链接 : <a href="">http://yoursite.com/2017/04/22/Python实现爬取赶集网10万二手商品数据/</a><br>
+        版权声明 : 本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+        </blockquote>
+      </div>
+    </div>
+  
+  
+  
+    <div class="social-share" style="margin-top: -2rem" data-wechat-qrcode-title="<p>微信扫一扫</p>" data-wechat-qrcode-helper="<p>微信右上角, 扫一扫分享</p>" data-sites="qzone, qq, weibo, wechat, douban, google, facebook, twitter">
+  <span style="color: #6b7487; font-size: 1.4rem;">分享到: </span>
+</div>
+<script src="https://cdn.bootcss.com/social-share.js/1.0.16/js/social-share.min.js" async></script>
+  
+
+  
+    <div id="reward">
+  
+    <p id="reward-meta">知识 & 情怀 | 二者兼得</p>
+  
+  <button id="reward-btn">
+    
+    <span>投食</span>
+  </button>
+  <div id="reward-qrcode">
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/wechatpay.jpg" alt="微信扫一扫, 向我投食">
+        <p class="qrcode-meta">微信扫一扫, 向我投食</p>
+      </div>
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/alipaypay.jpg" alt="支付宝扫一扫, 向我投食">
+        <p class="qrcode-meta">支付宝扫一扫, 向我投食</p>
+      </div>
+    
+  </div>
+
+</div>
+
+<script>
+  (() => {
+    let button = document.querySelector('#reward-btn'),
+      qrcode = document.querySelector('#reward-qrcode'),
+      display = false;
+    
+    button.addEventListener('click', () => {
+      qrcode.style.display = display ? 'none' : 'block'
+      display = !display
+    }, false)
+  })()
+</script>
+  
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+      <span>
+        
+          <i class="iconfont icon-06tags"></i>标签: 
+          
+          <span class="span--tag">
+            <a href="/tags/大数据/">
+              #大数据
+            </a>
+          </span>
+          
+          <span class="span--tag">
+            <a href="/tags/Python/">
+              #Python
+            </a>
+          </span>
+          
+        
+      </span>
+    </div>
+    <div class="article-meta pull-right">
+    </div>
+  </div>
+</div>
+
+
+  <aside id="sidebar">
+    <p id="sidebar-header"></p>
+    <ol id="sidebar-toc"></ol>
+  </aside>
+  <script async>setTimeout(generateToc, 10);</script>
+
+
+  <nav class="post-navigation">
+    
+      <div class="nav-pre">
+        <i class="iconfont icon-prev"></i>
+        上一篇:
+        <a href="/2017/04/22/python爬虫实现腾讯招聘自动翻页采集/" target="_self">Python爬虫实现腾讯招聘自动翻页采集</a>
+      </div>
+    
+    
+      <div class="nav-next">
+        下一篇:
+        <a href="/2017/04/22/Python Request&amp;Response/" target="_self">Python Request&Response</a>
+        <i class="iconfont icon-next"></i>
+      </div>
+    
+  </nav>
+
+  
+    <a href="#comment" class="comment-anchor"></a>
+<div class="comment-title"><i class="iconfont icon-footprint"></i> 留下足迹 <i class="iconfont icon-footprint"></i></div>
+<div id="vcomments"></div>
+
+<script defer>
+  if( true ) {
+    let path = getRealPath()
+    new Valine({
+      el: "#vcomments",
+      appId: "Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz",
+      appKey: "WaR7nrzhliHj9aVwdQzkdlGd",
+      notify: false,
+      verify: false,
+      avatar: "robohash",
+      placeholder: "正确填写邮箱, 才能及时收到回复哦♪(^∇^*)",
+      path
+    });
+  }
+</script>
+   
+
+  
+    <script defer>
+const valineAPI = (() => {
+  try {
+    AV.init("Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz", "WaR7nrzhliHj9aVwdQzkdlGd");
+  } catch(error) {}
+  const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+      query.equalTo("identity", identity);
+      query.find().then(results => {
+        resolve(results.length > 0);
+      }, error => reject(error));
+    })
+  }
+
+  const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+      let querys = [];
+      for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+      }
+      query = AV.Query.or.apply(null ,querys);
+    } else {
+      identity = identity || getRealPath();
+      query = new AV.Query("Timer");
+      query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+      query.find()
+      .then(results => resolve(results))
+      .catch(error => reject(error))
+    })
+  }
+
+  const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let Todo = AV.Object.extend('Timer');
+      let todo = new Todo();
+      todo.set("times", 1);
+      todo.set("identity", identity);
+      todo.save().then(res => resolve(true), error => reject(error));
+    })
+  }
+
+  const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let query = new AV.Query('Timer');
+      query.equalTo("identity", identity);
+      query.find().then(todos => {
+        todos.forEach(todo => {
+          todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+      }).then(todos => resolve(true), error => reject(error));
+    })
+  }
+
+  return {
+    isExist,
+    _get,
+    update,
+    create
+  }
+})()
+
+const calcAndWriteTimes = () => {
+  let isPost = true;
+
+  let timerAllDOM = document.querySelectorAll(".article-timer");
+
+  if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+      if(exist) {
+        return valineAPI.update(identity);
+      }
+      return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+  }
+
+  let timerDOMCache = {};
+
+  for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+      timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+      timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+      };
+    }
+  }
+
+  let identities = Object.keys(timerDOMCache);
+  valineAPI._get(identities).then(results => {
+    for(let result of results) {
+      let {identity, times} = result.attributes;
+      timerDOMCache[identity].times = times;
+      timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+      if(timerDOMCache[identity].times){
+        continue;
+      }
+      timerDOMCache[identity].dom.map(item => item.innerText = 1);
+      valineAPI.create(identity);
+    }
+  }).catch(error => console.log(error.message))
+}
+
+if(true){
+  calcAndWriteTimes();
+}
+</script>
+   
+
+</div>
+
+
+      <footer>
+  <p class="site-info">
+    博客已萌萌哒运行<span id="time-to-now"></span><span class="my-face">(●'◡'●)ﾉ♥</span>
+    <br>
+    Theme - <a href="https://github.com/dongyuanxin/theme-bmw">BMW</a> | Powered by <a href="https://godbmw.com/">GodBMW</a>
+    <br>
+    
+      Copyright © 2019 Matrix
+    
+  </p>
+</footer>
+
+
+
+<script>
+const timeToNowDOM = document.querySelector("#time-to-now");
+const startTimestamp = new Date(2016, 4, 10).getTime();
+
+const updateTimeStr = () => {
+  let offset = parseInt(
+      (new Date().getTime() - startTimestamp) / 1000,
+      10
+    ),
+    day = Math.floor(offset / 86400),
+    hour = Math.floor((offset % 86400) / 3600),
+    minute = Math.floor(((offset % 86400) % 3600) / 60),
+    second = Math.floor(((offset % 86400) % 3600) % 60);
+  timeToNowDOM.innerHTML =
+    day + "天" + hour + "小时" + minute + "分钟" + second + "秒";
+  setTimeout(updateTimeStr, 500);
+}
+
+setTimeout(updateTimeStr, 500);
+</script>
+
+
+      <div class="back-to-top hidden">
+  <span>
+    <i class="iconfont icon-60"></i><span></span>%
+  </span>
+</div>
+
+<script>
+const updateIconToTop = percent => {
+  let dom = document.querySelector(".back-to-top span span");
+  dom.innerText = percent;
+  if(percent < 1) {
+    document.querySelector(".back-to-top").className = "back-to-top hidden";
+  } else {
+    document.querySelector(".back-to-top").className = "back-to-top";
+  }
+}
+
+const handleScoll = () => {
+  let isRunning = false;
+  return () => {
+    if (isRunning) return;
+    isRunning = true;
+    window.requestAnimationFrame(timestamp => {
+      let scrollTop =
+          document.documentElement.scrollTop || document.body.scrollTop,
+        scrollHeight =
+          document.documentElement.scrollHeight ||
+          document.body.scrollHeight,
+        clientHeight =
+          document.documentElement.clientHeight ||
+          document.body.clientHeight;
+      isRunning = false;
+      if (scrollTop <= 1) {
+        updateIconToTop(0);
+        return;
+      }
+      if (scrollTop + clientHeight >= scrollHeight) {
+        updateIconToTop(100);
+      } else {
+        updateIconToTop(parseInt(
+          100 * scrollTop / (scrollHeight - clientHeight),
+          10
+        ));
+      }
+    });
+  };
+}
+
+const backToTop = () => {
+  let scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop,
+    delay = 10,
+    time = 200;
+  if (scrollTop <= 20) {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    return;
+  }
+  let step = Math.ceil(scrollTop * delay / time);
+  let timer = setInterval(() => {
+    scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop;
+    if (scrollTop - step <= 0) {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      clearInterval(timer);
+    } else {
+      document.documentElement.scrollTop = scrollTop - step;
+      document.body.scrollTop = scrollTop - step;
+    }
+  }, delay);
+}
+
+document.addEventListener("scroll", handleScoll(), false);
+
+document.querySelector(".back-to-top").addEventListener("click", backToTop, false);
+
+</script>
+
+    </div>
+
+    
+      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  (() => {
+    const mathjaxConfig = {
+      showProcessingMessages: false, //关闭js加载过程信息
+      messageStyle: "none", //不显示信息
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]], //行内公式选择符
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]], //段内公式选择符
+        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"] //避开某些标签
+      },
+      "HTML-CSS": {
+        availableFonts: ["STIX", "TeX"], //可选字体
+        showMathMenu: false //关闭右击菜单显示
+      }
+    }
+
+    let mathjaxInterval = setInterval(() => {
+      if(!window.MathJax){
+        return;
+      }
+      window.MathJax.Hub.Config(mathjaxConfig)
+      window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')])
+
+      clearInterval(mathjaxInterval)
+    }, 10)    
+  })()
+</script>
+    
+
+    <script src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script>
+<script async>
+  let fancyTimer = setInterval(function(){
+    if(!window.$){
+      return;
+    }
+    $(document).ready(function() {
+      $(".post img").each(function () {
+        if($(this).parent().get(0).tagName.toLowerCase() === "a") {
+          return;
+        }
+        // $(this).attr("data-fancybox", "gallery"); // if you add 'data-fancybox', img will display after showed
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "gallery");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      });
+      
+      clearInterval(fancyTimer);
+    });
+  }, 10);
+</script>
+
+    
+  </body>
+
+</html>
