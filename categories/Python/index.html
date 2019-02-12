@@ -8,7 +8,7 @@
   
   
 
-  <title>分类: Python | 每天，遇到更好的你</title>
+  <title>分类: python | 每天，遇到更好的你</title>
 
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
@@ -180,7 +180,7 @@
   <span class="archive-move-on"></span>
   <span class="archive-page-counter">
     
-      <span>当前位于 1/3 页</span>
+      <span>当前位于 1/1 页</span>
     
   </span>
   
@@ -188,7 +188,7 @@
     <div class="collection-title">
       <h2>
         
-          <span>分类 : Python</span>
+          <span>分类 : python</span>
         
       </h2>
     </div>
@@ -198,144 +198,12 @@
   <article class="posts-collapse">
     <header>
       <h2>
-        <a href="/2018/03/02/Pandas简介/">
-          <span>Pandas简介</span>
+        <a href="/2017/06/30/Python Flask快速使用/">
+          <span>Python Flask快速使用</span>
         </a>
       </h2>
       <div class="post-meta">
-        03-02
-      </div>
-    </header>
-  </article>
-  
-  
-  <article class="posts-collapse">
-    <header>
-      <h2>
-        <a href="/2018/03/02/Pandas使用/">
-          <span>Pandas使用</span>
-        </a>
-      </h2>
-      <div class="post-meta">
-        03-02
-      </div>
-    </header>
-  </article>
-  
-  
-    <div class="collection-title">
-      <h2>
-        <span>2017</span>
-      </h2>
-    </div>
-  
-  <article class="posts-collapse">
-    <header>
-      <h2>
-        <a href="/2017/08/29/Python之TF-IDF原理介绍/">
-          <span>Python之TF-IDF原理介绍</span>
-        </a>
-      </h2>
-      <div class="post-meta">
-        08-29
-      </div>
-    </header>
-  </article>
-  
-  
-  <article class="posts-collapse">
-    <header>
-      <h2>
-        <a href="/2017/08/24/Python实现深度优先遍历/">
-          <span>Python实现深度优先遍历</span>
-        </a>
-      </h2>
-      <div class="post-meta">
-        08-24
-      </div>
-    </header>
-  </article>
-  
-  
-  <article class="posts-collapse">
-    <header>
-      <h2>
-        <a href="/2017/08/11/Python之MAMP安装/">
-          <span>Python之MAMP安装</span>
-        </a>
-      </h2>
-      <div class="post-meta">
-        08-11
-      </div>
-    </header>
-  </article>
-  
-  
-  <article class="posts-collapse">
-    <header>
-      <h2>
-        <a href="/2017/08/10/Python Tornado基本概念/">
-          <span>Python Tornado基本概念</span>
-        </a>
-      </h2>
-      <div class="post-meta">
-        08-10
-      </div>
-    </header>
-  </article>
-  
-  
-  <article class="posts-collapse">
-    <header>
-      <h2>
-        <a href="/2017/08/06/Python Flask 构建微电影网站/">
-          <span>Python Flask 构建微电影网站</span>
-        </a>
-      </h2>
-      <div class="post-meta">
-        08-06
-      </div>
-    </header>
-  </article>
-  
-  
-  <article class="posts-collapse">
-    <header>
-      <h2>
-        <a href="/2017/08/02/Python自动化运维/">
-          <span>Python自动化运维</span>
-        </a>
-      </h2>
-      <div class="post-meta">
-        08-02
-      </div>
-    </header>
-  </article>
-  
-  
-  <article class="posts-collapse">
-    <header>
-      <h2>
-        <a href="/2017/07/21/Python网络编程/">
-          <span>Python网络编程</span>
-        </a>
-      </h2>
-      <div class="post-meta">
-        07-21
-      </div>
-    </header>
-  </article>
-  
-  
-  <article class="posts-collapse">
-    <header>
-      <h2>
-        <a href="/2017/07/11/Python实现将微信公众号用户基本信息数据导出到csv文件/">
-          <span>Python实现将微信公众号用户基本信息数据导出到csv文件</span>
-        </a>
-      </h2>
-      <div class="post-meta">
-        07-11
+        06-30
       </div>
     </header>
   </article>
@@ -343,8 +211,6 @@
 </div>
   <nav class="page-navigation">
     
-    
-      <a href="/categories/Python/page/2/">下一页</a>
     
   </nav>
 </div>
@@ -434,6 +300,98 @@ const handleScoll = () => {
 }
 
 const backToTop = () => {
+  let scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop,
+    delay = 10,
+    time = 200;
+  if (scrollTop <= 20) {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    return;
+  }
+  let step = Math.ceil(scrollTop * delay / time);
+  let timer = setInterval(() => {
+    scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop;
+    if (scrollTop - step <= 0) {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      clearInterval(timer);
+    } else {
+      document.documentElement.scrollTop = scrollTop - step;
+      document.body.scrollTop = scrollTop - step;
+    }
+  }, delay);
+}
+
+document.addEventListener("scroll", handleScoll(), false);
+
+document.querySelector(".back-to-top").addEventListener("click", backToTop, false);
+
+</script>
+
+    </div>
+
+    
+      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  (() => {
+    const mathjaxConfig = {
+      showProcessingMessages: false, //关闭js加载过程信息
+      messageStyle: "none", //不显示信息
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]], //行内公式选择符
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]], //段内公式选择符
+        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"] //避开某些标签
+      },
+      "HTML-CSS": {
+        availableFonts: ["STIX", "TeX"], //可选字体
+        showMathMenu: false //关闭右击菜单显示
+      }
+    }
+
+    let mathjaxInterval = setInterval(() => {
+      if(!window.MathJax){
+        return;
+      }
+      window.MathJax.Hub.Config(mathjaxConfig)
+      window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')])
+
+      clearInterval(mathjaxInterval)
+    }, 10)    
+  })()
+</script>
+    
+
+    <script src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script>
+<script async>
+  let fancyTimer = setInterval(function(){
+    if(!window.$){
+      return;
+    }
+    $(document).ready(function() {
+      $(".post img").each(function () {
+        if($(this).parent().get(0).tagName.toLowerCase() === "a") {
+          return;
+        }
+        // $(this).attr("data-fancybox", "gallery"); // if you add 'data-fancybox', img will display after showed
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "gallery");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      });
+      
+      clearInterval(fancyTimer);
+    });
+  }, 10);
+</script>
+
+    
+  </body>
+
+</html>
+oTop = () => {
   let scrollTop =
       document.documentElement.scrollTop || document.body.scrollTop,
     delay = 10,
