@@ -8,12 +8,12 @@
   
   
 
-  <title>ActiveMQ安装运行 | 每天，遇到更好的你</title>
+  <title>TensorFlow编程概念 | 每天，遇到更好的你</title>
 
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
   
-    <meta name="keywords" content="大数据,大数据,">
+    <meta name="keywords" content="Python,Python,">
   
 
   <script>
@@ -190,24 +190,24 @@
 
 <div class="post">
   <h1 class="article-title">
-    <span>ActiveMQ安装运行</span>
+    <span>TensorFlow编程概念</span>
   </h1>
   <div class="article-top-meta">
     <span>
       发布 : 
-      2016-02-12
+      2019-01-01
     </span>
     
       <span>
         分类 : 
-          <a href="/categories/大数据/">
-            大数据
+          <a href="/categories/Python/">
+            Python
           </a>
       </span>
     
     
       <span>
-        浏览 : <span class="article-timer" data-identity="ActiveMQ安装运行"></span>
+        浏览 : <span class="article-timer" data-identity="TensorFlow编程概念"></span>
       </span>
     
   </div>
@@ -216,19 +216,80 @@
 
   <div class="article-content">
     <div class="markdown-body">
-      <h2 id="ActiveMQ"><a href="#ActiveMQ" class="headerlink" title="ActiveMQ"></a>ActiveMQ</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Java消息服务中间件：Apache的ActiveMQ、阿里巴巴的RocketMQ</span><br></pre></td></tr></table></figure>
-<h3 id="背景-amp-JMS概述"><a href="#背景-amp-JMS概述" class="headerlink" title="背景&amp;JMS概述"></a>背景&amp;JMS概述</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">当前，CORBA、DCOM、RMI等RPC中间件技术已广泛应用于各个领域。</span><br><span class="line">但是面对规模和复杂度都越来越高的分布式系统，这些技术页显示出其局限性：</span><br><span class="line"></span><br><span class="line">(1)、同步通信：客户发出调用后，必须等待服务对象完成处理并返回结果后才能继续执行</span><br><span class="line">(2)、客户和服务对象的声明周期紧密耦合：客户进程和服务对象进程都必须正常运行；</span><br><span class="line">如果由于服务对象崩溃或者网络故障导致客户的请求不可达，客户会接收到异常</span><br><span class="line">(3)、点对点通信：客户的一次调用只发送给单独的目标对象</span><br><span class="line"></span><br><span class="line">面向消息的中间件较好的解决了以上问题。</span><br><span class="line">发送者将消息发送给消息服务器，消息服务器将消息存放在若干队列中，在适合的时候再将消息转发给接收者。</span><br><span class="line">这种模式下，发送和接收是异步的，发送者无需等待；</span><br><span class="line">二者的生命周期未必相同；发送消息的时候接收者不一定运行，接受消息的时候发送者也不一定运行；</span><br><span class="line">一对多通信；对于一个消息可以多个接收者</span><br><span class="line"></span><br><span class="line">Java消息服务(JMS)定义了Java中访问消息中间件的接口。JMS只是接口，并没有给予实现，实现JMS接口的消息中间件称为JMS Provider，</span><br><span class="line">已有的MOM系统包括Apache的ActiveMQ、以及阿里巴巴的RocketMQ、IBM的MQSeries、Microsoft的MSMQ和BEA的MessageQ、RabitMQ等等，</span><br><span class="line">他们基本都遵守JMS规范</span><br></pre></td></tr></table></figure>
-<h3 id="1-2-JMS术语"><a href="#1-2-JMS术语" class="headerlink" title="1.2.JMS术语"></a>1.2.JMS术语</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">JMS实现JMS接口的消息中间件：</span><br><span class="line">Provider：生产者</span><br><span class="line">Consumer：消费者</span><br><span class="line">PTP：Point tp Point，即点对点的消息模型</span><br><span class="line">Pub/Sub：Publish/Subscribe，即发布/订阅的消息模型</span><br><span class="line">Queue：队列目标</span><br><span class="line">Topic：主题目标</span><br><span class="line">ConnectionFactory：连接工厂，JMS用它创建连接</span><br><span class="line">Connection：JMS客户端到JMS Provider的连接</span><br><span class="line">Destination：消息的目的地</span><br><span class="line">Session：会话，一个发送或接收消息的线程</span><br></pre></td></tr></table></figure>
-<h3 id="JMS术语概念"><a href="#JMS术语概念" class="headerlink" title="JMS术语概念"></a>JMS术语概念</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">ConnectionFactory接口(连接工厂)</span><br><span class="line">用户用来创建到JMS提供者的连接的被管对象。JMS客户通过可移植的接口访问连接，</span><br><span class="line">这样当下层的实现改变时，代码不需要进行修改。</span><br><span class="line">管理员在JNDI名字空间中配置连接工厂，这样，JMS客户才能查找到它们。</span><br><span class="line">根据消息类型的不同，用户将使用队列连接工厂，或者主题连接工厂</span><br><span class="line"></span><br><span class="line">Connection接口(连接)</span><br><span class="line">连接代表了应用程序和消息服务器之间的通信链路。在获得了连接工厂后，就可以创建一个与JMS提供者的连接。</span><br><span class="line">根据不同的连接类型，连接允许用户创建会话，以发送和接收队列和主题到目标。</span><br><span class="line"></span><br><span class="line">Destination接口(目标)</span><br><span class="line">目标是一个包装了消息目标标识符的被管对象，消息目标是指消息发布和接收的地点，或者队列，或者主题。</span><br><span class="line">JMS管理员创建这些对象，然后用户通过JNDI发现他们。和连接工厂一样，管理员可以创建两种类型的目标，</span><br><span class="line">点对点模型的队列，以及发布者/订阅者模型的主题</span><br><span class="line"></span><br><span class="line">Message接口(消息)</span><br><span class="line"></span><br><span class="line">是在消费者和生产者之间传送的对象，也就是说从从一个应用程序传送到另一个应用程序。一个消息有三个主要部分：</span><br><span class="line">消息头(必须)：包含用于识别和消息寻找路由的操作设置</span><br><span class="line">一组消息属性(可选):包含额外的属性，支持其他提供者和用户的兼容。可以创建定制的字段和过滤器(消息选择器)</span><br><span class="line">一个消息体(可选)：允许用户创建五种类型的消息(文本消息，映射消息，字节消息，流消息和对象消息)</span><br><span class="line">消息接口非常灵活，并提供了许多方式来定制消息的内容</span><br><span class="line"></span><br><span class="line">Session接口(会话)</span><br><span class="line"></span><br><span class="line">表示一个单线程的上下文，用于发送和接收消息。由于会话是单线程的，所以消息是连续的，就是说消息是按照发送的顺序一个一个接收的。</span><br><span class="line">会话的好处是它支持事务。如果用户选择了事务支持，绘画上下文将保存一组消息，知道事务被提交才发送这些消息。</span><br><span class="line">在提交事务之前，用户可以使用回滚操作取消这些消息。一个会话允许用户创建消息生产者来发送消息，创建消息消费者来接收消息</span><br></pre></td></tr></table></figure>
-<h3 id="消息格式定义"><a href="#消息格式定义" class="headerlink" title="消息格式定义"></a>消息格式定义</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">JMS定义了五种不同的消息正文格式，以及调用的消息类型，允许你发送并接收一些不同形式的数据，提供现有消息格式的一些级别的兼容性</span><br><span class="line">StreamMessage：Java原始值的数据流</span><br><span class="line">MapMessage：一套名称-值对</span><br><span class="line">TextMessage：一个字符串对象</span><br><span class="line">ObjectMessage：一个序列化的Java对象</span><br><span class="line">ByteMessage：一个未解释字节的数据流</span><br></pre></td></tr></table></figure>
-<h2 id="ActiveMQ-1"><a href="#ActiveMQ-1" class="headerlink" title="ActiveMQ"></a>ActiveMQ</h2><h3 id="ActiveMQ简介"><a href="#ActiveMQ简介" class="headerlink" title="ActiveMQ简介"></a>ActiveMQ简介</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">ActiveMQ是Apache出品，最流行的，能力强劲的开源消息总线。</span><br><span class="line">ActiveMQ是一个完全支持JMS1.1和J2EE 1.4规范的JMS Provider实现，尽管JMS规范出台已经是很久的事情了，</span><br><span class="line">但是JMS在当今的J2EE应用中间任然扮演着特殊的地位，可以说ActiveMQ在业界应用最广泛，</span><br><span class="line">当然如果想要有更强大的性能和海量数据处理能力，ActiveMQ还需要不断的升级版本，80%以上的业务我们使用ActiveMQ以及足够满足需求，</span><br><span class="line">当然后续如天猫、淘宝网这种大型的电商网站，尤其是双11这种特殊事件，ActiveMQ需要进行很复杂的优化源码以及架构设计才能完成，</span><br><span class="line">我们之后会学习一个更强大的分布式消息中间件，RocketMQ，可以说ActiveMQ是核心，是基础，所以我们必须要掌握好</span><br></pre></td></tr></table></figure>
-<h2 id="下载ActiveMQ"><a href="#下载ActiveMQ" class="headerlink" title="下载ActiveMQ"></a>下载ActiveMQ</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">去官方网站下载：http://activemq.apache.org/</span><br></pre></td></tr></table></figure>
-<h2 id="运行ActiveMQ"><a href="#运行ActiveMQ" class="headerlink" title="运行ActiveMQ"></a>运行ActiveMQ</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">解压缩apache-activemq-5.9.0-bin.zip，</span><br><span class="line">修改apache-activemq-5.9.0/conf目录中配置文件activeMQ.xml，将0.0.0.0修改为localhost</span><br></pre></td></tr></table></figure>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">transportConnectors</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;<span class="name">transportConnector</span> <span class="attr">name</span>=<span class="string">"openwire"</span> <span class="attr">uri</span>=<span class="string">"tcp://localhost:61616"</span>/&gt;</span></span><br><span class="line">       <span class="tag">&lt;<span class="name">transportConnector</span> <span class="attr">name</span>=<span class="string">"ssl"</span>     <span class="attr">uri</span>=<span class="string">"ssl://localhost:61617"</span>/&gt;</span></span><br><span class="line">       <span class="tag">&lt;<span class="name">transportConnector</span> <span class="attr">name</span>=<span class="string">"stomp"</span>   <span class="attr">uri</span>=<span class="string">"stomp://localhost:61613"</span>/&gt;</span></span><br><span class="line">       <span class="tag">&lt;<span class="name">transportConnector</span> <span class="attr">uri</span>=<span class="string">"http://localhost:8081"</span>/&gt;</span></span><br><span class="line">       <span class="tag">&lt;<span class="name">transportConnector</span> <span class="attr">uri</span>=<span class="string">"udp://localhost:61618"</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">transportConnectors</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p><img src="http://i1.piimg.com/567571/30cfc13465f51746.png" alt=""></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">然后双击apache-activemq-5.5.1\bin\activemq.bat运行ActiveMQ程序。</span><br><span class="line">启动ActiveMQ以后，登陆：http://localhost:8161/admin/，账号密码均为admin，创建一个Queue，命名为FirstQueue。</span><br></pre></td></tr></table></figure>
-<p><img src="http://i1.piimg.com/567571/ff4f05feeeeca001.png" alt=""></p>
-<p><img src="http://i1.piimg.com/567571/341fd74d8bb7d3ab.png" alt=""></p>
+      <p><strong><code>学习目标：</code></strong></p>
+<ul>
+<li>学习 TensorFlow 编程模型的基础知识，重点了解以下概念：<ul>
+<li><code>张量</code></li>
+<li><code>指令</code></li>
+<li><code>图</code></li>
+<li><code>会话</code></li>
+</ul>
+</li>
+<li>构建一个简单的 TensorFlow 程序，使用该程序<code>绘制一个默认图</code>并<code>创建一个运行该图的会话</code></li>
+</ul>
+<p><strong><code>注意：</code></strong> 请仔细阅读本教程。<code>TensorFlow 编程模型</code>很可能与您遇到的其他模型不同，因此可能不如您期望的那样直观。</p>
+<h2 id="概念概览"><a href="#概念概览" class="headerlink" title="概念概览"></a>概念概览</h2><p>TensorFlow 的名称源自 <strong><code>张量</code></strong> ，<code>张量</code>是<code>任意维度的数组</code>。</p>
+<p>借助 TensorFlow，您可以操控具有大量维度的张量。即便如此，在大多数情况下，您会使用以下一个或多个低维张量：</p>
+<ul>
+<li><strong><code>标量</code></strong>是<code>零维数组</code>（零阶张量）。例如，<code>\&#39;Howdy\&#39;</code> 或 <code>5</code></li>
+<li><strong><code>矢量</code></strong>是<code>一维数组</code>（一阶张量）。例如，<code>[2, 3, 5, 7, 11]</code> 或 <code>[5]</code></li>
+<li><strong><code>矩阵</code></strong>是<code>二维数组</code>（二阶张量）。例如，<code>[[3.1, 8.2, 5.9][4.3, -2.7, 6.5]]</code></li>
+</ul>
+<p>TensorFlow <strong><code>指令</code></strong> 会<code>创建</code>、<code>销毁</code>和<code>操控</code>张量。典型 TensorFlow 程序中的大多数代码行都是指令。</p>
+<p>TensorFlow <strong><code>图</code></strong>（也称为 <strong><code>计算图</code></strong> 或 <strong><code>数据流图</code></strong> ）是一种<code>图数据结构</code>。很多 TensorFlow 程序由单个图构成，但是 TensorFlow 程序可以选择创建多个图。<code>图</code>的<code>节点</code>是<code>指令</code>；<code>图</code>的<code>边</code>是<code>张量</code>。张量流经图，在每个节点由一个指令操控。一个指令的输出张量通常会变成后续指令的输入张量。TensorFlow 会实现<code>延迟执行模型</code>，意味着系统仅会根据相关节点的需求在需要时计算节点。</p>
+<p>张量可以作为 <strong><code>常量</code></strong> 或 <strong><code>变量</code></strong> 存储在图中。您可能已经猜到，常量存储的是值不会发生更改的张量，而变量存储的是值会发生更改的张量。不过，您可能没有猜到的是，常量和变量都只是图中的一种指令。常量是始终会返回同一张量值的指令。变量是会返回分配给它的任何张量的指令。</p>
+<blockquote>
+<p>使用 <code>tf.constant</code> 指令定义常量，并传入它的值。例如：</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">x = tf.constant([5.2])</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>使用 <code>tf.Variable</code> 指令定义创建变量，并传入它的值。例如：</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">y = tf.Variable([5])</span><br></pre></td></tr></table></figure>
+<p>或者，您也可以先<code>创建变量</code>，然后再如下所示地<code>分配一个值</code>（注意：您始终需要指定一个默认值）：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">y = tf.Variable([0])</span><br><span class="line">y = y.assign([5])</span><br></pre></td></tr></table></figure>
+<p>定义一些常量或变量后，您可以将它们与其他指令（如 <code>tf.add</code>）结合使用。在评估 <code>tf.add</code> 指令时，它会调用您的 <code>tf.constant</code> 或 <code>tf.Variable</code> 指令，以获取它们的值，然后返回一个包含这些值之和的新张量。</p>
+<p><code>图</code>必须在 TensorFlow <strong><code>会话</code></strong> 中运行，<code>会话存储了它所运行的图的状态</code>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">将 tf.Session() 作为会话：</span><br><span class="line">  initialization = tf.global_variables_initializer()</span><br><span class="line">  print y.eval()</span><br></pre></td></tr></table></figure>
+<p>在使用 <code>tf.Variable</code> 时，您必须在会话开始时调用 <code>tf.global_variables_initializer</code>，以<code>明确初始化这些变量</code>，如上所示。</p>
+<p><strong>注意：</strong> <code>会话</code>可以<code>将图分发到多个机器上执行</code>（假设程序在某个分布式计算框架上运行）。有关详情，请参阅<a href="https://www.tensorflow.org/deploy/distributed" target="_blank" rel="noopener">分布式 TensorFlow</a>。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><blockquote>
+<p>TensorFlow编程本质上是一个<code>两步流程</code></p>
+</blockquote>
+<ul>
+<li>将<code>常量、变量和指令</code>整合到一个<code>图</code>中</li>
+<li>在一个<code>会话</code>中评估这些<code>常量、变量和指令</code></li>
+</ul>
+<h2 id="创建一个简单的-TensorFlow-程序"><a href="#创建一个简单的-TensorFlow-程序" class="headerlink" title="创建一个简单的 TensorFlow 程序"></a>创建一个简单的 TensorFlow 程序</h2><blockquote>
+<p>输出 TensorFlow 版本</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"><span class="comment"># -*- coding:utf-8 -*-</span></span><br><span class="line"><span class="comment"># @Copyright (C), 2018, matrix.wang</span></span><br><span class="line"></span><br><span class="line">import tensorflow</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(tensorflow.__version__)</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>输出</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">1.8.0</span><br></pre></td></tr></table></figure>
+<p>我们来看看如何编写一个将<code>两个常量相加</code>的简单 TensorFlow 程序</p>
+<h3 id="添加-import-语句"><a href="#添加-import-语句" class="headerlink" title="添加 import 语句"></a>添加 import 语句</h3><p>与几乎所有 Python 程序一样，您首先要添加一些 <code>import</code> 语句。<br>当然，运行 TensorFlow 程序所需的 <code>import</code> 语句组合取决于您的程序将要访问的功能。至少，您必须在所有 TensorFlow 程序中添加 <code>import tensorflow</code> 语句：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">import tensorflow as tf</span><br></pre></td></tr></table></figure>
+<p><strong>请勿忘记执行前面的代码块（<code>import</code> 语句）。</strong></p>
+<p>其他常见的 import 语句包括：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">import matplotlib.pyplot as plt # 数据集可视化</span><br><span class="line">import numpy as np              # 低级数字 Python 库</span><br><span class="line">import pandas as pd             # 较高级别的数字 Python 库</span><br></pre></td></tr></table></figure>
+<p>TensorFlow 提供了一个<strong>默认图</strong>。不过，我们建议您明确创建自己的 <code>Graph</code>，以便<code>跟踪状态</code>（例如，您可能希望在每个单元格中使用一个不同的 <code>Graph</code>）。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">import tensorflow as tf</span><br><span class="line"></span><br><span class="line"><span class="comment"># Create a graph.</span></span><br><span class="line">g = tf.Graph()</span><br><span class="line"></span><br><span class="line"><span class="comment"># Establish the graph as the "default" graph.</span></span><br><span class="line">with g.as_default():</span><br><span class="line">  <span class="comment"># Assemble a graph consisting of the following three operations:</span></span><br><span class="line">  <span class="comment">#   * Two tf.constant operations to create the operands.</span></span><br><span class="line">  <span class="comment">#   * One tf.add operation to add the two operands.</span></span><br><span class="line">  x = tf.constant(8, name=<span class="string">"x_const"</span>)</span><br><span class="line">  y = tf.constant(5, name=<span class="string">"y_const"</span>)</span><br><span class="line">  sum = tf.add(x, y, name=<span class="string">"x_y_sum"</span>)</span><br><span class="line"></span><br><span class="line">  <span class="comment"># Now create a session.</span></span><br><span class="line">  <span class="comment"># The session will run the default graph.</span></span><br><span class="line">  with tf.Session() as sess:</span><br><span class="line">    <span class="built_in">print</span> sum.eval()</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>输出</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">13</span><br></pre></td></tr></table></figure>
+<h2 id="练习：引入第三个运算数"><a href="#练习：引入第三个运算数" class="headerlink" title="练习：引入第三个运算数"></a>练习：引入第三个运算数</h2><p>修改上面的代码列表，以将三个整数（而不是两个）相加：</p>
+<ul>
+<li>定义第三个标量整数常量 <code>z</code>，并为其分配一个值 <code>4</code></li>
+<li>将 <code>sum</code> 与 <code>z</code> 相加，以得出一个新的和</li>
+</ul>
+<p><strong>提示：</strong> 请参阅有关 <a href="https://www.tensorflow.org/api_docs/python/tf/add" target="_blank" rel="noopener">tf.add()</a> 的 API 文档，了解有关其函数签名的更多详细信息。</p>
+<ul>
+<li>重新运行修改后的代码块。该程序是否生成了正确的总和？</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Create a graph.</span></span><br><span class="line">g = tf.Graph()</span><br><span class="line"></span><br><span class="line"><span class="comment"># Establish our graph as the "default" graph.</span></span><br><span class="line">with g.as_default():</span><br><span class="line">  <span class="comment"># Assemble a graph consisting of three operations.</span></span><br><span class="line">  <span class="comment"># (Creating a tensor is an operation.)</span></span><br><span class="line">  x = tf.constant(8, name=<span class="string">"x_const"</span>)</span><br><span class="line">  y = tf.constant(5, name=<span class="string">"y_const"</span>)</span><br><span class="line">  sum = tf.add(x, y, name=<span class="string">"x_y_sum"</span>)</span><br><span class="line"></span><br><span class="line">  <span class="comment"># Task 1: Define a third scalar integer constant z.</span></span><br><span class="line">  z = tf.constant(4, name=<span class="string">"z_const"</span>)</span><br><span class="line">  <span class="comment"># Task 2: Add z to `sum` to yield a new sum.</span></span><br><span class="line">  new_sum = tf.add(sum, z, name=<span class="string">"x_y_z_sum"</span>)</span><br><span class="line"></span><br><span class="line">  <span class="comment"># Now create a session.</span></span><br><span class="line">  <span class="comment"># The session will run the default graph.</span></span><br><span class="line">  with tf.Session() as sess:</span><br><span class="line">    <span class="comment"># Task 3: Ensure the program yields the correct grand total.</span></span><br><span class="line">    <span class="built_in">print</span> new_sum.eval()</span><br></pre></td></tr></table></figure>
 
     </div>
   </div>
@@ -240,7 +301,7 @@
         
           本文作者 : Matrix <br>
         
-        原文链接 : <a href="">http://yoursite.com/2016/02/12/ActiveMQ安装运行/</a><br>
+        原文链接 : <a href="">http://yoursite.com/2019/01/01/TensorFlow编程概念/</a><br>
         版权声明 : 本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
         </blockquote>
       </div>
@@ -300,8 +361,8 @@
           <i class="iconfont icon-06tags"></i>标签: 
           
           <span class="span--tag">
-            <a href="/tags/大数据/">
-              #大数据
+            <a href="/tags/Python/">
+              #Python
             </a>
           </span>
           
@@ -326,13 +387,13 @@
       <div class="nav-pre">
         <i class="iconfont icon-prev"></i>
         上一篇:
-        <a href="/2016/02/12/HBase分布式集群搭建/" target="_self">HBase分布式集群搭建</a>
+        <a href="/2018/08/05/数据湖概念/" target="_self">数据湖概念</a>
       </div>
     
     
       <div class="nav-next">
         下一篇:
-        <a href="/2016/02/12/Flume与Kafka整合/" target="_self">Flume与Kakfa整合</a>
+        <a href="/2019/01/05/使用VMware Fusion搭建Flink分布式集群/" target="_self">使用VMware Fusion搭建Flink分布式集群</a>
         <i class="iconfont icon-next"></i>
       </div>
     
