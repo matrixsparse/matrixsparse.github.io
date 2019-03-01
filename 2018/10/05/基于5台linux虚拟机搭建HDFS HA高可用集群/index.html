@@ -220,25 +220,25 @@
 <p>目录</p>
 </blockquote>
 <!-- TOC -->
-<ul>
-<li><a href="#基于5台linux虚拟机搭建hdfs-ha高可用集群">基于5台linux虚拟机搭建HDFS HA高可用集群</a><ul>
+<ol>
+<li><a href="#基于5台linux虚拟机搭建hdfs-ha高可用集群">基于5台linux虚拟机搭建HDFS HA高可用集群</a><ol>
 <li><a href="#hdfs集群部署规划">hdfs集群部署规划</a></li>
 <li><a href="#准备5台linux虚拟机">准备5台linux虚拟机</a></li>
-<li><a href="#安装virtual-box">安装virtual box</a><ul>
+<li><a href="#安装virtual-box">安装virtual box</a><ol>
 <li><a href="#解决virtualbox无法显示鼠标问题">解决VirtualBox无法显示鼠标问题</a></li>
-</ul>
+</ol>
 </li>
-<li><a href="#设置虚拟机配置">设置虚拟机配置</a><ul>
+<li><a href="#设置虚拟机配置">设置虚拟机配置</a><ol>
 <li><a href="#注意在公司wifi下用桥接模式可能会出现某些ip无法远程连接的情况这些ip可能已经被分配了">注意：在公司wifi下用桥接模式，可能会出现某些ip无法远程连接的情况【这些ip可能已经被分配了】</a></li>
 <li><a href="#配置网络">配置网络</a></li>
-<li><a href="#配置dns">配置DNS</a><ul>
+<li><a href="#配置dns">配置DNS</a><ol>
 <li><a href="#检查netmanager的状态">检查NetManager的状态</a></li>
 <li><a href="#检查netmanager管理的网络接口">检查NetManager管理的网络接口</a></li>
 <li><a href="#检查netmanager管理的网络连接">检查NetManager管理的网络连接</a></li>
 <li><a href="#设置dns">设置dns</a></li>
 <li><a href="#让dns配置生效">让dns配置生效</a></li>
-<li><a href="#设置静态瞬态或灵活主机名分别使用--static--transient或--pretty选项">设置静态、瞬态或灵活主机名，分别使用–static，–transient或–pretty选项</a></li>
-</ul>
+<li><a href="#设置静态瞬态或灵活主机名分别使用-static-transient或-pretty选项">设置静态、瞬态或灵活主机名，分别使用–static，–transient或–pretty选项</a></li>
+</ol>
 </li>
 <li><a href="#重启centos-7之后查看主机名">重启CentOS 7之后，查看主机名</a></li>
 <li><a href="#配置hosts配置本机的hostname到ip地址的映射">配置hosts(配置本机的hostname到ip地址的映射)</a></li>
@@ -246,29 +246,31 @@
 <li><a href="#关闭防火墙">关闭防火墙</a></li>
 <li><a href="#配置yum">配置yum</a></li>
 <li><a href="#安装jdk">安装JDK</a></li>
-</ul>
+</ol>
 </li>
-<li><a href="#同步集群时间">同步集群时间</a><ul>
+<li><a href="#在另外4个虚拟机中安装centos集群">在另外4个虚拟机中安装CentOS集群</a></li>
+<li><a href="#配置5台centos为ssh免密码互相通信">配置5台CentOS为ssh免密码互相通信</a></li>
+<li><a href="#同步集群时间">同步集群时间</a><ol>
 <li><a href="#使用yum安装ntpdate">使用yum安装ntpdate</a></li>
 <li><a href="#设置定时同步时间">设置定时同步时间</a></li>
-</ul>
+</ol>
 </li>
 <li><a href="#hdfs-ha集群部署规划">hdfs HA集群部署规划</a></li>
 <li><a href="#部署zookeeper集群">部署zookeeper集群</a></li>
 <li><a href="#部署hadoop集群">部署hadoop集群</a></li>
 <li><a href="#启动hadoop集群">启动hadoop集群</a></li>
 <li><a href="#查看hadoop集群">查看hadoop集群</a></li>
-</ul>
+</ol>
 </li>
-</ul>
+</ol>
 <!-- /TOC -->
 <h2 id="hdfs集群部署规划"><a href="#hdfs集群部署规划" class="headerlink" title="hdfs集群部署规划"></a>hdfs集群部署规划</h2><p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fw5v2a4656j20r80b8aa4.jpg" alt="All text"></p>
 <h2 id="准备5台linux虚拟机"><a href="#准备5台linux虚拟机" class="headerlink" title="准备5台linux虚拟机"></a>准备5台linux虚拟机</h2><p>都是CentOS 7操作系统，64位，每台机器都是单cpu，1G内存，安装JDK 1.8</p>
-<p>启动一个virtual box虚拟机管理软件（vmware，我早些年，发现不太稳定，主要是当时搭建一个hadoop大数据的集群，发现每次休眠以后再重启，集群就挂掉了）</p>
+<p>启动一个virtual box虚拟机管理软件（vmware，发现不太稳定，主要是当时搭建一个hadoop大数据的集群，发现每次休眠以后再重启，集群就挂掉了）</p>
 <p>virtual box，发现很稳定，集群从来不会随便乱挂，所以就一直用virtual box了</p>
 <h2 id="安装virtual-box"><a href="#安装virtual-box" class="headerlink" title="安装virtual box"></a>安装virtual box</h2><p>用的是什么centos镜像，CentOS比较新的版本是7了，然后服务器上装操作系统的话，内存一般比较大，一般是安装64位的，32位的有一个最大内存4G的限制</p>
 <ul>
-<li>（1）使用课程提供的CentOS 7镜像即可，CentOS-7-x86_64-Minimal-1611.iso。</li>
+<li>（1）使用提供的CentOS 7镜像即可，CentOS-7-x86_64-Minimal-1611.iso。</li>
 <li>（2）创建虚拟机：打开Virtual Box，点击”新建”按钮，点击”下一步”，输入虚拟机名称为hadoop01，选择操作系统为Linux，选择版本为Red Hat-64bit，分配1024MB内存，后面的选项全部用默认，在Virtual Disk File location and size中，一定要自己选择一个目录来存放虚拟机文件，最后点击”create”按钮，开始创建虚拟机。</li>
 <li>（3）设置虚拟机网卡：选择创建好的虚拟机，点击”设置”按钮，在网络一栏中，连接方式中，选择”Bridged Adapter”。</li>
 <li>（4）安装虚拟机中的CentOS 7操作系统：选择创建好的虚拟机，点击”开始”按钮，选择安装介质（即本地的CentOS 7镜像文件），按照课程选择后自动安装即可</li>
@@ -324,8 +326,7 @@
 <p>测试jdk安装是否成功</p>
 </blockquote>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -version</span><br></pre></td></tr></table></figure>
-<p>（12）在另外4个虚拟机中安装CentOS集群</p>
-<p>按照上述步骤，再安装四台一模一样环境的linux机器<br>另外四台机器的hostname分别设置为hadoop02，hadoop03，hadoop04，hadoop05<br>安装好之后，在每台机器的hosts文件里面，配置好所有的机器的ip地址到hostname的映射关系</p>
+<h2 id="在另外4个虚拟机中安装CentOS集群"><a href="#在另外4个虚拟机中安装CentOS集群" class="headerlink" title="在另外4个虚拟机中安装CentOS集群"></a>在另外4个虚拟机中安装CentOS集群</h2><p>按照上述步骤，再安装四台一模一样环境的linux机器<br>另外四台机器的hostname分别设置为hadoop02，hadoop03，hadoop04，hadoop05<br>安装好之后，在每台机器的hosts文件里面，配置好所有的机器的ip地址到hostname的映射关系</p>
 <p>比如说，在hadoop01的hosts里面</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">192.168.0.180 hadoop01</span><br><span class="line">192.168.0.181 hadoop02</span><br><span class="line">192.168.0.182 hadoop03</span><br><span class="line">192.168.0.183 hadoop04</span><br><span class="line">192.168.0.184 hadoop05</span><br></pre></td></tr></table></figure>
 <p>在hadoop02操作</p>
@@ -356,8 +357,7 @@
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh root@192.168.0.182</span><br></pre></td></tr></table></figure>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh root@192.168.0.183</span><br></pre></td></tr></table></figure>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh root@192.168.0.184</span><br></pre></td></tr></table></figure>
-<p>（13）配置5台CentOS为ssh免密码互相通信</p>
-<blockquote>
+<h2 id="配置5台CentOS为ssh免密码互相通信"><a href="#配置5台CentOS为ssh免密码互相通信" class="headerlink" title="配置5台CentOS为ssh免密码互相通信"></a>配置5台CentOS为ssh免密码互相通信</h2><blockquote>
 <p>在5台机器上配置对本机的ssh免密码登录</p>
 </blockquote>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh-keygen -t rsa</span><br></pre></td></tr></table></figure>
