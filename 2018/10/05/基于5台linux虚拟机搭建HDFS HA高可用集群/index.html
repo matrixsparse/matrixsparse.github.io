@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta name="author" content="sparsematrix@163.com">
+  
+  
+
+  <title>基于5台linux虚拟机搭建HDFS HA高可用集群 | 每天，遇到更好的你</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="大数据,大数据,Hadoop,">
+  
+
+  <script>
+    console.log('\n%c Hexo-theme-bmw v4.0 ' + '%c 🎉 https://github.com/dongyuanxin/theme-bmw 🎉\n' + '\n%c View demo online ' + '%c 🔍 https://godbmw.com/ 🔍  \n' , 'color: #fadfa3; background: #030307; padding:3px 0;', '', 'color: #fadfa3; background: #030307; padding:3px 0;', '');
+  </script>
+
+  
+
+  
+
+  
+    <link rel="icon" href="/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/images/favicon.ico">
+  
+
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/icon/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+  <script src="/js/util.js"></script>
+<script src="/js/valine.min.js"></script>
+
+  
+
+  
+    <link href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js" async></script>
+  
+
+  
+    <link href="https://cdn.bootcss.com/social-share.js/1.0.16/css/share.min.css" rel="stylesheet">
+  
+
+  <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js" async></script>
+
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.0/dist/av-min.js"></script>
+  
+
+</head>
+
+
+  <body>
+
+    
+
+    <div id="app">
+
+      <div class="header-wrap">
+  <header>
+    <div class="site-brand">
+      <div class="site-title">
+        <!-- <a href="/">MatrixSparse</a> -->
+        <img alt="logo" class="antd-pro-layouts-user-layout-logo" src="/images/favicon.png" style="width: 160px;height: 50px;margin: 5px 0 0 5px;">
+      </div>
+    </div>
+    <nav class="site-navigation">
+      <ul class="nav-menu">
+      
+        <li class="nav-item" data-path="/">
+          
+            <a href="/" target="_self">
+              主页
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          
+            <a href="/archives/" target="_self">
+              归档
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          
+            <a href="/categories/" target="_self">
+              分类
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          
+            <a href="/tags/" target="_self">
+              标签
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="">
+          
+            <a href="javascript:void(0);" v-else="">博客地址</a>
+            <ul class="nav-menu--dropdown">
+              
+                <li>
+                  <a href="https://blog.csdn.net/qq_25371579" target="_blank">
+                    CSDN
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://github.com/matrixsparse" target="_blank">
+                    Github
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://matrixsparse.github.io/" target="_blank">
+                    Github Page
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+      </ul>
+    </nav>
+    <i class="iconfont icon-menu"></i>
+  </header>
+</div>
+
+<script>
+  let links = document.querySelectorAll('.nav-item');
+  for(let link of links){
+    let childrenLink = link.querySelector('ul');
+    link.addEventListener('mouseenter', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown active";
+      }
+    })
+    link.addEventListener('mouseleave', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown";
+      }
+    })
+  }
+  let rootRealPath = getRealPath(window.location.pathname, true);
+  for(let link of links) {
+    let linkPath = link.getAttribute("data-path");
+    if(linkPath && getRealPath(linkPath, true) === rootRealPath) {
+      link.className = "nav-item hover";
+    }
+  }
+
+  let iconMenu = document.querySelector("i.iconfont.icon-menu"),
+    iconMenuClicked = false;
+  let navDOM = document.querySelector("nav.site-navigation");
+  iconMenu.addEventListener("click", () => {
+    iconMenuClicked
+      ? navDOM.className = "site-navigation active"
+      : navDOM.className = "site-navigation";
+    iconMenuClicked = !iconMenuClicked;
+  })
+</script>
+
+
+      
+
+
+
+
+
+
+
+
+<div class="container post-index">
+
+  
+
+<div class="post">
+  <h1 class="article-title">
+    <span>基于5台linux虚拟机搭建HDFS HA高可用集群</span>
+  </h1>
+  <div class="article-top-meta">
+    <span>
+      发布 : 
+      2018-10-05
+    </span>
+    
+      <span>
+        分类 : 
+          <a href="/categories/大数据/">
+            大数据
+          </a>
+      </span>
+    
+    
+      <span>
+        浏览 : <span class="article-timer" data-identity="基于5台linux虚拟机搭建HDFS HA高可用集群"></span>
+      </span>
+    
+  </div>
+
+  
+
+  <div class="article-content">
+    <div class="markdown-body">
+      <h1 id="基于5台linux虚拟机搭建HDFS-HA高可用集群"><a href="#基于5台linux虚拟机搭建HDFS-HA高可用集群" class="headerlink" title="基于5台linux虚拟机搭建HDFS HA高可用集群"></a>基于5台linux虚拟机搭建HDFS HA高可用集群</h1><blockquote>
+<p>目录</p>
+</blockquote>
+<!-- TOC -->
+<ul>
+<li><a href="#基于5台linux虚拟机搭建hdfs-ha高可用集群">基于5台linux虚拟机搭建HDFS HA高可用集群</a><ul>
+<li><a href="#hdfs集群部署规划">hdfs集群部署规划</a></li>
+<li><a href="#准备5台linux虚拟机">准备5台linux虚拟机</a></li>
+<li><a href="#安装virtual-box">安装virtual box</a><ul>
+<li><a href="#解决virtualbox无法显示鼠标问题">解决VirtualBox无法显示鼠标问题</a></li>
+</ul>
+</li>
+<li><a href="#设置虚拟机配置">设置虚拟机配置</a><ul>
+<li><a href="#注意在公司wifi下用桥接模式可能会出现某些ip无法远程连接的情况这些ip可能已经被分配了">注意：在公司wifi下用桥接模式，可能会出现某些ip无法远程连接的情况【这些ip可能已经被分配了】</a></li>
+<li><a href="#配置网络">配置网络</a></li>
+<li><a href="#配置dns">配置DNS</a><ul>
+<li><a href="#检查netmanager的状态">检查NetManager的状态</a></li>
+<li><a href="#检查netmanager管理的网络接口">检查NetManager管理的网络接口</a></li>
+<li><a href="#检查netmanager管理的网络连接">检查NetManager管理的网络连接</a></li>
+<li><a href="#设置dns">设置dns</a></li>
+<li><a href="#让dns配置生效">让dns配置生效</a></li>
+<li><a href="#设置静态瞬态或灵活主机名分别使用--static--transient或--pretty选项">设置静态、瞬态或灵活主机名，分别使用–static，–transient或–pretty选项</a></li>
+</ul>
+</li>
+<li><a href="#重启centos-7之后查看主机名">重启CentOS 7之后，查看主机名</a></li>
+<li><a href="#配置hosts配置本机的hostname到ip地址的映射">配置hosts(配置本机的hostname到ip地址的映射)</a></li>
+<li><a href="#配置securecrt">配置SecureCRT</a></li>
+<li><a href="#关闭防火墙">关闭防火墙</a></li>
+<li><a href="#配置yum">配置yum</a></li>
+<li><a href="#安装jdk">安装JDK</a></li>
+</ul>
+</li>
+<li><a href="#同步集群时间">同步集群时间</a><ul>
+<li><a href="#使用yum安装ntpdate">使用yum安装ntpdate</a></li>
+<li><a href="#设置定时同步时间">设置定时同步时间</a></li>
+</ul>
+</li>
+<li><a href="#hdfs-ha集群部署规划">hdfs HA集群部署规划</a></li>
+<li><a href="#部署zookeeper集群">部署zookeeper集群</a></li>
+<li><a href="#部署hadoop集群">部署hadoop集群</a></li>
+<li><a href="#启动hadoop集群">启动hadoop集群</a></li>
+<li><a href="#查看hadoop集群">查看hadoop集群</a></li>
+</ul>
+</li>
+</ul>
+<!-- /TOC -->
+<h2 id="hdfs集群部署规划"><a href="#hdfs集群部署规划" class="headerlink" title="hdfs集群部署规划"></a>hdfs集群部署规划</h2><p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fw5v2a4656j20r80b8aa4.jpg" alt="All text"></p>
+<h2 id="准备5台linux虚拟机"><a href="#准备5台linux虚拟机" class="headerlink" title="准备5台linux虚拟机"></a>准备5台linux虚拟机</h2><p>都是CentOS 7操作系统，64位，每台机器都是单cpu，1G内存，安装JDK 1.8</p>
+<p>启动一个virtual box虚拟机管理软件（vmware，我早些年，发现不太稳定，主要是当时搭建一个hadoop大数据的集群，发现每次休眠以后再重启，集群就挂掉了）</p>
+<p>virtual box，发现很稳定，集群从来不会随便乱挂，所以就一直用virtual box了</p>
+<h2 id="安装virtual-box"><a href="#安装virtual-box" class="headerlink" title="安装virtual box"></a>安装virtual box</h2><p>用的是什么centos镜像，CentOS比较新的版本是7了，然后服务器上装操作系统的话，内存一般比较大，一般是安装64位的，32位的有一个最大内存4G的限制</p>
+<ul>
+<li>（1）使用课程提供的CentOS 7镜像即可，CentOS-7-x86_64-Minimal-1611.iso。</li>
+<li>（2）创建虚拟机：打开Virtual Box，点击”新建”按钮，点击”下一步”，输入虚拟机名称为hadoop01，选择操作系统为Linux，选择版本为Red Hat-64bit，分配1024MB内存，后面的选项全部用默认，在Virtual Disk File location and size中，一定要自己选择一个目录来存放虚拟机文件，最后点击”create”按钮，开始创建虚拟机。</li>
+<li>（3）设置虚拟机网卡：选择创建好的虚拟机，点击”设置”按钮，在网络一栏中，连接方式中，选择”Bridged Adapter”。</li>
+<li>（4）安装虚拟机中的CentOS 7操作系统：选择创建好的虚拟机，点击”开始”按钮，选择安装介质（即本地的CentOS 7镜像文件），按照课程选择后自动安装即可</li>
+<li>（5）安装完以后，CentOS会提醒你要重启一下，就是reboot，你就reboot就可以了。</li>
+<li>（6）配置网络</li>
+</ul>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fw72qbthz8j21gu0y67i4.jpg" alt="All text"><br><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fw72qd8la3j21hc0y8tlg.jpg" alt="All text"><br><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fw72qdzl13j21h60ygqi4.jpg" alt="All text"><br><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fw72qdw1ctj21h20yazyy.jpg" alt="All text"><br><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fw72qc63n2j21hc0ykdw3.jpg" alt="All text"><br><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fw72qcq674j21ha0ycqhk.jpg" alt="All text"><br><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fw72rbt2aaj21he0ye7hj.jpg" alt="All text"><br><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fyt8bc63utj20qp0hbadv.jpg" alt="All text"></p>
+<h3 id="解决VirtualBox无法显示鼠标问题"><a href="#解决VirtualBox无法显示鼠标问题" class="headerlink" title="解决VirtualBox无法显示鼠标问题"></a>解决VirtualBox无法显示鼠标问题</h3><p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fyt8rvtti4j21h40yoh2a.jpg" alt="All text"></p>
+<p>将Pointing Device改为USB Tablet</p>
+<h2 id="设置虚拟机配置"><a href="#设置虚拟机配置" class="headerlink" title="设置虚拟机配置"></a>设置虚拟机配置</h2><h3 id="注意：在公司wifi下用桥接模式，可能会出现某些ip无法远程连接的情况【这些ip可能已经被分配了】"><a href="#注意：在公司wifi下用桥接模式，可能会出现某些ip无法远程连接的情况【这些ip可能已经被分配了】" class="headerlink" title="注意：在公司wifi下用桥接模式，可能会出现某些ip无法远程连接的情况【这些ip可能已经被分配了】"></a>注意：在公司wifi下用桥接模式，可能会出现某些ip无法远程连接的情况【这些ip可能已经被分配了】</h3><p>一般我们给虚拟机设置网络都用<code>NAT模式</code></p>
+<h3 id="配置网络"><a href="#配置网络" class="headerlink" title="配置网络"></a>配置网络</h3><blockquote>
+<p>动态分配一个ip地址</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/sysconfig/network-scripts/ifcfg-enp0s3</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ONBOOT=yes</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">service network restart</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip addr</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>设置静态ip地址</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/sysconfig/network-scripts/ifcfg-enp0s3</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">TYPE=Ethernet</span><br><span class="line">BOOTPROTO=static</span><br><span class="line">DEFROUTE=yes</span><br><span class="line">PEERDNS=yes</span><br><span class="line">PEERROUTES=yes</span><br><span class="line">IPV4_FAILURE_FATAL=no</span><br><span class="line">IPV6INIT=yes</span><br><span class="line">IPV6_AUTOCONF=yes</span><br><span class="line">IPV6_DEFROUTE=yes</span><br><span class="line">IPV6_PEERDNS=yes</span><br><span class="line">IPV6_PEERROUTES=yes</span><br><span class="line">IPV6_FAILURE_FATAL=no</span><br><span class="line">IPV6_ADDR_GEN_MODE=stable-privacy</span><br><span class="line">NAME=enp0s3</span><br><span class="line">DEVICE=enp0s3</span><br><span class="line">ONBOOT=yes</span><br><span class="line">IPADDR=192.168.0.180</span><br><span class="line">NETMASK=255.255.255.0</span><br><span class="line">GATEWAY=192.168.0.1</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">service network restart</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip addr</span><br></pre></td></tr></table></figure>
+<h3 id="配置DNS"><a href="#配置DNS" class="headerlink" title="配置DNS"></a>配置DNS</h3><h4 id="检查NetManager的状态"><a href="#检查NetManager的状态" class="headerlink" title="检查NetManager的状态"></a>检查NetManager的状态</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl status NetworkManager.service</span><br></pre></td></tr></table></figure>
+<h4 id="检查NetManager管理的网络接口"><a href="#检查NetManager管理的网络接口" class="headerlink" title="检查NetManager管理的网络接口"></a>检查NetManager管理的网络接口</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nmcli dev status</span><br></pre></td></tr></table></figure>
+<h4 id="检查NetManager管理的网络连接"><a href="#检查NetManager管理的网络连接" class="headerlink" title="检查NetManager管理的网络连接"></a>检查NetManager管理的网络连接</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nmcli connection show</span><br></pre></td></tr></table></figure>
+<h4 id="设置dns"><a href="#设置dns" class="headerlink" title="设置dns"></a>设置dns</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nmcli con mod enp0s3 ipv4.dns <span class="string">"114.114.114.114 8.8.8.8"</span></span><br></pre></td></tr></table></figure>
+<h4 id="让dns配置生效"><a href="#让dns配置生效" class="headerlink" title="让dns配置生效"></a>让dns配置生效</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nmcli con up enp0s3</span><br></pre></td></tr></table></figure>
+<h4 id="设置静态、瞬态或灵活主机名，分别使用–static，–transient或–pretty选项"><a href="#设置静态、瞬态或灵活主机名，分别使用–static，–transient或–pretty选项" class="headerlink" title="设置静态、瞬态或灵活主机名，分别使用–static，–transient或–pretty选项"></a>设置静态、瞬态或灵活主机名，分别使用–static，–transient或–pretty选项</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost ~]<span class="comment"># hostnamectl set-hostname hadoop01</span></span><br><span class="line">[root@localhost ~]<span class="comment"># hostnamectl --static</span></span><br><span class="line">hadoop01</span><br><span class="line">[root@localhost ~]<span class="comment"># hostnamectl --transient</span></span><br><span class="line">hadoop01</span><br><span class="line">[root@localhost ~]<span class="comment"># hostnamectl --pretty</span></span><br><span class="line">hadoop01</span><br></pre></td></tr></table></figure>
+<h3 id="重启CentOS-7之后，查看主机名"><a href="#重启CentOS-7之后，查看主机名" class="headerlink" title="重启CentOS 7之后，查看主机名"></a>重启CentOS 7之后，查看主机名</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@hadoop01 ~]<span class="comment"># hostname</span></span><br><span class="line">hadoop01</span><br></pre></td></tr></table></figure>
+<h3 id="配置hosts-配置本机的hostname到ip地址的映射"><a href="#配置hosts-配置本机的hostname到ip地址的映射" class="headerlink" title="配置hosts(配置本机的hostname到ip地址的映射)"></a>配置hosts(配置本机的hostname到ip地址的映射)</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@hadoop01 ~]<span class="comment"># vi /etc/hosts</span></span><br><span class="line">192.168.0.180 hadoop01</span><br></pre></td></tr></table></figure>
+<h3 id="配置SecureCRT"><a href="#配置SecureCRT" class="headerlink" title="配置SecureCRT"></a>配置SecureCRT</h3><p>此时就可以使用SecureCRT从本机连接到虚拟机进行操作了</p>
+<p>一般来说，虚拟机管理软件，virtual box，可以用来创建和管理虚拟机，但是一般不会直接在virtualbox里面去操作，因为比较麻烦，没有办法复制粘贴</p>
+<p>SecureCRT，在windows宿主机中，去连接virtual box中的虚拟机</p>
+<h3 id="关闭防火墙"><a href="#关闭防火墙" class="headerlink" title="关闭防火墙"></a>关闭防火墙</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">systemctl status firewalld.service</span><br><span class="line">systemctl stop firewalld.service</span><br><span class="line">systemctl <span class="built_in">disable</span> firewalld.service</span><br></pre></td></tr></table></figure>
+<p>关闭windows的防火墙</p>
+<p>后面要搭建集群，有的大数据技术的集群之间，在本地你给了防火墙的话，可能会没有办法互相连接，会导致搭建失败</p>
+<h3 id="配置yum"><a href="#配置yum" class="headerlink" title="配置yum"></a>配置yum</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">yum clean all</span><br><span class="line">yum makecache</span><br><span class="line">yum install wget</span><br></pre></td></tr></table></figure>
+<h3 id="安装JDK"><a href="#安装JDK" class="headerlink" title="安装JDK"></a>安装JDK</h3><blockquote>
+<p>将jdk-8u131-linux-x64.rpm通过WinSCP上传到虚拟机中</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">scp -C -r jdk-8u131-linux-x64.rpm root@192.168.0.180:/root</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>安装JDK</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rpm -ivh jdk-8u131-linux-x64.rpm</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>配置jdk相关的环境变量</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@hadoop01 ~]<span class="comment"># vi .bashrc</span></span><br><span class="line"><span class="built_in">export</span> JAVA_HOME=/usr/java/latest</span><br><span class="line"><span class="built_in">export</span> PATH=<span class="variable">$PATH</span>:<span class="variable">$JAVA_HOME</span>/bin</span><br><span class="line">[root@hadoop01 ~]<span class="comment"># source .bashrc</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>测试jdk安装是否成功</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -version</span><br></pre></td></tr></table></figure>
+<p>（12）在另外4个虚拟机中安装CentOS集群</p>
+<p>按照上述步骤，再安装四台一模一样环境的linux机器<br>另外四台机器的hostname分别设置为hadoop02，hadoop03，hadoop04，hadoop05<br>安装好之后，在每台机器的hosts文件里面，配置好所有的机器的ip地址到hostname的映射关系</p>
+<p>比如说，在hadoop01的hosts里面</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">192.168.0.180 hadoop01</span><br><span class="line">192.168.0.181 hadoop02</span><br><span class="line">192.168.0.182 hadoop03</span><br><span class="line">192.168.0.183 hadoop04</span><br><span class="line">192.168.0.184 hadoop05</span><br></pre></td></tr></table></figure>
+<p>在hadoop02操作</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hostnamectl <span class="built_in">set</span>-hostname hadoop02</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/sysconfig/network-scripts/ifcfg-enp0s3</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">IPADDR=192.168.0.181</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">service network restart</span><br></pre></td></tr></table></figure>
+<p>在hadoop03操作</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hostnamectl <span class="built_in">set</span>-hostname hadoop03</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/sysconfig/network-scripts/ifcfg-enp0s3</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">IPADDR=192.168.0.182</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">service network restart</span><br></pre></td></tr></table></figure>
+<p>在hadoop04操作</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hostnamectl <span class="built_in">set</span>-hostname hadoop04</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/sysconfig/network-scripts/ifcfg-enp0s3</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">IPADDR=192.168.0.183</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">service network restart</span><br></pre></td></tr></table></figure>
+<p>在hadoop05操作</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hostnamectl <span class="built_in">set</span>-hostname hadoop05</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/sysconfig/network-scripts/ifcfg-enp0s3</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">IPADDR=192.168.0.184</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">service network restart</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>连接5台虚拟机</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh root@192.168.0.180</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh root@192.168.0.181</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh root@192.168.0.182</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh root@192.168.0.183</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh root@192.168.0.184</span><br></pre></td></tr></table></figure>
+<p>（13）配置5台CentOS为ssh免密码互相通信</p>
+<blockquote>
+<p>在5台机器上配置对本机的ssh免密码登录</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh-keygen -t rsa</span><br></pre></td></tr></table></figure>
+<p>生成本机的公钥，过程中不断敲回车即可，ssh-keygen命令默认会将公钥放在/root/.ssh目录下</p>
+<blockquote>
+<p>配置本机免密码登录</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /root/.ssh</span><br><span class="line">cp id_rsa.pub authorized_keys</span><br></pre></td></tr></table></figure>
+<p>将公钥复制为authorized_keys文件，此时使用ssh连接本机就不需要输入密码了</p>
+<blockquote>
+<p>配置五台机器互相之间的ssh免密码登录</p>
+</blockquote>
+<p>使用ssh-copy-id -i hostname命令将本机的公钥拷贝到指定机器的authorized_keys文件中</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">[root@hadoop01 ~]<span class="comment"># ssh-copy-id -i hadoop02</span></span><br><span class="line">[root@hadoop01 ~]<span class="comment"># ssh-copy-id -i hadoop03</span></span><br><span class="line">[root@hadoop01 ~]<span class="comment"># ssh-copy-id -i hadoop04</span></span><br><span class="line">[root@hadoop01 ~]<span class="comment"># ssh-copy-id -i hadoop05</span></span><br><span class="line"></span><br><span class="line">[root@hadoop02 ~]<span class="comment"># ssh-copy-id -i hadoop01</span></span><br><span class="line">[root@hadoop02 ~]<span class="comment"># ssh-copy-id -i hadoop03</span></span><br><span class="line">[root@hadoop02 ~]<span class="comment"># ssh-copy-id -i hadoop04</span></span><br><span class="line">[root@hadoop02 ~]<span class="comment"># ssh-copy-id -i hadoop05</span></span><br><span class="line"></span><br><span class="line">[root@hadoop03 ~]<span class="comment"># ssh-copy-id -i hadoop01</span></span><br><span class="line">[root@hadoop03 ~]<span class="comment"># ssh-copy-id -i hadoop02</span></span><br><span class="line">[root@hadoop03 ~]<span class="comment"># ssh-copy-id -i hadoop04</span></span><br><span class="line">[root@hadoop03 ~]<span class="comment"># ssh-copy-id -i hadoop05</span></span><br><span class="line"></span><br><span class="line">[root@hadoop04 ~]<span class="comment"># ssh-copy-id -i hadoop01</span></span><br><span class="line">[root@hadoop04 ~]<span class="comment"># ssh-copy-id -i hadoop02</span></span><br><span class="line">[root@hadoop04 ~]<span class="comment"># ssh-copy-id -i hadoop03</span></span><br><span class="line">[root@hadoop04 ~]<span class="comment"># ssh-copy-id -i hadoop05</span></span><br><span class="line"></span><br><span class="line">[root@hadoop05 ~]<span class="comment"># ssh-copy-id -i hadoop01</span></span><br><span class="line">[root@hadoop05 ~]<span class="comment"># ssh-copy-id -i hadoop02</span></span><br><span class="line">[root@hadoop05 ~]<span class="comment"># ssh-copy-id -i hadoop03</span></span><br><span class="line">[root@hadoop05 ~]<span class="comment"># ssh-copy-id -i hadoop04</span></span><br></pre></td></tr></table></figure>
+<h2 id="同步集群时间"><a href="#同步集群时间" class="headerlink" title="同步集群时间"></a>同步集群时间</h2><h3 id="使用yum安装ntpdate"><a href="#使用yum安装ntpdate" class="headerlink" title="使用yum安装ntpdate"></a>使用yum安装ntpdate</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install -y ntpdate</span><br></pre></td></tr></table></figure>
+<h3 id="设置定时同步时间"><a href="#设置定时同步时间" class="headerlink" title="设置定时同步时间"></a>设置定时同步时间</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">crontab -e</span><br><span class="line">*/10 * * * * /usr/sbin/ntpdate time.nist.gov</span><br></pre></td></tr></table></figure>
+<h2 id="hdfs-HA集群部署规划"><a href="#hdfs-HA集群部署规划" class="headerlink" title="hdfs HA集群部署规划"></a>hdfs HA集群部署规划</h2><p>namenode，就相当于是在eclipse中新建一个工程，取个名字叫做namenode，在工程里面开发代码，写好代码之后，就可以打包，在linux服务器上，用java -jar给他启动，namenode就是这个意思</p>
+<p>namenode就是一个java工程，写完里面的代码，打包，在linux上部署，java -jar启动，出来一个进程，namenode其实就是一个系统，启动的时候就是一个进程</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">hadoop01：active namenode，ZKFC</span><br><span class="line">hadoop02：standby namenode，ZKFC</span><br><span class="line">hadoop03：datanode，journal node，QuorumPeerMain</span><br><span class="line">hadoop04：datanode，journal node，QuorumPeerMain</span><br><span class="line">hadoop05：datanode，journal node，QuorumPeerMain</span><br></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fw5v2a4656j20r80b8aa4.jpg" alt="All text"></p>
+<h2 id="部署zookeeper集群"><a href="#部署zookeeper集群" class="headerlink" title="部署zookeeper集群"></a>部署zookeeper集群</h2><p>在hadoop03、hadoop04、hadoop05三台机器上部署zookeeper</p>
+<blockquote>
+<p>下载zookeeper 3.4.9</p>
+</blockquote>
+<p>下载到/usr/local/program/service目录下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p /usr/<span class="built_in">local</span>/program/service</span><br><span class="line"><span class="built_in">cd</span> /usr/<span class="built_in">local</span>/program/service</span><br><span class="line">[root@hadoop03 service]<span class="comment"># wget http://archive.apache.org/dist/zookeeper/zookeeper-3.4.9/zookeeper-3.4.9.tar.gz</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@hadoop03 service]<span class="comment"># tar -zxf zookeeper-3.4.9.tar.gz</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/profile</span><br><span class="line"><span class="built_in">export</span> ZOOKEEPER_HOME=/usr/<span class="built_in">local</span>/program/service/zookeeper-3.4.9 </span><br><span class="line"><span class="built_in">export</span> PATH=<span class="variable">$PATH</span>:<span class="variable">$ZOOKEEPER_HOME</span>/bin</span><br><span class="line"><span class="built_in">source</span> /etc/profile</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@hadoop03 ~]<span class="comment"># cp $ZOOKEEPER_HOME/conf/zoo_sample.cfg $ZOOKEEPER_HOME/conf/zoo.cfg</span></span><br><span class="line">[root@hadoop03 ~]<span class="comment"># vi $ZOOKEEPER_HOME/conf/zoo.cfg （$ZOOKEEPER_HOME/conf）</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">dataDir=/usr/<span class="built_in">local</span>/program/data/zookeeper</span><br><span class="line">dataLogDir=/usr/<span class="built_in">local</span>/program/<span class="built_in">log</span>/zookeeper</span><br><span class="line">server.1=hadoop03:2888:3888</span><br><span class="line">server.2=hadoop04:2888:3888</span><br><span class="line">server.3=hadoop05:2888:3888</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p /usr/<span class="built_in">local</span>/program/data/zookeeper</span><br><span class="line">mkdir -p /usr/<span class="built_in">local</span>/program/<span class="built_in">log</span>/zookeeper</span><br><span class="line"><span class="built_in">cd</span> /usr/<span class="built_in">local</span>/program/data/zookeeper</span><br><span class="line"><span class="built_in">echo</span> 1 &gt; myid</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>将zk安装目录传送至hadoop04</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">scp -r /usr/<span class="built_in">local</span>/program/service/zookeeper-3.4.9 hadoop04:/usr/<span class="built_in">local</span>/program/service/</span><br><span class="line">scp -r /etc/profile hadoop04:/etc/</span><br><span class="line"></span><br><span class="line"><span class="built_in">source</span> /etc/profile</span><br><span class="line">mkdir -p /usr/<span class="built_in">local</span>/program/data/zookeeper</span><br><span class="line">mkdir -p /usr/<span class="built_in">local</span>/program/<span class="built_in">log</span>/zookeeper</span><br><span class="line"><span class="built_in">cd</span> /usr/<span class="built_in">local</span>/program/data/zookeeper</span><br><span class="line"><span class="built_in">echo</span> 2 &gt; myid</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>将zk安装目录传送至hadoop05</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">scp -r /usr/<span class="built_in">local</span>/program/service/zookeeper-3.4.9 hadoop05:/usr/<span class="built_in">local</span>/program/service/</span><br><span class="line">scp -r /etc/profile hadoop05:/etc/</span><br><span class="line"></span><br><span class="line"><span class="built_in">source</span> /etc/profile</span><br><span class="line">mkdir -p /usr/<span class="built_in">local</span>/program/data/zookeeper</span><br><span class="line">mkdir -p /usr/<span class="built_in">local</span>/program/<span class="built_in">log</span>/zookeeper</span><br><span class="line"><span class="built_in">cd</span> /usr/<span class="built_in">local</span>/program/data/zookeeper</span><br><span class="line"><span class="built_in">echo</span> 3 &gt; myid</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>三台机器上执行</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">zkServer.sh start</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>查看集群状态 </p>
+</blockquote>
+<ul>
+<li>查看进程<ul>
+<li>jps</li>
+</ul>
+</li>
+<li>查看集群状态，主从信息<ul>
+<li>zkServer.sh status</li>
+</ul>
+</li>
+</ul>
+<h2 id="部署hadoop集群"><a href="#部署hadoop集群" class="headerlink" title="部署hadoop集群"></a>部署hadoop集群</h2><p>先在hadoop01上操作</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tar -zxf hadoop-2.9.1.tar.gz -C /usr/<span class="built_in">local</span>/program/service/</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>配置环境变量</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/profile</span><br><span class="line"></span><br><span class="line"><span class="built_in">export</span> JAVA_HOME=/usr/java/latest</span><br><span class="line"><span class="built_in">export</span> HADOOP_HOME=/usr/<span class="built_in">local</span>/program/service/hadoop-2.9.1</span><br><span class="line"><span class="built_in">export</span> PATH=<span class="variable">$PATH</span>:<span class="variable">$JAVA_HOME</span>/bin:<span class="variable">$HADOOP_HOME</span>/bin</span><br><span class="line"></span><br><span class="line"><span class="built_in">source</span> /etc/profile</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>编辑$HADOOP_HOME/etc/hadoop/hadoop-env.sh文件</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">vim <span class="variable">$HADOOP_HOME</span>/etc/hadoop/hadoop-env.sh</span><br><span class="line"></span><br><span class="line"><span class="built_in">export</span> JAVA_HOME=/usr/java/latest</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>编辑$HADOOP_HOME/etc/hadoop/core-site.xml文件</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim <span class="variable">$HADOOP_HOME</span>/etc/hadoop/core-site.xml</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&lt;configuration&gt;</span><br><span class="line">    &lt;property&gt;</span><br><span class="line">        &lt;name&gt;fs.defaultFS&lt;/name&gt;</span><br><span class="line">        &lt;value&gt;hdfs://ns1/&lt;/value&gt;</span><br><span class="line">    &lt;/property&gt;</span><br><span class="line">&lt;property&gt;</span><br><span class="line">    &lt;name&gt;hadoop.tmp.dir&lt;/name&gt;</span><br><span class="line">    &lt;value&gt;/usr/<span class="built_in">local</span>/program/service/hadoop-2.9.1/tmp&lt;/value&gt;</span><br><span class="line">&lt;/property&gt;</span><br><span class="line">&lt;property&gt;</span><br><span class="line">    &lt;name&gt;ha.zookeeper.quorum&lt;/name&gt; 	</span><br><span class="line">    &lt;value&gt;hadoop01:2181,hadoop02:2181,hadoop03:2181&lt;/value&gt;</span><br><span class="line">&lt;/property&gt;</span><br><span class="line">&lt;/configuration&gt;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>编辑$HADOOP_HOME/etc/hadoop/hdfs-site.xml文件</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim <span class="variable">$HADOOP_HOME</span>/etc/hadoop/hdfs-site.xml</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line">&lt;configuration&gt;</span><br><span class="line">    &lt;property&gt;</span><br><span class="line">        &lt;name&gt;dfs.nameservices&lt;/name&gt;</span><br><span class="line">        &lt;value&gt;ns1&lt;/value&gt;</span><br><span class="line">    &lt;/property&gt;</span><br><span class="line">    &lt;property&gt;</span><br><span class="line">        &lt;name&gt;dfs.ha.namenodes.ns1&lt;/name&gt;</span><br><span class="line">        &lt;value&gt;nn1,nn2&lt;/value&gt;</span><br><span class="line">    &lt;/property&gt;</span><br><span class="line">    &lt;property&gt;</span><br><span class="line">        &lt;name&gt;dfs.namenode.rpc-address.ns1.nn1&lt;/name&gt;</span><br><span class="line">        &lt;value&gt;hadoop01:9000&lt;/value&gt;</span><br><span class="line">    &lt;/property&gt;</span><br><span class="line">    &lt;property&gt;</span><br><span class="line">        &lt;name&gt;dfs.namenode.http-address.ns1.nn1&lt;/name&gt;</span><br><span class="line">        &lt;value&gt;hadoop01:50070&lt;/value&gt;</span><br><span class="line">    &lt;/property&gt;</span><br><span class="line">    &lt;property&gt;</span><br><span class="line">        &lt;name&gt;dfs.namenode.rpc-address.ns1.nn2&lt;/name&gt;</span><br><span class="line">        &lt;value&gt;hadoop02:9000&lt;/value&gt;</span><br><span class="line">    &lt;/property&gt;</span><br><span class="line">    &lt;property&gt;</span><br><span class="line">        &lt;name&gt;dfs.namenode.http-address.ns1.nn2&lt;/name&gt;</span><br><span class="line">        &lt;value&gt;hadoop02:50070&lt;/value&gt;</span><br><span class="line">    &lt;/property&gt;</span><br><span class="line">    &lt;property&gt;</span><br><span class="line">        &lt;name&gt;dfs.namenode.shared.edits.dir&lt;/name&gt;</span><br><span class="line">        &lt;value&gt;qjournal://hadoop03:8485;hadoop04:8485;hadoop05:8485/ns1&lt;/value&gt;</span><br><span class="line">    &lt;/property&gt;</span><br><span class="line">    &lt;property&gt;</span><br><span class="line">        &lt;name&gt;dfs.journalnode.edits.dir&lt;/name&gt;</span><br><span class="line">        &lt;value&gt;/usr/<span class="built_in">local</span>/program/service/hadoop-2.9.1/journaldata&lt;/value&gt;</span><br><span class="line">    &lt;/property&gt;</span><br><span class="line">    &lt;property&gt;</span><br><span class="line">        &lt;name&gt;dfs.ha.automatic-failover.enabled&lt;/name&gt;</span><br><span class="line">        &lt;value&gt;<span class="literal">true</span>&lt;/value&gt;</span><br><span class="line">    &lt;/property&gt;</span><br><span class="line">    &lt;property&gt;</span><br><span class="line">        &lt;name&gt;dfs.client.failover.proxy.provider.ns1&lt;/name&gt;</span><br><span class="line">        &lt;value&gt;org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider&lt;/value&gt;</span><br><span class="line">    &lt;/property&gt;</span><br><span class="line">    &lt;property&gt;</span><br><span class="line">        &lt;name&gt;dfs.ha.fencing.methods&lt;/name&gt;</span><br><span class="line">        &lt;value&gt;</span><br><span class="line">            sshfence</span><br><span class="line">            shell(/bin/<span class="literal">true</span>)</span><br><span class="line">        &lt;/value&gt;</span><br><span class="line">    &lt;/property&gt;</span><br><span class="line">    &lt;property&gt;</span><br><span class="line">        &lt;name&gt;dfs.ha.fencing.ssh.private-key-files&lt;/name&gt;</span><br><span class="line">        &lt;value&gt;/root/.ssh/id_rsa&lt;/value&gt;</span><br><span class="line">    &lt;/property&gt;</span><br><span class="line">    &lt;property&gt;</span><br><span class="line">        &lt;name&gt;dfs.ha.fencing.ssh.connect-timeout&lt;/name&gt;</span><br><span class="line">        &lt;value&gt;30000&lt;/value&gt;</span><br><span class="line">    &lt;/property&gt;</span><br><span class="line">&lt;/configuration&gt;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>编辑slaves文件</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi slaves</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">hadoop03</span><br><span class="line">hadoop04</span><br><span class="line">hadoop05</span><br></pre></td></tr></table></figure>
+<p>上面其实就已经将active namenode给配置好了</p>
+<blockquote>
+<p>拷贝hadoop到其他4台机器上</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">scp -r /usr/<span class="built_in">local</span>/program/service/hadoop-2.9.1 hadoop02:/usr/<span class="built_in">local</span>/program/service</span><br><span class="line">scp -r /usr/<span class="built_in">local</span>/program/service/hadoop-2.9.1 hadoop03:/usr/<span class="built_in">local</span>/program/service</span><br><span class="line">scp -r /usr/<span class="built_in">local</span>/program/service/hadoop-2.9.1 hadoop04:/usr/<span class="built_in">local</span>/program/service</span><br><span class="line">scp -r /usr/<span class="built_in">local</span>/program/service/hadoop-2.9.1 hadoop05:/usr/<span class="built_in">local</span>/program/service</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>配置环境变量</p>
+</blockquote>
+<h2 id="启动hadoop集群"><a href="#启动hadoop集群" class="headerlink" title="启动hadoop集群"></a>启动hadoop集群</h2><blockquote>
+<p>（1）在hadoop03、hadoop04、hadoop05上启动journal nodes集群<code>[这步可省略]</code></p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> <span class="variable">$HADOOP_HOME</span></span><br><span class="line">./sbin/hadoop-daemon.sh start journalnode</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>（2）格式化namenode（hadoop01上执行）</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hdfs namenode -format</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">scp -r /usr/<span class="built_in">local</span>/program/service/hadoop-2.9.1/tmp root@hadoop02:/usr/<span class="built_in">local</span>/program/service/hadoop-2.9.1/</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hdfs namenode -bootstrapStandby</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>（3）格式化ZKFC（hadoop01上执行）</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hdfs zkfc -formatZK</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>（4）启动hdfs集群（hadoop01上执行）</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> <span class="variable">$HADOOP_HOME</span></span><br><span class="line">./sbin/start-dfs.sh</span><br></pre></td></tr></table></figure>
+<p>这个脚本会自动在hadoop01和hadoop02上启动一个namenode，同时启动一个ZKFC，然后会自动在hadoop03、hadoop04、hadoop05上分别启动一个datanode</p>
+<h2 id="查看hadoop集群"><a href="#查看hadoop集群" class="headerlink" title="查看hadoop集群"></a>查看hadoop集群</h2><p>在hadoop01和hadoop02访问50070端口即可</p>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fw84y522pfj21af0ps0wv.jpg" alt="All text"></p>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fw84y3u23qj21ae0ps42o.jpg" alt="All text"></p>
+
+    </div>
+  </div>
+  
+    <div class="copy-right">
+      <div class="markdown-body">
+        <blockquote>
+        
+        
+          本文作者 : Matrix <br>
+        
+        原文链接 : <a href="">https://matrixsparse.github.io/2018/10/05/基于5台linux虚拟机搭建HDFS HA高可用集群/</a><br>
+        版权声明 : 本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+        </blockquote>
+      </div>
+    </div>
+  
+  
+  
+    <div class="social-share" style="margin-top: -2rem" data-wechat-qrcode-title="<p>微信扫一扫</p>" data-wechat-qrcode-helper="<p>微信右上角, 扫一扫分享</p>" data-sites="qzone, qq, weibo, wechat, douban, google, facebook, twitter">
+  <span style="color: #6b7487; font-size: 1.4rem;">分享到: </span>
+</div>
+<script src="https://cdn.bootcss.com/social-share.js/1.0.16/js/social-share.min.js" async></script>
+  
+
+  
+    <div id="reward">
+  
+    <p id="reward-meta">知识 & 情怀 | 二者兼得</p>
+  
+  <button id="reward-btn">
+    
+    <span>投食</span>
+  </button>
+  <div id="reward-qrcode">
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/wechatpay.jpg" alt="微信扫一扫, 向我投食">
+        <p class="qrcode-meta">微信扫一扫, 向我投食</p>
+      </div>
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/alipaypay.jpg" alt="支付宝扫一扫, 向我投食">
+        <p class="qrcode-meta">支付宝扫一扫, 向我投食</p>
+      </div>
+    
+  </div>
+
+</div>
+
+<script>
+  (() => {
+    let button = document.querySelector('#reward-btn'),
+      qrcode = document.querySelector('#reward-qrcode'),
+      display = false;
+    
+    button.addEventListener('click', () => {
+      qrcode.style.display = display ? 'none' : 'block'
+      display = !display
+    }, false)
+  })()
+</script>
+  
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+      <span>
+        
+          <i class="iconfont icon-06tags"></i>标签: 
+          
+          <span class="span--tag">
+            <a href="/tags/大数据/">
+              #大数据
+            </a>
+          </span>
+          
+          <span class="span--tag">
+            <a href="/tags/Hadoop/">
+              #Hadoop
+            </a>
+          </span>
+          
+        
+      </span>
+    </div>
+    <div class="article-meta pull-right">
+    </div>
+  </div>
+</div>
+
+
+  <aside id="sidebar">
+    <p id="sidebar-header"></p>
+    <ol id="sidebar-toc"></ol>
+  </aside>
+  <script async>setTimeout(generateToc, 10);</script>
+
+
+  <nav class="post-navigation">
+    
+      <div class="nav-pre">
+        <i class="iconfont icon-prev"></i>
+        上一篇:
+        <a href="/2018/08/05/数据湖概念/" target="_self">数据湖概念</a>
+      </div>
+    
+    
+      <div class="nav-next">
+        下一篇:
+        <a href="/2019/01/01/TensorFlow编程概念/" target="_self">TensorFlow编程概念</a>
+        <i class="iconfont icon-next"></i>
+      </div>
+    
+  </nav>
+
+  
+    <a href="#comment" class="comment-anchor"></a>
+<div class="comment-title"><i class="iconfont icon-footprint"></i> 留下足迹 <i class="iconfont icon-footprint"></i></div>
+<div id="vcomments"></div>
+
+<script defer>
+  if( true ) {
+    let path = getRealPath()
+    new Valine({
+      el: "#vcomments",
+      appId: "Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz",
+      appKey: "WaR7nrzhliHj9aVwdQzkdlGd",
+      notify: false,
+      verify: false,
+      avatar: "robohash",
+      placeholder: "正确填写邮箱, 才能及时收到回复哦♪(^∇^*)",
+      path
+    });
+  }
+</script>
+   
+
+  
+    <script defer>
+const valineAPI = (() => {
+  try {
+    AV.init("Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz", "WaR7nrzhliHj9aVwdQzkdlGd");
+  } catch(error) {}
+  const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+      query.equalTo("identity", identity);
+      query.find().then(results => {
+        resolve(results.length > 0);
+      }, error => reject(error));
+    })
+  }
+
+  const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+      let querys = [];
+      for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+      }
+      query = AV.Query.or.apply(null ,querys);
+    } else {
+      identity = identity || getRealPath();
+      query = new AV.Query("Timer");
+      query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+      query.find()
+      .then(results => resolve(results))
+      .catch(error => reject(error))
+    })
+  }
+
+  const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let Todo = AV.Object.extend('Timer');
+      let todo = new Todo();
+      todo.set("times", 1);
+      todo.set("identity", identity);
+      todo.save().then(res => resolve(true), error => reject(error));
+    })
+  }
+
+  const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let query = new AV.Query('Timer');
+      query.equalTo("identity", identity);
+      query.find().then(todos => {
+        todos.forEach(todo => {
+          todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+      }).then(todos => resolve(true), error => reject(error));
+    })
+  }
+
+  return {
+    isExist,
+    _get,
+    update,
+    create
+  }
+})()
+
+const calcAndWriteTimes = () => {
+  let isPost = true;
+
+  let timerAllDOM = document.querySelectorAll(".article-timer");
+
+  if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+      if(exist) {
+        return valineAPI.update(identity);
+      }
+      return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+  }
+
+  let timerDOMCache = {};
+
+  for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+      timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+      timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+      };
+    }
+  }
+
+  let identities = Object.keys(timerDOMCache);
+  valineAPI._get(identities).then(results => {
+    for(let result of results) {
+      let {identity, times} = result.attributes;
+      timerDOMCache[identity].times = times;
+      timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+      if(timerDOMCache[identity].times){
+        continue;
+      }
+      timerDOMCache[identity].dom.map(item => item.innerText = 1);
+      valineAPI.create(identity);
+    }
+  }).catch(error => console.log(error.message))
+}
+
+if(true){
+  calcAndWriteTimes();
+}
+</script>
+   
+
+</div>
+
+
+      <footer>
+  <p class="site-info">
+    博客已萌萌哒运行<span id="time-to-now"></span><span class="my-face">(●'◡'●)ﾉ♥</span>
+    <br>
+    Theme - <a href="https://github.com/dongyuanxin/theme-bmw">BMW</a> | Powered by <a href="https://godbmw.com/">GodBMW</a>
+    <br>
+    
+      Copyright © 2019 Matrix
+    
+  </p>
+</footer>
+
+
+
+<script>
+const timeToNowDOM = document.querySelector("#time-to-now");
+const startTimestamp = new Date(2016, 4, 10).getTime();
+
+const updateTimeStr = () => {
+  let offset = parseInt(
+      (new Date().getTime() - startTimestamp) / 1000,
+      10
+    ),
+    day = Math.floor(offset / 86400),
+    hour = Math.floor((offset % 86400) / 3600),
+    minute = Math.floor(((offset % 86400) % 3600) / 60),
+    second = Math.floor(((offset % 86400) % 3600) % 60);
+  timeToNowDOM.innerHTML =
+    day + "天" + hour + "小时" + minute + "分钟" + second + "秒";
+  setTimeout(updateTimeStr, 500);
+}
+
+setTimeout(updateTimeStr, 500);
+</script>
+
+
+      <div class="back-to-top hidden">
+  <span>
+    <i class="iconfont icon-60"></i><span></span>%
+  </span>
+</div>
+
+<script>
+const updateIconToTop = percent => {
+  let dom = document.querySelector(".back-to-top span span");
+  dom.innerText = percent;
+  if(percent < 1) {
+    document.querySelector(".back-to-top").className = "back-to-top hidden";
+  } else {
+    document.querySelector(".back-to-top").className = "back-to-top";
+  }
+}
+
+const handleScoll = () => {
+  let isRunning = false;
+  return () => {
+    if (isRunning) return;
+    isRunning = true;
+    window.requestAnimationFrame(timestamp => {
+      let scrollTop =
+          document.documentElement.scrollTop || document.body.scrollTop,
+        scrollHeight =
+          document.documentElement.scrollHeight ||
+          document.body.scrollHeight,
+        clientHeight =
+          document.documentElement.clientHeight ||
+          document.body.clientHeight;
+      isRunning = false;
+      if (scrollTop <= 1) {
+        updateIconToTop(0);
+        return;
+      }
+      if (scrollTop + clientHeight >= scrollHeight) {
+        updateIconToTop(100);
+      } else {
+        updateIconToTop(parseInt(
+          100 * scrollTop / (scrollHeight - clientHeight),
+          10
+        ));
+      }
+    });
+  };
+}
+
+const backToTop = () => {
+  let scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop,
+    delay = 10,
+    time = 200;
+  if (scrollTop <= 20) {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    return;
+  }
+  let step = Math.ceil(scrollTop * delay / time);
+  let timer = setInterval(() => {
+    scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop;
+    if (scrollTop - step <= 0) {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      clearInterval(timer);
+    } else {
+      document.documentElement.scrollTop = scrollTop - step;
+      document.body.scrollTop = scrollTop - step;
+    }
+  }, delay);
+}
+
+document.addEventListener("scroll", handleScoll(), false);
+
+document.querySelector(".back-to-top").addEventListener("click", backToTop, false);
+
+</script>
+
+    </div>
+
+    
+      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  (() => {
+    const mathjaxConfig = {
+      showProcessingMessages: false, //关闭js加载过程信息
+      messageStyle: "none", //不显示信息
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]], //行内公式选择符
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]], //段内公式选择符
+        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"] //避开某些标签
+      },
+      "HTML-CSS": {
+        availableFonts: ["STIX", "TeX"], //可选字体
+        showMathMenu: false //关闭右击菜单显示
+      }
+    }
+
+    let mathjaxInterval = setInterval(() => {
+      if(!window.MathJax){
+        return;
+      }
+      window.MathJax.Hub.Config(mathjaxConfig)
+      window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')])
+
+      clearInterval(mathjaxInterval)
+    }, 10)    
+  })()
+</script>
+    
+
+    <script src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script>
+<script async>
+  let fancyTimer = setInterval(function(){
+    if(!window.$){
+      return;
+    }
+    $(document).ready(function() {
+      $(".post img").each(function () {
+        if($(this).parent().get(0).tagName.toLowerCase() === "a") {
+          return;
+        }
+        // $(this).attr("data-fancybox", "gallery"); // if you add 'data-fancybox', img will display after showed
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "gallery");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      });
+      
+      clearInterval(fancyTimer);
+    });
+  }, 10);
+</script>
+
+    
+  </body>
+
+</html>
