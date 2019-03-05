@@ -228,9 +228,15 @@
 <li><a href="#解决virtualbox无法显示鼠标问题">解决VirtualBox无法显示鼠标问题</a></li>
 </ol>
 </li>
-<li><a href="#设置虚拟机配置">设置虚拟机配置</a><ol>
-<li><a href="#注意在公司wifi下用桥接模式可能会出现某些ip无法远程连接的情况这些ip可能已经被分配了">注意：在公司wifi下用桥接模式，可能会出现某些ip无法远程连接的情况【这些ip可能已经被分配了】</a></li>
-<li><a href="#配置网络">配置网络</a></li>
+<li><a href="#在virtual-box上配置nathost-only网络">在Virtual box上配置NAT+Host Only网络</a><ol>
+<li><a href="#关闭防火墙">关闭防火墙</a></li>
+<li><a href="#添加nat网络">添加NAT网络</a><ol>
+<li><a href="#配置虚拟机网卡">配置虚拟机网卡</a></li>
+<li><a href="#配置网络">配置网络</a><ol>
+<li><a href="#动态分配一个ip地址">动态分配一个ip地址</a></li>
+<li><a href="#设置静态ip地址">设置静态ip地址</a></li>
+</ol>
+</li>
 <li><a href="#配置dns">配置DNS</a><ol>
 <li><a href="#检查netmanager的状态">检查NetManager的状态</a></li>
 <li><a href="#检查netmanager管理的网络接口">检查NetManager管理的网络接口</a></li>
@@ -241,14 +247,56 @@
 </ol>
 </li>
 <li><a href="#重启centos-7之后查看主机名">重启CentOS 7之后，查看主机名</a></li>
-<li><a href="#配置hosts配置本机的hostname到ip地址的映射">配置hosts(配置本机的hostname到ip地址的映射)</a></li>
-<li><a href="#配置securecrt">配置SecureCRT</a></li>
-<li><a href="#关闭防火墙">关闭防火墙</a></li>
-<li><a href="#配置yum">配置yum</a></li>
-<li><a href="#安装jdk">安装JDK</a></li>
+<li><a href="#测试网络通信情况">测试网络通信情况</a></li>
 </ol>
 </li>
-<li><a href="#在另外4个虚拟机中安装centos集群">在另外4个虚拟机中安装CentOS集群</a></li>
+<li><a href="#配置host-only">配置Host Only</a><ol>
+<li><a href="#配置虚拟机网卡-1">配置虚拟机网卡</a></li>
+<li><a href="#在宿主机查看host-only网卡的网关">在宿主机查看Host ONly网卡的网关</a></li>
+<li><a href="#虚拟机中查看网络状态">虚拟机中查看网络状态</a></li>
+<li><a href="#配置hosts配置本机的hostname到ip地址的映射">配置hosts(配置本机的hostname到ip地址的映射)</a></li>
+</ol>
+</li>
+<li><a href="#配置xshell">配置Xshell</a></li>
+<li><a href="#配置yum">配置yum</a></li>
+<li><a href="#安装jdk">安装JDK</a><ol>
+<li><a href="#将jdk-8u131-linux-x64rpm通过winscp上传到虚拟机中">将jdk-8u131-linux-x64.rpm通过WinSCP上传到虚拟机中</a></li>
+<li><a href="#安装jdk-1">安装JDK</a></li>
+<li><a href="#配置jdk相关的环境变量">配置jdk相关的环境变量</a></li>
+<li><a href="#测试jdk安装是否成功">测试jdk安装是否成功</a></li>
+</ol>
+</li>
+</ol>
+</li>
+<li><a href="#在另外4个虚拟机中安装centos集群">在另外4个虚拟机中安装CentOS集群</a><ol>
+<li><a href="#在hadoop01的操作">在hadoop01的操作</a></li>
+<li><a href="#在hadoop02操作">在hadoop02操作</a><ol>
+<li><a href="#更改用户名">更改用户名</a></li>
+<li><a href="#更改ifcfg-enp0s3网卡静态ip">更改ifcfg-enp0s3网卡静态IP</a></li>
+<li><a href="#更改ifcfg-enp0s8网卡静态ip">更改ifcfg-enp0s8网卡静态IP</a></li>
+</ol>
+</li>
+<li><a href="#在hadoop03操作">在hadoop03操作</a><ol>
+<li><a href="#更改用户名-1">更改用户名</a></li>
+<li><a href="#更改ifcfg-enp0s3网卡静态ip-1">更改ifcfg-enp0s3网卡静态IP</a></li>
+<li><a href="#更改ifcfg-enp0s8网卡静态ip-1">更改ifcfg-enp0s8网卡静态IP</a></li>
+</ol>
+</li>
+<li><a href="#在hadoop04操作">在hadoop04操作</a><ol>
+<li><a href="#更改用户名-2">更改用户名</a></li>
+<li><a href="#更改ifcfg-enp0s3网卡静态ip-2">更改ifcfg-enp0s3网卡静态IP</a></li>
+<li><a href="#更改ifcfg-enp0s8网卡静态ip-2">更改ifcfg-enp0s8网卡静态IP</a></li>
+</ol>
+</li>
+<li><a href="#在hadoop05操作">在hadoop05操作</a><ol>
+<li><a href="#更改用户名-3">更改用户名</a></li>
+<li><a href="#更改ifcfg-enp0s3网卡静态ip-3">更改ifcfg-enp0s3网卡静态IP</a></li>
+<li><a href="#更改ifcfg-enp0s8网卡静态ip-3">更改ifcfg-enp0s8网卡静态IP</a></li>
+</ol>
+</li>
+<li><a href="#连接5台虚拟机">连接5台虚拟机</a></li>
+</ol>
+</li>
 <li><a href="#配置5台centos为ssh免密码互相通信">配置5台CentOS为ssh免密码互相通信</a></li>
 <li><a href="#同步集群时间">同步集群时间</a><ol>
 <li><a href="#使用yum安装ntpdate">使用yum安装ntpdate</a></li>
@@ -277,82 +325,121 @@
 <li>（5）安装完以后，CentOS会提醒你要重启一下，就是reboot，你就reboot就可以了。</li>
 <li>（6）配置网络</li>
 </ul>
-<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fw72qbthz8j21gu0y67i4.jpg" alt="All text"><br><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fw72qd8la3j21hc0y8tlg.jpg" alt="All text"><br><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fw72qdzl13j21h60ygqi4.jpg" alt="All text"><br><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fw72qdw1ctj21h20yazyy.jpg" alt="All text"><br><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fw72qc63n2j21hc0ykdw3.jpg" alt="All text"><br><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fw72qcq674j21ha0ycqhk.jpg" alt="All text"><br><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fw72rbt2aaj21he0ye7hj.jpg" alt="All text"><br><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fyt8bc63utj20qp0hbadv.jpg" alt="All text"></p>
+<p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fw72qbthz8j21gu0y67i4.jpg" alt="All text"><br><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fw72qd8la3j21hc0y8tlg.jpg" alt="All text"><br><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fw72qdzl13j21h60ygqi4.jpg" alt="All text"><br><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fw72qdw1ctj21h20yazyy.jpg" alt="All text"><br><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fw72qc63n2j21hc0ykdw3.jpg" alt="All text"><br><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fw72qcq674j21ha0ycqhk.jpg" alt="All text"><br><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fyt8bc63utj20qp0hbadv.jpg" alt="All text"></p>
 <h3 id="解决VirtualBox无法显示鼠标问题"><a href="#解决VirtualBox无法显示鼠标问题" class="headerlink" title="解决VirtualBox无法显示鼠标问题"></a>解决VirtualBox无法显示鼠标问题</h3><p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1fyt8rvtti4j21h40yoh2a.jpg" alt="All text"></p>
 <p>将Pointing Device改为USB Tablet</p>
-<h2 id="设置虚拟机配置"><a href="#设置虚拟机配置" class="headerlink" title="设置虚拟机配置"></a>设置虚拟机配置</h2><h3 id="注意：在公司wifi下用桥接模式，可能会出现某些ip无法远程连接的情况【这些ip可能已经被分配了】"><a href="#注意：在公司wifi下用桥接模式，可能会出现某些ip无法远程连接的情况【这些ip可能已经被分配了】" class="headerlink" title="注意：在公司wifi下用桥接模式，可能会出现某些ip无法远程连接的情况【这些ip可能已经被分配了】"></a>注意：在公司wifi下用桥接模式，可能会出现某些ip无法远程连接的情况【这些ip可能已经被分配了】</h3><p>一般我们给虚拟机设置网络都用<code>NAT模式</code></p>
-<h3 id="配置网络"><a href="#配置网络" class="headerlink" title="配置网络"></a>配置网络</h3><blockquote>
-<p>动态分配一个ip地址</p>
+<h2 id="在Virtual-box上配置NAT-Host-Only网络"><a href="#在Virtual-box上配置NAT-Host-Only网络" class="headerlink" title="在Virtual box上配置NAT+Host Only网络"></a>在Virtual box上配置NAT+Host Only网络</h2><blockquote>
+<p>注意：在公司wifi下用桥接模式，可能会出现某些ip无法远程连接的情况【这些ip可能已经被分配了】</p>
 </blockquote>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/sysconfig/network-scripts/ifcfg-enp0s3</span><br></pre></td></tr></table></figure>
+<p>一般我们给虚拟机设置网络都用<code>NAT模式</code></p>
+<h3 id="关闭防火墙"><a href="#关闭防火墙" class="headerlink" title="关闭防火墙"></a>关闭防火墙</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">systemctl status firewalld.service</span><br><span class="line">systemctl stop firewalld.service</span><br><span class="line">systemctl <span class="built_in">disable</span> firewalld.service</span><br></pre></td></tr></table></figure>
+<h3 id="添加NAT网络"><a href="#添加NAT网络" class="headerlink" title="添加NAT网络"></a>添加NAT网络</h3><p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1g0rq2jangkj21h40pgqgz.jpg" alt="All text"></p>
+<p>网段自己设定，用前24位作为网段地址，意味着子网掩码是255.255.255.0</p>
+<h4 id="配置虚拟机网卡"><a href="#配置虚拟机网卡" class="headerlink" title="配置虚拟机网卡"></a>配置虚拟机网卡</h4><p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1g0rpwajfxwj20ow0fv42u.jpg" alt="All text"></p>
+<h4 id="配置网络"><a href="#配置网络" class="headerlink" title="配置网络"></a>配置网络</h4><h5 id="动态分配一个ip地址"><a href="#动态分配一个ip地址" class="headerlink" title="动态分配一个ip地址"></a>动态分配一个ip地址</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/sysconfig/network-scripts/ifcfg-enp0s3</span><br></pre></td></tr></table></figure>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ONBOOT=yes</span><br></pre></td></tr></table></figure>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">service network restart</span><br></pre></td></tr></table></figure>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip addr</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>设置静态ip地址</p>
-</blockquote>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/sysconfig/network-scripts/ifcfg-enp0s3</span><br></pre></td></tr></table></figure>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">TYPE=Ethernet</span><br><span class="line">BOOTPROTO=static</span><br><span class="line">DEFROUTE=yes</span><br><span class="line">PEERDNS=yes</span><br><span class="line">PEERROUTES=yes</span><br><span class="line">IPV4_FAILURE_FATAL=no</span><br><span class="line">IPV6INIT=yes</span><br><span class="line">IPV6_AUTOCONF=yes</span><br><span class="line">IPV6_DEFROUTE=yes</span><br><span class="line">IPV6_PEERDNS=yes</span><br><span class="line">IPV6_PEERROUTES=yes</span><br><span class="line">IPV6_FAILURE_FATAL=no</span><br><span class="line">IPV6_ADDR_GEN_MODE=stable-privacy</span><br><span class="line">NAME=enp0s3</span><br><span class="line">DEVICE=enp0s3</span><br><span class="line">ONBOOT=yes</span><br><span class="line">IPADDR=192.168.0.180</span><br><span class="line">NETMASK=255.255.255.0</span><br><span class="line">GATEWAY=192.168.0.1</span><br></pre></td></tr></table></figure>
+<h5 id="设置静态ip地址"><a href="#设置静态ip地址" class="headerlink" title="设置静态ip地址"></a>设置静态ip地址</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/sysconfig/network-scripts/ifcfg-enp0s3</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">TYPE=Ethernet</span><br><span class="line">BOOTPROTO=static</span><br><span class="line">DEFROUTE=yes</span><br><span class="line">PEERDNS=yes</span><br><span class="line">PEERROUTES=yes</span><br><span class="line">IPV4_FAILURE_FATAL=no</span><br><span class="line">IPV6INIT=yes</span><br><span class="line">IPV6_AUTOCONF=yes</span><br><span class="line">IPV6_DEFROUTE=yes</span><br><span class="line">IPV6_PEERDNS=yes</span><br><span class="line">IPV6_PEERROUTES=yes</span><br><span class="line">IPV6_FAILURE_FATAL=no</span><br><span class="line">IPV6_ADDR_GEN_MODE=stable-privacy</span><br><span class="line">NAME=enp0s3</span><br><span class="line">DEVICE=enp0s3</span><br><span class="line">ONBOOT=yes</span><br><span class="line">IPADDR=10.0.2.180</span><br><span class="line">NETMASK=255.255.255.0</span><br><span class="line">GATEWAY=10.0.2.1</span><br></pre></td></tr></table></figure>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">service network restart</span><br></pre></td></tr></table></figure>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip addr</span><br></pre></td></tr></table></figure>
-<h3 id="配置DNS"><a href="#配置DNS" class="headerlink" title="配置DNS"></a>配置DNS</h3><h4 id="检查NetManager的状态"><a href="#检查NetManager的状态" class="headerlink" title="检查NetManager的状态"></a>检查NetManager的状态</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl status NetworkManager.service</span><br></pre></td></tr></table></figure>
-<h4 id="检查NetManager管理的网络接口"><a href="#检查NetManager管理的网络接口" class="headerlink" title="检查NetManager管理的网络接口"></a>检查NetManager管理的网络接口</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nmcli dev status</span><br></pre></td></tr></table></figure>
-<h4 id="检查NetManager管理的网络连接"><a href="#检查NetManager管理的网络连接" class="headerlink" title="检查NetManager管理的网络连接"></a>检查NetManager管理的网络连接</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nmcli connection show</span><br></pre></td></tr></table></figure>
-<h4 id="设置dns"><a href="#设置dns" class="headerlink" title="设置dns"></a>设置dns</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nmcli con mod enp0s3 ipv4.dns <span class="string">"114.114.114.114 8.8.8.8"</span></span><br></pre></td></tr></table></figure>
-<h4 id="让dns配置生效"><a href="#让dns配置生效" class="headerlink" title="让dns配置生效"></a>让dns配置生效</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nmcli con up enp0s3</span><br></pre></td></tr></table></figure>
-<h4 id="设置静态、瞬态或灵活主机名，分别使用–static，–transient或–pretty选项"><a href="#设置静态、瞬态或灵活主机名，分别使用–static，–transient或–pretty选项" class="headerlink" title="设置静态、瞬态或灵活主机名，分别使用–static，–transient或–pretty选项"></a>设置静态、瞬态或灵活主机名，分别使用–static，–transient或–pretty选项</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost ~]<span class="comment"># hostnamectl set-hostname hadoop01</span></span><br><span class="line">[root@localhost ~]<span class="comment"># hostnamectl --static</span></span><br><span class="line">hadoop01</span><br><span class="line">[root@localhost ~]<span class="comment"># hostnamectl --transient</span></span><br><span class="line">hadoop01</span><br><span class="line">[root@localhost ~]<span class="comment"># hostnamectl --pretty</span></span><br><span class="line">hadoop01</span><br></pre></td></tr></table></figure>
-<h3 id="重启CentOS-7之后，查看主机名"><a href="#重启CentOS-7之后，查看主机名" class="headerlink" title="重启CentOS 7之后，查看主机名"></a>重启CentOS 7之后，查看主机名</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@hadoop01 ~]<span class="comment"># hostname</span></span><br><span class="line">hadoop01</span><br></pre></td></tr></table></figure>
-<h3 id="配置hosts-配置本机的hostname到ip地址的映射"><a href="#配置hosts-配置本机的hostname到ip地址的映射" class="headerlink" title="配置hosts(配置本机的hostname到ip地址的映射)"></a>配置hosts(配置本机的hostname到ip地址的映射)</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@hadoop01 ~]<span class="comment"># vi /etc/hosts</span></span><br><span class="line">192.168.0.180 hadoop01</span><br></pre></td></tr></table></figure>
-<h3 id="配置SecureCRT"><a href="#配置SecureCRT" class="headerlink" title="配置SecureCRT"></a>配置SecureCRT</h3><p>此时就可以使用SecureCRT从本机连接到虚拟机进行操作了</p>
-<p>一般来说，虚拟机管理软件，virtual box，可以用来创建和管理虚拟机，但是一般不会直接在virtualbox里面去操作，因为比较麻烦，没有办法复制粘贴</p>
-<p>SecureCRT，在windows宿主机中，去连接virtual box中的虚拟机</p>
-<h3 id="关闭防火墙"><a href="#关闭防火墙" class="headerlink" title="关闭防火墙"></a>关闭防火墙</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">systemctl status firewalld.service</span><br><span class="line">systemctl stop firewalld.service</span><br><span class="line">systemctl <span class="built_in">disable</span> firewalld.service</span><br></pre></td></tr></table></figure>
+<h4 id="配置DNS"><a href="#配置DNS" class="headerlink" title="配置DNS"></a>配置DNS</h4><h5 id="检查NetManager的状态"><a href="#检查NetManager的状态" class="headerlink" title="检查NetManager的状态"></a>检查NetManager的状态</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl status NetworkManager.service</span><br></pre></td></tr></table></figure>
+<h5 id="检查NetManager管理的网络接口"><a href="#检查NetManager管理的网络接口" class="headerlink" title="检查NetManager管理的网络接口"></a>检查NetManager管理的网络接口</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nmcli dev status</span><br></pre></td></tr></table></figure>
+<h5 id="检查NetManager管理的网络连接"><a href="#检查NetManager管理的网络连接" class="headerlink" title="检查NetManager管理的网络连接"></a>检查NetManager管理的网络连接</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nmcli connection show</span><br></pre></td></tr></table></figure>
+<h5 id="设置dns"><a href="#设置dns" class="headerlink" title="设置dns"></a>设置dns</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nmcli con mod enp0s3 ipv4.dns <span class="string">"114.114.114.114 8.8.8.8"</span></span><br></pre></td></tr></table></figure>
+<h5 id="让dns配置生效"><a href="#让dns配置生效" class="headerlink" title="让dns配置生效"></a>让dns配置生效</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nmcli con up enp0s3</span><br></pre></td></tr></table></figure>
+<h5 id="设置静态、瞬态或灵活主机名，分别使用–static，–transient或–pretty选项"><a href="#设置静态、瞬态或灵活主机名，分别使用–static，–transient或–pretty选项" class="headerlink" title="设置静态、瞬态或灵活主机名，分别使用–static，–transient或–pretty选项"></a>设置静态、瞬态或灵活主机名，分别使用–static，–transient或–pretty选项</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost ~]<span class="comment"># hostnamectl set-hostname hadoop01</span></span><br><span class="line">[root@localhost ~]<span class="comment"># hostnamectl --static</span></span><br><span class="line">hadoop01</span><br><span class="line">[root@localhost ~]<span class="comment"># hostnamectl --transient</span></span><br><span class="line">hadoop01</span><br><span class="line">[root@localhost ~]<span class="comment"># hostnamectl --pretty</span></span><br><span class="line">hadoop01</span><br></pre></td></tr></table></figure>
+<h4 id="重启CentOS-7之后，查看主机名"><a href="#重启CentOS-7之后，查看主机名" class="headerlink" title="重启CentOS 7之后，查看主机名"></a>重启CentOS 7之后，查看主机名</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@hadoop01 ~]<span class="comment"># hostname</span></span><br><span class="line">hadoop01</span><br></pre></td></tr></table></figure>
+<h4 id="测试网络通信情况"><a href="#测试网络通信情况" class="headerlink" title="测试网络通信情况"></a>测试网络通信情况</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ping www.baidu.com</span><br></pre></td></tr></table></figure>
+<h3 id="配置Host-Only"><a href="#配置Host-Only" class="headerlink" title="配置Host Only"></a>配置Host Only</h3><p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1g0rqaf9xlej20u50kcgnf.jpg" alt=""></p>
+<h4 id="配置虚拟机网卡-1"><a href="#配置虚拟机网卡-1" class="headerlink" title="配置虚拟机网卡"></a>配置虚拟机网卡</h4><p><img src="http://ww1.sinaimg.cn/large/dc05ba18gy1g0rpwauh07j20o70fg42n.jpg" alt="All text"></p>
+<h4 id="在宿主机查看Host-ONly网卡的网关"><a href="#在宿主机查看Host-ONly网卡的网关" class="headerlink" title="在宿主机查看Host ONly网卡的网关"></a>在宿主机查看Host ONly网卡的网关</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sparsematrix:~ matrix$ ifconfig</span><br><span class="line">vboxnet0: flags=8943&lt;UP,BROADCAST,RUNNING,PROMISC,SIMPLEX,MULTICAST&gt; mtu 1500</span><br><span class="line">	ether 0a:00:27:00:00:00</span><br><span class="line">	inet 192.168.56.1 netmask 0xffffff00 broadcast 192.168.56.255</span><br></pre></td></tr></table></figure>
+<h4 id="虚拟机中查看网络状态"><a href="#虚拟机中查看网络状态" class="headerlink" title="虚拟机中查看网络状态"></a>虚拟机中查看网络状态</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">[root@hadoop01 ~]<span class="comment"># ip addr</span></span><br><span class="line">1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu 65536 qdisc noqueue state UNKNOWN qlen 1</span><br><span class="line">    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00</span><br><span class="line">    inet 127.0.0.1/8 scope host lo</span><br><span class="line">       valid_lft forever preferred_lft forever</span><br><span class="line">    inet6 ::1/128 scope host</span><br><span class="line">       valid_lft forever preferred_lft forever</span><br><span class="line">2: enp0s3: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc pfifo_fast state UP qlen 1000</span><br><span class="line">    link/ether 08:00:27:0d:44:d9 brd ff:ff:ff:ff:ff:ff</span><br><span class="line">    inet 10.0.2.233/24 brd 10.0.2.255 scope global enp0s3</span><br><span class="line">       valid_lft forever preferred_lft forever</span><br><span class="line">    inet6 fe80::6f39:ac6d:c0ab:b93c/64 scope link</span><br><span class="line">       valid_lft forever preferred_lft forever</span><br><span class="line">3: enp0s8: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc pfifo_fast state UP qlen 1000</span><br><span class="line">    link/ether 08:00:27:89:af:d1 brd ff:ff:ff:ff:ff:ff</span><br><span class="line">    inet 192.168.56.101/24 brd 192.168.56.255 scope global dynamic enp0s8</span><br><span class="line">       valid_lft 1037sec preferred_lft 1037sec</span><br><span class="line">    inet6 fe80::2bdc:e63a:1310:3c57/64 scope link</span><br><span class="line">       valid_lft forever preferred_lft forever</span><br></pre></td></tr></table></figure>
+<p>可以看到网卡2的配置文件名为enp0s8，但这个文件并不存在，需要手动创建，可以直接复制enp0s3文件，文件名为enp0s8，打开enp0s8进行修改。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@hadoop01 ~]<span class="comment"># cp -R /etc/sysconfig/network-scripts/ifcfg-enp0s3 /etc/sysconfig/network-scripts/ifcfg-enp0s8</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>编辑ifcfg-enp0s8网卡</p>
+</blockquote>
+<ul>
+<li>修改NAME、DEVICE</li>
+<li>删除UUID</li>
+<li>修改IPADDR、GATEWAY为Host Only网卡对应地址</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">[root@hadoop01 ~]<span class="comment"># vi /etc/sysconfig/network-scripts/ifcfg-enp0s8</span></span><br><span class="line">TYPE=Ethernet</span><br><span class="line">BOOTPROTO=static</span><br><span class="line">DEFROUTE=yes</span><br><span class="line">PEERDNS=yes</span><br><span class="line">PEERROUTES=yes</span><br><span class="line">IPV4_FAILURE_FATAL=no</span><br><span class="line">IPV6INIT=yes</span><br><span class="line">IPV6_AUTOCONF=yes</span><br><span class="line">IPV6_DEFROUTE=yes</span><br><span class="line">IPV6_PEERDNS=yes</span><br><span class="line">IPV6_PEERROUTES=yes</span><br><span class="line">IPV6_FAILURE_FATAL=no</span><br><span class="line">IPV6_ADDR_GEN_MODE=stable-privacy</span><br><span class="line">NAME=enp0s8</span><br><span class="line">DEVICE=enp0s8</span><br><span class="line">ONBOOT=yes</span><br><span class="line">DNS1=114.114.114.114</span><br><span class="line">DNS2=8.8.8.8</span><br><span class="line">IPADDR=192.168.56.180</span><br><span class="line">PREFIX=24</span><br><span class="line">GATEWAY=192.168.56.1</span><br></pre></td></tr></table></figure>
+<h4 id="配置hosts-配置本机的hostname到ip地址的映射"><a href="#配置hosts-配置本机的hostname到ip地址的映射" class="headerlink" title="配置hosts(配置本机的hostname到ip地址的映射)"></a>配置hosts(配置本机的hostname到ip地址的映射)</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@hadoop01 ~]<span class="comment"># vi /etc/hosts</span></span><br><span class="line">192.168.56.180 hadoop01</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">service network restart</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip addr</span><br></pre></td></tr></table></figure>
+<h3 id="配置Xshell"><a href="#配置Xshell" class="headerlink" title="配置Xshell"></a>配置Xshell</h3><p>此时就可以使用Xshell从本机连接到虚拟机进行操作了</p>
+<p>一般来说，虚拟机管理软件，virtual box，可以用来创建和管理虚拟机</p>
+<p>但是一般不会直接在virtualbox里面去操作，因为比较麻烦，没有办法复制粘贴</p>
+<p>Xshell，在windows宿主机中，去连接virtual box中的虚拟机</p>
 <p>关闭windows的防火墙</p>
 <p>后面要搭建集群，有的大数据技术的集群之间，在本地你给了防火墙的话，可能会没有办法互相连接，会导致搭建失败</p>
 <h3 id="配置yum"><a href="#配置yum" class="headerlink" title="配置yum"></a>配置yum</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">yum clean all</span><br><span class="line">yum makecache</span><br><span class="line">yum install wget</span><br></pre></td></tr></table></figure>
-<h3 id="安装JDK"><a href="#安装JDK" class="headerlink" title="安装JDK"></a>安装JDK</h3><blockquote>
-<p>将jdk-8u131-linux-x64.rpm通过WinSCP上传到虚拟机中</p>
-</blockquote>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">scp -C -r jdk-8u131-linux-x64.rpm root@192.168.0.180:/root</span><br></pre></td></tr></table></figure>
+<h3 id="安装JDK"><a href="#安装JDK" class="headerlink" title="安装JDK"></a>安装JDK</h3><h4 id="将jdk-8u131-linux-x64-rpm通过WinSCP上传到虚拟机中"><a href="#将jdk-8u131-linux-x64-rpm通过WinSCP上传到虚拟机中" class="headerlink" title="将jdk-8u131-linux-x64.rpm通过WinSCP上传到虚拟机中"></a>将jdk-8u131-linux-x64.rpm通过WinSCP上传到虚拟机中</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">scp -C -r jdk-8u131-linux-x64.rpm root@192.168.56.180:/root</span><br></pre></td></tr></table></figure>
+<h4 id="安装JDK-1"><a href="#安装JDK-1" class="headerlink" title="安装JDK"></a>安装JDK</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rpm -ivh jdk-8u131-linux-x64.rpm</span><br></pre></td></tr></table></figure>
+<h4 id="配置jdk相关的环境变量"><a href="#配置jdk相关的环境变量" class="headerlink" title="配置jdk相关的环境变量"></a>配置jdk相关的环境变量</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@hadoop01 ~]<span class="comment"># vi .bashrc</span></span><br><span class="line"><span class="built_in">export</span> JAVA_HOME=/usr/java/latest</span><br><span class="line"><span class="built_in">export</span> PATH=<span class="variable">$PATH</span>:<span class="variable">$JAVA_HOME</span>/bin</span><br><span class="line">[root@hadoop01 ~]<span class="comment"># source .bashrc</span></span><br></pre></td></tr></table></figure>
+<h4 id="测试jdk安装是否成功"><a href="#测试jdk安装是否成功" class="headerlink" title="测试jdk安装是否成功"></a>测试jdk安装是否成功</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@hadoop01 ~]# java -version</span><br><span class="line">java version <span class="string">"1.8.0_131"</span></span><br><span class="line">Java(TM) <span class="function">SE Runtime <span class="title">Environment</span> <span class="params">(build <span class="number">1.8</span><span class="number">.0</span>_131-b11)</span></span></span><br><span class="line"><span class="function">Java <span class="title">HotSpot</span><span class="params">(TM)</span> 64-Bit Server <span class="title">VM</span> <span class="params">(build <span class="number">25.131</span>-b11, mixed mode)</span></span></span><br></pre></td></tr></table></figure>
+<h2 id="在另外4个虚拟机中安装CentOS集群"><a href="#在另外4个虚拟机中安装CentOS集群" class="headerlink" title="在另外4个虚拟机中安装CentOS集群"></a>在另外4个虚拟机中安装CentOS集群</h2><p>按照上述步骤，再安装四台一模一样环境的linux机器</p>
+<p>另外四台机器的hostname分别设置为hadoop02，hadoop03，hadoop04，hadoop05</p>
+<p>安装好之后，在每台机器的hosts文件里面，配置好所有的机器的ip地址到hostname的映射关系</p>
+<h3 id="在hadoop01的操作"><a href="#在hadoop01的操作" class="headerlink" title="在hadoop01的操作"></a>在hadoop01的操作</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@hadoop01 ~]<span class="comment"># vi /etc/hosts</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">192.168.56.180 hadoop01</span><br><span class="line">192.168.56.181 hadoop02</span><br><span class="line">192.168.56.182 hadoop03</span><br><span class="line">192.168.56.183 hadoop04</span><br><span class="line">192.168.56.184 hadoop05</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@hadoop01 ~]<span class="comment"># service network restart</span></span><br><span class="line">Restarting network (via systemctl):                        [  OK  ]</span><br></pre></td></tr></table></figure>
+<h3 id="在hadoop02操作"><a href="#在hadoop02操作" class="headerlink" title="在hadoop02操作"></a>在hadoop02操作</h3><h4 id="更改用户名"><a href="#更改用户名" class="headerlink" title="更改用户名"></a>更改用户名</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hostnamectl <span class="built_in">set</span>-hostname hadoop02</span><br></pre></td></tr></table></figure>
+<h4 id="更改ifcfg-enp0s3网卡静态IP"><a href="#更改ifcfg-enp0s3网卡静态IP" class="headerlink" title="更改ifcfg-enp0s3网卡静态IP"></a>更改ifcfg-enp0s3网卡静态IP</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/sysconfig/network-scripts/ifcfg-enp0s3</span><br></pre></td></tr></table></figure>
 <blockquote>
-<p>安装JDK</p>
+<p>修改IPADDR的同时，需要删除UUID</p>
 </blockquote>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rpm -ivh jdk-8u131-linux-x64.rpm</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">IPADDR=10.0.2.181</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">service network restart</span><br></pre></td></tr></table></figure>
+<h4 id="更改ifcfg-enp0s8网卡静态IP"><a href="#更改ifcfg-enp0s8网卡静态IP" class="headerlink" title="更改ifcfg-enp0s8网卡静态IP"></a>更改ifcfg-enp0s8网卡静态IP</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/sysconfig/network-scripts/ifcfg-enp0s8</span><br></pre></td></tr></table></figure>
 <blockquote>
-<p>配置jdk相关的环境变量</p>
+<p>修改IPADDR的同时，需要删除UUID</p>
 </blockquote>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@hadoop01 ~]<span class="comment"># vi .bashrc</span></span><br><span class="line"><span class="built_in">export</span> JAVA_HOME=/usr/java/latest</span><br><span class="line"><span class="built_in">export</span> PATH=<span class="variable">$PATH</span>:<span class="variable">$JAVA_HOME</span>/bin</span><br><span class="line">[root@hadoop01 ~]<span class="comment"># source .bashrc</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">IPADDR=192.168.56.181</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">service network restart</span><br></pre></td></tr></table></figure>
+<h3 id="在hadoop03操作"><a href="#在hadoop03操作" class="headerlink" title="在hadoop03操作"></a>在hadoop03操作</h3><h4 id="更改用户名-1"><a href="#更改用户名-1" class="headerlink" title="更改用户名"></a>更改用户名</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hostnamectl <span class="built_in">set</span>-hostname hadoop03</span><br></pre></td></tr></table></figure>
+<h4 id="更改ifcfg-enp0s3网卡静态IP-1"><a href="#更改ifcfg-enp0s3网卡静态IP-1" class="headerlink" title="更改ifcfg-enp0s3网卡静态IP"></a>更改ifcfg-enp0s3网卡静态IP</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/sysconfig/network-scripts/ifcfg-enp0s3</span><br></pre></td></tr></table></figure>
 <blockquote>
-<p>测试jdk安装是否成功</p>
+<p>修改IPADDR的同时，需要删除UUID</p>
 </blockquote>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -version</span><br></pre></td></tr></table></figure>
-<h2 id="在另外4个虚拟机中安装CentOS集群"><a href="#在另外4个虚拟机中安装CentOS集群" class="headerlink" title="在另外4个虚拟机中安装CentOS集群"></a>在另外4个虚拟机中安装CentOS集群</h2><p>按照上述步骤，再安装四台一模一样环境的linux机器<br>另外四台机器的hostname分别设置为hadoop02，hadoop03，hadoop04，hadoop05<br>安装好之后，在每台机器的hosts文件里面，配置好所有的机器的ip地址到hostname的映射关系</p>
-<p>比如说，在hadoop01的hosts里面</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">192.168.0.180 hadoop01</span><br><span class="line">192.168.0.181 hadoop02</span><br><span class="line">192.168.0.182 hadoop03</span><br><span class="line">192.168.0.183 hadoop04</span><br><span class="line">192.168.0.184 hadoop05</span><br></pre></td></tr></table></figure>
-<p>在hadoop02操作</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hostnamectl <span class="built_in">set</span>-hostname hadoop02</span><br></pre></td></tr></table></figure>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/sysconfig/network-scripts/ifcfg-enp0s3</span><br></pre></td></tr></table></figure>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">IPADDR=192.168.0.181</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">IPADDR=10.0.2.182</span><br></pre></td></tr></table></figure>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">service network restart</span><br></pre></td></tr></table></figure>
-<p>在hadoop03操作</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hostnamectl <span class="built_in">set</span>-hostname hadoop03</span><br></pre></td></tr></table></figure>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/sysconfig/network-scripts/ifcfg-enp0s3</span><br></pre></td></tr></table></figure>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">IPADDR=192.168.0.182</span><br></pre></td></tr></table></figure>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">service network restart</span><br></pre></td></tr></table></figure>
-<p>在hadoop04操作</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hostnamectl <span class="built_in">set</span>-hostname hadoop04</span><br></pre></td></tr></table></figure>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/sysconfig/network-scripts/ifcfg-enp0s3</span><br></pre></td></tr></table></figure>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">IPADDR=192.168.0.183</span><br></pre></td></tr></table></figure>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">service network restart</span><br></pre></td></tr></table></figure>
-<p>在hadoop05操作</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hostnamectl <span class="built_in">set</span>-hostname hadoop05</span><br></pre></td></tr></table></figure>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/sysconfig/network-scripts/ifcfg-enp0s3</span><br></pre></td></tr></table></figure>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">IPADDR=192.168.0.184</span><br></pre></td></tr></table></figure>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">service network restart</span><br></pre></td></tr></table></figure>
+<h4 id="更改ifcfg-enp0s8网卡静态IP-1"><a href="#更改ifcfg-enp0s8网卡静态IP-1" class="headerlink" title="更改ifcfg-enp0s8网卡静态IP"></a>更改ifcfg-enp0s8网卡静态IP</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/sysconfig/network-scripts/ifcfg-enp0s8</span><br></pre></td></tr></table></figure>
 <blockquote>
-<p>连接5台虚拟机</p>
+<p>修改IPADDR的同时，需要删除UUID</p>
 </blockquote>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh root@192.168.0.180</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">IPADDR=192.168.56.182</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">service network restart</span><br></pre></td></tr></table></figure>
+<h3 id="在hadoop04操作"><a href="#在hadoop04操作" class="headerlink" title="在hadoop04操作"></a>在hadoop04操作</h3><h4 id="更改用户名-2"><a href="#更改用户名-2" class="headerlink" title="更改用户名"></a>更改用户名</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hostnamectl <span class="built_in">set</span>-hostname hadoop04</span><br></pre></td></tr></table></figure>
+<h4 id="更改ifcfg-enp0s3网卡静态IP-2"><a href="#更改ifcfg-enp0s3网卡静态IP-2" class="headerlink" title="更改ifcfg-enp0s3网卡静态IP"></a>更改ifcfg-enp0s3网卡静态IP</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/sysconfig/network-scripts/ifcfg-enp0s3</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>修改IPADDR的同时，需要删除UUID</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">IPADDR=10.0.2.183</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">service network restart</span><br></pre></td></tr></table></figure>
+<h4 id="更改ifcfg-enp0s8网卡静态IP-2"><a href="#更改ifcfg-enp0s8网卡静态IP-2" class="headerlink" title="更改ifcfg-enp0s8网卡静态IP"></a>更改ifcfg-enp0s8网卡静态IP</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/sysconfig/network-scripts/ifcfg-enp0s8</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>修改IPADDR的同时，需要删除UUID</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">IPADDR=192.168.56.183</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">service network restart</span><br></pre></td></tr></table></figure>
+<h3 id="在hadoop05操作"><a href="#在hadoop05操作" class="headerlink" title="在hadoop05操作"></a>在hadoop05操作</h3><h4 id="更改用户名-3"><a href="#更改用户名-3" class="headerlink" title="更改用户名"></a>更改用户名</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hostnamectl <span class="built_in">set</span>-hostname hadoop05</span><br></pre></td></tr></table></figure>
+<h4 id="更改ifcfg-enp0s3网卡静态IP-3"><a href="#更改ifcfg-enp0s3网卡静态IP-3" class="headerlink" title="更改ifcfg-enp0s3网卡静态IP"></a>更改ifcfg-enp0s3网卡静态IP</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/sysconfig/network-scripts/ifcfg-enp0s3</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>修改IPADDR的同时，需要删除UUID</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">IPADDR=10.0.2.184</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">service network restart</span><br></pre></td></tr></table></figure>
+<h4 id="更改ifcfg-enp0s8网卡静态IP-3"><a href="#更改ifcfg-enp0s8网卡静态IP-3" class="headerlink" title="更改ifcfg-enp0s8网卡静态IP"></a>更改ifcfg-enp0s8网卡静态IP</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/sysconfig/network-scripts/ifcfg-enp0s8</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>修改IPADDR的同时，需要删除UUID</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">IPADDR=192.168.56.184</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">service network restart</span><br></pre></td></tr></table></figure>
+<h3 id="连接5台虚拟机"><a href="#连接5台虚拟机" class="headerlink" title="连接5台虚拟机"></a>连接5台虚拟机</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh root@192.168.0.180</span><br></pre></td></tr></table></figure>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh root@192.168.0.181</span><br></pre></td></tr></table></figure>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh root@192.168.0.182</span><br></pre></td></tr></table></figure>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh root@192.168.0.183</span><br></pre></td></tr></table></figure>
