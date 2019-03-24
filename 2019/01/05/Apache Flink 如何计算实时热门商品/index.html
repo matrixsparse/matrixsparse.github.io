@@ -220,18 +220,18 @@
 <p>目录</p>
 </blockquote>
 <!-- TOC -->
-<ul>
-<li><a href="#apache-flink-实验-如何计算实时热门商品">Apache Flink 实验: 如何计算实时热门商品</a><ul>
+<ol>
+<li><a href="#apache-flink-实验-如何计算实时热门商品">Apache Flink 实验: 如何计算实时热门商品</a><ol>
 <li><a href="#本实验目标">本实验目标</a></li>
 <li><a href="#实验案例介绍">实验案例介绍</a></li>
 <li><a href="#数据准备">数据准备</a></li>
-<li><a href="#编写程序">编写程序</a><ul>
+<li><a href="#编写程序">编写程序</a><ol>
 <li><a href="#创建模拟数据源">创建模拟数据源</a></li>
-</ul>
+</ol>
 </li>
-</ul>
+</ol>
 </li>
-</ul>
+</ol>
 <!-- /TOC -->
 <h2 id="本实验目标"><a href="#本实验目标" class="headerlink" title="本实验目标"></a>本实验目标</h2><ul>
 <li>如何基于 EventTime 处理，如何指定 Watermark</li>
@@ -248,10 +248,6 @@
 <li>按每个窗口聚合，输出每个窗口中点击量前 N 名的商品</li>
 </ul>
 <h2 id="数据准备"><a href="#数据准备" class="headerlink" title="数据准备"></a>数据准备</h2><p>这里我们准备了一份淘宝用户行为数据集(来自阿里云天池公开数据集，特别感谢)。本数据集 包含了淘宝上某一天随机一百万用户的所有行为(包括点击、购买、加购、收藏)。数据集的组 织形式和 MovieLens-20M 类似，即数据集的每一行表示一条用户行为，由用户 ID、商品 ID、商 品类目 ID、行为类型和时间戳组成，并以逗号分隔。关于数据集中每一列的详细描述如下:</p>
-<p><html></html></p>
-<p><head><meta name="generator" content="Hexo 3.8.0"></head></p>
-<p><style><br></style><br></p>
-<p><body></body></p>
 <table><br>  <tr><br>    <th>列名称</th><br>    <th>说明</th><br>  </tr><br>  <tr><br>    <td>用户ID</td><br>    <td>整数类型，加密后的用户ID</td><br>  </tr><br>   <tr><br>    <td>商品ID</td><br>    <td>整数类型，加密后的商品ID</td><br>  </tr><br>   <tr><br>    <td>商品类目ID</td><br>    <td>整数类型，加密后的商品所属类目ID</td><br>  </tr><br>   <tr><br>    <td>行为类型</td><br>    <td>字符串，枚举类型，包括(‘pv’,’buy’,’cart’,’fav’)</td><br>  </tr><br>   <tr><br>    <td>时间戳</td><br>    <td>行为发生的时间戳，单位秒</td><br>  </tr><br></table>
 
 <p>你可以通过下面的命令下载数据集到项目的 resources 目录下:</p>
@@ -276,7 +272,7 @@
         <blockquote>
         
         
-          本文作者 : Matrix <br/>
+          本文作者 : Matrix <br>
         
         原文链接 : <a href="">https://matrixsparse.github.io/2019/01/05/Apache Flink 如何计算实时热门商品/</a><br>
         版权声明 : 本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
