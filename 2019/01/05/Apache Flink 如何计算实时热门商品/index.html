@@ -248,8 +248,36 @@
 <li>按每个窗口聚合，输出每个窗口中点击量前 N 名的商品</li>
 </ul>
 <h2 id="数据准备"><a href="#数据准备" class="headerlink" title="数据准备"></a>数据准备</h2><p>这里我们准备了一份淘宝用户行为数据集(来自阿里云天池公开数据集，特别感谢)。本数据集 包含了淘宝上某一天随机一百万用户的所有行为(包括点击、购买、加购、收藏)。数据集的组 织形式和 MovieLens-20M 类似，即数据集的每一行表示一条用户行为，由用户 ID、商品 ID、商 品类目 ID、行为类型和时间戳组成，并以逗号分隔。关于数据集中每一列的详细描述如下:</p>
-<table><br>  <tr><br>    <th>列名称</th><br>    <th>说明</th><br>  </tr><br>  <tr><br>    <td>用户ID</td><br>    <td>整数类型，加密后的用户ID</td><br>  </tr><br>   <tr><br>    <td>商品ID</td><br>    <td>整数类型，加密后的商品ID</td><br>  </tr><br>   <tr><br>    <td>商品类目ID</td><br>    <td>整数类型，加密后的商品所属类目ID</td><br>  </tr><br>   <tr><br>    <td>行为类型</td><br>    <td>字符串，枚举类型，包括(‘pv’,’buy’,’cart’,’fav’)</td><br>  </tr><br>   <tr><br>    <td>时间戳</td><br>    <td>行为发生的时间戳，单位秒</td><br>  </tr><br></table>
-
+<table>
+<thead>
+<tr>
+<th style="text-align:center">列名称</th>
+<th style="text-align:center">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">用户ID</td>
+<td style="text-align:center">整数类型，加密后的用户ID</td>
+</tr>
+<tr>
+<td style="text-align:center">商品ID</td>
+<td style="text-align:center">整数类型，加密后的商品ID</td>
+</tr>
+<tr>
+<td style="text-align:center">商品类目ID</td>
+<td style="text-align:center">整数类型，加密后的商品所属类目ID</td>
+</tr>
+<tr>
+<td style="text-align:center">行为类型</td>
+<td style="text-align:center">字符串，枚举类型，包括(‘pv’,’buy’,’cart’,’fav’)</td>
+</tr>
+<tr>
+<td style="text-align:center">时间戳</td>
+<td style="text-align:center">行为发生的时间戳，单位秒</td>
+</tr>
+</tbody>
+</table>
 <p>你可以通过下面的命令下载数据集到项目的 resources 目录下:</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">bash</span><br><span class="line">sparsematrix:flink-demo matrix$ <span class="built_in">cd</span> src/main/resources/</span><br><span class="line">wget https://raw.githubusercontent.com/wuchong/my-flink-project/master/src/main/resources/UserBehavior.csv &gt; UserBehavior.csv</span><br></pre></td></tr></table></figure>
 <p>这里是否使用 curl 命令下载数据并不重要，你也可以使用 wget 命令或者直接访问链接下载 数据。关键是，将数据文件保存到项目的 resources 目录下，方便应用程序访问。</p>
